@@ -1,38 +1,24 @@
-# marimo WebAssembly + GitHub Pages Template
+# Econometrics (ECON 3300)
 
-This template repository demonstrates how to export [marimo](https://marimo.io) notebooks to WebAssembly and deploy them to GitHub Pages.
-
-## 📚 Included Examples
-
-- `apps/charts.py`: Interactive data visualization with Altair
-- `notebooks/fibonacci.py`: Interactive Fibonacci sequence calculator
-- `notebooks/penguins.py`: Interactive data analysis with Polars and marimo
+Course materials and interactive [marimo](https://marimo.io) notebooks for ECON 3300 Econometrics, exported to WebAssembly and deployed to GitHub Pages.
 
 ## 🚀 Usage
 
-1. Fork this repository
-2. Add your marimo files to the `notebooks/` or `apps/` directory
+1. Add marimo notebooks to the `notebooks/` or `apps/` directory
    1. `notebooks/` notebooks are exported with `--mode edit`
    2. `apps/` notebooks are exported with `--mode run`
-3. Push to main branch
-4. Go to repository **Settings > Pages** and change the "Source" dropdown to "GitHub Actions"
-5. GitHub Actions will automatically build and deploy to Pages
+2. Push to main branch
+3. GitHub Actions will automatically build and deploy to Pages
+
+The course site is deployed via GitHub Pages from the `Settings > Pages` "GitHub Actions" source.
 
 ## Including data or assets
 
-To include data or assets in your notebooks, add them to the `public/` directory.
-
-For example, the `apps/charts.py` notebook loads an image asset from the `public/` directory.
-
-```markdown
-<img src="public/logo.png" width="200" />
-```
-
-And the `notebooks/penguins.py` notebook loads a CSV dataset from the `public/` directory.
+To include data or assets in your notebooks, add them to the `public/` directory and load them via:
 
 ```python
 import polars as pl
-df = pl.read_csv(mo.notebook_location() / "public" / "penguins.csv")
+df = pl.read_csv(mo.notebook_location() / "public" / "dataset.csv")
 ```
 
 ## 🎨 Templates
@@ -40,8 +26,7 @@ df = pl.read_csv(mo.notebook_location() / "public" / "penguins.csv")
 This repository includes several templates for the generated site:
 
 1. `index.html.j2` (default): A template with styling and a footer
-2. `bare.html.j2`: A minimal template with basic styling
-3. `tailwind.html.j2`: A minimal and lean template using Tailwind CSS
+2. `tailwind.html.j2`: A minimal and lean template using Tailwind CSS
 
 To use a specific template, pass the `--template` parameter to the build script:
 
@@ -49,17 +34,17 @@ To use a specific template, pass the `--template` parameter to the build script:
 uv run .github/scripts/build.py --template templates/tailwind.html.j2
 ```
 
-You can also create your own custom templates. See the [templates/README.md](templates/README.md) for more information.
+See [templates/README.md](templates/README.md) for more information on customizing templates.
 
 ## 🧪 Testing
 
-To test the export process, run `.github/scripts/build.py` from the root directory.
+To test the export process locally, run `.github/scripts/build.py` from the root directory:
 
 ```bash
 uv run .github/scripts/build.py
 ```
 
-This will export all notebooks in a folder called `_site/` in the root directory. Then to serve the site, run:
+This will export all notebooks to a `_site/` folder. Then to serve the site:
 
 ```bash
 python -m http.server -d _site
