@@ -1,0 +1,286 @@
+"""
+Build script for marimo notebooks.
+
+This script uses notebooks/ as the single source of truth.
+
+Each marimo notebook in notebooks/ is exported twice:
+    1. As an editable notebook in _site/notebooks/
+    2. As a read-only app in _site/apps/
+
+The script also generates an index.html file that lists both versions.
+"""
+
+# /// script
+# requires-python = ">=3.12"
+# dependencies = [
+#     "jinja2==3.1.3",
+#     "fire==0.7.0",
+#     "loguru==0.7.0"
+# ]
+# ///
+
+import ast
+import shutil
+import subprocess
+from typing import List, Optional, Union
+from pathlib import Path
+
+import jinja2
+import fire
+
+from loguru import logger
+
+
+def _parse_notebook(notebook_path: Path) -> Optional[ast.Module]:
+    try:
+        return ast.parse(notebook_path.read_text(encoding="utf-8"))
+    except (OSError, SyntaxError) as e:
+        logger.warning(f"Could not parse {notebook_path}: {e}")
+        return None
+
+
+def _extract_app_title(notebook_path: Path) -> Optional[str]:
+    """Return the app_title from a notebook's marimo.App(...) call, if set."""
+    tree = _parse_notebook(notebook_path)
+    if tree is None:
+        return None
+
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        func = node.func
+        if not (isinstance(func, ast.Attribute) and func.attr == "App"):
+            continue
+        for kw in node.keywords:
+            if (
+                kw.arg == "app_title"
+                and isinstance(kw.value, ast.Constant)
+                and isinstance(kw.value.value, str)
+            ):
+                return kw.value.value
+    return None
+
+
+def _extract_description(notebook_path: Path) -> Optional[str]:
+    """Return the value of a module-level `__description__ = "..."` assignment."""
+    tree = _parse_notebook(notebook_path)
+    if tree is None:
+        return None
+
+    for node in tree.body:
+        if not isinstance(node, ast.Assign):
+            continue
+        for target in node.targets:
+            if (
+                isinstance(target, ast.Name)
+                and target.id == "__description__"
+                and isinstance(node.value, ast.Constant)
+                and isinstance(node.value.value, str)
+            ):
+                return node.value.value
+    return None
+
+
+def _export_html_wasm(
+    notebook_path: Path,
+    output_file: Path,
+    as_app: bool = False,
+) -> bool:
+    """Export a single marimo notebook to HTML/WebAssembly format."""
+
+    cmd: List[str] = ["uvx", "marimo", "export", "html-wasm", "--sandbox"]
+
+    if as_app:
+        logger.info(f"Exporting {notebook_path} to {output_file} as app")
+        cmd.extend(["--mode", "run", "--no-show-code"])
+    else:
+        logger.info(f"Exporting {notebook_path} to {output_file} as editable notebook")
+        cmd.extend(["--mode", "edit"])
+
+    try:
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+
+        # Run from the notebook's directory so marimo resolves `css_file=`
+        # (and any other notebook-relative paths) against that folder. We pass
+        # absolute paths for the notebook and the output to keep the rest of
+        # the build's path semantics intact.
+        notebook_abs = notebook_path.resolve()
+        output_abs = output_file.resolve()
+        cmd.extend([str(notebook_abs), "-o", str(output_abs)])
+
+        logger.debug(f"Running command: {cmd} (cwd={notebook_abs.parent})")
+        subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            check=True,
+            cwd=notebook_abs.parent,
+        )
+
+        logger.info(f"Successfully exported {notebook_path}")
+        return True
+
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Error exporting {notebook_path}:")
+        logger.error(f"Command output: {e.stderr}")
+        return False
+
+    except Exception as e:
+        logger.error(f"Unexpected error exporting {notebook_path}: {e}")
+        return False
+
+
+def _generate_index(
+    output_dir: Path,
+    template_file: Path,
+    notebooks_data: List[dict] | None = None,
+    apps_data: List[dict] | None = None,
+) -> None:
+    """Generate an index.html file that lists all exported notebooks and apps."""
+
+    logger.info("Generating index.html")
+
+    index_path: Path = output_dir / "index.html"
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    try:
+        template_dir = template_file.parent
+        template_name = template_file.name
+
+        env = jinja2.Environment(
+            loader=jinja2.FileSystemLoader(template_dir),
+            autoescape=jinja2.select_autoescape(["html", "xml"]),
+        )
+
+        template = env.get_template(template_name)
+        rendered_html = template.render(notebooks=notebooks_data, apps=apps_data)
+
+        with open(index_path, "w") as f:
+            f.write(rendered_html)
+
+        logger.info(f"Successfully generated index.html at {index_path}")
+
+    except IOError as e:
+        logger.error(f"Error generating index.html: {e}")
+
+    except jinja2.exceptions.TemplateError as e:
+        logger.error(f"Error rendering template: {e}")
+
+
+def _export_from_notebooks(
+    source_folder: Path,
+    output_dir: Path,
+    as_app: bool = False,
+) -> List[dict]:
+    """Export all marimo notebooks from notebooks/ either as apps or editable notebooks.
+
+    Source files always live in notebooks/.
+
+    Editable notebooks are written to:
+        _site/notebooks/<name>.html
+
+    Apps are written to:
+        _site/apps/<name>.html
+    """
+
+    if not source_folder.exists():
+        logger.warning(f"Directory not found: {source_folder}")
+        return []
+
+    notebooks = list(source_folder.rglob("*.py"))
+    logger.debug(f"Found {len(notebooks)} Python files in {source_folder}")
+
+    if not notebooks:
+        logger.warning(f"No notebooks found in {source_folder}!")
+        return []
+
+    notebook_data = []
+
+    output_subfolder = "apps" if as_app else "notebooks"
+
+    for nb in notebooks:
+        relative_path = nb.relative_to(source_folder).with_suffix(".html")
+        html_path = Path(output_subfolder) / relative_path
+        output_file = output_dir / html_path
+
+        success = _export_html_wasm(
+            notebook_path=nb,
+            output_file=output_file,
+            as_app=as_app,
+        )
+
+        if success:
+            display_name = _extract_app_title(nb) or nb.stem.replace("_", " ").title()
+            notebook_data.append(
+                {
+                    "display_name": display_name,
+                    "description": _extract_description(nb),
+                    "html_path": str(html_path),
+                }
+            )
+
+    logger.info(
+        f"Successfully exported {len(notebook_data)} out of {len(notebooks)} files "
+        f"from {source_folder} as {'apps' if as_app else 'editable notebooks'}"
+    )
+
+    return notebook_data
+
+
+def main(
+    output_dir: Union[str, Path] = "_site",
+    template: Union[str, Path] = "templates/tailwind.html.j2",
+) -> None:
+    """Main function to export marimo notebooks."""
+
+    logger.info("Starting marimo build process")
+
+    output_dir = Path(output_dir)
+    logger.info(f"Output directory: {output_dir}")
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    template_file = Path(template)
+    logger.info(f"Using template file: {template_file}")
+
+    source_folder = Path("notebooks")
+
+    # Export each source notebook once as an editable notebook.
+    notebooks_data = _export_from_notebooks(
+        source_folder=source_folder,
+        output_dir=output_dir,
+        as_app=False,
+    )
+
+    # Export each source notebook again as a clean app.
+    apps_data = _export_from_notebooks(
+        source_folder=source_folder,
+        output_dir=output_dir,
+        as_app=True,
+    )
+
+    if not notebooks_data and not apps_data:
+        logger.warning("No notebooks found!")
+        return
+
+    _generate_index(
+        output_dir=output_dir,
+        notebooks_data=notebooks_data,
+        apps_data=apps_data,
+        template_file=template_file,
+    )
+
+    # Copy any static assets sitting next to the template (e.g. the LMU shield
+    # watermark) into the site root so the rendered index.html can reference
+    # them with relative paths.
+    static_dir = template_file.parent / "static"
+    if static_dir.exists():
+        for asset in static_dir.iterdir():
+            if asset.is_file():
+                shutil.copy2(asset, output_dir / asset.name)
+                logger.info(f"Copied static asset {asset.name} to {output_dir}")
+
+    logger.info(f"Build completed successfully. Output directory: {output_dir}")
+
+
+if __name__ == "__main__":
+    fire.Fire(main)

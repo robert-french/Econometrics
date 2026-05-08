@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- EDIT THIS -->
+  <title>Computational Economics</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-50 text-slate-900 font-sans">
+
+  <!-- Faint LMU shield watermark behind page content -->
+  <div
+    aria-hidden="true"
+    class="pointer-events-none fixed inset-0 -z-10 flex items-center justify-center"
+  >
+    <img
+      src="LMU_SquareOrig.png"
+      alt=""
+      class="w-[640px] max-w-[80vw] opacity-[0.06]"
+    />
+  </div>
+
+  <main class="relative max-w-6xl mx-auto px-6 py-12">
+
+    <!-- ========================================================= -->
+    <!-- HEADER                                                    -->
+    <!-- Edit this section to change the top of the course website -->
+    <!-- ========================================================= -->
+
+    <header class="mb-12">
+      <p class="text-sm font-semibold tracking-wide uppercase text-slate-500">
+        ECON 4998
+      </p>
+
+      <h1 class="mt-3 text-4xl md:text-5xl font-bold tracking-tight">
+        Computational Economics
+      </h1>
+
+      <p class="mt-5 max-w-3xl text-lg leading-8 text-slate-600">
+        Interactive notebooks for dynamic programming, structural estimation,
+        and applied microeconomics.
+      </p>
+    </header>
+
+
+    <!-- ========================================================= -->
+    <!-- NOTEBOOK CARDS                                            -->
+    <!-- These cards are generated automatically from your notebooks -->
+    <!-- ========================================================= -->
+
+    {% if apps %}
+    <section>
+      <div class="flex items-end justify-between gap-4 mb-6">
+        <div>
+          <h2 class="text-2xl font-semibold">
+            Lecture notebooks
+          </h2>
+
+          <p class="mt-2 text-slate-600">
+            Each notebook can be opened as a clean app or as an editable notebook.
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        {% for app in apps %}
+          {% set matching_notebook = notebooks | selectattr("display_name", "equalto", app.display_name) | list | first %}
+
+          <article class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+
+            <p class="text-sm font-medium text-slate-500 mb-2">
+              Notebook
+            </p>
+
+            <h3 class="text-xl font-semibold leading-snug">
+              {{ app.display_name }}
+            </h3>
+
+            <p class="mt-3 text-slate-600 leading-7">
+              {{ app.description or "View the polished version for lecture, or open the editable version to experiment with the code." }}
+            </p>
+
+            <div class="mt-6 flex flex-wrap gap-3">
+
+              <a
+                href="{{ app.html_path }}"
+                class="inline-flex items-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
+              >
+                View as app
+              </a>
+
+              {% if matching_notebook %}
+              <a
+                href="{{ matching_notebook.html_path }}"
+                class="inline-flex items-center rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
+              >
+                Open editable notebook
+              </a>
+              {% endif %}
+
+            </div>
+
+          </article>
+        {% endfor %}
+
+      </div>
+    </section>
+    {% endif %}
+
+
+    <!-- ========================================================= -->
+    <!-- FALLBACK SECTION                                          -->
+    <!-- This appears only if editable notebooks exist without apps -->
+    <!-- You can leave this alone                                  -->
+    <!-- ========================================================= -->
+
+    {% if notebooks and not apps %}
+    <section>
+      <h2 class="text-2xl font-semibold mb-6">
+        Lecture notebooks
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        {% for notebook in notebooks %}
+        <article class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+
+          <h3 class="text-xl font-semibold leading-snug">
+            {{ notebook.display_name }}
+          </h3>
+
+          <p class="mt-3 text-slate-600 leading-7">
+            {{ notebook.description or "Open this editable notebook in your browser." }}
+          </p>
+
+          <div class="mt-6">
+            <a
+              href="{{ notebook.html_path }}"
+              class="inline-flex items-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
+            >
+              Open notebook
+            </a>
+          </div>
+
+        </article>
+        {% endfor %}
+
+      </div>
+    </section>
+    {% endif %}
+
+
+    <!-- ========================================================= -->
+    <!-- EMPTY STATE                                               -->
+    <!-- This appears if no notebooks were found                   -->
+    <!-- ========================================================= -->
+
+    {% if not notebooks and not apps %}
+    <section class="bg-white border border-slate-200 rounded-2xl shadow-sm p-8">
+      <h2 class="text-2xl font-semibold">
+        No notebooks found
+      </h2>
+
+      <p class="mt-3 text-slate-600">
+        Add marimo notebooks to the notebooks folder, then push your changes to GitHub.
+      </p>
+    </section>
+    {% endif %}
+
+
+    <!-- ========================================================= -->
+    <!-- FOOTER                                                    -->
+    <!-- Edit this section to change the bottom of the website      -->
+    <!-- ========================================================= -->
+
+    <footer class="mt-16 pt-8 border-t border-slate-200 text-sm text-slate-500">
+      <p>
+        Built with marimo notebooks and GitHub Pages.
+      </p>
+    </footer>
+
+  </main>
+
+</body>
+</html>
