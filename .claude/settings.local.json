@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(uvx --version)",
-      "Bash(uv --version)",
-      "Bash(uvx marimo *)"
-    ]
-  }
-}
