@@ -111,7 +111,7 @@ def _(mo):
     A few ways economists use the toolkit:
 
     - **Test economic theories.** Does the law of supply and demand hold for a particular good? Do consumers really equate marginal utility per dollar across goods?
-    - **Forecast** future values of economic outcomes — GDP next year, unemployment next month, the price of electricity tomorrow.
+    - **Forecast** future values of economic outcomes, such as GDP next year, unemployment next month, or electricity prices tomorrow.
     - **Apply mathematical models to real data.** How do interest-rate increases pass through to the stock market or to mortgage demand?
     - **Make quantitative policy recommendations.** How much would poverty change if the federal minimum wage rose to \$15? How many fewer cars would be sold under a carbon tax?
 
@@ -146,9 +146,9 @@ def _(mo):
     - How does an extra year of education affect earnings?
     - How does cutting class size by five students affect test scores?
 
-    The phrasing is similar but the bar is much higher. A causal analysis tries to estimate how a change in $X$ would change $Y$ *holding all other factors constant*. That italicised phrase is doing a lot of work. It says: imagine intervening on a single individual or unit, changing only their value of $X$, and watching $Y$ respond — leaving everything else exactly as it was. Most of the difficulties in econometrics come from the fact that we almost never observe such a clean intervention; we only observe data where many things vary at once.
+    The phrasing is similar but the bar is much higher. A causal analysis tries to estimate how a change in $X$ would change $Y$ *holding all other factors constant*. That italicised phrase is doing a lot of work. It says: imagine intervening on a single individual or unit, changing only their value of $X$ and watching $Y$ respond, with everything else held fixed. Most of the difficulties in econometrics come from the fact that we almost never observe such a clean intervention; we only observe data where many things vary at once.
 
-    This class focuses primarily on causal questions, but we'll spend real time on descriptive analysis too — partly because clear description is a prerequisite for honest causal claims.
+    This class focuses primarily on causal questions, but we'll spend real time on descriptive analysis too, partly because clear description is a prerequisite for honest causal claims.
     """)
     return
 
@@ -198,7 +198,7 @@ def _(mo):
     mo.md(r"""
     The pattern is clear: people with more education earn more. So is the answer to "does education raise earnings?" simply *yes, by a lot*?
 
-    Not so fast. The chart shows an **association** between education and earnings, not a **causal effect**. The people in the "Bachelor's" bar are not the same people as those in the "High school diploma" bar with four extra years of school added on. They differ in many other ways — family background, ability, occupation, where they live — and any of those differences could be doing some of the work that we're crediting to education. The next section is about exactly this problem.
+    Not so fast. The chart shows an **association** between education and earnings, not a **causal effect**. The people in the "Bachelor's" bar are not the same people as those in the "High school diploma" bar with four extra years of school added on. They differ in many other ways (family background, ability, occupation, where they live), and any of those differences could be doing some of the work we're crediting to education. The next section is about exactly this problem.
     """)
     return
 
@@ -215,7 +215,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    Two recurring threats stand between an interesting association and a credible causal effect.
+    Two threats turn up again and again when we try to move from association to causal effect.
 
     **Omitted variable bias.** Some unobserved third variable, $Z$, drives both $X$ and $Y$. If we ignore $Z$, the simple relationship between $X$ and $Y$ mixes up the true effect of $X$ on $Y$ with the effect of $Z$. Family income is a classic suspect for the education–earnings question: children from higher-income families tend to get more education *and* tend to earn more later in life for reasons unrelated to their schooling.
 
@@ -231,7 +231,7 @@ def _(mo):
     mo.md(r"""
     ### A small numerical illustration of omitted variable bias
 
-    To make this concrete, let's simulate a world in which we know the true causal effect — and then watch a naive analysis get the wrong answer.
+    To make this concrete, let's simulate a world in which we know the true causal effect, and then watch a naive analysis get the wrong answer.
 
     Suppose family income causes both education and earnings, while education *also* causes earnings:
 
@@ -272,7 +272,7 @@ def _(controlled_slope, mo, naive_slope):
 
     The naive slope is biased upward because family income lurks behind both education and earnings: students with richer parents end up with more education *and* more earnings, so a regression that ignores income gives education credit for some of income's effect. Adding income as a control roughly recovers the true effect.
 
-    The plot below shows the same intuition visually. The orange line is the naive fit; the cloud of points is colour-coded by income tertile. Within any single tertile, the slope is much closer to the true effect — pointing at exactly the bias that omitted variables introduce.
+    The plot below shows the same intuition visually. The orange line is the naive fit; the cloud of points is colour-coded by income tertile. Within any single tertile the slope is much closer to the true effect, which is exactly the bias omitted variables introduce.
     """)
     return
 
@@ -307,7 +307,7 @@ def _(alt, mo, pd, sim):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    Reverse causality is harder to demonstrate cleanly with one regression and we won't simulate it here, but the intuition is symmetric: if higher earnings let people afford more schooling — perhaps by funding graduate degrees — then a simple regression of earnings on education is again recovering a mixture of two arrows, not the single arrow we wanted.
+    Reverse causality is harder to demonstrate cleanly with one regression and we won't simulate it here, but the intuition is symmetric: if higher earnings let people afford more schooling (perhaps by funding graduate degrees), then a simple regression of earnings on education is again recovering a mixture of two arrows, not the single arrow we wanted.
 
     Most of this class is about the tools economists use to defend against omitted variable bias and reverse causality: control variables, panel data, instrumental variables, randomised experiments, and quasi-experiments.
     """)
@@ -326,9 +326,9 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    A research question is almost always about a **population of interest** — the full group we want to learn about. "How does education affect earnings?" might really mean *all U.S. workers age 25 and over*, or *low-income Americans*, or *first-generation college students in California*. The population is conceptual; we usually cannot observe all of it.
+    A research question is almost always about a **population of interest**: the full group we want to learn about. "How does education affect earnings?" might really mean *all U.S. workers age 25 and over*, or *low-income Americans*, or *first-generation college students in California*. The population is conceptual; we usually cannot observe all of it.
 
-    What we *can* observe is a **sample**: a finite subset of the population that ends up in our dataset. Everything we know about the population comes through the sample. **Statistical inference** is the discipline of using the sample to make calibrated statements about the population — point estimates, confidence intervals, hypothesis tests — while honestly accounting for the fact that a different sample would have given somewhat different answers.
+    What we *can* observe is a **sample**: a finite subset of the population that ends up in our dataset. Everything we know about the population comes through the sample. **Statistical inference** is the discipline of using the sample to make calibrated statements about the population (point estimates, confidence intervals, hypothesis tests), while accounting for the fact that a different sample would have given somewhat different answers.
 
     A small simulation makes the relationship between population and sample concrete. Suppose the population's true mean weekly earnings is \$1,170 (the BLS overall figure). Imagine drawing 200 independent samples of 50 workers each from that population and computing the sample mean of each one.
     """)
@@ -375,7 +375,7 @@ def _(alt, mo, pop_mean, sample_means, sample_size):
         mo.md(
             f"The orange line is the true population mean (\\${pop_mean:,}). "
             f"The bars show the spread of sample means across the {n_draws} repeated draws. "
-            "Each individual sample is wrong by some amount; the *distribution* of those errors is what statistical inference describes — and what lets us turn one sample into a calibrated claim about the population."
+            "Each individual sample is wrong by some amount; the *distribution* of those errors is what statistical inference describes, and what lets us turn one sample into a calibrated claim about the population."
         ),
     ])
     return
@@ -395,7 +395,7 @@ def _(mo):
     mo.md(r"""
     Econometricians work with two broad kinds of data, distinguished by how they were generated.
 
-    **Primary data** are collected by the researcher — typically through experiments, surveys, or interviews designed for the question at hand. Lab and field experiments are the cleanest setting for causal inference because the researcher controls who receives the treatment.
+    **Primary data** are collected by the researcher, typically through experiments, surveys, or interviews designed for the question at hand. Lab and field experiments are the cleanest setting for causal inference because the researcher controls who receives the treatment.
 
     **Observational data** (sometimes called *secondary* data) record behaviour from real-world, non-experimental settings. Most data economists touch falls in this bucket. Observational datasets come in three shapes, and the shape determines what kinds of questions are answerable.
     """)
@@ -411,7 +411,7 @@ def _(mo, pd):
         "earnings": [42_000, 71_000, 58_000, 95_000],
     })
     mo.vstack([
-        mo.md("**Cross-sectional data** — many entities, single point in time. Example: the Demographic and Health Survey of Mexico (1987)."),
+        mo.md("**Cross-sectional data**: many entities at a single point in time. Example: the Demographic and Health Survey of Mexico (1987)."),
         cross_section,
     ])
     return
@@ -425,7 +425,7 @@ def _(mo, pd):
         "unemployment_rate": [8.1, 5.4, 3.6, 3.7],
     })
     mo.vstack([
-        mo.md("**Time-series data** — one entity tracked over many time periods. Example: BLS monthly unemployment rate."),
+        mo.md("**Time-series data**: one entity tracked over many time periods. Example: the BLS monthly unemployment rate."),
         time_series,
     ])
     return
@@ -440,11 +440,11 @@ def _(mo, pd):
         "earnings": [40_000, 44_000, 70_000, 73_000, 56_000, 60_000],
     })
     mo.vstack([
-        mo.md("**Panel (longitudinal) data** — many entities, each observed over many time periods. Examples: the PSID, the National Longitudinal Surveys."),
+        mo.md("**Panel (longitudinal) data**: many entities, each observed over many time periods. Examples: the PSID, the National Longitudinal Surveys."),
         panel,
         mo.md(
             "Panel data are especially valuable for causal inference because we can see the *same* person change over time, "
-            "letting us strip out fixed characteristics of that person that would otherwise act as omitted variables."
+            "which lets us strip out fixed characteristics of that person that would otherwise act as omitted variables."
         ),
     ])
     return
@@ -477,9 +477,9 @@ def _(mo, pd):
             "Firms that spend more on R&D file more patents.",
         ],
         "Why simple causal reading is risky": [
-            "Bigger homes also sit in 'better' neighbourhoods — location is an omitted variable.",
+            "Bigger homes also sit in 'better' neighbourhoods, so location is an omitted variable.",
             "Reverse causality: police likely reduce crime, but crime also draws police.",
-            "Seasonality affects both ads and sales — an omitted variable inflates the link.",
+            "Seasonality affects both ads and sales, so an omitted variable inflates the link.",
             "Reverse causality: strong performance permits higher pay, not just the other way around.",
             "Reverse causality: success in innovation can fund still more R&D.",
         ],
