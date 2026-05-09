@@ -81,6 +81,15 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
+    > **Working through the exercises?** Open the notebook in [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/robert-french/Econometrics/blob/main/notebooks/Lec6LocalDescent1.py) — it's a free hosted version that autosaves as you go (no Python install needed).
+    > When you're done, copy the URL from your browser's address bar and paste it into the LMS submission box.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     ## Contents
 
     1. [An introduction to local descent](#sec1)

@@ -106,7 +106,7 @@ def _(mo):
 
     > "the science and art of using economic theory and statistical techniques to analyze economic data."
 
-    Where does econometrics sit relative to neighbouring fields? Pure **economic theory** asks what *should* happen if agents and markets behave a certain way; pure **statistics** asks what patterns are present in some data without taking a strong stand on what generated them. Econometrics combines the two: theory disciplines what we look for, and statistics tells us how confident we can be about what we see.
+    Where does econometrics sit relative to neighbouring fields? Pure **economic theory** asks what *should* happen if people and markets behave a certain way; pure **statistics** asks what patterns are present in some data, without taking a strong view on what produced them. Econometrics combines the two: theory guides what we look for, and statistics tells us how confident we can be about what we see.
 
     A few ways economists use the toolkit:
 
@@ -165,7 +165,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    Consider one of the most studied questions in labor economics: *how does educational attainment affect earnings?* The U.S. Bureau of Labor Statistics publishes median weekly earnings by the highest degree completed. The 2023 figures look like this:
+    Consider one of the most studied questions in labor economics: *how does education affect earnings?* The U.S. Bureau of Labor Statistics publishes median weekly earnings by the highest degree completed. The 2023 figures look like this:
     """)
     return
 
@@ -221,7 +221,7 @@ def _(mo):
 
     **Reverse causality.** Sometimes $Y$ also affects $X$, not just the other way around. Police presence and crime is the textbook example: more police likely reduce crime, but high-crime areas attract more police. With observational data alone we cannot easily separate the two arrows.
 
-    Both problems share the same root: in observational data, $X$ varies for many reasons, and only some of those reasons reflect a genuine causal channel from $X$ to $Y$.
+    Both problems share the same root: in observational data, $X$ varies for many reasons, and only some of those reasons reflect a real causal link from $X$ to $Y$.
     """)
     return
 
@@ -233,13 +233,13 @@ def _(mo):
 
     To make this concrete, let's simulate a world in which we know the true causal effect, and then watch a naive analysis get the wrong answer.
 
-    Suppose family income causes both education and earnings, while education *also* causes earnings:
+    Suppose family income causes both education and earnings, while education *also* causes earnings. We can write that down as three equations. The notation $\mathcal{N}(\mu, \sigma^2)$ just means *"a normal (bell-curve) distribution with mean $\mu$ and variance $\sigma^2$"*, and the $\varepsilon$ terms are random noise:
 
     - $\text{income} \sim \mathcal{N}(50, 15^2)$ (in thousands of dollars)
     - $\text{education} = 12 + 0.05 \cdot \text{income} + \varepsilon_e$, with $\varepsilon_e \sim \mathcal{N}(0, 1.5^2)$
     - $\text{earnings} = 5 + 2 \cdot \text{education} + 0.4 \cdot \text{income} + \varepsilon_y$, with $\varepsilon_y \sim \mathcal{N}(0, 5^2)$
 
-    The **true causal effect** of one extra year of education on earnings is `2`. Family income is the omitted variable. Let's see what a naive simple regression of earnings on education recovers.
+    The **true causal effect** of one extra year of education on earnings is `2`. Family income is the omitted variable. Let's see what a naive analysis (fitting a straight line through earnings against education while ignoring income) recovers.
     """)
     return
 
@@ -270,9 +270,9 @@ def _(controlled_slope, mo, naive_slope):
     | Controlling for income (earnings on education *and* income) | **{controlled_slope:.2f}** |
     | True causal effect | **2.00** |
 
-    The naive slope is biased upward because family income lurks behind both education and earnings: students with richer parents end up with more education *and* more earnings, so a regression that ignores income gives education credit for some of income's effect. Adding income as a control roughly recovers the true effect.
+    The naive slope is too big (about 2.6 instead of the true 2.0) because family income lurks behind both education and earnings: students with richer parents end up with more education *and* more earnings, so a fit that ignores income gives education credit for some of income's effect. Adding income to the analysis roughly recovers the true effect.
 
-    The plot below shows the same intuition visually. The orange line is the naive fit; the cloud of points is colour-coded by income tertile. Within any single tertile the slope is much closer to the true effect, which is exactly the bias omitted variables introduce.
+    The plot below shows the same intuition visually. The orange line is the naive fit; the cloud of points is colour-coded by income third (low / middle / high). Within any single income group the slope is much closer to the true effect, which is exactly the bias an omitted variable introduces.
     """)
     return
 
@@ -307,9 +307,9 @@ def _(alt, mo, pd, sim):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    Reverse causality is harder to demonstrate cleanly with one regression and we won't simulate it here, but the intuition is symmetric: if higher earnings let people afford more schooling (perhaps by funding graduate degrees), then a simple regression of earnings on education is again recovering a mixture of two arrows, not the single arrow we wanted.
+    Reverse causality is harder to show cleanly with one picture and we won't simulate it here, but the intuition is symmetric: if higher earnings let people afford more schooling (perhaps by funding graduate degrees), then fitting a line through earnings against education again gives us a mixture of two arrows, not the single arrow we wanted.
 
-    Most of this class is about the tools economists use to defend against omitted variable bias and reverse causality: control variables, panel data, instrumental variables, randomised experiments, and quasi-experiments.
+    Most of this class is about the tools economists use to defend against omitted variable bias and reverse causality. We'll learn each of these in turn: control variables, panel data, instrumental variables, randomised experiments, and quasi-experiments. None of those names need to mean anything to you yet.
     """)
     return
 
@@ -328,7 +328,7 @@ def _(mo):
     mo.md(r"""
     A research question is almost always about a **population of interest**: the full group we want to learn about. "How does education affect earnings?" might really mean *all U.S. workers age 25 and over*, or *low-income Americans*, or *first-generation college students in California*. The population is conceptual; we usually cannot observe all of it.
 
-    What we *can* observe is a **sample**: a finite subset of the population that ends up in our dataset. Everything we know about the population comes through the sample. **Statistical inference** is the discipline of using the sample to make calibrated statements about the population (point estimates, confidence intervals, hypothesis tests), while accounting for the fact that a different sample would have given somewhat different answers.
+    What we *can* observe is a **sample**: a smaller group from the population that ends up in our dataset. Everything we know about the population comes through the sample. **Statistical inference** is the set of tools we use to take the sample and say something honest about the population, while keeping track of the fact that a different sample would have given somewhat different answers. Later in the course we'll meet the three main outputs of inference: *point estimates*, *confidence intervals*, and *hypothesis tests*.
 
     A small simulation makes the relationship between population and sample concrete. Suppose the population's true mean weekly earnings is \$1,170 (the BLS overall figure). Imagine drawing 200 independent samples of 50 workers each from that population and computing the sample mean of each one.
     """)
@@ -375,7 +375,7 @@ def _(alt, mo, pop_mean, sample_means, sample_size):
         mo.md(
             f"The orange line is the true population mean (\\${pop_mean:,}). "
             f"The bars show the spread of sample means across the {n_draws} repeated draws. "
-            "Each individual sample is wrong by some amount; the *distribution* of those errors is what statistical inference describes, and what lets us turn one sample into a calibrated claim about the population."
+            "Each individual sample is wrong by some amount; the *spread* of those errors is what statistical inference describes, and what lets us turn one sample into an honest claim about the population."
         ),
     ])
     return
@@ -487,12 +487,12 @@ def _(mo, pd):
     mo.vstack([
         mo.md(
             "Each row below describes a tempting causal story and the threat that complicates it. "
-            "These are the kinds of subtleties we'll learn to handle later when we study regression, panel methods, and instrumental variables."
+            "These are the kinds of issues we'll learn to handle later in the course."
         ),
         interpret,
         mo.md(
-            "**Takeaway.** The same regression coefficient can mean very different things depending on what you've been able to control for and what you can plausibly assume about the data-generating process. "
-            "Most of the rest of this course is about making those assumptions explicit and disciplined."
+            "**Takeaway.** The same number coming out of a statistical analysis can mean very different things depending on which other factors you've been able to hold fixed and what you're willing to assume about how the data came to look the way they do. "
+            "Most of the rest of this course is about making those assumptions explicit, and being honest about when they fail."
         ),
     ])
     return
