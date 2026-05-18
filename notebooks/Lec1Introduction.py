@@ -226,10 +226,14 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     _svg = r'''<svg viewBox="0 0 520 220" width="100%" style="max-width:520px;height:auto;font-family:inherit" role="img" aria-label="Family income raises both education and earnings; education also raises earnings"><defs><marker id="ahb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#1f4e79"/></marker><marker id="ahg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#8a93a2"/></marker></defs><line x1="232" y1="64" x2="146" y2="148" stroke="#8a93a2" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#ahg)"/><line x1="288" y1="64" x2="374" y2="148" stroke="#8a93a2" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#ahg)"/><line x1="177" y1="172" x2="343" y2="172" stroke="#1f4e79" stroke-width="2" marker-end="url(#ahb)"/><rect x="200" y="20" width="120" height="44" rx="8" fill="#f1f3f5" stroke="#8a93a2" stroke-width="2" stroke-dasharray="5,4"/><text x="260" y="47" text-anchor="middle" font-size="15" fill="#6b7280">Family income</text><rect x="55" y="150" width="120" height="44" rx="8" fill="#eef3f8" stroke="#1f4e79" stroke-width="2"/><text x="115" y="177" text-anchor="middle" font-size="15" fill="#1f4e79">Education</text><rect x="345" y="150" width="120" height="44" rx="8" fill="#eef3f8" stroke="#1f4e79" stroke-width="2"/><text x="405" y="177" text-anchor="middle" font-size="15" fill="#1f4e79">Earnings</text></svg>'''
-    mo.vstack([
-        mo.md("Each arrow points from a cause to something it changes. Family income (the dashed box) raises both education and earnings, so a comparison that leaves family income out hands part of its effect to education."),
-        mo.Html(_svg),
-    ])
+    _caption = "Each arrow points from a cause to something it changes. Family income (the dashed box) raises both education and earnings, so a comparison that leaves family income out hands part of its effect to education."
+    mo.Html(
+        '<figure style="max-width:560px;margin:2rem auto;text-align:center;">'
+        + _svg
+        + '<figcaption style="margin:0.7rem auto 0;max-width:500px;font-size:0.85rem;line-height:1.45;color:#6b7280;">'
+        + _caption
+        + "</figcaption></figure>"
+    )
     return
 
 
@@ -249,10 +253,14 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     _svg = r'''<svg viewBox="0 0 520 180" width="100%" style="max-width:520px;height:auto;font-family:inherit" role="img" aria-label="Police lowers crime and crime raises police at the same time"><defs><marker id="ahr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#1f4e79"/></marker></defs><path d="M192,80 Q260,26 326,80" fill="none" stroke="#1f4e79" stroke-width="2" marker-end="url(#ahr)"/><path d="M328,100 Q260,154 194,100" fill="none" stroke="#1f4e79" stroke-width="2" marker-end="url(#ahr)"/><text x="260" y="18" text-anchor="middle" font-size="13" fill="#6b7280">more police may reduce crime</text><text x="260" y="172" text-anchor="middle" font-size="13" fill="#6b7280">more crime may bring more police</text><rect x="70" y="68" width="120" height="44" rx="8" fill="#eef3f8" stroke="#1f4e79" stroke-width="2"/><text x="130" y="95" text-anchor="middle" font-size="15" fill="#1f4e79">Police</text><rect x="330" y="68" width="120" height="44" rx="8" fill="#eef3f8" stroke="#1f4e79" stroke-width="2"/><text x="390" y="95" text-anchor="middle" font-size="15" fill="#1f4e79">Crime</text></svg>'''
-    mo.vstack([
-        mo.md("Both arrows are real effects running at the same time. Because police changes crime and crime changes police, the plain correlation between them mixes the two and measures neither on its own."),
-        mo.Html(_svg),
-    ])
+    _caption = "Both arrows are real effects running at the same time. Because police changes crime and crime changes police, the plain correlation between them mixes the two and measures neither on its own."
+    mo.Html(
+        '<figure style="max-width:560px;margin:2rem auto;text-align:center;">'
+        + _svg
+        + '<figcaption style="margin:0.7rem auto 0;max-width:500px;font-size:0.85rem;line-height:1.45;color:#6b7280;">'
+        + _caption
+        + "</figcaption></figure>"
+    )
     return
 
 
