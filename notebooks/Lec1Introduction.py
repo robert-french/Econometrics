@@ -144,7 +144,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec3"></a>
-    ## 3. Education and earnings
+    ## 3. Education and earnings example
 
     The link between education and earnings shows the gap between a descriptive
     answer and a causal one in concrete numbers.
@@ -219,14 +219,46 @@ def _(mo):
     that schooling. The high school group and the bachelor's group differ in
     average family income, so part of the \$594 gap is the effect of family income
     showing up in a comparison that was meant to measure the effect of education.
+    """)
+    return
 
+
+@app.cell(hide_code=True)
+def _(mo):
+    _svg = r'''<svg viewBox="0 0 520 220" width="100%" style="max-width:520px;height:auto;font-family:inherit" role="img" aria-label="Family income raises both education and earnings; education also raises earnings"><defs><marker id="ahb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#1f4e79"/></marker><marker id="ahg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#8a93a2"/></marker></defs><line x1="232" y1="64" x2="146" y2="148" stroke="#8a93a2" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#ahg)"/><line x1="288" y1="64" x2="374" y2="148" stroke="#8a93a2" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#ahg)"/><line x1="177" y1="172" x2="343" y2="172" stroke="#1f4e79" stroke-width="2" marker-end="url(#ahb)"/><rect x="200" y="20" width="120" height="44" rx="8" fill="#f1f3f5" stroke="#8a93a2" stroke-width="2" stroke-dasharray="5,4"/><text x="260" y="47" text-anchor="middle" font-size="15" fill="#6b7280">Family income</text><rect x="55" y="150" width="120" height="44" rx="8" fill="#eef3f8" stroke="#1f4e79" stroke-width="2"/><text x="115" y="177" text-anchor="middle" font-size="15" fill="#1f4e79">Education</text><rect x="345" y="150" width="120" height="44" rx="8" fill="#eef3f8" stroke="#1f4e79" stroke-width="2"/><text x="405" y="177" text-anchor="middle" font-size="15" fill="#1f4e79">Earnings</text></svg>'''
+    mo.vstack([
+        mo.md("Each arrow points from a cause to something it changes. Family income (the dashed box) raises both education and earnings, so a comparison that leaves family income out hands part of its effect to education."),
+        mo.Html(_svg),
+    ])
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     *Reverse causality* is the case where the outcome also changes the variable we
     are studying, so causality runs in both directions. Consider the relationship between police presence and crime rates. Adding police to a neighborhood may lower its crime, but city
     governments also assign more police to the neighborhoods where crime is already
     highest. A comparison of police numbers and crime numbers across neighborhoods
     therefore contains both "more police lower crime" and "more crime brings more
     police," and the raw figures cannot report either one on its own.
+    """)
+    return
 
+
+@app.cell(hide_code=True)
+def _(mo):
+    _svg = r'''<svg viewBox="0 0 520 180" width="100%" style="max-width:520px;height:auto;font-family:inherit" role="img" aria-label="Police lowers crime and crime raises police at the same time"><defs><marker id="ahr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#1f4e79"/></marker></defs><path d="M192,80 Q260,26 326,80" fill="none" stroke="#1f4e79" stroke-width="2" marker-end="url(#ahr)"/><path d="M328,100 Q260,154 194,100" fill="none" stroke="#1f4e79" stroke-width="2" marker-end="url(#ahr)"/><text x="260" y="18" text-anchor="middle" font-size="13" fill="#6b7280">more police may reduce crime</text><text x="260" y="172" text-anchor="middle" font-size="13" fill="#6b7280">more crime may bring more police</text><rect x="70" y="68" width="120" height="44" rx="8" fill="#eef3f8" stroke="#1f4e79" stroke-width="2"/><text x="130" y="95" text-anchor="middle" font-size="15" fill="#1f4e79">Police</text><rect x="330" y="68" width="120" height="44" rx="8" fill="#eef3f8" stroke="#1f4e79" stroke-width="2"/><text x="390" y="95" text-anchor="middle" font-size="15" fill="#1f4e79">Crime</text></svg>'''
+    mo.vstack([
+        mo.md("Both arrows are real effects running at the same time. Because police changes crime and crime changes police, the plain correlation between them mixes the two and measures neither on its own."),
+        mo.Html(_svg),
+    ])
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     Both problems come from observing data rather than running an experiment. When
     we only watch what people did, years of schooling differ across people for many
     reasons at once, such as family income, ability, and local job markets, and
@@ -274,7 +306,7 @@ def _(mo):
       is seen more than once, traits of a worker that never change, such as where
       they grew up, can be held constant, which removes them as omitted variables.
 
-    We will encounter all of these data types during the course.
+    We will encounter each of these data types during the course.
     """)
     return
 
