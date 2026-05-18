@@ -267,7 +267,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    Both problems come from observing data rather than running an experiment. When
+    Both problems, omitted variable bias and reverse causality, come from observing data rather than running an experiment. When
     we only watch what people did, years of schooling differ across people for many
     reasons at once, such as family income, ability, and local job markets, and
     only the schooling itself is the effect we want to measure. The later lectures
