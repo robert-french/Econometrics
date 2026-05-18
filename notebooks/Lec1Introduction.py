@@ -94,20 +94,9 @@ def _(mo):
     Econometrics is the use of statistical methods to measure economic
     relationships in data.
 
-    Economic theory says which variables should be connected and in which
-    direction. It predicts, for example, that raising the price of a good lowers
-    the quantity people buy. Statistics turns a dataset into an actual number for
-    that connection, an estimate of how much quantity falls when price rises, along
-    with how uncertain that number is given that the data cover only a sample of
-    buyers. Econometrics combines the two by measuring a claim from theory against
-    real data.
+    Economic theory gives us a way to think about how different things are related. It tells us, for example, that when the price of a good rises, people usually buy less of it. Statistics gives us general tools for learning from data, including ways to summarize data points, estimate relationships between different things we observe, and measure how much an estimate might change if we collected new data. Econometrics applies those tools to economic questions by asking whether the relationships predicted by theory appear in real data, how large they are, and how confident we should be in the results. For example, econometrics uses data to estimate how much less people actually buy when the price of a good rises.
 
-    Economists use econometrics to test whether a prediction from theory appears in
-    real data, for example whether the quantity people buy really falls as price
-    rises. They use econometrics to forecast a future value such as next quarter's GDP or
-    next month's unemployment rate. And they use econometrics to estimate how much one variable
-    changes another so that a policy can be judged, for example how many jobs are
-    gained or lost when the minimum wage rises by one dollar.
+    Econometrics helps economists move from ideas to evidence. Economists use econometrics to test whether a prediction from theory appears in real data, for example whether the quantity people buy really falls as price rises. They use econometrics to forecast future values, such as next quarter's GDP or next month's unemployment rate. They also use econometrics to estimate how much one thing changes another so that policies can be judged, for example how many jobs are gained or lost when the minimum wage rises by one dollar. In each case, econometrics gives economists a disciplined way to turn data into evidence about economic relationships.
     """)
     return
 
@@ -118,24 +107,13 @@ def _(mo):
     <a id="sec2"></a>
     ## 2. Descriptive and causal questions
 
-    A descriptive question asks how two variables relate in the data we already
-    have. "Do people with more education earn more, on average?" is a descriptive
-    question. We answer it by computing average earnings at each education level
-    and reporting how those averages compare. The answer reports a pattern and says
-    nothing about why the pattern exists.
+    Econometrics begins by turning broad economic ideas into questions that can be answered with data.
 
-    A causal question asks how the outcome would change if we reached in, changed
-    one variable, and left everything else about a person the same. "If this person
-    stayed in school one more year, how much would their earnings rise?" is a
-    causal question. We cannot answer it by comparing a college graduate to a high
-    school graduate, because these are two different people who differ in family
-    background and ability as well as in schooling. A clean answer would compare
-    the same person with and without that additional schooling, and we never observe both.
+    A descriptive question asks how two things are related in the data we already have. ''Do people with more education earn more, on average?'' is a descriptive question. We can answer it by computing average earnings at each education level and comparing those averages. The answer describes a pattern in the data, but it does not tell us why the pattern exists.
 
-    The course is mostly about causal questions. It still considers descriptive questions
-    carefully, because an estimate of a causal effect is only as good
-    as the pattern it started from, and a pattern that was measured or summarized
-    badly cannot support any causal claim.
+    A causal question asks how an outcome would change if we changed one thing while holding everything else fixed. ''If this person stayed in school one more year, how much would their earnings rise?'' is a causal question. We cannot answer it just by comparing a college graduate to a high school graduate, because they are different people who may differ in family background, ability, motivation, and many other ways. A clean answer would compare the same person with and without the additional schooling, but we never observe both outcomes for the same person.
+
+    This course is mostly about causal questions. Still, descriptive questions matter in their own right because many economic questions begin with knowing what patterns exist in the data. They also matter because causal arguments usually build from those patterns. If we measure or summarize the pattern badly, we will have a weak starting point for deciding what caused it.
     """)
     return
 
@@ -198,7 +176,7 @@ def _(mo):
     group even without the degree. Some of the \$594 reflects those prior
     differences between the two groups, and only the remainder is caused by the
     education itself. Section 4 explains why separating the two is hard, and the
-    later lectures build the tools that do it.
+    later lectures will help us build the tools to do exactly this.
     """)
     return
 
@@ -226,7 +204,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     _svg = r'''<svg viewBox="0 0 520 220" width="100%" style="max-width:520px;height:auto;font-family:inherit" role="img" aria-label="Family income raises both education and earnings; education also raises earnings"><defs><marker id="ahb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#1f4e79"/></marker><marker id="ahg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#8a93a2"/></marker></defs><line x1="232" y1="64" x2="146" y2="148" stroke="#8a93a2" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#ahg)"/><line x1="288" y1="64" x2="374" y2="148" stroke="#8a93a2" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#ahg)"/><line x1="177" y1="172" x2="343" y2="172" stroke="#1f4e79" stroke-width="2" marker-end="url(#ahb)"/><rect x="200" y="20" width="120" height="44" rx="8" fill="#f1f3f5" stroke="#8a93a2" stroke-width="2" stroke-dasharray="5,4"/><text x="260" y="47" text-anchor="middle" font-size="15" fill="#6b7280">Family income</text><rect x="55" y="150" width="120" height="44" rx="8" fill="#eef3f8" stroke="#1f4e79" stroke-width="2"/><text x="115" y="177" text-anchor="middle" font-size="15" fill="#1f4e79">Education</text><rect x="345" y="150" width="120" height="44" rx="8" fill="#eef3f8" stroke="#1f4e79" stroke-width="2"/><text x="405" y="177" text-anchor="middle" font-size="15" fill="#1f4e79">Earnings</text></svg>'''
-    _caption = "Each arrow points from a cause to something it changes. Family income (the dashed box) raises both education and earnings, so a comparison that leaves family income out hands part of its effect to education."
+    _caption = "Each arrow points from a cause to something it changes. Family income raises both education and earnings, so a comparison that leaves family income out hands part of its effect to education."
     mo.Html(
         '<figure style="max-width:560px;margin:2rem auto;text-align:center;">'
         + _svg
@@ -245,7 +223,7 @@ def _(mo):
     governments also assign more police to the neighborhoods where crime is already
     highest. A comparison of police numbers and crime numbers across neighborhoods
     therefore contains both "more police lower crime" and "more crime brings more
-    police," and the raw figures cannot report either one on its own.
+    police," and the raw comparison cannot separate these two effects.
     """)
     return
 
@@ -267,12 +245,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    Both problems, omitted variable bias and reverse causality, come from observing data rather than running an experiment. When
-    we only watch what people did, years of schooling differ across people for many
-    reasons at once, such as family income, ability, and local job markets, and
-    only the schooling itself is the effect we want to measure. The later lectures
-    build methods that hold the other reasons constant so that the schooling effect
-    can be read on its own.
+    Both problems, omitted variable bias and reverse causality, arise because we usually observe data rather than run an experiment. When we observe people’s outcomes, years of schooling differ across people for many reasons at once, including family income, ability, and local job markets. But the effect of schooling itself is what we want to measure. Later lectures introduce methods that try to hold these other factors constant, including running experiments, so we can better isolate the causal relationship between schooling and earnings.
     """)
     return
 
@@ -283,12 +256,11 @@ def _(mo):
     <a id="sec5"></a>
     ## 5. Populations and samples
 
-    Every estimate in this course is computed from a limited set of data but is
-    meant to describe something larger that we never see in full.
+    Every estimate in this course is computed from a limited set of data, but it is usually meant to tell us something about a larger setting that we never observe in full.
 
-    In econometrics, the *population* is what we want to learn about. Sometimes this means a concrete group, such as all U.S. workers. More generally, it means the broader setting that our data come from, including the relationships among the variables we observe. For example, if we study earnings, education, and age using a sample of workers, we usually want to learn about how those variables are related beyond the particular workers in our dataset.
+    In econometrics, the *population* is what we want to learn about. Sometimes the population is a concrete group, such as all U.S. workers. More generally, it is the broader setting that our data come from, including the relationships among the things we observe. For example, if we study earnings, education, and age using data on a group of workers, we usually want to learn how these things are related beyond the particular workers in our dataset.
 
-    A *sample* is the finite set of observations we actually have, such as the weekly earnings of the roughly sixty thousand households the Census Bureau contacts each month. Because we usually observe only a sample, every claim about the population has to be inferred from limited data. A different sample drawn the same way would usually give somewhat different numbers. *Statistical inference* gives us methods for using one sample to draw conclusions about the population while also describing how far our estimates could be from the truth. The rest of the course introduces the econometric tools used to conduct statistical inference for economic relationships.
+    A *sample* is the finite set of observations we actually have, such as the weekly earnings of the roughly sixty thousand households the Census Bureau contacts each month. Because we usually observe only a sample, any claim about the population must be inferred from limited data. A different sample collected in the same way would usually produce somewhat different numbers. *Statistical inference* gives us methods for using one sample to draw conclusions about the population while also describing how far our estimates might be from the truth. The rest of the course introduces the econometric tools used to conduct statistical inference for economic relationships.
     """)
     return
 
