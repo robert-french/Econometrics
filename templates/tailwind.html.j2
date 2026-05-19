@@ -59,10 +59,10 @@
           </h1>
         </div>
 
-        <nav class="flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium text-slate-600 sm:pb-2 sm:pr-4">
-          <a href="#lectures" class="hover:text-slate-900">Lectures</a>
-          <a href="#for-students" class="hover:text-slate-900">For students</a>
-          <a href="#for-educators" class="hover:text-slate-900">For educators</a>
+        <nav class="flex flex-wrap gap-x-7 gap-y-2 text-lg font-semibold text-[#1f4e79] sm:pb-2 sm:pr-4">
+          <a href="#lectures" class="hover:text-[#15324f]">Lectures</a>
+          <a href="#for-students" class="hover:text-[#15324f]">For students</a>
+          <a href="#for-educators" class="hover:text-[#15324f]">For educators</a>
         </nav>
       </div>
     </header>
@@ -175,7 +175,7 @@
 
     <section id="for-students" class="scroll-mt-20 mb-20 max-w-3xl">
       <h2 class="text-2xl font-semibold mb-4">
-        For students
+        Student guide
       </h2>
 
       <p class="text-slate-600 leading-8">
@@ -219,7 +219,7 @@
       var btt = document.getElementById("back-to-top");
       if (!btt) return;
       function update() {
-        if (window.scrollY > 400) {
+        if (window.scrollY > 120) {
           btt.classList.remove("opacity-0", "pointer-events-none");
         } else {
           btt.classList.add("opacity-0", "pointer-events-none");
