@@ -146,12 +146,13 @@ def _(mo):
     do not know which wage you will get.
 
     A discrete random variable takes only separated values you can count, such as
-    $0, 1, 2, 3, \ldots$ emails. Its probability distribution is the list of its
-    possible outcomes $x_1, x_2, \ldots, x_K$ together with the probability
-    $p_1, p_2, \ldots, p_K$ that each one occurs. The cumulative probability
-    distribution is the probability that the random variable is less than or
-    equal to a particular value. A possible distribution for the emails example
-    is the following.
+    $0, 1, 2, 3, \ldots$ emails. Its probability distribution lists its possible
+    outcomes $x_1, x_2, \ldots, x_K$ together with the probability of each, where
+    $p_i = \Pr(X = x_i)$ is shorthand for the probability that $X$ takes the
+    value $x_i$. The cumulative probability distribution, written
+    $\Pr(X \le x)$, is the probability that the random variable is at or below a
+    particular value. A possible distribution for the emails example is the
+    following.
 
     | Number of emails | 0 | 1 | 2 | 3 | 4 |
     |---|---|---|---|---|---|
@@ -163,56 +164,88 @@ def _(mo):
     instead of a probability for each value we use a probability density
     function. The area under the density between any two points is the
     probability that the outcome falls between them, and the cumulative
-    distribution again gives the probability of being at or below a value. The
-    figure below shows a density and its cumulative distribution. The calculus
-    behind the continuous case is in the appendix.
+    distribution gives the probability of being at or below a value. The figure
+    below uses the distribution of hourly wages as an example. Drag the two
+    sliders to choose a wage range. The shaded area under the density is the
+    probability that a worker's wage falls in that range, and the cumulative
+    distribution on the right reads off the same probability directly. The
+    calculus behind the continuous case is in the appendix.
     """)
     return
 
 
 @app.cell(hide_code=True)
-def _(alt, mo, np, pd, stats):
-    _x = np.linspace(-4.0, 4.0, 400)
+def _(mo):
+    wage_lo = mo.ui.slider(
+        start=0, stop=60, step=1, value=15,
+        label="Lower wage (USD per hour)", show_value=True,
+    )
+    wage_hi = mo.ui.slider(
+        start=0, stop=60, step=1, value=30,
+        label="Upper wage (USD per hour)", show_value=True,
+    )
+    mo.vstack([wage_lo, wage_hi])
+    return wage_hi, wage_lo
+
+
+@app.cell(hide_code=True)
+def _(alt, mo, np, pd, stats, wage_hi, wage_lo):
+    _a = float(min(wage_lo.value, wage_hi.value))
+    _b = float(max(wage_lo.value, wage_hi.value))
+
+    # Hourly wage modeled as a lognormal distribution (right-skewed).
+    _dist = stats.lognorm(s=0.5, scale=20.0)
+    _x = np.linspace(0.0, 80.0, 400)
     _frame = pd.DataFrame({
-        "x": _x,
-        "pdf": stats.norm.pdf(_x),
-        "cdf": stats.norm.cdf(_x),
+        "wage": _x,
+        "pdf": _dist.pdf(_x),
+        "cdf": _dist.cdf(_x),
     })
-    _band = _frame[(_frame["x"] >= -1.0) & (_frame["x"] <= 1.0)]
+    _band = _frame[(_frame["wage"] >= _a) & (_frame["wage"] <= _b)]
+    _prob = float(_dist.cdf(_b) - _dist.cdf(_a))
 
     _area = (
         alt.Chart(_band)
         .mark_area(color="#1f4e79", opacity=0.25)
-        .encode(x="x:Q", y="pdf:Q")
+        .encode(x="wage:Q", y="pdf:Q")
     )
     _pdf_line = (
         alt.Chart(_frame)
         .mark_line(color="#1f4e79")
         .encode(
-            x=alt.X("x:Q", title="Value"),
+            x=alt.X("wage:Q", title="Hourly wage (USD)"),
             y=alt.Y("pdf:Q", title="Density"),
         )
     )
     _left = (_area + _pdf_line).properties(
-        width=250, height=240, title="Probability density function"
+        width=250, height=240, title="Wage density"
     )
-    _right = (
+
+    _rule = (
+        alt.Chart(pd.DataFrame({"wage": [_a, _b]}))
+        .mark_rule(color="orange", strokeDash=[4, 3])
+        .encode(x="wage:Q")
+    )
+    _cdf_line = (
         alt.Chart(_frame)
         .mark_line(color="#1f4e79")
         .encode(
-            x=alt.X("x:Q", title="Value"),
+            x=alt.X("wage:Q", title="Hourly wage (USD)"),
             y=alt.Y("cdf:Q", title="Cumulative probability"),
         )
-        .properties(width=250, height=240, title="Cumulative distribution")
+    )
+    _right = (_cdf_line + _rule).properties(
+        width=250, height=240, title="Cumulative distribution"
     )
 
     mo.vstack([
         alt.hconcat(_left, _right),
         mo.md(
-            "The shaded area under the density on the left is the probability "
-            "that the variable lands between those two points. The curve on the "
-            "right is the cumulative distribution, the probability of being at "
-            "or below each value."
+            f"The probability that an hourly wage falls between "
+            f"\\${_a:,.0f} and \\${_b:,.0f} is {_prob:.2f}. On the left that is "
+            "the shaded area under the density. On the right it is the "
+            "cumulative curve's height at the upper wage minus its height at "
+            "the lower wage."
         ),
     ])
     return
@@ -228,7 +261,7 @@ def _(mo):
     expected value of $X$ is denoted $\mathbb{E}[X] \equiv \mu_X$, a weighted
     average of the possible outcomes where the weights are their probabilities.
     When $X$ takes $K$ possible values $x_1, \ldots, x_K$ with probabilities
-    $p_1, \ldots, p_K$,
+    $p_i = \Pr(X = x_i)$,
 
     $$ \mathbb{E}[X] \equiv \mu_X = \sum_{i=1}^{K} x_i \cdot p_i. $$
 
@@ -450,10 +483,9 @@ def _(mo):
         value="Exponential (mean 1)",
         label="Process",
     )
-    clt_n = mo.ui.dropdown(
-        options=["1", "2", "5", "30", "100"],
-        value="30",
-        label="Sample size behind each mean",
+    clt_n = mo.ui.slider(
+        start=1, stop=100, step=1, value=30,
+        label="Sample size behind each mean (n)", show_value=True,
     )
     clt_reps = mo.ui.slider(
         start=200, stop=3000, step=100, value=1000,
@@ -468,30 +500,35 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(alt, clt_button, clt_n, clt_process, clt_reps, mo, np, pd, stats):
-    _seed = 7 + clt_button.value
-    _rng = np.random.default_rng(_seed)
+    # New samples are drawn only when "Draw new samples" is clicked (the seed
+    # depends only on the button). The "number of sample means" slider just
+    # shows more or fewer of the same pre-drawn pool, so moving it does not
+    # redraw. Changing n necessarily redraws, since n is the variable of
+    # interest in this demonstration.
+    _MAX = 3000
+    _rng = np.random.default_rng(7 + clt_button.value)
     _n = int(clt_n.value)
-    _reps = clt_reps.value
+    _reps = int(clt_reps.value)
     _name = clt_process.value
 
     if _name == "Uniform (0 to 1)":
-        _s = _rng.uniform(0.0, 1.0, (_reps, _n))
         _raw = _rng.uniform(0.0, 1.0, 2000)
+        _pool = _rng.uniform(0.0, 1.0, (_MAX, _n))
         _mu, _sd = 0.5, (1.0 / 12.0) ** 0.5
     elif _name == "Exponential (mean 1)":
-        _s = _rng.exponential(1.0, (_reps, _n))
         _raw = _rng.exponential(1.0, 2000)
+        _pool = _rng.exponential(1.0, (_MAX, _n))
         _mu, _sd = 1.0, 1.0
     elif _name == "Lopsided coin (10% ones)":
-        _s = (_rng.random((_reps, _n)) < 0.1).astype(float)
         _raw = (_rng.random(2000) < 0.1).astype(float)
+        _pool = (_rng.random((_MAX, _n)) < 0.1).astype(float)
         _mu, _sd = 0.1, (0.1 * 0.9) ** 0.5
     else:
-        _s = _rng.poisson(3, (_reps, _n)).astype(float)
         _raw = _rng.poisson(3, 2000).astype(float)
+        _pool = _rng.poisson(3, (_MAX, _n)).astype(float)
         _mu, _sd = 3.0, 3.0 ** 0.5
 
-    _means = _s.mean(axis=1)
+    _means = _pool.mean(axis=1)[:_reps]
 
     _parent = (
         alt.Chart(pd.DataFrame({"x": _raw}))
@@ -598,7 +635,7 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(alt, mo, np, pd, std_mu, std_sigma, stats):
+def _(alt, mo, np, pd, stats, std_mu, std_sigma):
     _mu = std_mu.value
     _sigma = std_sigma.value
 
@@ -682,6 +719,76 @@ def _(mo):
         positive values.
         """)
     })
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### Appendix figure (bonus): chi-square, t, and F shapes
+
+    The t distribution approaches the standard normal as its degrees of freedom
+    grow, while the chi-square and F distributions take only positive values and
+    lean to the right.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    appx_dist = mo.ui.dropdown(
+        options=["Chi-square", "t", "F"],
+        value="t",
+        label="Distribution",
+    )
+    appx_df = mo.ui.slider(
+        start=1, stop=30, step=1, value=4,
+        label="Degrees of freedom", show_value=True,
+    )
+    mo.vstack([appx_dist, appx_df])
+    return appx_df, appx_dist
+
+
+@app.cell(hide_code=True)
+def _(alt, appx_df, appx_dist, mo, np, pd, stats):
+    _name = appx_dist.value
+    _k = int(appx_df.value)
+    _x = np.linspace(-5.0, 15.0, 400)
+
+    if _name == "Chi-square":
+        _y = stats.chi2.pdf(_x, _k)
+        _label = f"Chi-square (df = {_k})"
+    elif _name == "t":
+        _y = stats.t.pdf(_x, _k)
+        _label = f"t (df = {_k})"
+    else:
+        _y = stats.f.pdf(_x, _k, 10)
+        _label = f"F (df = {_k} and 10)"
+
+    _faint = (
+        alt.Chart(pd.DataFrame({"x": _x, "density": stats.norm.pdf(_x, 0.0, 1.0)}))
+        .mark_line(color="#9aa5b1", strokeDash=[4, 3])
+        .encode(x="x:Q", y="density:Q")
+    )
+    _main = (
+        alt.Chart(pd.DataFrame({"x": _x, "density": _y}))
+        .mark_line(color="#1f4e79", size=2)
+        .encode(
+            x=alt.X("x:Q", title="Value"),
+            y=alt.Y("density:Q", title="Density"),
+        )
+    )
+    _chart = (_faint + _main).properties(width=560, height=300, title=_label)
+
+    mo.vstack([
+        _chart,
+        mo.md(
+            "The solid line is the chosen distribution and the faint dashed "
+            "line is the standard normal, shown for comparison. For F the "
+            "slider sets the numerator degrees of freedom and the denominator "
+            "is fixed at 10."
+        ),
+    ])
     return
 
 
