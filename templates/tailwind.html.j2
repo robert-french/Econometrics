@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,6 +13,8 @@
 
 <body class="bg-slate-50 text-slate-900 font-sans">
 
+  <span id="top"></span>
+
   <!-- Faint LMU shield watermark behind page content -->
   <div
     aria-hidden="true"
@@ -25,57 +27,82 @@
     />
   </div>
 
+  <!-- ========================================================= -->
+  <!-- BACK TO TOP                                               -->
+  <!-- Fixed at the top of the screen, fades in once you scroll  -->
+  <!-- ========================================================= -->
+
+  <a
+    id="back-to-top"
+    href="#top"
+    class="fixed top-4 left-1/2 -translate-x-1/2 z-50 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white shadow-lg opacity-0 pointer-events-none transition-opacity duration-300 hover:bg-slate-700"
+  >
+    &uarr; Back to top
+  </a>
+
   <main class="relative max-w-6xl mx-auto px-6 py-12">
 
     <!-- ========================================================= -->
     <!-- HEADER                                                    -->
-    <!-- Edit this section to change the top of the course website -->
+    <!-- Title on the left, section links along the top right      -->
     <!-- ========================================================= -->
 
-    <header class="mb-12">
-      <p class="text-sm font-semibold tracking-wide uppercase text-slate-500">
-        ECON 3300
-      </p>
+    <header class="mb-16">
+      <div class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p class="text-sm font-semibold tracking-wide uppercase text-slate-500">
+            ECON 3300
+          </p>
 
-      <h1 class="mt-3 text-4xl md:text-5xl font-bold tracking-tight">
-        Econometrics
-      </h1>
+          <h1 class="mt-3 text-4xl md:text-5xl font-bold tracking-tight">
+            Econometrics
+          </h1>
+        </div>
 
-      <p class="mt-5 max-w-3xl text-lg leading-8 text-slate-600">
-        Interactive notebooks for regression analysis, causal inference,
-        and applied data analysis.
-      </p>
+        <nav class="flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium text-slate-600 sm:pb-2 sm:pr-4">
+          <a href="#lectures" class="hover:text-slate-900">Lectures</a>
+          <a href="#for-students" class="hover:text-slate-900">For students</a>
+          <a href="#for-educators" class="hover:text-slate-900">For educators</a>
+        </nav>
+      </div>
     </header>
 
 
     <!-- ========================================================= -->
-    <!-- NOTEBOOK CARDS                                            -->
-    <!-- These cards are generated automatically from your notebooks -->
+    <!-- COURSE DESCRIPTION                                        -->
+    <!-- First section, no nav link, edit this freely              -->
     <!-- ========================================================= -->
 
-    {% if apps %}
-    <section>
-      <div class="flex items-end justify-between gap-4 mb-6">
-        <div>
-          <h2 class="text-2xl font-semibold">
-            Lecture notebooks
-          </h2>
+    <section class="mb-20 max-w-3xl">
+      <p class="text-lg leading-8 text-slate-600">
+        This website is in development. Check back later for lecture notebooks and resources for ECON 3300!
+      </p>
+    </section>
 
-          <p class="mt-2 text-slate-600">
-            Each notebook can be opened as a clean app or as an editable notebook.
-          </p>
-        </div>
-      </div>
 
+    <!-- ========================================================= -->
+    <!-- LECTURES                                                  -->
+    <!-- Cards are generated automatically from your notebooks     -->
+    <!-- ========================================================= -->
+
+    <section id="lectures" class="scroll-mt-20 mb-20">
+
+      <h2 class="text-2xl font-semibold mb-2">
+        Lectures
+      </h2>
+
+      <p class="mb-6 text-slate-600">
+        Open a lecture to read it in your browser.
+      </p>
+
+      {% if apps %}
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
         {% for app in apps %}
-          {% set matching_notebook = notebooks | selectattr("display_name", "equalto", app.display_name) | list | first %}
-
           <article class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
 
             <p class="text-sm font-medium text-slate-500 mb-2">
-              Notebook
+              Lecture
             </p>
 
             <h3 class="text-xl font-semibold leading-snug">
@@ -83,49 +110,23 @@
             </h3>
 
             <p class="mt-3 text-slate-600 leading-7">
-              {{ app.description or "View the polished version for lecture, or open the editable version to experiment with the code." }}
+              {{ app.description or "Open the lecture to read it in your browser." }}
             </p>
 
-            <div class="mt-6 flex flex-wrap gap-3">
-
+            <div class="mt-6">
               <a
                 href="{{ app.html_path }}"
                 class="inline-flex items-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
               >
-                View as app
+                Open lecture
               </a>
-
-              {% if matching_notebook %}
-              <a
-                href="{{ matching_notebook.html_path }}"
-                class="inline-flex items-center rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
-              >
-                Open editable notebook
-              </a>
-              {% endif %}
-
             </div>
 
           </article>
         {% endfor %}
 
       </div>
-    </section>
-    {% endif %}
-
-
-    <!-- ========================================================= -->
-    <!-- FALLBACK SECTION                                          -->
-    <!-- This appears only if editable notebooks exist without apps -->
-    <!-- You can leave this alone                                  -->
-    <!-- ========================================================= -->
-
-    {% if notebooks and not apps %}
-    <section>
-      <h2 class="text-2xl font-semibold mb-6">
-        Lecture notebooks
-      </h2>
-
+      {% elif notebooks %}
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
         {% for notebook in notebooks %}
@@ -136,7 +137,7 @@
           </h3>
 
           <p class="mt-3 text-slate-600 leading-7">
-            {{ notebook.description or "Open this editable notebook in your browser." }}
+            {{ notebook.description or "Open the lecture to read it in your browser." }}
           </p>
 
           <div class="mt-6">
@@ -144,7 +145,7 @@
               href="{{ notebook.html_path }}"
               class="inline-flex items-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
             >
-              Open notebook
+              Open lecture
             </a>
           </div>
 
@@ -152,26 +153,51 @@
         {% endfor %}
 
       </div>
+      {% else %}
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-8">
+        <h3 class="text-xl font-semibold">
+          No lectures found
+        </h3>
+
+        <p class="mt-3 text-slate-600">
+          Add marimo notebooks to the notebooks folder, then push your changes to GitHub.
+        </p>
+      </div>
+      {% endif %}
+
     </section>
-    {% endif %}
 
 
     <!-- ========================================================= -->
-    <!-- EMPTY STATE                                               -->
-    <!-- This appears if no notebooks were found                   -->
+    <!-- FOR STUDENTS                                              -->
+    <!-- Edit this section freely                                  -->
     <!-- ========================================================= -->
 
-    {% if not notebooks and not apps %}
-    <section class="bg-white border border-slate-200 rounded-2xl shadow-sm p-8">
-      <h2 class="text-2xl font-semibold">
-        No notebooks found
+    <section id="for-students" class="scroll-mt-20 mb-20 max-w-3xl">
+      <h2 class="text-2xl font-semibold mb-4">
+        For students
       </h2>
 
-      <p class="mt-3 text-slate-600">
-        Add marimo notebooks to the notebooks folder, then push your changes to GitHub.
+      <p class="text-slate-600 leading-8">
+        Resources and instructions for students will go here.
       </p>
     </section>
-    {% endif %}
+
+
+    <!-- ========================================================= -->
+    <!-- FOR EDUCATORS                                             -->
+    <!-- Edit this section freely                                  -->
+    <!-- ========================================================= -->
+
+    <section id="for-educators" class="scroll-mt-20 mb-20 max-w-3xl">
+      <h2 class="text-2xl font-semibold mb-4">
+        For educators
+      </h2>
+
+      <p class="text-slate-600 leading-8">
+        Notes for educators who want to reuse or adapt these materials will go here.
+      </p>
+    </section>
 
 
     <!-- ========================================================= -->
@@ -186,6 +212,23 @@
     </footer>
 
   </main>
+
+  <script>
+    // Show the "Back to top" link only after the reader scrolls down.
+    (function () {
+      var btt = document.getElementById("back-to-top");
+      if (!btt) return;
+      function update() {
+        if (window.scrollY > 400) {
+          btt.classList.remove("opacity-0", "pointer-events-none");
+        } else {
+          btt.classList.add("opacity-0", "pointer-events-none");
+        }
+      }
+      window.addEventListener("scroll", update, { passive: true });
+      update();
+    })();
+  </script>
 
 </body>
 </html>
