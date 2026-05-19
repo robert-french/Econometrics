@@ -96,7 +96,7 @@ def _(mo):
 
     Economic theory gives us a way to think about how different things are related. It tells us, for example, that when the price of a good rises, people usually buy less of it. Statistics gives us general tools for learning from data, including ways to summarize data points, estimate relationships between different things we observe, and measure how much an estimate might change if we collected new data. Econometrics applies those tools to economic questions by asking whether the relationships predicted by theory appear in real data, how large they are, and how confident we should be in the results. For example, econometrics uses data to estimate how much less people actually buy when the price of a good rises.
 
-    Econometrics helps economists move from ideas to evidence. Economists use econometrics to test whether a prediction from theory appears in real data, for example whether the quantity people buy really falls as price rises. They use econometrics to forecast future values, such as next quarter's GDP or next month's unemployment rate. They also use econometrics to estimate how much one thing changes another so that policies can be judged, for example how many jobs are gained or lost when the minimum wage rises by one dollar. In each case, econometrics gives economists a disciplined way to turn data into evidence about economic relationships.
+    Econometrics helps economists move from ideas to evidence. Economists use econometrics to test whether a prediction from theory appears in real data, like whether the quantity people buy really falls as price rises. They use econometrics to forecast future values, such as next quarter's GDP or next month's unemployment rate. They also use econometrics to estimate how much one thing changes another so that policies can be judged, for example how many jobs are gained or lost when the minimum wage rises by one dollar. In each case, econometrics gives economists a disciplined way to turn data into evidence about economic relationships.
     """)
     return
 
@@ -107,11 +107,11 @@ def _(mo):
     <a id="sec2"></a>
     ## 2. Descriptive and causal questions
 
-    Econometrics begins by turning broad economic ideas into questions that can be answered with data.
+    Econometrics typically begins by turning broad economic ideas into questions that can be answered with data.
 
-    A descriptive question asks how two things are related in the data we already have. ''Do people with more education earn more, on average?'' is a descriptive question. We can answer it by computing average earnings at each education level and comparing those averages. The answer describes a pattern in the data, but it does not tell us why the pattern exists.
+    A *descriptive question* asks how two things are related in the data we already have. ''Do people with more education earn more, on average?'' is a descriptive question. We can answer it by computing average earnings at each education level and comparing those averages. The answer describes a pattern in the data, but it does not tell us why the pattern exists.
 
-    A causal question asks how an outcome would change if we changed one thing while holding everything else fixed. ''If this person stayed in school one more year, how much would their earnings rise?'' is a causal question. We cannot answer it just by comparing a college graduate to a high school graduate, because they are different people who may differ in family background, ability, motivation, and many other ways. A clean answer would compare the same person with and without the additional schooling, but we never observe both outcomes for the same person.
+    A *causal question* asks how an outcome would change if we changed one thing while holding everything else fixed. ''If this person stayed in school one more year, how much would their earnings rise?'' is a causal question. We cannot answer it just by comparing a college graduate to a high school graduate, because they are different people who may differ in family background, ability, motivation, and many other ways. A clean answer would compare the same person with and without the additional schooling, but we never observe both outcomes for the same person.
 
     This course is mostly about causal questions. Still, descriptive questions matter in their own right because many economic questions begin with knowing what patterns exist in the data. They also matter because causal arguments usually build from those patterns. If we measure or summarize the pattern badly, we will have a weak starting point for deciding what caused it.
     """)
@@ -189,14 +189,7 @@ def _(mo):
 
     Causal questions are hard to answer for two main reasons: omitted variables and reverse causality.
 
-    An *omitted variable* is a factor that affects both the variable we are studying
-    and the outcome, and that we did not hold constant in the comparison. Family
-    income is an omitted variable in the education-and-earnings comparison.
-    Children from higher-income families complete more schooling on average, and they also
-    typically earn more as adults partly through family wealth and connections that do not come from
-    that schooling. The high school group and the bachelor's group differ in
-    average family income, so part of the \$594 gap is the effect of family income
-    showing up in a comparison that was meant to measure the effect of education.
+    A *variable* is something we can measure that differs across observations, such as a person's schooling, earnings, age, or family income. An *omitted variable* is a factor that affects both the variable we are focused on and the outcome, but that we cannot measure or did not hold constant in the comparison. Family income is an omitted variable in the education-and-earnings comparison. Children from higher-income families complete more schooling on average, and they also tend to earn more as adults for reasons that do not come directly from schooling, such as family wealth and connections. Because the high school group and the bachelor's group differ in average family income, part of the $594 gap reflects the effect of family income rather than the effect of education alone.
     """)
     return
 
@@ -245,7 +238,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    Both problems, omitted variable bias and reverse causality, arise because we usually observe data rather than run an experiment. When we observe people’s outcomes, years of schooling differ across people for many reasons at once, including family income, ability, and local job markets. But the effect of schooling itself is what we want to measure. Later lectures introduce methods that try to hold these other factors constant, including running experiments, so we can better isolate the causal relationship between schooling and earnings.
+    Omitted variable bias and reverse causality are common because we usually observe relationships as they occur in the real world. The variables we study often differ across people, firms, or places for many reasons at once, and some of those reasons may also affect the outcome we want to explain. This makes it difficult to separate the relationship of interest from other differences in the data. The direction of causality can also be unclear, since the outcome may affect our variable of interest rather than only the other way around. Later lectures introduce methods that help hold other factors constant and better isolate causal relationships.
     """)
     return
 
