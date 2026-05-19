@@ -45,6 +45,7 @@ def _(mo):
                     "#sec5": "5. Law of large numbers",
                     "#sec6": "6. Central limit theorem",
                     "#sec7": "7. Common probability distributions",
+                    "#appendix": "Appendix",
                 },
                 orientation="vertical",
             ),
@@ -87,6 +88,8 @@ def _(mo):
     5. [Law of large numbers](#sec5)
     6. [Central limit theorem](#sec6)
     7. [Common probability distributions](#sec7)
+
+    [Appendix](#appendix)
     """)
     return
 
@@ -291,7 +294,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ### Example with the emails data
+    ### <span style="color:#0b68cb">Example</span>
 
     Suppose the true distribution is the one from Section 2, and over 24 separate
     hours you record how many emails arrived in each hour.
@@ -624,11 +627,11 @@ def _(mo):
 def _(mo):
     std_mu = mo.ui.slider(
         start=-3.0, stop=3.0, step=0.5, value=1.0,
-        label="Mean (mu)", show_value=True,
+        label=r"Mean $\mu$", show_value=True,
     )
     std_sigma = mo.ui.slider(
         start=0.5, stop=3.0, step=0.5, value=1.5,
-        label="Standard deviation (sigma)", show_value=True,
+        label=r"Standard deviation $\sigma$", show_value=True,
     )
     mo.vstack([std_mu, std_sigma])
     return std_mu, std_sigma
@@ -655,7 +658,7 @@ def _(alt, mo, np, pd, stats, std_mu, std_sigma):
         alt.Chart(pd.DataFrame({"x": _xr, "density": stats.norm.pdf(_xr, 0.0, 1.0)}))
         .mark_line(color="#1f4e79", size=2)
         .encode(
-            x=alt.X("x:Q", title="Z = (X - mu) / sigma"),
+            x=alt.X("x:Q", title="Z = (X - μ) / σ"),
             y=alt.Y("density:Q", scale=alt.Scale(domain=[0, 0.85]), title="Density"),
         )
         .properties(width=250, height=240, title="X after standardizing")
@@ -666,7 +669,7 @@ def _(alt, mo, np, pd, stats, std_mu, std_sigma):
         mo.md(
             "Left is the normal you chose; moving the sliders shifts and "
             "spreads it. Right is the same variable after standardizing with "
-            "Z = (X - mu) / sigma, which is always the standard normal no "
+            r"$Z = (X - \mu)/\sigma$, which is always the standard normal no "
             "matter which mean and standard deviation you pick."
         ),
     ])
@@ -675,8 +678,59 @@ def _(alt, mo, np, pd, stats, std_mu, std_sigma):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.accordion({
-        "Appendix (bonus material, not on assessments)": mo.md(r"""
+    mo.md(r"""
+    <a id="appendix"></a>
+    ## Appendix
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    appx_dist = mo.ui.dropdown(
+        options=["Chi-square", "t", "F"],
+        value="t",
+        label="Distribution",
+    )
+    appx_df = mo.ui.slider(
+        start=1, stop=30, step=1, value=4,
+        label="Degrees of freedom", show_value=True,
+    )
+    return appx_df, appx_dist
+
+
+@app.cell(hide_code=True)
+def _(alt, appx_df, appx_dist, mo, np, pd, stats):
+    _name = appx_dist.value
+    _k = int(appx_df.value)
+    _x = np.linspace(-5.0, 15.0, 400)
+
+    if _name == "Chi-square":
+        _y = stats.chi2.pdf(_x, _k)
+        _label = f"Chi-square (df = {_k})"
+    elif _name == "t":
+        _y = stats.t.pdf(_x, _k)
+        _label = f"t (df = {_k})"
+    else:
+        _y = stats.f.pdf(_x, _k, 10)
+        _label = f"F (df = {_k} and 10)"
+
+    _faint = (
+        alt.Chart(pd.DataFrame({"x": _x, "density": stats.norm.pdf(_x, 0.0, 1.0)}))
+        .mark_line(color="#9aa5b1", strokeDash=[4, 3])
+        .encode(x="x:Q", y="density:Q")
+    )
+    _main = (
+        alt.Chart(pd.DataFrame({"x": _x, "density": _y}))
+        .mark_line(color="#1f4e79", size=2)
+        .encode(
+            x=alt.X("x:Q", title="Value"),
+            y=alt.Y("density:Q", title="Density"),
+        )
+    )
+    _chart = (_faint + _main).properties(width=560, height=300, title=_label)
+
+    _text = mo.md(r"""
         This is bonus material. You will not need calculus on any quiz, problem
         set, or exam.
 
@@ -717,78 +771,23 @@ def _(mo):
         $F = (W/m)/(V/n)$ has an F distribution with $m$ numerator and $n$
         denominator degrees of freedom, denoted $F_{m,n}$, and it takes only
         positive values.
+
+        The figure below shows these shapes. The t distribution approaches the
+        standard normal as its degrees of freedom grow, while the chi-square and
+        F distributions take only positive values and lean to the right.
         """)
+
+    _caption = mo.md(
+        "The solid line is the chosen distribution and the faint dashed line "
+        "is the standard normal, shown for comparison. For F the slider sets "
+        "the numerator degrees of freedom and the denominator is fixed at 10."
+    )
+
+    mo.accordion({
+        "Bonus material (not on assessments)": mo.vstack([
+            _text, appx_dist, appx_df, _chart, _caption,
+        ]),
     })
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    ### Appendix figure (bonus): chi-square, t, and F shapes
-
-    The t distribution approaches the standard normal as its degrees of freedom
-    grow, while the chi-square and F distributions take only positive values and
-    lean to the right.
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    appx_dist = mo.ui.dropdown(
-        options=["Chi-square", "t", "F"],
-        value="t",
-        label="Distribution",
-    )
-    appx_df = mo.ui.slider(
-        start=1, stop=30, step=1, value=4,
-        label="Degrees of freedom", show_value=True,
-    )
-    mo.vstack([appx_dist, appx_df])
-    return appx_df, appx_dist
-
-
-@app.cell(hide_code=True)
-def _(alt, appx_df, appx_dist, mo, np, pd, stats):
-    _name = appx_dist.value
-    _k = int(appx_df.value)
-    _x = np.linspace(-5.0, 15.0, 400)
-
-    if _name == "Chi-square":
-        _y = stats.chi2.pdf(_x, _k)
-        _label = f"Chi-square (df = {_k})"
-    elif _name == "t":
-        _y = stats.t.pdf(_x, _k)
-        _label = f"t (df = {_k})"
-    else:
-        _y = stats.f.pdf(_x, _k, 10)
-        _label = f"F (df = {_k} and 10)"
-
-    _faint = (
-        alt.Chart(pd.DataFrame({"x": _x, "density": stats.norm.pdf(_x, 0.0, 1.0)}))
-        .mark_line(color="#9aa5b1", strokeDash=[4, 3])
-        .encode(x="x:Q", y="density:Q")
-    )
-    _main = (
-        alt.Chart(pd.DataFrame({"x": _x, "density": _y}))
-        .mark_line(color="#1f4e79", size=2)
-        .encode(
-            x=alt.X("x:Q", title="Value"),
-            y=alt.Y("density:Q", title="Density"),
-        )
-    )
-    _chart = (_faint + _main).properties(width=560, height=300, title=_label)
-
-    mo.vstack([
-        _chart,
-        mo.md(
-            "The solid line is the chosen distribution and the faint dashed "
-            "line is the standard normal, shown for comparison. For F the "
-            "slider sets the numerator degrees of freedom and the denominator "
-            "is fixed at 10."
-        ),
-    ])
     return
 
 
