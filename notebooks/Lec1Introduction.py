@@ -224,7 +224,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     _svg = r'''<svg viewBox="0 0 520 180" width="100%" style="max-width:520px;height:auto;font-family:inherit" role="img" aria-label="Police lowers crime and crime raises police at the same time"><defs><marker id="ahr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#1f4e79"/></marker></defs><path d="M192,80 Q260,26 326,80" fill="none" stroke="#1f4e79" stroke-width="2" marker-end="url(#ahr)"/><path d="M328,100 Q260,154 194,100" fill="none" stroke="#1f4e79" stroke-width="2" marker-end="url(#ahr)"/><text x="260" y="18" text-anchor="middle" font-size="13" fill="#6b7280">more police may reduce crime</text><text x="260" y="172" text-anchor="middle" font-size="13" fill="#6b7280">more crime may bring more police</text><rect x="70" y="68" width="120" height="44" rx="8" fill="#eef3f8" stroke="#1f4e79" stroke-width="2"/><text x="130" y="95" text-anchor="middle" font-size="15" fill="#1f4e79">Police</text><rect x="330" y="68" width="120" height="44" rx="8" fill="#eef3f8" stroke="#1f4e79" stroke-width="2"/><text x="390" y="95" text-anchor="middle" font-size="15" fill="#1f4e79">Crime</text></svg>'''
-    _caption = "Both arrows reflect causal relationships occurring at the same time. Police may affect crime and crime may affect police presence, so the plain correlation measures neither on its own."
+    _caption = "Both arrows reflect causal relationships occurring at the same time. Police may affect crime and crime may affect police presence, so the simple comparison measures neither on its own."
     mo.Html(
         '<figure style="max-width:560px;margin:2rem auto;text-align:center;">'
         + _svg
