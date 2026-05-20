@@ -98,11 +98,11 @@ def _(mo):
     <a id="sec1"></a>
     ## 1. Probability and statistics
 
-    In the last lecture, we distinguished between a population and a sample. The population is what we ultimately want to learn about. It is the broader setting our data represent. That includes the data units we could have observed and the patterns we want to understand, such as how earnings differ by education, how unemployment varies by age, or how wages change over time. The sample is the smaller set of observations we actually collect, such as the roughly sixty thousand households the Census Bureau contacts each month for its labor force survey.
+    In the last lecture, we distinguished between a population and a sample. The population is what we ultimately want to learn about. It is the broader setting our data represent. That includes the data units we could have observed and the patterns we want to understand, such as how earnings differ by education, how unemployment varies by age, or how wages change over time. The sample is the smaller set of observations we actually collect or observe, such as the roughly sixty thousand households the Census Bureau surveys each month for the Bureau of Labor Statistics, which uses the results to produce the official U.S. figures on employment and earnings.
 
-    Once we have a sample, we compute numbers that summarize what we see in the data. These might include the average wage, the unemployment rate, or the difference in average earnings between two groups. These numbers come from the sample, not the population itself. If a different sixty thousand households had been selected, the average wage in the data would probably be slightly different. It might be $24.30 an hour instead of $24.10, even though both samples are trying to measure the same population average. A number computed from a sample therefore does not have one fixed value before the sample is drawn. It can vary from one possible sample to another.
+    Once we have a sample, we compute numbers that summarize what we see in the data. In the Bureau of Labor Statistics figure from the last lecture, the \$594 gap in median weekly earnings between high school graduates and workers with a bachelor's degree, is one such number. It comes from one particular sample of households. If a different sixty thousand households had been contacted, the gap would probably come out a little different. It might be \$581 in one sample and \$605 in another. A number computed from a sample therefore does not have one fixed value before the sample is drawn. It can vary from one possible sample to another.
 
-    This distinction between the population and a sample is where probability and statistics enter. Probability gives us a way to describe how a sample statistic behaves across different possible samples. It starts with a known population and asks what samples drawn from that population would look like. For example, if we knew the true distribution of wages in the population, probability would tell us what sample averages we should expect to see and how much those sample averages would vary across repeated samples. Statistics goes in the opposite direction. We observe one sample and use it to learn about an unknown population quantity, such as the population mean $\mu_X$, using an estimator such as the sample mean $\hat{\mu}_X$. Econometrics applies these ideas to economic questions, using sample data to learn about economic relationships in the population.
+    This distinction between the population and a sample is where probability and statistics enter. Probability gives us a way to describe how a sample statistic behaves across different possible samples. It starts with a known population and asks what samples drawn from that population would look like. For example, if we knew the true earnings gap in the population, probability would tell us what gaps we should expect to see in samples and how much those gaps would vary across repeated samples. Statistics goes in the opposite direction. We observe one sample and use it to learn about an unknown population quantity, such as the population mean $\mu_X$, using an estimator such as the sample mean $\hat{\mu}_X$. Econometrics applies these ideas to economic questions, using sample data to learn about economic relationships in the population.
 
     This lecture and the next two introduce the probability and statistics we need for econometrics.
     """)
@@ -424,15 +424,25 @@ def _(mo):
         value="Fair die (1 to 6)",
         label="Random variable",
     )
+    return (lln_process,)
+
+
+@app.cell(hide_code=True)
+def _(lln_process, mo):
+    _noun_pl = (
+        "die rolls"
+        if lln_process.value == "Fair die (1 to 6)"
+        else "coin flips"
+    )
     lln_draws = mo.ui.slider(
         start=10, stop=5000, step=10, value=200,
-        label="Number of draws", show_value=True,
+        label=f"Number of {_noun_pl}", show_value=True,
     )
     lln_button = mo.ui.button(
         label="Draw new sample", value=0, on_click=lambda c: c + 1,
     )
     mo.vstack([lln_process, lln_draws, lln_button])
-    return lln_button, lln_draws, lln_process
+    return lln_button, lln_draws
 
 
 @app.cell(hide_code=True)
@@ -445,9 +455,13 @@ def _(alt, lln_button, lln_draws, lln_process, mo, np, pd):
     if _name == "Fair die (1 to 6)":
         _draws = _rng.integers(1, 7, _n).astype(float)
         _true = 3.5
+        _noun_sg = "die roll"
+        _noun_pl = "die rolls"
     else:
         _draws = _rng.integers(0, 2, _n).astype(float)
         _true = 0.5
+        _noun_sg = "coin flip"
+        _noun_pl = "coin flips"
 
     _running = np.cumsum(_draws) / np.arange(1, _n + 1)
     _path = pd.DataFrame({"draw": np.arange(1, _n + 1), "mean": _running})
@@ -456,7 +470,7 @@ def _(alt, lln_button, lln_draws, lln_process, mo, np, pd):
         alt.Chart(_path)
         .mark_line(color="#1f4e79")
         .encode(
-            x=alt.X("draw:Q", title="Number of draws"),
+            x=alt.X("draw:Q", title=f"Number of {_noun_pl}"),
             y=alt.Y("mean:Q", title="Running sample mean"),
         )
     )
@@ -470,11 +484,11 @@ def _(alt, lln_button, lln_draws, lln_process, mo, np, pd):
     mo.vstack([
         _chart,
         mo.md(
-            "The wiggly line is the sample mean recomputed after each new "
-            "draw. The flat orange line is the true expected value of the "
-            "chosen random variable. With only a handful of draws the "
-            "running mean lands almost anywhere. With thousands of draws "
-            "it settles onto the flat line."
+            f"The wiggly line is the sample mean recomputed after each new "
+            f"{_noun_sg}. The flat orange line is the true expected value "
+            f"of the chosen random variable. With only a handful of "
+            f"{_noun_pl} the running mean lands almost anywhere. With "
+            f"thousands of {_noun_pl} it settles onto the flat line."
         ),
     ])
     return
