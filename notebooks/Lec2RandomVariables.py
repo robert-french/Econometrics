@@ -289,30 +289,37 @@ def _(alt, mo, np, pd, stats):
 @app.cell(hide_code=True)
 def _(mo, wage_chart, wage_dist):
     _sel = wage_chart.value
-    _intro = (
+    _intro = mo.md(
         "Drag across the top chart to pick a range of hourly wages. The dark "
         "shaded band that appears is the probability that a randomly chosen "
         "worker has a wage in that range. The lower chart updates at the "
-        "same time. The dashed lines drop from the cumulative distribution "
-        "curve to the vertical axis at the two endpoints of your range, so "
-        "you can read the cumulative probability at each end off the axis."
+        "same time, with dashed lines dropping from the cumulative "
+        "distribution curve to the vertical axis at the two endpoints, so "
+        "the cumulative probability at each end can be read off the axis."
     )
     if _sel is not None and len(_sel) > 0:
         _a = float(_sel["wage"].min())
         _b = float(_sel["wage"].max())
         _prob = float(wage_dist.cdf(_b) - wage_dist.cdf(_a))
-        _msg = (
-            f"{_intro} You picked wages between \\${_a:,.0f} and "
-            f"\\${_b:,.0f}, and the probability that a worker earns in that "
-            f"range is {_prob:.2f}. This is also the vertical gap between "
-            f"the two horizontal dashed lines on the cumulative distribution "
-            f"chart, because the chance of being at or below the upper wage "
-            f"minus the chance of being at or below the lower wage is "
-            f"exactly the chance of falling between them."
+        _caption_body = (
+            f"You picked wages between &#36;{_a:,.0f} and &#36;{_b:,.0f}, "
+            f"and the probability that a worker earns in that range is "
+            f"{_prob:.2f}. This is also the vertical gap between the two "
+            f"horizontal dashed lines on the cumulative distribution "
+            f"chart, because the chance of being at or below the upper "
+            f"wage minus the chance of being at or below the lower wage "
+            f"is exactly the chance of falling between them."
         )
+        _caption = mo.Html(
+            '<div style="margin:0.2rem auto 1rem;max-width:560px;'
+            'font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;">'
+            + _caption_body
+            + "</div>"
+        )
+        _output = mo.vstack([_caption, _intro])
     else:
-        _msg = _intro
-    mo.md(_msg)
+        _output = _intro
+    _output
     return
 
 
