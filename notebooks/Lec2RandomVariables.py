@@ -168,34 +168,18 @@ def _(mo):
     function. The area under the density between any two points is the
     probability that the outcome falls between them, and the cumulative
     distribution gives the probability of being at or below a value. The figure
-    below uses the distribution of hourly wages as an example. Drag the two
-    sliders to choose a wage range. The shaded area under the density is the
-    probability that a worker's wage falls in that range, and the cumulative
-    distribution on the right reads off the same probability directly. The
-    calculus behind the continuous case is in the appendix.
+    below uses the distribution of hourly wages as an example. Drag across the
+    density to select a wage range. The shaded area under the density is the
+    probability that a worker's wage falls in that range. The cumulative
+    distribution beneath shows the cumulative probability at each selected wage
+    on the vertical axis, with horizontal lines from the curve to the axis at
+    the two values. The calculus behind the continuous case is in the appendix.
     """)
     return
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    wage_lo = mo.ui.slider(
-        start=0, stop=60, step=1, value=15,
-        label="Lower wage (USD per hour)", show_value=True,
-    )
-    wage_hi = mo.ui.slider(
-        start=0, stop=60, step=1, value=30,
-        label="Upper wage (USD per hour)", show_value=True,
-    )
-    mo.vstack([wage_lo, wage_hi])
-    return wage_hi, wage_lo
-
-
-@app.cell(hide_code=True)
-def _(alt, mo, np, pd, stats, wage_hi, wage_lo):
-    _a = float(min(wage_lo.value, wage_hi.value))
-    _b = float(max(wage_lo.value, wage_hi.value))
-
+def _(alt, mo, np, pd, stats):
     # Hourly wage modeled as a lognormal distribution (right-skewed).
     _dist = stats.lognorm(s=0.5, scale=20.0)
     _x = np.linspace(0.0, 80.0, 400)
@@ -204,31 +188,29 @@ def _(alt, mo, np, pd, stats, wage_hi, wage_lo):
         "pdf": _dist.pdf(_x),
         "cdf": _dist.cdf(_x),
     })
-    _band = _frame[(_frame["wage"] >= _a) & (_frame["wage"] <= _b)]
-    _prob = float(_dist.cdf(_b) - _dist.cdf(_a))
 
-    _area = (
-        alt.Chart(_band)
-        .mark_area(color="#1f4e79", opacity=0.25)
-        .encode(x="wage:Q", y="pdf:Q")
-    )
-    _pdf_line = (
+    _brush = alt.selection_interval(encodings=["x"], empty=False)
+
+    _pdf_base = (
         alt.Chart(_frame)
-        .mark_line(color="#1f4e79")
+        .mark_area(color="#1f4e79", opacity=0.18)
         .encode(
             x=alt.X("wage:Q", title="Hourly wage (USD)"),
             y=alt.Y("pdf:Q", title="Density"),
         )
+        .add_params(_brush)
     )
-    _left = (_area + _pdf_line).properties(
-        width=250, height=240, title="Wage density"
+    _pdf_hl = (
+        alt.Chart(_frame)
+        .mark_area(color="#1f4e79", opacity=0.55)
+        .encode(x="wage:Q", y="pdf:Q")
+        .transform_filter(_brush)
+    )
+    _pdf_chart = (_pdf_base + _pdf_hl).properties(
+        width=560, height=240,
+        title="Drag across the wage density to select a range",
     )
 
-    _rule = (
-        alt.Chart(pd.DataFrame({"wage": [_a, _b]}))
-        .mark_rule(color="orange", strokeDash=[4, 3])
-        .encode(x="wage:Q")
-    )
     _cdf_line = (
         alt.Chart(_frame)
         .mark_line(color="#1f4e79")
@@ -237,18 +219,46 @@ def _(alt, mo, np, pd, stats, wage_hi, wage_lo):
             y=alt.Y("cdf:Q", title="Cumulative probability"),
         )
     )
-    _right = (_cdf_line + _rule).properties(
-        width=250, height=240, title="Cumulative distribution"
+
+    _lower_ep = (
+        alt.Chart(_frame)
+        .transform_filter(_brush)
+        .transform_aggregate(wage="min(wage)", cdf="min(cdf)")
+    )
+    _upper_ep = (
+        alt.Chart(_frame)
+        .transform_filter(_brush)
+        .transform_aggregate(wage="max(wage)", cdf="max(cdf)")
+    )
+
+    # Horizontal lines from the CDF curve back to the vertical axis at the two
+    # selected wages, so the cumulative probabilities can be read off the axis.
+    _h_lo = _lower_ep.mark_rule(color="orange", strokeDash=[4, 3]).encode(
+        y="cdf:Q", x=alt.datum(0), x2="wage:Q",
+    )
+    _h_hi = _upper_ep.mark_rule(color="orange", strokeDash=[4, 3]).encode(
+        y="cdf:Q", x=alt.datum(0), x2="wage:Q",
+    )
+    # Vertical lines from the x-axis up to the CDF curve at the selected wages.
+    _v_lo = _lower_ep.mark_rule(color="orange", strokeDash=[4, 3]).encode(
+        x="wage:Q", y=alt.datum(0), y2="cdf:Q",
+    )
+    _v_hi = _upper_ep.mark_rule(color="orange", strokeDash=[4, 3]).encode(
+        x="wage:Q", y=alt.datum(0), y2="cdf:Q",
+    )
+
+    _cdf_chart = (_cdf_line + _h_lo + _h_hi + _v_lo + _v_hi).properties(
+        width=560, height=240, title="Cumulative distribution",
     )
 
     mo.vstack([
-        alt.hconcat(_left, _right),
+        alt.vconcat(_pdf_chart, _cdf_chart),
         mo.md(
-            f"The probability that an hourly wage falls between "
-            f"\\${_a:,.0f} and \\${_b:,.0f} is {_prob:.2f}. On the left that is "
-            "the shaded area under the density. On the right it is the "
-            "cumulative curve's height at the upper wage minus its height at "
-            "the lower wage."
+            "Drag across the density above to select a wage range. The shaded "
+            "area is the probability that a worker's wage falls in that range. "
+            "On the cumulative distribution beneath, the horizontal lines run "
+            "from the curve to the vertical axis at the two selected wages, so "
+            "the cumulative probabilities can be read off the axis."
         ),
     ])
     return
