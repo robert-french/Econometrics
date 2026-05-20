@@ -117,7 +117,7 @@ def _(mo):
     <a id="sec2"></a>
     ## 2. Random variables
 
-    A ***variable*** is something we measure that can take different values across observations. Hourly wage is a variable because different people earn different amounts. The number of emails you receive in an hour is also a variable because some hours bring zero emails while others bring five. Economists often distinguish variables by the kinds of values they can take.
+    A variable is something we measure that can take different values across observations. Hourly wage is a variable because different people earn different amounts. The number of emails you receive in an hour is also a variable because some hours bring zero emails while others bring five. Economists often distinguish variables by the kinds of values they can take.
 
     | Variable type | Definition | Example |
     |---|---|---|
@@ -130,7 +130,7 @@ def _(mo):
 
     The first three types of variables are numeric in the usual sense, so they can be added, averaged, and used in formulas. Ordinal variables are ordered, but their numerical codes should be treated carefully because the gaps between categories may not be meaningful. Categorical variables are different. Their codes are labels rather than amounts, so it usually does not make sense to add or average them.
 
-    A ***random variable*** is a numerical summary of an outcome or data point we cannot
+    A random variable is a numerical summary of an outcome or data point we cannot
     predict in advance. We write a random variable with a capital letter such
     as $X$. The number of emails you get in the next hour is a random
     variable, because before the hour starts we cannot say which value it
@@ -139,16 +139,16 @@ def _(mo):
     person at random from the population, because we will not know that
     person's wage until we draw them.
 
-    The ***probability distribution*** of a random variable describes how likely
+    The probability distribution of a random variable describes how likely
     each of its possible values is. What this description looks like depends
     on whether the variable is discrete or continuous.
 
     A discrete random variable takes values that come in separate, countable
-    steps, such as $0, 1, 2, 3, \ldots$ emails per hour. Its ***probability
-    mass function*** lists the possible outcomes $x_1, x_2, \ldots, x_K$ together
+    steps, such as $0, 1, 2, 3, \ldots$ emails per hour. Its probability
+    mass function lists the possible outcomes $x_1, x_2, \ldots, x_K$ together
     with the probability of each. We write $p_i = \Pr(X = x_i)$ for the
-    probability that $X$ takes the particular value $x_i$. The ***cumulative
-    probability distribution***, written $\Pr(X \le x)$, is the probability that
+    probability that $X$ takes the particular value $x_i$. The cumulative
+    probability distribution, written $\Pr(X \le x)$, is the probability that
     $X$ comes out at or below the value $x$. The table below is one possible
     distribution for the number of emails received in an hour. Most hours bring zero emails, a few
     bring one, and the chance of more than that drops off quickly.
@@ -162,7 +162,7 @@ def _(mo):
     so it can equal \$18.46, \$18.47, \$18.461, or any nearby number. There
     are infinitely many such values, and we cannot list them, so we cannot
     give a probability to each one individually. Instead we describe the
-    variable with a curve called the ***probability density function***. The area
+    variable with a curve called the probability density function. The area
     under that curve between any two values is the probability that the
     variable falls between those two values. The cumulative distribution
     still gives the probability of being at or below a value, just as in the
@@ -299,6 +299,19 @@ def _(mo, wage_chart, wage_dist):
 
 @app.cell(hide_code=True)
 def _(mo):
+    mo.callout(
+        mo.md(
+            "**Key terms:** variable, random variable, probability "
+            "distribution, probability mass function, cumulative "
+            "probability distribution, probability density function."
+        ),
+        kind="info",
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
     mo.md(r"""
     <a id="sec3"></a>
     ## 3. Describing a random variable
@@ -420,45 +433,6 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""
-    <a id="sec4"></a>
-    ## 5. The sample mean as a random variable
-
-    The sample mean is computed from random outcomes, so the sample mean is
-    itself a random variable. The $0.25$ emails per hour we computed in the
-    example above came from one particular set of 24 hours. If we sat at the
-    desk for a different 24 hours and counted again, we would compute a
-    different sample mean, perhaps $0.42$ or $0.29$. Repeat the experiment
-    many times and the sample mean takes on its own distribution of values,
-    with its own expected value and its own standard deviation.
-
-    The expected value of the sample mean is the population expected value
-    $\mu_X$. The standard deviation of the sample mean is the population
-    standard deviation divided by $\sqrt{n}$,
-
-    $$ \mathbb{E}[\hat{\mu}_X] = \mu_X, \qquad \sigma_{\hat{\mu}_X} = \frac{\sigma_X}{\sqrt{n}}. $$
-
-    The first equation says that across many repeats of the experiment, the
-    sample means average out to the true population mean. That is why
-    $\hat{\mu}_X$ is a sensible guess for $\mu_X$ on any one run. The second
-    equation says the sample mean's spread shrinks as the sample size $n$
-    grows, so a larger sample produces a sample mean that lands closer to
-    $\mu_X$. Because $\sigma_X$ is itself an unobserved property of the
-    population, we approximate it with the sample standard deviation
-    $\hat{\sigma}_X$, giving the standard error of the sample mean,
-
-    $$ \text{se}(\hat{\mu}_X) = \frac{\hat{\sigma}_X}{\sqrt{n}}. $$
-
-    The standard error is the spread of the sample mean as we can actually
-    estimate it from one observed sample, and it is the quantity we will use
-    later to build hypothesis tests and confidence intervals. Sections 5 and
-    6 show the two facts above in simulations you can run yourself.
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
     lln_process = mo.ui.dropdown(
         options=[
             "Fair die (1 to 6)",
@@ -528,6 +502,45 @@ def _(alt, lln_button, lln_draws, lln_process, mo, np, pd):
             "the flat line."
         ),
     ])
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    <a id="sec4"></a>
+    ## 5. The sample mean as a random variable
+
+    The sample mean is computed from random outcomes, so the sample mean is
+    itself a random variable. The $0.25$ emails per hour we computed in the
+    example above came from one particular set of 24 hours. If we sat at the
+    desk for a different 24 hours and counted again, we would compute a
+    different sample mean, perhaps $0.42$ or $0.29$. Repeat the experiment
+    many times and the sample mean takes on its own distribution of values,
+    with its own expected value and its own standard deviation.
+
+    The expected value of the sample mean is the population expected value
+    $\mu_X$. The standard deviation of the sample mean is the population
+    standard deviation divided by $\sqrt{n}$,
+
+    $$ \mathbb{E}[\hat{\mu}_X] = \mu_X, \qquad \sigma_{\hat{\mu}_X} = \frac{\sigma_X}{\sqrt{n}}. $$
+
+    The first equation says that across many repeats of the experiment, the
+    sample means average out to the true population mean. That is why
+    $\hat{\mu}_X$ is a sensible guess for $\mu_X$ on any one run. The second
+    equation says the sample mean's spread shrinks as the sample size $n$
+    grows, so a larger sample produces a sample mean that lands closer to
+    $\mu_X$. Because $\sigma_X$ is itself an unobserved property of the
+    population, we approximate it with the sample standard deviation
+    $\hat{\sigma}_X$, giving the standard error of the sample mean,
+
+    $$ \text{se}(\hat{\mu}_X) = \frac{\hat{\sigma}_X}{\sqrt{n}}. $$
+
+    The standard error is the spread of the sample mean as we can actually
+    estimate it from one observed sample, and it is the quantity we will use
+    later to build hypothesis tests and confidence intervals. Sections 5 and
+    6 show the two facts above in simulations you can run yourself.
+    """)
     return
 
 
