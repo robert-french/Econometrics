@@ -156,7 +156,7 @@ def _(mo):
     | Number of emails, $\boldsymbol{x_i}$ | 0 | 1 | 2 | 3 | 4 |
     |---|---|---|---|---|---|
     | Probability, $\Pr(X = x_i)$| 0.80 | 0.10 | 0.06 | 0.03 | 0.01 |
-    | Cumulative probability, $\Pr(X \le x)$| 0.80 | 0.90 | 0.96 | 0.99 | 1.00 |
+    | Cumulative probability, $\Pr(X \le x_i)$| 0.80 | 0.90 | 0.96 | 0.99 | 1.00 |
 
     A continuous random variable takes values on a smooth range with no gaps,
     so it can equal \$18.46, \$18.47, \$18.461, or any nearby number. There
@@ -284,11 +284,11 @@ def _(mo, wage_chart, wage_dist):
             rf"$P(X \leq {_b:,.0f}) - P(X \leq {_a:,.0f})$."
         )
         _caption = mo.md(
-            '<div style="margin:0.2rem auto 1rem;max-width:560px;'
-            'font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;">'
-            "\n\n"
+            '<span style="display:block;margin:0.2rem auto 1rem;'
+            'max-width:560px;font-size:0.85rem;line-height:1.45;'
+            'color:#6b7280;text-align:center;">'
             + _caption_body
-            + "\n\n</div>"
+            + "</span>"
         )
         _output = mo.vstack([_caption, _intro])
     else:
