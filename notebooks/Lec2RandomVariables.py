@@ -89,7 +89,6 @@ def _(mo):
     5. [The sample mean is random](#sec5)
     6. [The normal distribution](#sec6)
     7. [Central limit theorem](#sec7)
-    [Appendix](#appendix)
     """)
     return
 
@@ -292,19 +291,6 @@ def _(mo, wage_chart, wage_dist):
     else:
         _output = _intro
     _output
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.callout(
-        mo.md(
-            "**Key terms:** variable, random variable, probability "
-            "distribution, probability mass function, cumulative "
-            "probability distribution, probability density function."
-        ),
-        kind="info",
-    )
     return
 
 
@@ -794,6 +780,30 @@ def _(alt, clt_button, clt_n, clt_process, clt_reps, mo, np, pd, stats):
             "toward a bell curve, no matter what the left chart looks like."
         ),
     ])
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.callout(
+        mo.md(
+            "**Lecture key terms:** variable, random variable, probability "
+            "distribution, probability mass function, cumulative "
+            "probability distribution, probability density function."
+        ),
+        kind="info",
+    )
+    return
+
+
+@app.cell
+def _(mo):
+    mo.callout(
+        mo.md(
+            "**Lecture key concepts:** central limit theorem, law of large numbers, standardization etc. "
+        ),
+        kind="neutral",
+    )
     return
 
 
