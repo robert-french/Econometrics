@@ -92,19 +92,30 @@ def _(mo):
     return
 
 
+@app.cell
+def _(mo):
+    mo.callout(
+        mo.md(
+            "**Key lecture concepts:** central limit theorem, law of large numbers, standardization etc. "
+        ),
+        kind="neutral",
+    )
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
     <a id="sec1"></a>
     ## 1. Probability and statistics
 
-    In the last lecture, we distinguished between a population and a sample. The population is what we ultimately want to learn about. It is the broader setting our data represent. That includes the data units we could have observed and the patterns we want to understand, such as how earnings differ by education, how unemployment varies by age, or how wages change over time. The sample is the smaller set of observations we actually collect or observe, such as the roughly sixty thousand households the Census Bureau surveys each month for the Bureau of Labor Statistics, which uses the results to produce the official U.S. figures on employment and earnings.
+    In the last lecture, we distinguished between a population and a sample. The population is what we ultimately want to learn about. It is the broader setting our data represent. That includes the data units we could have observed and the patterns we want to understand, such as how earnings differ by education, how unemployment varies by age, or how wages change over time. The sample is the smaller set of observations we actually collect or observe, such as the roughly sixty thousand households the Bureau of Labor Statistics (BLS) uses each month to produce the official U.S. figures on employment and earnings.
 
-    Once we have a sample, we compute numbers that summarize what we see in the data. In the Bureau of Labor Statistics figure from the last lecture, the \$594 gap in median weekly earnings between high school graduates and workers with a bachelor's degree, is one such number. It comes from one particular sample of households. If a different sixty thousand households had been contacted, the gap would probably come out a little different. It might be \$581 in one sample and \$605 in another. A number computed from a sample therefore does not have one fixed value before the sample is drawn. It can vary from one possible sample to another.
+    Once we have a sample, we compute numbers that summarize what we see in the data. In the BLS figure from the last lecture, the \$594 gap in median weekly earnings between high school graduates and workers with a bachelor's degree, is one such number. It comes from one particular sample of households. If a different sixty thousand households had been contacted, the gap would probably come out a little different. It might be \$581 in one sample and \$605 in another. A number computed from a sample therefore does not have one fixed value before the sample is drawn. It can vary from one possible sample to another.
 
-    This distinction between the population and a sample is where probability and statistics enter. Probability gives us a way to describe how a sample statistic behaves across different possible samples. It starts with a known population and asks what samples drawn from that population would look like. For example, if we knew the true earnings gap in the population, probability would tell us what gaps we should expect to see in samples and how much those gaps would vary across repeated samples. Statistics goes in the opposite direction. We observe one sample and use it to learn about an unknown population quantity, such as the population mean $\mu_X$, using an estimator such as the sample mean $\hat{\mu}_X$. Econometrics applies these ideas to economic questions, using sample data to learn about economic relationships in the population.
+    This distinction between the population and a sample is where probability and statistics enter. Probability gives us a way to describe how a sample statistic behaves across different possible samples. It starts with a known population and asks what samples drawn from that population would look like. For example, if we knew the true earnings gap in the population, probability would tell us what gaps we should expect to see in samples and how much those gaps would vary across repeated samples. Statistics goes in the opposite direction. We observe one sample and use it to learn about an unknown population quantity, such as the population mean $\mu_X$, using an estimator such as the sample mean $\hat{\mu}_X$ defined below.
 
-    This lecture and the next two introduce the probability and statistics we need for econometrics.
+    Econometrics applies these ideas to economic questions, using sample data to learn about economic relationships in the population. This lecture and the next two introduce the probability and statistics we need for econometrics.
     """)
     return
 
@@ -126,7 +137,7 @@ def _(mo):
     | Categorical | Unordered categories, where numbers are only labels if used | Names of U.S. states |
     | Binary | Takes only two values | Yes or no |
 
-    The first three types of variables are numeric in the usual sense, so they can be added, averaged, and used in formulas. Ordinal variables are ordered, but their numerical codes should be treated carefully because the gaps between categories may not be meaningful. Categorical variables are different. Their codes are labels rather than amounts, so it usually does not make sense to add or average them.
+    The first three types of variables are numeric in the usual sense, so they can be added, averaged, and used in formulas. Ordinal variables are ordered, but their numerical values should be treated carefully because the gaps between categories may not be meaningful. Categorical variables are different. Their values are labels rather than amounts, so it usually does not make sense to add or average them.
 
     A random variable is a numerical summary of an outcome or data point we cannot
     predict in advance. We write a random variable with a capital letter such
@@ -159,8 +170,8 @@ def _(mo):
     A continuous random variable takes values on a smooth range with no gaps,
     so it can equal \$18.46, \$18.47, \$18.461, or any nearby number. There
     are infinitely many such values, and we cannot list them, so we cannot
-    give a probability to each one individually. Instead we describe the
-    variable with a curve called the probability density function (this is analogous to the probability mass function for discrete random variables). The area
+    give a probability to each one individually. Instead we describe continuous random variables
+    with a curve called the probability density function (this is analogous to the probability mass function for discrete random variables). The area
     under that curve between any two values is the probability that the
     variable falls between those two values. The cumulative distribution
     still gives the probability of being at or below a value, just as in the
@@ -787,17 +798,6 @@ def _(mo):
             "probability distribution, probability density function."
         ),
         kind="info",
-    )
-    return
-
-
-@app.cell
-def _(mo):
-    mo.callout(
-        mo.md(
-            "**Key lecture concepts:** central limit theorem, law of large numbers, standardization etc. "
-        ),
-        kind="neutral",
     )
     return
 
