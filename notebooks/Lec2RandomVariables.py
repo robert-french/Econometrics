@@ -198,7 +198,6 @@ def _(alt, mo, np, pd, stats):
             x=alt.X("wage:Q", title="Hourly wage (USD)"),
             y=alt.Y("pdf:Q", title="Density"),
         )
-        .add_params(_brush)
     )
     _pdf_hl = (
         alt.Chart(_frame)
@@ -224,35 +223,41 @@ def _(alt, mo, np, pd, stats):
         alt.Chart(_frame)
         .transform_filter(_brush)
         .transform_aggregate(wage="min(wage)", cdf="min(cdf)")
+        .transform_calculate(zero="0")
     )
     _upper_ep = (
         alt.Chart(_frame)
         .transform_filter(_brush)
         .transform_aggregate(wage="max(wage)", cdf="max(cdf)")
+        .transform_calculate(zero="0")
     )
 
     # Horizontal lines from the CDF curve back to the vertical axis at the two
     # selected wages, so the cumulative probabilities can be read off the axis.
     _h_lo = _lower_ep.mark_rule(color="orange", strokeDash=[4, 3]).encode(
-        y="cdf:Q", x=alt.datum(0), x2="wage:Q",
+        y="cdf:Q", x="zero:Q", x2="wage:Q",
     )
     _h_hi = _upper_ep.mark_rule(color="orange", strokeDash=[4, 3]).encode(
-        y="cdf:Q", x=alt.datum(0), x2="wage:Q",
+        y="cdf:Q", x="zero:Q", x2="wage:Q",
     )
     # Vertical lines from the x-axis up to the CDF curve at the selected wages.
     _v_lo = _lower_ep.mark_rule(color="orange", strokeDash=[4, 3]).encode(
-        x="wage:Q", y=alt.datum(0), y2="cdf:Q",
+        x="wage:Q", y="zero:Q", y2="cdf:Q",
     )
     _v_hi = _upper_ep.mark_rule(color="orange", strokeDash=[4, 3]).encode(
-        x="wage:Q", y=alt.datum(0), y2="cdf:Q",
+        x="wage:Q", y="zero:Q", y2="cdf:Q",
     )
 
     _cdf_chart = (_cdf_line + _h_lo + _h_hi + _v_lo + _v_hi).properties(
         width=560, height=240, title="Cumulative distribution",
     )
 
+    # Declare the brush param at the outermost level so both sub-views can
+    # reference it through transform_filter.
+    _combined = alt.vconcat(_pdf_chart, _cdf_chart).add_params(_brush)
+
     mo.vstack([
-        alt.vconcat(_pdf_chart, _cdf_chart),
+        _combined,
         mo.md(
             "Drag across the density above to select a wage range. The shaded "
             "area is the probability that a worker's wage falls in that range. "
