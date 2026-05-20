@@ -6,6 +6,7 @@
 #     "pandas",
 #     "altair",
 #     "scipy",
+#     "pyarrow",
 # ]
 # ///
 
@@ -212,7 +213,7 @@ def _(alt, mo, np, pd, stats):
 
     _cdf_line = (
         alt.Chart(_frame)
-        .mark_line(color="#1f4e79")
+        .mark_line(color="#1f4e79", size=2)
         .encode(
             x=alt.X("wage:Q", title="Hourly wage (USD)"),
             y=alt.Y("cdf:Q", title="Cumulative probability"),
@@ -233,17 +234,17 @@ def _(alt, mo, np, pd, stats):
 
     # Horizontal lines from the CDF curve back to the vertical axis at the two
     # selected wages, so the cumulative probabilities can be read off the axis.
-    _h_lo = _ep.mark_rule(color="orange", strokeDash=[4, 3]).encode(
+    _h_lo = _ep.mark_rule(color="orange", strokeDash=[4, 3], size=2).encode(
         y="lo_cdf:Q", x="zero:Q", x2="lo_wage:Q",
     )
-    _h_hi = _ep.mark_rule(color="orange", strokeDash=[4, 3]).encode(
+    _h_hi = _ep.mark_rule(color="orange", strokeDash=[4, 3], size=2).encode(
         y="hi_cdf:Q", x="zero:Q", x2="hi_wage:Q",
     )
     # Vertical lines from the x-axis up to the CDF curve at the selected wages.
-    _v_lo = _ep.mark_rule(color="orange", strokeDash=[4, 3]).encode(
+    _v_lo = _ep.mark_rule(color="orange", strokeDash=[4, 3], size=2).encode(
         x="lo_wage:Q", y="zero:Q", y2="lo_cdf:Q",
     )
-    _v_hi = _ep.mark_rule(color="orange", strokeDash=[4, 3]).encode(
+    _v_hi = _ep.mark_rule(color="orange", strokeDash=[4, 3], size=2).encode(
         x="hi_wage:Q", y="zero:Q", y2="hi_cdf:Q",
     )
 
@@ -251,48 +252,47 @@ def _(alt, mo, np, pd, stats):
         width=560, height=240, title="Cumulative distribution function (CDF)",
     )
 
-    # A dynamic probability sentence shown beneath the CDF. A Vega expression
-    # builds the text from the brushed endpoints, so it updates live.
-    _prob_text = (
-        alt.Chart(_frame)
-        .transform_filter(_brush)
-        .transform_aggregate(
-            lo_wage="min(wage)", hi_wage="max(wage)",
-            lo_cdf="min(cdf)", hi_cdf="max(cdf)",
-        )
-        .transform_calculate(
-            label=(
-                "'The probability that an hourly wage falls between $' "
-                "+ format(datum.lo_wage, '.0f') "
-                "+ ' and $' "
-                "+ format(datum.hi_wage, '.0f') "
-                "+ ' is ' "
-                "+ format(datum.hi_cdf - datum.lo_cdf, '.2f') "
-                "+ '.'"
-            )
-        )
-        .mark_text(align="left", baseline="top", fontSize=14, color="#444")
-        .encode(text="label:N", x=alt.value(0), y=alt.value(5))
-        .properties(width=560, height=30)
-    )
-
-    # Declare the brush param at the outermost level so every sub-view can
-    # reference it through transform_filter.
+    # Declare the brush at the outermost level so both sub-views see it, then
+    # wrap in mo.ui.altair_chart so the Python side can read the brushed range
+    # and report the probability in the paragraph below.
     _combined = (
-        alt.vconcat(_pdf_chart, _cdf_chart, _prob_text)
+        alt.vconcat(_pdf_chart, _cdf_chart)
         .add_params(_brush)
     )
+    wage_chart = mo.ui.altair_chart(
+        _combined, chart_selection=False, legend_selection=False,
+    )
+    wage_dist = _dist
+    wage_chart
+    return wage_chart, wage_dist
 
-    mo.vstack([
-        _combined,
-        mo.md(
+
+@app.cell(hide_code=True)
+def _(mo, wage_chart, wage_dist):
+    _sel = wage_chart.value
+    if _sel is not None and len(_sel) > 0:
+        _a = float(_sel["wage"].min())
+        _b = float(_sel["wage"].max())
+        _prob = float(wage_dist.cdf(_b) - wage_dist.cdf(_a))
+        _msg = (
+            "Drag across the density above to select a wage range. The shaded "
+            "area is the probability that a worker's wage falls in that range. "
+            "On the cumulative distribution beneath, the horizontal lines run "
+            "from the curve to the vertical axis at the two selected wages, so "
+            "the cumulative probabilities can be read off the axis. "
+            f"You have selected wages between \\${_a:,.0f} and \\${_b:,.0f}, "
+            f"and the probability that an hourly wage falls in that range is "
+            f"{_prob:.2f}."
+        )
+    else:
+        _msg = (
             "Drag across the density above to select a wage range. The shaded "
             "area is the probability that a worker's wage falls in that range. "
             "On the cumulative distribution beneath, the horizontal lines run "
             "from the curve to the vertical axis at the two selected wages, so "
             "the cumulative probabilities can be read off the axis."
-        ),
-    ])
+        )
+    mo.md(_msg)
     return
 
 
