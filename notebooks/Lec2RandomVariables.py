@@ -92,17 +92,6 @@ def _(mo):
     return
 
 
-@app.cell
-def _(mo):
-    mo.callout(
-        mo.md(
-            "**Key lecture concepts:** central limit theorem, law of large numbers, standardization etc. "
-        ),
-        kind="neutral",
-    )
-    return
-
-
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -793,9 +782,11 @@ def _(alt, clt_button, clt_n, clt_process, clt_reps, mo, np, pd, stats):
 def _(mo):
     mo.callout(
         mo.md(
-            "**Key lecture terms:** variable, random variable, probability "
+            "**Key terms:** variable, random variable, probability "
             "distribution, probability mass function, cumulative "
-            "probability distribution, probability density function."
+            "probability distribution, probability density function.\n\n"
+
+            "**Key concepts:** central limit theorem, law of large numbers, standardization etc."
         ),
         kind="info",
     )
