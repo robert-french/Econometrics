@@ -82,7 +82,7 @@ def _(mo):
     mo.md(r"""
     ## Contents
 
-    1. [Why we need probability](#sec1)
+    1. [Probability and statistics](#sec1)
     2. [Random variables](#sec2)
     3. [Describing a random variable](#sec3)
     4. [The sample mean is random](#sec4)
@@ -99,34 +99,15 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec1"></a>
-    ## 1. Why we need probability
+    ## 1. Probability and statistics
 
-    In the last lecture we drew a line between a population and a sample. The
-    population is the whole group a question is meant to cover, for example
-    every adult worker in the country, on the order of a hundred and fifty
-    million people. The sample is the much smaller group we actually collect
-    data from, for example the sixty thousand households the Census Bureau
-    contacts each month for its labor force survey.
+    In the last lecture, we distinguished between a population and a sample. The population is what we ultimately want to learn about. It is the broader setting our data represent. That includes the data units we could have observed and the patterns we want to understand, such as how earnings differ by education, how unemployment varies by age, or how wages change over time. The sample is the smaller set of observations we actually collect, such as the roughly sixty thousand households the Census Bureau contacts each month for its labor force survey.
 
-    The numbers we compute live in the sample, not the population. If a
-    different sixty thousand households had been picked, the average wage in
-    the data would come out a little differently. It would still be near the
-    truth, perhaps \$24.30 an hour instead of \$24.10, but not exactly the
-    same. A number computed from a sample, then, does not have one fixed
-    value. It varies from one possible sample to the next.
+    Once we have a sample, we compute numbers that summarize what we see in the data. These might include the average wage, the unemployment rate, or the difference in average earnings between two groups. These numbers come from the sample, not the population itself. If a different sixty thousand households had been selected, the average wage in the data would probably be slightly different. It might be $24.30 an hour instead of $24.10, even though both samples are trying to measure the same population average. A number computed from a sample therefore does not have one fixed value before the sample is drawn. It can vary from one possible sample to another.
 
-    Probability is the language for describing how a number that varies from
-    sample to sample behaves. Probability starts from a known true
-    distribution in the population and works out how samples drawn from it
-    look on average and how much they swing around that average. Statistics
-    goes the other way. We observe one sample and use it to learn an unknown
-    population quantity, such as the population mean $\mu_X$, through an
-    estimator such as the sample mean $\hat{\mu}_X$. Econometrics applies
-    both to economic questions, using a sample to infer an economic
-    relationship in the population.
+    This distinction between the population and a sample is where probability and statistics enter. Probability gives us a way to describe how a sample statistic behaves across different possible samples. It starts with a known population and asks what samples drawn from that population would look like. For example, if we knew the true distribution of wages in the population, probability would tell us what sample averages we should expect to see and how much those sample averages would vary across repeated samples. Statistics goes in the opposite direction. We observe one sample and use it to learn about an unknown population quantity, such as the population mean $\mu_X$, using an estimator such as the sample mean $\hat{\mu}_X$. Econometrics applies these ideas to economic questions, using sample data to learn about economic relationships in the population.
 
-    This lecture builds the probability ideas the rest of the course needs.
-    The running example is the number of emails you receive in an hour.
+    This lecture and the next two introduce the probability and statistics we need for econometrics.
     """)
     return
 
@@ -137,26 +118,20 @@ def _(mo):
     <a id="sec2"></a>
     ## 2. Random variables
 
-    A variable is something we measure that takes different values from one
-    case to the next. Hourly wage is a variable because different people earn
-    different amounts. The number of emails you receive in an hour is a
-    variable because some hours bring zero and other hours bring five.
-    Variables come in a few standard types.
+    A ***variable*** is something we measure that can take different values across observations. Hourly wage is a variable because different people earn different amounts. The number of emails you receive in an hour is also a variable because some hours bring zero emails while others bring five. Economists often distinguish variables by the kinds of values they can take.
 
-    | Type | What it means | Example |
+    | Variable type | Definition | Example |
     |---|---|---|
-    | Continuous | Can take any real value | Monthly income |
-    | Discrete | Drawn from a countable set | Shoe sizes in half steps (5, 5.5, 6, ...) |
-    | Count | Nonnegative integers, no fractions | Number of children |
-    | Ordinal | Ordered categories, gaps not meaningful | Likert scale (strongly agree to strongly disagree) |
-    | Categorical | Unordered categories, codes have no magnitude | Names of US states |
-    | Binary | Two-category categorical variable | Yes or no |
+    | Continuous | Can take any possible numeric value, including decimals | Monthly income |
+    | Discrete | Can take only specific values | Shoe sizes in half steps, such as 5, 5.5, 6, ... |
+    | Count | Takes nonnegative integer values | Number of children |
+    | Ordinal | Ordered categories, but the gaps between categories are not meaningful | Likert scale, from strongly disagree to strongly agree |
+    | Categorical | Unordered categories, where numbers are only labels if used | Names of U.S. states |
+    | Binary | Takes only two values | Yes or no |
 
-    The first four types are numeric, so they can be added, averaged, and put
-    through formulas. Ordinal and categorical variables cannot, because their
-    codes are labels rather than amounts.
+    The first three types of variables are numeric in the usual sense, so they can be added, averaged, and used in formulas. Ordinal variables are ordered, but their numerical codes should be treated carefully because the gaps between categories may not be meaningful. Categorical variables are different. Their codes are labels rather than amounts, so it usually does not make sense to add or average them.
 
-    A random variable is a numerical measurement of an outcome we cannot
+    A ***random variable*** is a numerical summary of an outcome or data point we cannot
     predict in advance. We write a random variable with a capital letter such
     as $X$. The number of emails you get in the next hour is a random
     variable, because before the hour starts we cannot say which value it
@@ -165,35 +140,35 @@ def _(mo):
     person at random from the population, because we will not know that
     person's wage until we draw them.
 
-    The probability distribution of a random variable describes how likely
+    The ***probability distribution*** of a random variable describes how likely
     each of its possible values is. What this description looks like depends
     on whether the variable is discrete or continuous.
 
     A discrete random variable takes values that come in separate, countable
-    steps, such as $0, 1, 2, 3, \ldots$ emails per hour. Its probability
-    distribution lists the possible outcomes $x_1, x_2, \ldots, x_K$ together
+    steps, such as $0, 1, 2, 3, \ldots$ emails per hour. Its ***probability
+    mass function*** lists the possible outcomes $x_1, x_2, \ldots, x_K$ together
     with the probability of each. We write $p_i = \Pr(X = x_i)$ for the
-    probability that $X$ takes the particular value $x_i$. The cumulative
-    probability distribution, written $\Pr(X \le x)$, is the probability that
+    probability that $X$ takes the particular value $x_i$. The ***cumulative
+    probability distribution***, written $\Pr(X \le x)$, is the probability that
     $X$ comes out at or below the value $x$. The table below is one possible
-    distribution for the emails example. Most hours bring zero emails, a few
+    distribution for the number of emails received in an hour. Most hours bring zero emails, a few
     bring one, and the chance of more than that drops off quickly.
 
-    | Number of emails | 0 | 1 | 2 | 3 | 4 |
+    | Number of emails, $\boldsymbol{x_i}$ | 0 | 1 | 2 | 3 | 4 |
     |---|---|---|---|---|---|
-    | Probability | 0.80 | 0.10 | 0.06 | 0.03 | 0.01 |
-    | Cumulative probability | 0.80 | 0.90 | 0.96 | 0.99 | 1.00 |
+    | Probability, $\Pr(X = x_i)$| 0.80 | 0.10 | 0.06 | 0.03 | 0.01 |
+    | Cumulative probability, $\Pr(X \le x)$| 0.80 | 0.90 | 0.96 | 0.99 | 1.00 |
 
     A continuous random variable takes values on a smooth range with no gaps,
     so it can equal \$18.46, \$18.47, \$18.461, or any nearby number. There
     are infinitely many such values, and we cannot list them, so we cannot
     give a probability to each one individually. Instead we describe the
-    variable with a curve called the probability density function. The area
+    variable with a curve called the ***probability density function***. The area
     under that curve between any two values is the probability that the
     variable falls between those two values. The cumulative distribution
     still gives the probability of being at or below a value, just as in the
     discrete case. The figure below uses hourly wages as the continuous
-    example. The calculus version of these definitions sits in the appendix.
+    example. We define the probability density function formally in the appendix.
     """)
     return
 
@@ -303,12 +278,10 @@ def _(mo, wage_chart, wage_dist):
         _prob = float(wage_dist.cdf(_b) - wage_dist.cdf(_a))
         _caption_body = (
             f"You picked wages between &#36;{_a:,.0f} and &#36;{_b:,.0f}, "
-            f"and the probability that a worker earns in that range is "
-            f"{_prob:.2f}. This is also the vertical gap between the two "
+            f"and the probability that a worker earns in that range is $P(X \in [{_a:,.0f}, {_b:,.0f}]) = "
+            f"{_prob:.2f}$. This is also the vertical gap between the two "
             f"horizontal dashed lines on the cumulative distribution "
-            f"chart, because the chance of being at or below the upper "
-            f"wage minus the chance of being at or below the lower wage "
-            f"is exactly the chance of falling between them."
+            f"chart, $P(X \leq {_b:,.0f}) - P(X \leq {_a:,.0f})$."
         )
         _caption = mo.Html(
             '<div style="margin:0.2rem auto 1rem;max-width:560px;'
