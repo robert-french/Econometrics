@@ -85,11 +85,10 @@ def _(mo):
     1. [Probability and statistics](#sec1)
     2. [Random variables](#sec2)
     3. [Describing a random variable](#sec3)
-    4. [The sample mean is random](#sec4)
-    5. [Law of large numbers](#sec5)
-    6. [Central limit theorem](#sec6)
-    7. [Common probability distributions](#sec7)
-
+    4. [Law of large numbers](#sec4)
+    5. [The sample mean is random](#sec5)
+    6. [The normal distribution](#sec6)
+    7. [Central limit theorem](#sec7)
     [Appendix](#appendix)
     """)
     return
@@ -277,17 +276,19 @@ def _(mo, wage_chart, wage_dist):
         _b = float(_sel["wage"].max())
         _prob = float(wage_dist.cdf(_b) - wage_dist.cdf(_a))
         _caption_body = (
-            f"You picked wages between &#36;{_a:,.0f} and &#36;{_b:,.0f}, "
-            f"and the probability that a worker earns in that range is $P(X \in [{_a:,.0f}, {_b:,.0f}]) = "
-            f"{_prob:.2f}$. This is also the vertical gap between the two "
-            f"horizontal dashed lines on the cumulative distribution "
-            f"chart, $P(X \leq {_b:,.0f}) - P(X \leq {_a:,.0f})$."
+            rf"You picked wages between \${_a:,.0f} and \${_b:,.0f}, "
+            rf"and the probability that a worker earns in that range is "
+            rf"$P(X \in [{_a:,.0f}, {_b:,.0f}]) = {_prob:.2f}$. This is "
+            rf"also the vertical gap between the two horizontal dashed "
+            rf"lines on the cumulative distribution chart, "
+            rf"$P(X \leq {_b:,.0f}) - P(X \leq {_a:,.0f})$."
         )
-        _caption = mo.Html(
+        _caption = mo.md(
             '<div style="margin:0.2rem auto 1rem;max-width:560px;'
             'font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;">'
+            "\n\n"
             + _caption_body
-            + "</div>"
+            + "\n\n</div>"
         )
         _output = mo.vstack([_caption, _intro])
     else:
@@ -350,7 +351,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ### <span style="color:#0b68cb">Example</span>
+    ### <span style="color:#0b68cb">Discrete random variable example</span>
 
     Suppose the true distribution of emails per hour is the one from Section
     2, and that over 24 separate hours you record how many emails arrived in
@@ -359,10 +360,10 @@ def _(mo):
     know. The third row gives the number of hours in which each outcome
     actually occurred.
 
-    | Number of emails $x_i$ | 0 | 1 | 2 | 3 | 4 |
+    | Number of emails in an hour $\boldsymbol{x_i}$ | 0 | 1 | 2 | 3 | 4 |
     |---|---|---|---|---|---|
-    | Probability $p_i$ (unobserved) | 0.80 | 0.10 | 0.06 | 0.03 | 0.01 |
-    | Hours with $x_i$ emails (observed) | 19 | 4 | 1 | 0 | 0 |
+    | Probability of that many emails in an hour $p_i$ (unobserved) | 0.80 | 0.10 | 0.06 | 0.03 | 0.01 |
+    | Number of hours with $x_i$ emails (observed) | 19 | 4 | 1 | 0 | 0 |
 
     If we knew the probabilities, the expected number of emails in an hour
     would be
@@ -388,8 +389,40 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
+    <a id="sec5"></a>
+    ## 4. Law of large numbers
+
+    The law of large numbers says that the sample mean $\hat{\mu}_X$ gets
+    close to the true expected value $\mu_X$ when the sample is large. The
+    reasoning was sketched in Section 3. Over many draws each outcome shows
+    up in the sample in roughly the proportion its probability says it
+    should, so the weighted average we compute from the sample, $\hat{\mu}_X$,
+    lines up with the weighted average computed using the true probabilities,
+    $\mu_X$.
+
+    In a small sample the law has not had room to act. The sample mean of
+    $0.25$ in the example landed below the truth of $0.35$ because random
+    luck pushed the 24-hour count one way or the other. A sample of a
+    hundred hours would be tighter, a sample of a thousand hours tighter
+    still, and a sample of ten thousand hours would essentially land on
+    $0.35$.
+
+    Use the controls below. Pick a random process from the dropdown, set the
+    number of draws, and click ''Draw new sample''. The wiggly line is the
+    running sample mean, recomputed each time a new draw is added. The flat
+    orange line is the true expected value of the chosen process. The
+    running mean swings wildly when only a handful of draws are in, and
+    settles onto the flat line as the sample grows. The same pattern holds
+    for every process in the dropdown.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     <a id="sec4"></a>
-    ## 4. The sample mean is random
+    ## 5. The sample mean as a random variable
 
     The sample mean is computed from random outcomes, so the sample mean is
     itself a random variable. The $0.25$ emails per hour we computed in the
@@ -420,38 +453,6 @@ def _(mo):
     estimate it from one observed sample, and it is the quantity we will use
     later to build hypothesis tests and confidence intervals. Sections 5 and
     6 show the two facts above in simulations you can run yourself.
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    <a id="sec5"></a>
-    ## 5. Law of large numbers
-
-    The law of large numbers says that the sample mean $\hat{\mu}_X$ gets
-    close to the true expected value $\mu_X$ when the sample is large. The
-    reasoning was sketched in Section 3. Over many draws each outcome shows
-    up in the sample in roughly the proportion its probability says it
-    should, so the weighted average we compute from the sample, $\hat{\mu}_X$,
-    lines up with the weighted average computed using the true probabilities,
-    $\mu_X$.
-
-    In a small sample the law has not had room to act. The sample mean of
-    $0.25$ in the example landed below the truth of $0.35$ because random
-    luck pushed the 24-hour count one way or the other. A sample of a
-    hundred hours would be tighter, a sample of a thousand hours tighter
-    still, and a sample of ten thousand hours would essentially land on
-    $0.35$.
-
-    Use the controls below. Pick a random process from the dropdown, set the
-    number of draws, and click ''Draw new sample''. The wiggly line is the
-    running sample mean, recomputed each time a new draw is added. The flat
-    orange line is the true expected value of the chosen process. The
-    running mean swings wildly when only a handful of draws are in, and
-    settles onto the flat line as the sample grows. The same pattern holds
-    for every process in the dropdown.
     """)
     return
 
@@ -534,7 +535,109 @@ def _(alt, lln_button, lln_draws, lln_process, mo, np, pd):
 def _(mo):
     mo.md(r"""
     <a id="sec6"></a>
-    ## 6. Central limit theorem
+    ## 6. The normal distribution
+
+    A few continuous distributions come up so often in statistics and
+    econometrics that they have names. The most important by a wide margin
+    is the normal distribution.
+
+    The normal distribution is a continuous, symmetric, bell-shaped
+    distribution. Its shape is fixed once we choose two numbers, its mean
+    $\mu$ and its variance $\sigma^2$, and we write it
+    $\mathcal{N}(\mu, \sigma^2)$. The mean $\mu$ is where the peak of the
+    bell sits on the horizontal axis. The variance $\sigma^2$ controls how
+    wide the bell is around that peak, with larger $\sigma^2$ giving a wider
+    bell. The area under the curve between $\mu - 1.96\sigma$ and
+    $\mu + 1.96\sigma$ is exactly $0.95$, a fact we will use repeatedly
+    later in the course. The reason the normal distribution shows up
+    everywhere is the central limit theorem from the previous section.
+
+    The standard normal distribution is the special normal with $\mu = 0$
+    and $\sigma = 1$, written $\mathcal{N}(0, 1)$. It is the version
+    tabulated in textbooks and built into every statistics package. Any
+    normal variable can be turned into a standard normal by standardizing
+    it. If $X \sim \mathcal{N}(\mu, \sigma^2)$, then
+
+    $$ Z = \frac{X - \mu}{\sigma} \sim \mathcal{N}(0, 1). $$
+
+    Standardizing has a plain interpretation. Subtracting $\mu$ shifts the
+    variable so its center sits at zero, and dividing by $\sigma$ stretches
+    or shrinks the variable so its spread is one. That is why two normal
+    variables measured on different scales, for example test scores in
+    points and wages in dollars, can be put on the same footing once each
+    is standardized. Three further named distributions, the chi-squared,
+    the $t$, and the $F$, come up later when we test hypotheses, and they
+    are defined in the appendix.
+
+    The figure below shows standardization in action. The slider $\mu$
+    moves the normal on the left across the horizontal axis, the slider
+    $\sigma$ widens or narrows it, and the chart on the right redraws the
+    same variable after standardizing. The right chart never changes,
+    because for any choice of $\mu$ and $\sigma$ the standardized version
+    is always the standard normal $\mathcal{N}(0, 1)$.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    std_mu = mo.ui.slider(
+        start=-3.0, stop=3.0, step=0.5, value=1.0,
+        label=r"Mean $\mu$", show_value=True,
+    )
+    std_sigma = mo.ui.slider(
+        start=0.5, stop=3.0, step=0.5, value=1.5,
+        label=r"Standard deviation $\sigma$", show_value=True,
+    )
+    mo.vstack([std_mu, std_sigma])
+    return std_mu, std_sigma
+
+
+@app.cell(hide_code=True)
+def _(alt, mo, np, pd, stats, std_mu, std_sigma):
+    _mu = std_mu.value
+    _sigma = std_sigma.value
+
+    _xl = np.linspace(-9.0, 9.0, 400)
+    _left = (
+        alt.Chart(pd.DataFrame({"x": _xl, "density": stats.norm.pdf(_xl, _mu, _sigma)}))
+        .mark_line(color="#1f4e79", size=2)
+        .encode(
+            x=alt.X("x:Q", scale=alt.Scale(domain=[-9, 9]), title="X"),
+            y=alt.Y("density:Q", scale=alt.Scale(domain=[0, 0.85]), title="Density"),
+        )
+        .properties(width=250, height=240, title="X, a normal you chose")
+    )
+
+    _xr = np.linspace(-4.0, 4.0, 400)
+    _right = (
+        alt.Chart(pd.DataFrame({"x": _xr, "density": stats.norm.pdf(_xr, 0.0, 1.0)}))
+        .mark_line(color="#1f4e79", size=2)
+        .encode(
+            x=alt.X("x:Q", title="Z = (X - μ) / σ"),
+            y=alt.Y("density:Q", scale=alt.Scale(domain=[0, 0.85]), title="Density"),
+        )
+        .properties(width=250, height=240, title="X after standardizing")
+    )
+
+    mo.vstack([
+        alt.hconcat(_left, _right),
+        mo.md(
+            r"The left chart is the normal $\mathcal{N}(\mu, \sigma^2)$ you "
+            "set with the sliders. The right chart is the same variable "
+            r"after standardizing with $Z = (X - \mu)/\sigma$. The right "
+            "chart never moves, because the standardization always lands on "
+            "the standard normal."
+        ),
+    ])
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    <a id="sec7"></a>
+    ## 7. Central limit theorem
 
     Picture running the same study many times. Each run uses a fresh sample
     of size $n$ from the same population, and each run produces one sample
@@ -678,108 +781,6 @@ def _(alt, clt_button, clt_n, clt_process, clt_reps, mo, np, pd, stats):
             "samples, with the matching normal curve drawn on top. Raising "
             "the sample size narrows the right chart and pulls its shape "
             "toward a bell curve, no matter what the left chart looks like."
-        ),
-    ])
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    <a id="sec7"></a>
-    ## 7. Common probability distributions
-
-    A few continuous distributions come up so often in statistics and
-    econometrics that they have names. The most important by a wide margin
-    is the normal distribution.
-
-    The normal distribution is a continuous, symmetric, bell-shaped
-    distribution. Its shape is fixed once we choose two numbers, its mean
-    $\mu$ and its variance $\sigma^2$, and we write it
-    $\mathcal{N}(\mu, \sigma^2)$. The mean $\mu$ is where the peak of the
-    bell sits on the horizontal axis. The variance $\sigma^2$ controls how
-    wide the bell is around that peak, with larger $\sigma^2$ giving a wider
-    bell. The area under the curve between $\mu - 1.96\sigma$ and
-    $\mu + 1.96\sigma$ is exactly $0.95$, a fact we will use repeatedly
-    later in the course. The reason the normal distribution shows up
-    everywhere is the central limit theorem from the previous section.
-
-    The standard normal distribution is the special normal with $\mu = 0$
-    and $\sigma = 1$, written $\mathcal{N}(0, 1)$. It is the version
-    tabulated in textbooks and built into every statistics package. Any
-    normal variable can be turned into a standard normal by standardizing
-    it. If $X \sim \mathcal{N}(\mu, \sigma^2)$, then
-
-    $$ Z = \frac{X - \mu}{\sigma} \sim \mathcal{N}(0, 1). $$
-
-    Standardizing has a plain interpretation. Subtracting $\mu$ shifts the
-    variable so its center sits at zero, and dividing by $\sigma$ stretches
-    or shrinks the variable so its spread is one. That is why two normal
-    variables measured on different scales, for example test scores in
-    points and wages in dollars, can be put on the same footing once each
-    is standardized. Three further named distributions, the chi-squared,
-    the $t$, and the $F$, come up later when we test hypotheses, and they
-    are defined in the appendix.
-
-    The figure below shows standardization in action. The slider $\mu$
-    moves the normal on the left across the horizontal axis, the slider
-    $\sigma$ widens or narrows it, and the chart on the right redraws the
-    same variable after standardizing. The right chart never changes,
-    because for any choice of $\mu$ and $\sigma$ the standardized version
-    is always the standard normal $\mathcal{N}(0, 1)$.
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    std_mu = mo.ui.slider(
-        start=-3.0, stop=3.0, step=0.5, value=1.0,
-        label=r"Mean $\mu$", show_value=True,
-    )
-    std_sigma = mo.ui.slider(
-        start=0.5, stop=3.0, step=0.5, value=1.5,
-        label=r"Standard deviation $\sigma$", show_value=True,
-    )
-    mo.vstack([std_mu, std_sigma])
-    return std_mu, std_sigma
-
-
-@app.cell(hide_code=True)
-def _(alt, mo, np, pd, stats, std_mu, std_sigma):
-    _mu = std_mu.value
-    _sigma = std_sigma.value
-
-    _xl = np.linspace(-9.0, 9.0, 400)
-    _left = (
-        alt.Chart(pd.DataFrame({"x": _xl, "density": stats.norm.pdf(_xl, _mu, _sigma)}))
-        .mark_line(color="#1f4e79", size=2)
-        .encode(
-            x=alt.X("x:Q", scale=alt.Scale(domain=[-9, 9]), title="X"),
-            y=alt.Y("density:Q", scale=alt.Scale(domain=[0, 0.85]), title="Density"),
-        )
-        .properties(width=250, height=240, title="X, a normal you chose")
-    )
-
-    _xr = np.linspace(-4.0, 4.0, 400)
-    _right = (
-        alt.Chart(pd.DataFrame({"x": _xr, "density": stats.norm.pdf(_xr, 0.0, 1.0)}))
-        .mark_line(color="#1f4e79", size=2)
-        .encode(
-            x=alt.X("x:Q", title="Z = (X - μ) / σ"),
-            y=alt.Y("density:Q", scale=alt.Scale(domain=[0, 0.85]), title="Density"),
-        )
-        .properties(width=250, height=240, title="X after standardizing")
-    )
-
-    mo.vstack([
-        alt.hconcat(_left, _right),
-        mo.md(
-            r"The left chart is the normal $\mathcal{N}(\mu, \sigma^2)$ you "
-            "set with the sliders. The right chart is the same variable "
-            r"after standardizing with $Z = (X - \mu)/\sigma$. The right "
-            "chart never moves, because the standardization always lands on "
-            "the standard normal."
         ),
     ])
     return
