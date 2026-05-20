@@ -207,7 +207,7 @@ def _(alt, mo, np, pd, stats):
     )
     _pdf_chart = (_pdf_base + _pdf_hl).properties(
         width=560, height=240,
-        title="Drag across the wage density to select a range",
+        title="Probability density function (PDF)",
     )
 
     _cdf_line = (
@@ -219,42 +219,69 @@ def _(alt, mo, np, pd, stats):
         )
     )
 
-    _lower_ep = (
+    # Aggregate both endpoints in one pass with unique output field names so
+    # the upper- and lower-endpoint layers cannot collide on a shared field.
+    _ep = (
         alt.Chart(_frame)
         .transform_filter(_brush)
-        .transform_aggregate(wage="min(wage)", cdf="min(cdf)")
-        .transform_calculate(zero="0")
-    )
-    _upper_ep = (
-        alt.Chart(_frame)
-        .transform_filter(_brush)
-        .transform_aggregate(wage="max(wage)", cdf="max(cdf)")
+        .transform_aggregate(
+            lo_wage="min(wage)", hi_wage="max(wage)",
+            lo_cdf="min(cdf)", hi_cdf="max(cdf)",
+        )
         .transform_calculate(zero="0")
     )
 
     # Horizontal lines from the CDF curve back to the vertical axis at the two
     # selected wages, so the cumulative probabilities can be read off the axis.
-    _h_lo = _lower_ep.mark_rule(color="orange", strokeDash=[4, 3]).encode(
-        y="cdf:Q", x="zero:Q", x2="wage:Q",
+    _h_lo = _ep.mark_rule(color="orange", strokeDash=[4, 3]).encode(
+        y="lo_cdf:Q", x="zero:Q", x2="lo_wage:Q",
     )
-    _h_hi = _upper_ep.mark_rule(color="orange", strokeDash=[4, 3]).encode(
-        y="cdf:Q", x="zero:Q", x2="wage:Q",
+    _h_hi = _ep.mark_rule(color="orange", strokeDash=[4, 3]).encode(
+        y="hi_cdf:Q", x="zero:Q", x2="hi_wage:Q",
     )
     # Vertical lines from the x-axis up to the CDF curve at the selected wages.
-    _v_lo = _lower_ep.mark_rule(color="orange", strokeDash=[4, 3]).encode(
-        x="wage:Q", y="zero:Q", y2="cdf:Q",
+    _v_lo = _ep.mark_rule(color="orange", strokeDash=[4, 3]).encode(
+        x="lo_wage:Q", y="zero:Q", y2="lo_cdf:Q",
     )
-    _v_hi = _upper_ep.mark_rule(color="orange", strokeDash=[4, 3]).encode(
-        x="wage:Q", y="zero:Q", y2="cdf:Q",
+    _v_hi = _ep.mark_rule(color="orange", strokeDash=[4, 3]).encode(
+        x="hi_wage:Q", y="zero:Q", y2="hi_cdf:Q",
     )
 
     _cdf_chart = (_cdf_line + _h_lo + _h_hi + _v_lo + _v_hi).properties(
-        width=560, height=240, title="Cumulative distribution",
+        width=560, height=240, title="Cumulative distribution function (CDF)",
     )
 
-    # Declare the brush param at the outermost level so both sub-views can
+    # A dynamic probability sentence shown beneath the CDF. A Vega expression
+    # builds the text from the brushed endpoints, so it updates live.
+    _prob_text = (
+        alt.Chart(_frame)
+        .transform_filter(_brush)
+        .transform_aggregate(
+            lo_wage="min(wage)", hi_wage="max(wage)",
+            lo_cdf="min(cdf)", hi_cdf="max(cdf)",
+        )
+        .transform_calculate(
+            label=(
+                "'The probability that an hourly wage falls between $' "
+                "+ format(datum.lo_wage, '.0f') "
+                "+ ' and $' "
+                "+ format(datum.hi_wage, '.0f') "
+                "+ ' is ' "
+                "+ format(datum.hi_cdf - datum.lo_cdf, '.2f') "
+                "+ '.'"
+            )
+        )
+        .mark_text(align="left", baseline="top", fontSize=14, color="#444")
+        .encode(text="label:N", x=alt.value(0), y=alt.value(5))
+        .properties(width=560, height=30)
+    )
+
+    # Declare the brush param at the outermost level so every sub-view can
     # reference it through transform_filter.
-    _combined = alt.vconcat(_pdf_chart, _cdf_chart).add_params(_brush)
+    _combined = (
+        alt.vconcat(_pdf_chart, _cdf_chart, _prob_text)
+        .add_params(_brush)
+    )
 
     mo.vstack([
         _combined,
