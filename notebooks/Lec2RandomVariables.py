@@ -155,8 +155,8 @@ def _(mo):
 
     | Number of emails, $\boldsymbol{x_i}$ | 0 | 1 | 2 | 3 | 4 |
     |---|---|---|---|---|---|
-    | Probability, $\Pr(X = x_i)$| 0.80 | 0.10 | 0.06 | 0.03 | 0.01 |
-    | Cumulative probability, $\Pr(X \le x_i)$| 0.80 | 0.90 | 0.96 | 0.99 | 1.00 |
+    | Probability, $\:\Pr(X = x_i)$| 0.80 | 0.10 | 0.06 | 0.03 | 0.01 |
+    | Cumulative probability, $\:\Pr(X \le x_i)$| 0.80 | 0.90 | 0.96 | 0.99 | 1.00 |
 
     A continuous random variable takes values on a smooth range with no gaps,
     so it can equal \$18.46, \$18.47, \$18.461, or any nearby number. There
@@ -266,10 +266,8 @@ def _(mo, wage_chart, wage_dist):
     _intro = mo.md(
         "Drag across the top chart to pick a range of hourly wages. The dark "
         "shaded band that appears is the probability that a randomly chosen "
-        "worker has a wage in that range. The lower chart updates at the "
-        "same time, with dashed lines dropping from the cumulative "
-        "distribution curve to the vertical axis at the two endpoints, so "
-        "the cumulative probability at each end can be read off the axis."
+        "worker has a wage in that range. The lower chart shows the cumulative "
+        "probability at each end of the selected range."
     )
     if _sel is not None and len(_sel) > 0:
         _a = float(_sel["wage"].min())
@@ -801,15 +799,6 @@ def _(alt, clt_button, clt_n, clt_process, clt_reps, mo, np, pd, stats):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""
-    <a id="appendix"></a>
-    ## Appendix
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
     appx_dist = mo.ui.dropdown(
         options=["Chi-square", "t", "F"],
         value="t",
@@ -854,8 +843,10 @@ def _(alt, appx_df, appx_dist, mo, np, pd, stats):
     _chart = (_faint + _main).properties(width=560, height=300, title=_label)
 
     _text = mo.md(r"""
-        This is bonus material. You will not need calculus on any quiz,
+        This is bonus material. You will not be tested on this material and you will not need calculus on any quiz,
         problem set, or exam.
+
+        **Continuous random variables**
 
         When a random variable does not take a discrete set of values we call
         it continuous, and we cannot sum over its outcomes. The discrete
@@ -870,6 +861,8 @@ def _(alt, appx_df, appx_dist, mo, np, pd, stats):
         $x$ weighted by its chance of occurring, with the integral playing
         the role the sum played in the discrete case.
 
+        **Other measures of spread**
+
         Two less common measures of spread are the skewness and the
         kurtosis. The skewness measures the tilt of a distribution and is
         zero when the distribution is symmetric, with a positive value
@@ -882,6 +875,8 @@ def _(alt, appx_df, appx_dist, mo, np, pd, stats):
         of $X$, $\mathbb{E}[X^2]$ the second moment, and $\mathbb{E}[X^r]$
         the $r$-th moment. The variance, skewness, and kurtosis are built
         from the second, third, and fourth moments respectively.
+
+        **Common probability distributions**
 
         Three named distributions show up later when we test hypotheses. The
         chi-squared distribution is the distribution of a sum of $m$ squared
@@ -910,7 +905,7 @@ def _(alt, appx_df, appx_dist, mo, np, pd, stats):
     )
 
     mo.accordion({
-        "Bonus material (not on assessments)": mo.vstack([
+        "## Appendix": mo.vstack([
             _text, appx_dist, appx_df, _chart, _caption,
         ]),
     })
