@@ -46,7 +46,6 @@ def _(mo):
                     "#sec5": "5. Law of large numbers",
                     "#sec6": "6. Central limit theorem",
                     "#sec7": "7. Common probability distributions",
-                    "#appendix": "Appendix",
                 },
                 orientation="vertical",
             ),
@@ -60,8 +59,8 @@ def _(mo):
 def _(mo):
     mo.hstack(
         [
-            mo.md('<a href="https://robert-french.github.io/Econometrics/" target="_self">← Course home</a>'),
-            mo.md('<a href="https://robert-french.github.io/Econometrics/" target="_self">Lecture 3 →</a>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec1Introduction.html" target="_self">← Lecture 1</a>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec3WorkingWithMultipleRandomVariables.html" target="_self">Lecture 3 →</a>'),
         ],
         justify="space-between", align="center",
     )
@@ -161,7 +160,7 @@ def _(mo):
     so it can equal \$18.46, \$18.47, \$18.461, or any nearby number. There
     are infinitely many such values, and we cannot list them, so we cannot
     give a probability to each one individually. Instead we describe the
-    variable with a curve called the probability density function. The area
+    variable with a curve called the probability density function (this is analogous to the probability mass function for discrete random variables). The area
     under that curve between any two values is the probability that the
     variable falls between those two values. The cumulative distribution
     still gives the probability of being at or below a value, just as in the
@@ -404,13 +403,13 @@ def _(mo):
     still, and a sample of ten thousand hours would essentially land on
     $0.35$.
 
-    Use the controls below. Pick a random process from the dropdown, set the
+    Use the controls below. Pick a random variable from the dropdown, set the
     number of draws, and click ''Draw new sample''. The wiggly line is the
     running sample mean, recomputed each time a new draw is added. The flat
-    orange line is the true expected value of the chosen process. The
+    orange line is the true expected value of the chosen random variable. The
     running mean swings wildly when only a handful of draws are in, and
     settles onto the flat line as the sample grows. The same pattern holds
-    for every process in the dropdown.
+    for every random variable in the dropdown.
     """)
     return
 
@@ -421,11 +420,9 @@ def _(mo):
         options=[
             "Fair die (1 to 6)",
             "Coin flip (0 or 1)",
-            "Emails per hour",
-            "Wait time (exponential)",
         ],
         value="Fair die (1 to 6)",
-        label="Process",
+        label="Random variable",
     )
     lln_draws = mo.ui.slider(
         start=10, stop=5000, step=10, value=200,
@@ -448,15 +445,9 @@ def _(alt, lln_button, lln_draws, lln_process, mo, np, pd):
     if _name == "Fair die (1 to 6)":
         _draws = _rng.integers(1, 7, _n).astype(float)
         _true = 3.5
-    elif _name == "Coin flip (0 or 1)":
+    else:
         _draws = _rng.integers(0, 2, _n).astype(float)
         _true = 0.5
-    elif _name == "Emails per hour":
-        _draws = _rng.poisson(4, _n).astype(float)
-        _true = 4.0
-    else:
-        _draws = _rng.exponential(5, _n)
-        _true = 5.0
 
     _running = np.cumsum(_draws) / np.arange(1, _n + 1)
     _path = pd.DataFrame({"draw": np.arange(1, _n + 1), "mean": _running})
@@ -481,9 +472,9 @@ def _(alt, lln_button, lln_draws, lln_process, mo, np, pd):
         mo.md(
             "The wiggly line is the sample mean recomputed after each new "
             "draw. The flat orange line is the true expected value of the "
-            "chosen process. With only a handful of draws the running mean "
-            "lands almost anywhere. With thousands of draws it settles onto "
-            "the flat line."
+            "chosen random variable. With only a handful of draws the "
+            "running mean lands almost anywhere. With thousands of draws "
+            "it settles onto the flat line."
         ),
     ])
     return
@@ -522,8 +513,7 @@ def _(mo):
 
     The standard error is the spread of the sample mean as we can actually
     estimate it from one observed sample, and it is the quantity we will use
-    later to build hypothesis tests and confidence intervals. Sections 5 and
-    6 show the two facts above in simulations you can run yourself.
+    later to build hypothesis tests and confidence intervals.
     """)
     return
 
@@ -547,7 +537,7 @@ def _(mo):
     bell. The area under the curve between $\mu - 1.96\sigma$ and
     $\mu + 1.96\sigma$ is exactly $0.95$, a fact we will use repeatedly
     later in the course. The reason the normal distribution shows up
-    everywhere is the central limit theorem from the previous section.
+    everywhere is the central limit theorem, which we introduce in the next section.
 
     The standard normal distribution is the special normal with $\mu = 0$
     and $\sigma = 1$, written $\mathcal{N}(0, 1)$. It is the version
@@ -562,16 +552,12 @@ def _(mo):
     or shrinks the variable so its spread is one. That is why two normal
     variables measured on different scales, for example test scores in
     points and wages in dollars, can be put on the same footing once each
-    is standardized. Three further named distributions, the chi-squared,
-    the $t$, and the $F$, come up later when we test hypotheses, and they
-    are defined in the appendix.
+    is standardized.
 
     The figure below shows standardization in action. The slider $\mu$
     moves the normal on the left across the horizontal axis, the slider
     $\sigma$ widens or narrows it, and the chart on the right redraws the
-    same variable after standardizing. The right chart never changes,
-    because for any choice of $\mu$ and $\sigma$ the standardized version
-    is always the standard normal $\mathcal{N}(0, 1)$.
+    same variable after standardizing.
     """)
     return
 
@@ -623,8 +609,8 @@ def _(alt, mo, np, pd, stats, std_mu, std_sigma):
             r"The left chart is the normal $\mathcal{N}(\mu, \sigma^2)$ you "
             "set with the sliders. The right chart is the same variable "
             r"after standardizing with $Z = (X - \mu)/\sigma$. The right "
-            "chart never moves, because the standardization always lands on "
-            "the standard normal."
+            "chart never moves, because the standardization always produces "
+            r"the standard normal distribution $\mathcal{N}(0, 1)$."
         ),
     ])
     return
@@ -636,14 +622,14 @@ def _(mo):
     <a id="sec7"></a>
     ## 7. Central limit theorem
 
-    Picture running the same study many times. Each run uses a fresh sample
-    of size $n$ from the same population, and each run produces one sample
-    mean $\hat{\mu}_X$. The collection of those sample means, one per run, is
-    itself a distribution. Section 4 already told us this distribution is
-    centered on $\mu_X$ with spread $\sigma_X / \sqrt{n}$. The central limit
+    Picture running the same study many times. Each study uses a fresh sample
+    of size $n$ from the same population, and each study produces one sample
+    mean $\hat{\mu}_X$. The collection of those sample means, one per study, is
+    itself a distribution. Section 5 already told us this distribution is
+    centered on $\mu_X$ with standard deviation $\sigma_X / \sqrt{n}$. The central limit
     theorem tells us about its shape. It says that for large enough $n$, the
     distribution of $\hat{\mu}_X$ is well approximated by a bell curve, the
-    normal distribution we meet in Section 7,
+    normal distribution we just described in Section 6,
 
     $$ \hat{\mu}_X \ \sim\ \mathcal{N}\!\left(\mu_X,\ \sigma_{\hat{\mu}_X}^2\right), $$
 
@@ -651,20 +637,20 @@ def _(mo):
     distribution with mean $\mu_X$ and variance
     $\sigma_{\hat{\mu}_X}^2 = \sigma_X^2 / n$, and $\sim$ is read as
     ''distributed as''. The remarkable part is that the approximation holds
-    whether or not $X$ itself is normal. The raw outcomes can be sharply
-    skewed or piled up at a single value, and as soon as $n$ is at all
-    sizeable, the sample means computed from them line up on a bell curve.
+    whether or not $X$ itself is normal. The raw data can be sharply
+    skewed or piled up at a single value, but as soon as $n$ is at all
+    sizeable, the sample means computed from them are distributed normally.
     This is the result that lets us build hypothesis tests for the sample
     mean later in the course.
 
-    Use the controls below. Pick a deliberately non-normal process, set the
-    sample size $n$ behind each mean, and choose how many means to simulate.
-    The left chart shows the shape of the raw process. The right chart shows
-    the distribution of the simulated sample means, with the matching normal
-    curve drawn on top. Set $n = 1$ and the means look just like the raw
-    process, because in that case each ''mean'' is a single draw. Raise $n$
-    and the right chart turns into a bell curve, no matter what shape the
-    left chart has.
+    Use the controls below. Pick a deliberately non-normal random variable,
+    set the sample size $n$ behind each mean, and choose how many means to
+    simulate. The left chart shows the shape of the random variable you
+    picked. The right chart shows the distribution of the simulated sample
+    means, with the matching normal curve drawn on top. Set $n = 1$ and the
+    means look just like the random variable on the left, because in that
+    case each ''mean'' is a single draw. Raise $n$ and the right chart turns
+    into a bell curve, no matter what shape the left chart has.
     """)
     return
 
@@ -676,10 +662,9 @@ def _(mo):
             "Uniform (0 to 1)",
             "Exponential (mean 1)",
             "Lopsided coin (10% ones)",
-            "Emails per hour",
         ],
         value="Exponential (mean 1)",
-        label="Process",
+        label="Random variable",
     )
     clt_n = mo.ui.slider(
         start=1, stop=100, step=1, value=30,
@@ -717,14 +702,10 @@ def _(alt, clt_button, clt_n, clt_process, clt_reps, mo, np, pd, stats):
         _raw = _rng.exponential(1.0, 2000)
         _pool = _rng.exponential(1.0, (_MAX, _n))
         _mu, _sd = 1.0, 1.0
-    elif _name == "Lopsided coin (10% ones)":
+    else:
         _raw = (_rng.random(2000) < 0.1).astype(float)
         _pool = (_rng.random((_MAX, _n)) < 0.1).astype(float)
         _mu, _sd = 0.1, (0.1 * 0.9) ** 0.5
-    else:
-        _raw = _rng.poisson(3, 2000).astype(float)
-        _pool = _rng.poisson(3, (_MAX, _n)).astype(float)
-        _mu, _sd = 3.0, 3.0 ** 0.5
 
     _means = _pool.mean(axis=1)[:_reps]
 
@@ -732,10 +713,10 @@ def _(alt, clt_button, clt_n, clt_process, clt_reps, mo, np, pd, stats):
         alt.Chart(pd.DataFrame({"x": _raw}))
         .mark_bar(color="#9aa5b1")
         .encode(
-            x=alt.X("x:Q", bin=alt.Bin(maxbins=30), title="Raw process"),
+            x=alt.X("x:Q", bin=alt.Bin(maxbins=30), title="X"),
             y=alt.Y("count()", title="Count"),
         )
-        .properties(width=250, height=260, title="The raw process")
+        .properties(width=250, height=260, title="The random variable you picked")
     )
 
     _hist = (
@@ -773,8 +754,8 @@ def _(alt, clt_button, clt_n, clt_process, clt_reps, mo, np, pd, stats):
     mo.vstack([
         alt.hconcat(_parent, _right),
         mo.md(
-            "The left chart is the raw process you picked. The right chart "
-            "is the distribution of the sample means from many fresh "
+            "The left chart is the random variable you picked. The right "
+            "chart is the distribution of the sample means from many fresh "
             "samples, with the matching normal curve drawn on top. Raising "
             "the sample size narrows the right chart and pulls its shape "
             "toward a bell curve, no matter what the left chart looks like."
@@ -787,7 +768,7 @@ def _(alt, clt_button, clt_n, clt_process, clt_reps, mo, np, pd, stats):
 def _(mo):
     mo.callout(
         mo.md(
-            "**Lecture key terms:** variable, random variable, probability "
+            "**Key lecture terms:** variable, random variable, probability "
             "distribution, probability mass function, cumulative "
             "probability distribution, probability density function."
         ),
@@ -800,7 +781,7 @@ def _(mo):
 def _(mo):
     mo.callout(
         mo.md(
-            "**Lecture key concepts:** central limit theorem, law of large numbers, standardization etc. "
+            "**Key lecture concepts:** central limit theorem, law of large numbers, standardization etc. "
         ),
         kind="neutral",
     )
@@ -926,8 +907,8 @@ def _(alt, appx_df, appx_dist, mo, np, pd, stats):
 def _(mo):
     mo.hstack(
         [
-            mo.md('<a href="https://robert-french.github.io/Econometrics/" target="_self">← Course home</a>'),
-            mo.md('<a href="https://robert-french.github.io/Econometrics/" target="_self">Lecture 3 →</a>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec1Introduction.html" target="_self">← Lecture 1</a>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec3WorkingWithMultipleRandomVariables.html" target="_self">Lecture 3 →</a>'),
         ],
         justify="space-between", align="center",
     )
