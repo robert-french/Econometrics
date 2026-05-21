@@ -98,11 +98,11 @@ def _(mo):
     <a id="sec1"></a>
     ## 1. Probability and statistics
 
-    In the last lecture, we distinguished between a population and a sample. The population is what we ultimately want to learn about. It is the broader setting our data represent. That includes the data units we could have observed and the patterns we want to understand, such as how earnings differ by education, how unemployment varies by age, or how wages change over time. The sample is the smaller set of observations we actually collect or observe, such as the roughly sixty thousand households the Bureau of Labor Statistics (BLS) uses each month to produce the official U.S. figures on employment and earnings.
+    In the last lecture, we distinguished between a population and a sample. The population is what we ultimately want to learn about. It includes the units we could have observed, not just the ones in our data, and the patterns we want to understand, such as how earnings differ by education, how unemployment varies by age, or how wages change over time. The sample is the smaller set of observations we actually collect or observe, such as the roughly sixty thousand households the Bureau of Labor Statistics (BLS) uses each month to produce the official U.S. figures on employment and earnings.
 
-    Once we have a sample, we compute numbers that summarize what we see in the data. In the BLS figure from the last lecture, the \$594 gap in median weekly earnings between high school graduates and workers with a bachelor's degree, is one such number. It comes from one particular sample of households. If a different sixty thousand households had been contacted, the gap would probably come out a little different. It might be \$581 in one sample and \$605 in another. A number computed from a sample therefore does not have one fixed value before the sample is drawn. It can vary from one possible sample to another.
+    Once we have a sample, we compute numbers that summarize what we see in the data. In the BLS figure from the last lecture, the \$594 gap in median weekly earnings between high school graduates and workers with a bachelor's degree, is one such number. It comes from one particular sample of households. If a different sixty thousand households had been contacted, the gap would probably come out a little different. It might be \$581 in one sample and \$605 in another. A number computed from a sample can therefore vary from one possible sample to another. We call these numbers *sample statistics*.
 
-    This distinction between the population and a sample is where probability and statistics enter. Probability gives us a way to describe how a sample statistic behaves across different possible samples. It starts with a known population and asks what samples drawn from that population would look like. For example, if we knew the true earnings gap in the population, probability would tell us what gaps we should expect to see in samples and how much those gaps would vary across repeated samples. Statistics goes in the opposite direction. We observe one sample and use it to learn about an unknown population quantity, such as the population mean $\mu_X$, using an estimator such as the sample mean $\hat{\mu}_X$ defined below.
+    This distinction between the population and the sample helps separate probability from statistics. Probability gives us a way to describe how a sample statistic behaves across different possible samples. It starts with a known population and asks what samples drawn from that population would look like. For example, if we knew the true earnings gap in the population, probability would tell us what gaps we should expect to see in samples and how much those gaps would vary across repeated samples. Statistics goes in the opposite direction. We instead observe one sample and use it to learn about an unknown population quantity. For example, we often use the sample mean, defined below, to learn about the population mean.
 
     Econometrics applies these ideas to economic questions, using sample data to learn about economic relationships in the population. This lecture and the next two introduce the probability and statistics we need for econometrics.
     """)
@@ -115,20 +115,20 @@ def _(mo):
     <a id="sec2"></a>
     ## 2. Random variables
 
-    A variable is something we measure that can take different values across observations. Hourly wage is a variable because different people earn different amounts. The number of emails you receive in an hour is also a variable because some hours bring zero emails while others bring five. Economists often distinguish variables by the kinds of values they can take.
+    A *variable* is something we measure that can take different values across observations or data points. Hourly wage is a variable because different people earn different amounts. The number of emails you receive in an hour is also a variable because some hours bring zero emails while others bring five. Economists often distinguish variables by the kinds of values they can take.
 
     | Variable type | Definition | Example |
     |---|---|---|
     | Continuous | Can take any possible numeric value, including decimals | Monthly income |
     | Discrete | Can take only specific values | Shoe sizes in half steps, such as 5, 5.5, 6, ... |
     | Count | Takes nonnegative integer values | Number of children |
-    | Ordinal | Ordered categories, but the gaps between categories are not meaningful | Likert scale, from strongly disagree to strongly agree |
-    | Categorical | Unordered categories, where numbers are only labels if used | Names of U.S. states |
+    | Ordinal | Ordered categories, where gaps between categories are not meaningful | Likert scale, from strongly disagree to strongly agree |
+    | Categorical | Unordered categories, which may not include numbers | Names of U.S. states |
     | Binary | Takes only two values | Yes or no |
 
-    The first three types of variables are numeric in the usual sense, so they can be added, averaged, and used in formulas. Ordinal variables are ordered, but their numerical values should be treated carefully because the gaps between categories may not be meaningful. Categorical variables are different. Their values are labels rather than amounts, so it usually does not make sense to add or average them.
+    The first three types of variables are numeric in the usual sense, so they can be added, averaged, and used in formulas. Ordinal variables are ordered, but their numerical values should be treated carefully because the gaps between categories may not be meaningful. Categorical and binary variables are different. Their values are labels rather than amounts, so it usually does not make sense to add or average them.
 
-    A random variable is a numerical summary of an outcome or data point we cannot
+    A *random variable* is a numerical summary of an outcome or data point we cannot
     predict in advance. We write a random variable with a capital letter such
     as $X$. The number of emails you get in the next hour is a random
     variable, because before the hour starts we cannot say which value it
@@ -137,21 +137,21 @@ def _(mo):
     person at random from the population, because we will not know that
     person's wage until we draw them.
 
-    The probability distribution of a random variable describes how likely
+    The *probability distribution* of a random variable describes how likely
     each of its possible values is. What this description looks like depends
     on whether the variable is discrete or continuous.
 
     A discrete random variable takes values that come in separate, countable
-    steps, such as $0, 1, 2, 3, \ldots$ emails per hour. Its probability
-    mass function lists the possible outcomes $x_1, x_2, \ldots, x_K$ together
+    steps, such as $0, 1, 2, 3, \ldots$ emails per hour. Its *probability
+    mass function* lists the possible outcomes $x_1, x_2, \ldots, x_K$ together
     with the probability of each. We write $p_i = \Pr(X = x_i)$ for the
-    probability that $X$ takes the particular value $x_i$. The cumulative
-    probability distribution, written $\Pr(X \le x)$, is the probability that
+    probability that $X$ takes the particular value $x_i$. The *cumulative
+    probability distribution*, written $\Pr(X \le x)$, is the probability that
     $X$ comes out at or below the value $x$. The table below is one possible
     distribution for the number of emails received in an hour. Most hours bring zero emails, a few
     bring one, and the chance of more than that drops off quickly.
 
-    | Number of emails, $\boldsymbol{x_i}$ | 0 | 1 | 2 | 3 | 4 |
+    | Number of emails in an hour, $\boldsymbol{x_i}$ | 0 | 1 | 2 | 3 | 4 |
     |---|---|---|---|---|---|
     | Probability, $\:\Pr(X = x_i)$| 0.80 | 0.10 | 0.06 | 0.03 | 0.01 |
     | Cumulative probability, $\:\Pr(X \le x_i)$| 0.80 | 0.90 | 0.96 | 0.99 | 1.00 |
@@ -160,7 +160,7 @@ def _(mo):
     so it can equal \$18.46, \$18.47, \$18.461, or any nearby number. There
     are infinitely many such values, and we cannot list them, so we cannot
     give a probability to each one individually. Instead we describe continuous random variables
-    with a curve called the probability density function (this is analogous to the probability mass function for discrete random variables). The area
+    with a curve called the *probability density function* (this is analogous to the probability mass function for discrete random variables). The area
     under that curve between any two values is the probability that the
     variable falls between those two values. The cumulative distribution
     still gives the probability of being at or below a value, just as in the
@@ -300,7 +300,7 @@ def _(mo):
     ## 3. Describing a random variable
 
     Two numbers summarize most of what we care about in a random variable,
-    its average and its spread. The expected value of $X$ is the long-run
+    its average and its spread. The *expected value* of $X$ is the long-run
     average of $X$ across many draws. We write it $\mathbb{E}[X] \equiv
     \mu_X$ and compute it as a weighted average of the possible outcomes,
     with each outcome weighted by its probability. When $X$ is discrete and
@@ -312,34 +312,36 @@ def _(mo):
     Outcomes that are more likely pull the average toward them, and outcomes
     that are unlikely barely move it.
 
-    The variance of $X$ measures how spread out the outcomes of $X$ are
-    around $\mu_X$. If most outcomes sit close to $\mu_X$, the variance is
+    The *variance* of $X$ measures how spread out the outcomes of $X$ are
+    around $\mu_X$. We write it as $\text{var}(X) \equiv \sigma_X^2$. If most outcomes sit close to $\mu_X$, the variance is
     small. If outcomes routinely land far above and far below $\mu_X$, the
     variance is large. Formally,
 
-    $$ \text{var}(X) \equiv \sigma_X^2 = \mathbb{E}\big[(X - \mathbb{E}[X])^2\big] = \sum_{i=1}^{K} (x_i - \mu_X)^2 \cdot p_i. $$
+    $$
+    \text{var}(X) \equiv \sigma_X^2 = \sum_{i=1}^{K} (x_i - \mu_X)^2 \cdot p_i.
+    $$
 
     The variance is in squared units, so a variance computed from wages in
     dollars comes out in dollars squared, which is hard to interpret. We
-    usually report the spread instead as the standard deviation, the square
-    root of the variance, $\text{sd}(X) = \sigma_X = \sqrt{\sigma_X^2}$,
+    usually report the spread instead as the *standard deviation*, the square
+    root of the variance, $\text{sd}(X) \equiv \sigma_X = \sqrt{\sigma_X^2}$,
     which is back in the original units of $X$.
 
     The expected value, the variance, and the standard deviation are
     properties of the true population distribution, so computing them
     requires the true probabilities $p_i$. With real data we never observe
     those probabilities. We instead have a sample of $n$ observed outcomes
-    $X_1, X_2, \ldots, X_n$, from which we form the sample mean and the
-    sample variance,
+    $X_1, X_2, \ldots, X_n$, from which we form the *sample mean* and the
+    *sample variance*,
 
     $$ \hat{\mu}_X = \frac{1}{n} \sum_{i=1}^{n} X_i, \qquad \hat{\sigma}_X^2 = \frac{1}{n-1} \sum_{i=1}^{n} (X_i - \hat{\mu}_X)^2, $$
 
-    with $\hat{\sigma}_X = \sqrt{\hat{\sigma}_X^2}$. The hat marks a quantity
+    with $\hat{\sigma}_X = \sqrt{\hat{\sigma}_X^2}$. The hat, $\hat{\cdot}$, marks a quantity
     estimated from data, as opposed to the unobserved population value
     written without a hat. As $n$ grows the sample versions get close to the
     population versions, because outcomes show up in the sample in roughly
     the proportions given by their underlying probabilities. That result is
-    the law of large numbers, which we come back to in Section 5.
+    the law of large numbers, which we come back to in in the next section.
     """)
     return
 
@@ -352,8 +354,8 @@ def _(mo):
     Suppose the true distribution of emails per hour is the one from Section
     2, and that over 24 separate hours you record how many emails arrived in
     each one. The first row of the table lists the possible outcomes. The
-    second row gives the true probabilities, which in reality we would not
-    know. The third row gives the number of hours in which each outcome
+    second row gives the true probabilities of each possible outcome, which in reality we would not
+    know. The third row gives the number of hours in which each outcome was
     actually occurred.
 
     | Number of emails in an hour $\boldsymbol{x_i}$ | 0 | 1 | 2 | 3 | 4 |
@@ -376,8 +378,7 @@ def _(mo):
     outcomes did not show up in exactly the proportions given by the
     underlying probabilities. With many more hours of data the counts in
     each column would line up closer to the probabilities, and the sample
-    mean would land closer to $0.35$. That is the law of large numbers, in
-    Section 5.
+    mean would land closer to $0.35$. That is the law of large numbers.
     """)
     return
 
@@ -388,28 +389,16 @@ def _(mo):
     <a id="sec5"></a>
     ## 4. Law of large numbers
 
-    The law of large numbers says that the sample mean $\hat{\mu}_X$ gets
-    close to the true expected value $\mu_X$ when the sample is large. The
-    reasoning was sketched in Section 3. Over many draws each outcome shows
-    up in the sample in roughly the proportion its probability says it
-    should, so the weighted average we compute from the sample, $\hat{\mu}_X$,
-    lines up with the weighted average computed using the true probabilities,
-    $\mu_X$.
+    The *law of large numbers* says that the sample mean $\hat{\mu}_X$ gets close to the true expected value $\mu_X$ when the sample is large. The intuition is that, in a large random sample, each type of outcome appears about as often as its probability predicts. As a result, the average computed from the sample, $\hat{\mu}_X$, gets close to the average we would get from the full population, $\mu_X$.
 
-    In a small sample the law has not had room to act. The sample mean of
-    $0.25$ in the example landed below the truth of $0.35$ because random
-    luck pushed the 24-hour count one way or the other. A sample of a
-    hundred hours would be tighter, a sample of a thousand hours tighter
-    still, and a sample of ten thousand hours would essentially land on
-    $0.35$.
+    In a small sample, random chance can still have a large effect. In the example, the sample mean of $0.25$ was below the true value of $0.35$ because the 24-hour sample happened to include fewer emails than expected. With more observations, this random variation shrinks. A sample of one hundred hours would usually be closer to $0.35$, a sample of one thousand hours closer still, and a sample of ten thousand hours would be very close to $0.35$.
 
     Use the controls below. Pick a random variable from the dropdown, set the
-    number of draws, and click ''Draw new sample''. The wiggly line is the
-    running sample mean, recomputed each time a new draw is added. The flat
+    number of observations, and click ''Draw new sample''. The wiggly line is the
+    running sample mean, recomputed each time a new observation is added to the sample mean. The flat
     orange line is the true expected value of the chosen random variable. The
-    running mean swings wildly when only a handful of draws are in, and
-    settles onto the flat line as the sample grows. The same pattern holds
-    for every random variable in the dropdown.
+    running mean swings wildly when only a handful of observations are used, and
+    settles onto the flat line as the sample grows.
     """)
     return
 
@@ -487,8 +476,8 @@ def _(alt, lln_button, lln_draws, lln_process, mo, np, pd):
             f"The wiggly line is the sample mean recomputed after each new "
             f"{_noun_sg}. The flat orange line is the true expected value "
             f"of the chosen random variable. With only a handful of "
-            f"{_noun_pl} the running mean lands almost anywhere. With "
-            f"thousands of {_noun_pl} it settles onto the flat line."
+            f"{_noun_pl} the running sample mean lands almost anywhere. With "
+            f"thousands of {_noun_pl} it moves close to the expected value." 
         ),
     ])
     return
@@ -521,7 +510,7 @@ def _(mo):
     grows, so a larger sample produces a sample mean that lands closer to
     $\mu_X$. Because $\sigma_X$ is itself an unobserved property of the
     population, we approximate it with the sample standard deviation
-    $\hat{\sigma}_X$, giving the standard error of the sample mean,
+    $\hat{\sigma}_X$, giving the *standard error* of the sample mean,
 
     $$ \text{se}(\hat{\mu}_X) = \frac{\hat{\sigma}_X}{\sqrt{n}}. $$
 
@@ -540,7 +529,7 @@ def _(mo):
 
     A few continuous distributions come up so often in statistics and
     econometrics that they have names. The most important by a wide margin
-    is the normal distribution.
+    is the *normal distribution*.
 
     The normal distribution is a continuous, symmetric, bell-shaped
     distribution. Its shape is fixed once we choose two numbers, its mean
@@ -553,20 +542,15 @@ def _(mo):
     later in the course. The reason the normal distribution shows up
     everywhere is the central limit theorem, which we introduce in the next section.
 
-    The standard normal distribution is the special normal with $\mu = 0$
+    The *standard normal distribution* is normal distribution with $\mu = 0$
     and $\sigma = 1$, written $\mathcal{N}(0, 1)$. It is the version
     tabulated in textbooks and built into every statistics package. Any
-    normal variable can be turned into a standard normal by standardizing
+    normal random variable can be turned into a standard normal random variable by *standardizing*
     it. If $X \sim \mathcal{N}(\mu, \sigma^2)$, then
 
     $$ Z = \frac{X - \mu}{\sigma} \sim \mathcal{N}(0, 1). $$
 
-    Standardizing has a plain interpretation. Subtracting $\mu$ shifts the
-    variable so its center sits at zero, and dividing by $\sigma$ stretches
-    or shrinks the variable so its spread is one. That is why two normal
-    variables measured on different scales, for example test scores in
-    points and wages in dollars, can be put on the same footing once each
-    is standardized.
+    Standardizing changes the units of a variable without changing its relative position in the distribution. Subtracting $\mu$ shifts the variable so its center sits at zero, and dividing by $\sigma$ stretches or shrinks the variable so its variance is one. That is how two normal variables measured on different scales, such as test scores in points and wages in dollars, can be easily compared.
 
     The figure below shows standardization in action. The slider $\mu$
     moves the normal on the left across the horizontal axis, the slider
@@ -603,7 +587,7 @@ def _(alt, mo, np, pd, stats, std_mu, std_sigma):
             x=alt.X("x:Q", scale=alt.Scale(domain=[-9, 9]), title="X"),
             y=alt.Y("density:Q", scale=alt.Scale(domain=[0, 0.85]), title="Density"),
         )
-        .properties(width=250, height=240, title="X, a normal you chose")
+        .properties(width=250, height=240, title="X before standardizing")
     )
 
     _xr = np.linspace(-4.0, 4.0, 400)
@@ -640,10 +624,10 @@ def _(mo):
     of size $n$ from the same population, and each study produces one sample
     mean $\hat{\mu}_X$. The collection of those sample means, one per study, is
     itself a distribution. Section 5 already told us this distribution is
-    centered on $\mu_X$ with standard deviation $\sigma_X / \sqrt{n}$. The central limit
-    theorem tells us about its shape. It says that for large enough $n$, the
+    centered on $\mu_X$ with standard deviation $\sigma_X / \sqrt{n}$. The *central limit
+    theorem* tells us about its shape. It says that for large enough $n$, the
     distribution of $\hat{\mu}_X$ is well approximated by a bell curve, the
-    normal distribution we just described in Section 6,
+    normal distribution we just described,
 
     $$ \hat{\mu}_X \ \sim\ \mathcal{N}\!\left(\mu_X,\ \sigma_{\hat{\mu}_X}^2\right), $$
 
@@ -654,7 +638,7 @@ def _(mo):
     whether or not $X$ itself is normal. The raw data can be sharply
     skewed or piled up at a single value, but as soon as $n$ is at all
     sizeable, the sample means computed from them are distributed normally.
-    This is the result that lets us build hypothesis tests for the sample
+    This is the result that lets us build hypothesis tests for any sample
     mean later in the course.
 
     Use the controls below. Pick a deliberately non-normal random variable,
@@ -663,7 +647,7 @@ def _(mo):
     picked. The right chart shows the distribution of the simulated sample
     means, with the matching normal curve drawn on top. Set $n = 1$ and the
     means look just like the random variable on the left, because in that
-    case each ''mean'' is a single draw. Raise $n$ and the right chart turns
+    case each ''mean'' is a single observation or draw. Raise $n$ and the right chart turns
     into a bell curve, no matter what shape the left chart has.
     """)
     return
@@ -696,7 +680,7 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(alt, clt_button, clt_n, clt_process, clt_reps, mo, np, pd, stats):
+def _(alt, clt_button, clt_n, clt_process, clt_reps, np, pd, stats):
     # New samples are drawn only when "Draw new samples" is clicked (the seed
     # depends only on the button). The "number of sample means" slider just
     # shows more or fewer of the same pre-drawn pool, so moving it does not
@@ -764,17 +748,6 @@ def _(alt, clt_button, clt_n, clt_process, clt_reps, mo, np, pd, stats):
     _right = _right.properties(
         width=250, height=260, title="Distribution of the sample means"
     )
-
-    mo.vstack([
-        alt.hconcat(_parent, _right),
-        mo.md(
-            "The left chart is the random variable you picked. The right "
-            "chart is the distribution of the sample means from many fresh "
-            "samples, with the matching normal curve drawn on top. Raising "
-            "the sample size narrows the right chart and pulls its shape "
-            "toward a bell curve, no matter what the left chart looks like."
-        ),
-    ])
     return
 
 
@@ -786,7 +759,7 @@ def _(mo):
             "distribution, probability mass function, cumulative "
             "probability distribution, probability density function.\n\n"
 
-            "**Key concepts covered:** central limit theorem, law of large numbers, standardization etc."
+            "**Key concepts covered:** sample mean as a random variable, central limit theorem, law of large numbers, normal distribution, standardization etc."
         ),
         kind="info",
     )
@@ -859,11 +832,15 @@ def _(alt, appx_df, appx_dist, mo, np, pd, stats):
 
         **Other measures of spread**
 
-        Two less common measures of spread are the skewness and the
+        We can define the variance of a continuous random variable $X$ using
+        the expected value of the squared deviation from the mean: 
+        $$ \text{var}(X) = \mathbb{E}\big[(X - \mathbb{E}[X])^2\big].$$
+
+        We can use this notation to define two less common measures of spread: the skewness and the
         kurtosis. The skewness measures the tilt of a distribution and is
         zero when the distribution is symmetric, with a positive value
         meaning a long right tail. The kurtosis measures how much of the
-        variance comes from extreme values far from the mean,
+        variance comes from extreme values far from the mean.
 
         $$ \text{skewness} = \frac{\mathbb{E}\big[(X - \mu_X)^3\big]}{\sigma_X^3}, \qquad \text{kurtosis} = \frac{\mathbb{E}\big[(X - \mu_X)^4\big]}{\sigma_X^4}. $$
 
@@ -879,7 +856,7 @@ def _(alt, appx_df, appx_dist, mo, np, pd, stats):
         independent standard normal variables, denoted $\chi^2_m$, where $m$
         is its degrees of freedom. The other two build on the chi-squared.
         Let $Z \sim \mathcal{N}(0, 1)$ and $W \sim \chi^2_m$ be independent,
-        where $\sim$ is read as ''distributed as''. The statistic
+        which means $Z$ and $W$ do not influence each other. The statistic
         $T = Z / \sqrt{W/m}$ has a Student t distribution with $m$ degrees
         of freedom, denoted $t_m$. The t distribution has fatter tails than
         the standard normal and approaches $\mathcal{N}(0, 1)$ as $m$ grows.
