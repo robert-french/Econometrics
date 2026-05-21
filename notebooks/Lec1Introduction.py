@@ -54,7 +54,7 @@ def _(mo):
     mo.hstack(
         [
             mo.md('<a href="https://robert-french.github.io/Econometrics/" target="_self">← Course home</a>'),
-            mo.md('<a href="https://robert-french.github.io/Econometrics/" target="_self">Lecture 2 →</a>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec2RandomVariables.html" target="_self">Lecture 2 →</a>'),
         ],
         justify="space-between", align="center",
     )
@@ -286,10 +286,24 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(mo):
+    mo.callout(
+        mo.md(
+            "**Key terms covered:** variable, omitted variable, population, "
+            "sample, cross-sectional data, time-series data, panel data.\n\n"
+            "**Key concepts covered:** descriptive question, causal question, "
+            "reverse causality, statistical inference."
+        ),
+        kind="info",
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
     mo.hstack(
         [
             mo.md('<a href="https://robert-french.github.io/Econometrics/" target="_self">← Course home</a>'),
-            mo.md('<a href="https://robert-french.github.io/Econometrics/" target="_self">Lecture 2 →</a>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec2RandomVariables.html" target="_self">Lecture 2 →</a>'),
         ],
         justify="space-between", align="center",
     )

@@ -41,3 +41,18 @@ h2 {
     margin-top: 0.5em !important;
     margin-bottom: 0.5em !important;
 }
+
+/* Tighter paragraph and equation spacing inside marimo accordions
+   (used for the Lec2 bonus-material appendix). Default <p> margins are
+   ~1em top + 1em bottom, which leaves the long appendix airy; this
+   halves the gap so paragraphs and KaTeX displays sit closer together
+   without losing visual separation. Scoped to the <marimo-accordion>
+   web component so regular section prose is unaffected. */
+marimo-accordion p {
+    margin-top: 0.4em;
+    margin-bottom: 0.4em;
+}
+marimo-accordion .katex-display {
+    margin-top: 0.4em;
+    margin-bottom: 0.4em;
+}

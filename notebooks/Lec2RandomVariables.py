@@ -39,13 +39,13 @@ def _(mo):
             mo.md("Random Variables and Probability Distributions"),
             mo.nav_menu(
                 {
-                    "#sec1": "1. Why we need probability",
+                    "#sec1": "1. Probability and statistics",
                     "#sec2": "2. Random variables",
                     "#sec3": "3. Describing a random variable",
-                    "#sec4": "4. The sample mean is random",
-                    "#sec5": "5. Law of large numbers",
-                    "#sec6": "6. Central limit theorem",
-                    "#sec7": "7. Common probability distributions",
+                    "#sec4": "4. Law of large numbers",
+                    "#sec5": "5. The sample mean as a random variable",
+                    "#sec6": "6. The normal distribution",
+                    "#sec7": "7. Central limit theorem",
                 },
                 orientation="vertical",
             ),
@@ -85,7 +85,7 @@ def _(mo):
     2. [Random variables](#sec2)
     3. [Describing a random variable](#sec3)
     4. [Law of large numbers](#sec4)
-    5. [The sample mean is random](#sec5)
+    5. [The sample mean as a random variable](#sec5)
     6. [The normal distribution](#sec6)
     7. [Central limit theorem](#sec7)
     """)
@@ -115,7 +115,7 @@ def _(mo):
     <a id="sec2"></a>
     ## 2. Random variables
 
-    A *variable* is something we measure that can take different values across observations or data points. Hourly wage is a variable because different people earn different amounts. The number of emails you receive in an hour is also a variable because some hours bring zero emails while others bring five. Economists often distinguish variables by the kinds of values they can take.
+    Last lecture we defined a variable as something we measure that can take different values across observations or data points. Hourly wage is a variable because different people earn different amounts. The number of emails you receive in an hour is also a variable because some hours bring zero emails while others bring five. Economists often distinguish variables by the kinds of values they can take.
 
     | Variable type | Definition | Example |
     |---|---|---|
@@ -386,7 +386,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    <a id="sec5"></a>
+    <a id="sec4"></a>
     ## 4. Law of large numbers
 
     The *law of large numbers* says that the sample mean $\hat{\mu}_X$ gets close to the true expected value $\mu_X$ when the sample is large. The intuition is that, in a large random sample, each type of outcome appears about as often as its probability predicts. As a result, the average computed from the sample, $\hat{\mu}_X$, gets close to the average we would get from the full population, $\mu_X$.
@@ -486,7 +486,7 @@ def _(alt, lln_button, lln_draws, lln_process, mo, np, pd):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    <a id="sec4"></a>
+    <a id="sec5"></a>
     ## 5. The sample mean as a random variable
 
     The sample mean is computed from random outcomes, so the sample mean is
@@ -755,11 +755,14 @@ def _(alt, clt_button, clt_n, clt_process, clt_reps, np, pd, stats):
 def _(mo):
     mo.callout(
         mo.md(
-            "**Key terms covered:** variable, random variable, probability "
+            "**Key terms covered:** random variable, probability "
             "distribution, probability mass function, cumulative "
-            "probability distribution, probability density function.\n\n"
-
-            "**Key concepts covered:** sample mean as a random variable, central limit theorem, law of large numbers, normal distribution, standardization etc."
+            "probability distribution, probability density function, "
+            "sample statistics, expected value, variance, standard "
+            "deviation, sample mean, sample variance, standard error.\n\n"
+            "**Key concepts covered:** sample mean as a random variable, "
+            "central limit theorem, law of large numbers, normal "
+            "distribution, standard normal distribution, standardization."
         ),
         kind="info",
     )
