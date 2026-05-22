@@ -680,7 +680,7 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(alt, clt_button, clt_n, clt_process, clt_reps, np, pd, stats):
+def _(alt, clt_button, clt_n, clt_process, clt_reps, mo, np, pd, stats):
     # New samples are drawn only when "Draw new samples" is clicked (the seed
     # depends only on the button). The "number of sample means" slider just
     # shows more or fewer of the same pre-drawn pool, so moving it does not
@@ -748,6 +748,17 @@ def _(alt, clt_button, clt_n, clt_process, clt_reps, np, pd, stats):
     _right = _right.properties(
         width=250, height=260, title="Distribution of the sample means"
     )
+
+    mo.vstack([
+        alt.hconcat(_parent, _right),
+        mo.md(
+            "The left chart is the random variable you picked. The right "
+            "chart is the distribution of the sample means from many fresh "
+            "samples, with the matching normal curve drawn on top. Raising "
+            "the sample size narrows the right chart and pulls its shape "
+            "toward a bell curve, no matter what the left chart looks like."
+        ),
+    ])
     return
 
 
