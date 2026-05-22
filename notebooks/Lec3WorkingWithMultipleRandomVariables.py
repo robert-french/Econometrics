@@ -170,87 +170,162 @@ def _(mo):
 
     The \$594 weekly-earnings gap between high school graduates and bachelor's-degree holders from the BLS table in Lecture 1 is one way to summarize the relationship between education and earnings. The correlation between years of education and weekly earnings is another. The correlation uses every level of education at once, instead of just two, and reports the relationship as a single number between $-1$ and $1$.
 
-    The plot below starts empty. Click anywhere on it to place a point at that spot, and keep clicking to build up a scatter of education-and-earnings pairs. The four sample statistics under the plot update with every point you add. Double-click the plot to clear it and start over. Try placing points along an upward line and watch the correlation climb toward $+1$; then place them in a symmetric arch and watch the correlation fall back toward $0$ even though the points clearly follow a pattern.
+    The plot below starts empty. Press and drag across it to spray points, building up a scatter of education-and-earnings pairs. The sample statistics under the plot update as you spray. Use the Reset button to clear the plot and start over. Try spraying along an upward line and watch the correlation climb toward $+1$; then spray a symmetric arch and watch the correlation fall back toward $0$ even though the points clearly follow a pattern.
     """)
     return
 
 
 @app.cell(hide_code=True)
-def _(alt, mo, np, pd):
-    # A grid of candidate points. Clicking the plot selects the nearest grid
-    # point, so a student can place a point anywhere by clicking. Toggle lets
-    # the clicks accumulate, and a double-click clears the whole selection.
-    _edu = np.arange(1.0, 25.0, 1.0)
-    _earn = np.arange(100.0, 3000.0, 100.0)
-    _grid = pd.DataFrame(
-        [(float(x), float(y)) for x in _edu for y in _earn],
-        columns=["education", "earnings"],
-    )
-    _click = alt.selection_point(
-        on="click", nearest=True, toggle=True,
-        fields=["education", "earnings"], empty=False,
-    )
-    _scatter = (
-        alt.Chart(_grid)
-        .mark_circle(color="#1f4e79")
-        .encode(
-            x=alt.X(
-                "education:Q",
-                scale=alt.Scale(domain=[0, 25]),
-                title="Years of education",
-            ),
-            y=alt.Y(
-                "earnings:Q",
-                scale=alt.Scale(domain=[0, 3000]),
-                title="Weekly earnings (USD)",
-            ),
-            opacity=alt.condition(_click, alt.value(0.8), alt.value(0.06)),
-            size=alt.condition(_click, alt.value(90), alt.value(25)),
-        )
-        .add_params(_click)
-        .properties(width=560, height=340)
-    )
-    spray_chart = mo.ui.altair_chart(
-        _scatter, chart_selection=False, legend_selection=False,
-    )
-    spray_chart
-    return (spray_chart,)
+def _(mo):
+    # Freehand "spray" scatter built as a self-contained HTML canvas. Dragging
+    # the mouse (or a finger) sprays points; the sample variances, covariance,
+    # and correlation are computed in JavaScript and shown beneath the plot.
+    # This runs entirely client-side, so it works in the deployed WASM build
+    # with no extra Python dependency.
+    _spray_html = r"""
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><style>
+  body { margin: 0; font-family: system-ui, -apple-system, sans-serif; color: #1f4e79; }
+  #wrap { display: flex; flex-direction: column; align-items: center; padding: 6px; }
+  canvas { border: 1px solid #cbd2d9; border-radius: 4px; cursor: crosshair; touch-action: none; }
+  #controls { margin: 8px 0 4px; }
+  button {
+    font: inherit; color: #1f4e79; background: #eef3f8;
+    border: 1px solid #1f4e79; border-radius: 4px; padding: 4px 14px; cursor: pointer;
+  }
+  button:hover { background: #dce7f1; }
+  #stats { max-width: 560px; font-size: 0.9rem; line-height: 1.5; color: #6b7280; text-align: center; }
+</style></head>
+<body>
+<div id="wrap">
+  <canvas id="cv" width="560" height="340"></canvas>
+  <div id="controls"><button id="reset">Reset</button></div>
+  <div id="stats"></div>
+</div>
+<script>
+  const cv = document.getElementById("cv");
+  const ctx = cv.getContext("2d");
+  const statsEl = document.getElementById("stats");
+  const XMIN = 0, XMAX = 25, YMIN = 0, YMAX = 3000;
+  const padL = 56, padR = 14, padT = 12, padB = 40;
+  const plotW = cv.width - padL - padR;
+  const plotH = cv.height - padT - padB;
+  let points = [];
+  let drawing = false;
 
+  const toPxX = x => padL + (x - XMIN) / (XMAX - XMIN) * plotW;
+  const toPxY = y => padT + (YMAX - y) / (YMAX - YMIN) * plotH;
+  const toDataX = px => XMIN + (px - padL) / plotW * (XMAX - XMIN);
+  const toDataY = py => YMAX - (py - padT) / plotH * (YMAX - YMIN);
 
-@app.cell(hide_code=True)
-def _(mo, np, spray_chart):
-    _sel = spray_chart.value
-    if _sel is None or len(_sel) < 2:
-        _body = (
-            "Click anywhere on the plot to place points. Each click adds the "
-            "nearest grid point, and a double-click clears the plot. Add at "
-            "least two points to see the sample statistics."
-        )
-    else:
-        _x = _sel["education"].to_numpy(dtype=float)
-        _y = _sel["earnings"].to_numpy(dtype=float)
-        _var_x = float(np.var(_x, ddof=1))
-        _var_y = float(np.var(_y, ddof=1))
-        _cov = float(np.cov(_x, _y, ddof=1)[0, 1])
-        if _var_x > 0 and _var_y > 0:
-            _corr = _cov / float(np.sqrt(_var_x) * np.sqrt(_var_y))
-        else:
-            _corr = 0.0
-        _body = (
-            rf"Based on $n = {len(_sel)}$ points: "
-            rf"$\hat{{\sigma}}_X^2 = {_var_x:.2f}$, "
-            rf"$\hat{{\sigma}}_Y^2 = {_var_y:,.0f}$, "
-            rf"$\hat{{\sigma}}_{{XY}} = {_cov:,.1f}$, "
-            rf"$\widehat{{\text{{corr}}}}(X, Y) = {_corr:.3f}$."
-        )
+  function drawAxes() {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.strokeStyle = "#eef1f4";
+    ctx.fillStyle = "#6b7280";
+    ctx.font = "11px system-ui, sans-serif";
+    ctx.lineWidth = 1;
+    // gridlines + ticks
+    ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    for (let v = 0; v <= YMAX; v += 500) {
+      const py = toPxY(v);
+      ctx.strokeStyle = "#eef1f4";
+      ctx.beginPath(); ctx.moveTo(padL, py); ctx.lineTo(cv.width - padR, py); ctx.stroke();
+      ctx.fillText(v.toLocaleString(), padL - 6, py);
+    }
+    ctx.textAlign = "center"; ctx.textBaseline = "top";
+    for (let v = 0; v <= XMAX; v += 5) {
+      const px = toPxX(v);
+      ctx.strokeStyle = "#eef1f4";
+      ctx.beginPath(); ctx.moveTo(px, padT); ctx.lineTo(px, cv.height - padB); ctx.stroke();
+      ctx.fillText(v, px, cv.height - padB + 6);
+    }
+    // axis frame
+    ctx.strokeStyle = "#cbd2d9";
+    ctx.strokeRect(padL, padT, plotW, plotH);
+    // axis titles
+    ctx.fillStyle = "#1f4e79";
+    ctx.font = "12px system-ui, sans-serif";
+    ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+    ctx.fillText("Years of education", padL + plotW / 2, cv.height - 6);
+    ctx.save();
+    ctx.translate(12, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
+    ctx.fillText("Weekly earnings (USD)", 0, 0);
+    ctx.restore();
+  }
 
-    mo.md(
-        '<span style="display:block;margin:0.2rem auto 1.2rem;'
-        'max-width:560px;font-size:0.9rem;line-height:1.5;'
-        'color:#6b7280;text-align:center;">'
-        + _body
-        + "</span>"
-    )
+  function drawPoints() {
+    ctx.fillStyle = "rgba(31, 78, 121, 0.7)";
+    for (const p of points) {
+      ctx.beginPath();
+      ctx.arc(toPxX(p.x), toPxY(p.y), 3, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+  }
+
+  function redraw() { drawAxes(); drawPoints(); }
+
+  function fmt(v, dec) {
+    return v.toLocaleString("en-US", { minimumFractionDigits: dec, maximumFractionDigits: dec });
+  }
+
+  function updateStats() {
+    const n = points.length;
+    if (n < 2) {
+      statsEl.textContent = "Press and drag on the plot to spray points. Add at least two to see the sample statistics.";
+      return;
+    }
+    let mx = 0, my = 0;
+    for (const p of points) { mx += p.x; my += p.y; }
+    mx /= n; my /= n;
+    let sxx = 0, syy = 0, sxy = 0;
+    for (const p of points) {
+      sxx += (p.x - mx) ** 2;
+      syy += (p.y - my) ** 2;
+      sxy += (p.x - mx) * (p.y - my);
+    }
+    const varX = sxx / (n - 1), varY = syy / (n - 1), cov = sxy / (n - 1);
+    const corr = (varX > 0 && varY > 0) ? cov / Math.sqrt(varX * varY) : 0;
+    statsEl.textContent =
+      "Based on n = " + n + " points:  sample var(X) = " + fmt(varX, 2) +
+      ",  var(Y) = " + fmt(varY, 0) +
+      ",  cov(X, Y) = " + fmt(cov, 1) +
+      ",  corr(X, Y) = " + fmt(corr, 3) + ".";
+  }
+
+  function spray(px, py) {
+    if (px < padL || px > cv.width - padR || py < padT || py > cv.height - padB) return;
+    for (let i = 0; i < 3; i++) {
+      const jx = px + (Math.random() - 0.5) * 16;
+      const jy = py + (Math.random() - 0.5) * 16;
+      const x = toDataX(jx), y = toDataY(jy);
+      if (x >= XMIN && x <= XMAX && y >= YMIN && y <= YMAX) points.push({ x, y });
+    }
+    if (points.length > 2000) points = points.slice(points.length - 2000);
+    redraw(); updateStats();
+  }
+
+  function pos(e) {
+    const r = cv.getBoundingClientRect();
+    const t = e.touches ? e.touches[0] : e;
+    return [t.clientX - r.left, t.clientY - r.top];
+  }
+
+  cv.addEventListener("mousedown", e => { drawing = true; const [x, y] = pos(e); spray(x, y); });
+  cv.addEventListener("mousemove", e => { if (drawing) { const [x, y] = pos(e); spray(x, y); } });
+  window.addEventListener("mouseup", () => { drawing = false; });
+  cv.addEventListener("mouseleave", () => { drawing = false; });
+  cv.addEventListener("touchstart", e => { e.preventDefault(); drawing = true; const [x, y] = pos(e); spray(x, y); }, { passive: false });
+  cv.addEventListener("touchmove", e => { e.preventDefault(); if (drawing) { const [x, y] = pos(e); spray(x, y); } }, { passive: false });
+  cv.addEventListener("touchend", e => { e.preventDefault(); drawing = false; }, { passive: false });
+  document.getElementById("reset").addEventListener("click", () => { points = []; redraw(); updateStats(); });
+
+  redraw(); updateStats();
+</script>
+</body>
+</html>
+"""
+    mo.iframe(_spray_html, height="470px")
     return
 
 
