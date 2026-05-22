@@ -187,15 +187,15 @@ def _(anywidget):
         # client-side in the deployed WASM build.
         _esm = r"""
 function render({ model, el }) {
-  const XMIN = -10, XMAX = 10, YMIN = -10, YMAX = 10;
-  const W = 480, H = 468, padL = 44, padR = 16, padT = 14, padB = 34;
+  const XMIN = -15, XMAX = 15, YMIN = -10, YMAX = 10;
+  const W = 660, H = 448, padL = 44, padR = 16, padT = 14, padB = 34;
   const plotW = W - padL - padR, plotH = H - padT - padB;
 
   const wrap = document.createElement("div");
   wrap.style.cssText = "font-family:system-ui,-apple-system,sans-serif;color:#1f4e79;display:flex;flex-direction:column;align-items:center;";
   const cv = document.createElement("canvas");
   cv.width = W; cv.height = H;
-  cv.style.cssText = "border:1px solid #cbd2d9;border-radius:4px;cursor:crosshair;touch-action:none;max-width:100%;";
+  cv.style.cssText = "cursor:crosshair;touch-action:none;max-width:100%;";
   const controls = document.createElement("div");
   controls.style.cssText = "margin:8px 0 4px;";
   const btn = document.createElement("button");
@@ -203,7 +203,7 @@ function render({ model, el }) {
   btn.style.cssText = "font:inherit;color:#1f4e79;background:#eef3f8;border:1px solid #1f4e79;border-radius:4px;padding:4px 14px;cursor:pointer;";
   controls.appendChild(btn);
   const statsEl = document.createElement("div");
-  statsEl.style.cssText = "max-width:460px;font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;";
+  statsEl.style.cssText = "max-width:620px;font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;";
   wrap.appendChild(cv); wrap.appendChild(controls); wrap.appendChild(statsEl);
   el.appendChild(wrap);
 
@@ -235,8 +235,6 @@ function render({ model, el }) {
     for (let v = XMIN; v <= XMAX; v += 5) ctx.fillText(v, toPxX(v), padT + plotH + 5);
     ctx.textAlign = "right"; ctx.textBaseline = "middle";
     for (let v = YMIN; v <= YMAX; v += 5) ctx.fillText(v, padL - 5, toPxY(v));
-    ctx.strokeStyle = "#cbd2d9";
-    ctx.strokeRect(padL, padT, plotW, plotH);
     ctx.fillStyle = "#1f4e79";
     ctx.font = "12px system-ui, sans-serif";
     ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
@@ -365,25 +363,25 @@ def _(mo):
     <a id="sec5"></a>
     ## 5. Means and variances of sums
 
-    We often want to know the expected value and variance of a sum or weighted sum of random variables. A few short rules take care of most cases.
+    We often want to know the expected value and variance of a sum or weighted sum of random variables. A few short rules, numbered below, take care of most cases.
 
-    The first rule is the *linearity of the expected value*, which the appendix proves. For any constants $a$ and $b$,
+    Rule 1 is the *linearity of the expected value*, which the appendix proves. For any constants $a$ and $b$,
 
     $$ \mathbb{E}[a + b X] = a + b \mu_X. $$
 
-    Linearity extends to a sum of several random variables. The expected value of a sum is the sum of the expected values, whether or not the variables are independent,
+    Rule 2 extends linearity to a sum of several random variables. The expected value of a sum is the sum of the expected values, whether or not the variables are independent,
 
     $$ \mathbb{E}[X_1 + X_2 + \cdots + X_n] = \mathbb{E}[X_1] + \mathbb{E}[X_2] + \cdots + \mathbb{E}[X_n]. $$
 
-    Variance has a similar but more restrictive rule. For constants $a$ and $b$,
+    Rule 3 is the variance counterpart, which is more restrictive. For constants $a$ and $b$,
 
     $$ \text{var}(a + b X) = b^2 \sigma_X^2. $$
 
-    Covariance is symmetric and linear in each argument,
+    Rule 4 says covariance is symmetric and linear in each argument,
 
     $$ \text{cov}(X, Y) = \text{cov}(Y, X), \qquad \text{cov}(X, Y + Z) = \text{cov}(X, Y) + \text{cov}(X, Z). $$
 
-    The variance of a sum, however, depends on whether the variables move together. When $X_1, X_2, \ldots, X_n$ are i.i.d. with variance $\sigma_X^2$, the cross covariances are zero, so the variance of the sum is simply $n$ times the variance of one,
+    Rule 5 gives the variance of a sum, which depends on whether the variables move together. When $X_1, X_2, \ldots, X_n$ are i.i.d. with variance $\sigma_X^2$, the cross covariances are zero, so the variance of the sum is simply $n$ times the variance of one,
 
     $$ \text{var}(X_1 + X_2 + \cdots + X_n) = n \sigma_X^2. $$
 
