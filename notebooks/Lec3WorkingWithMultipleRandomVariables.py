@@ -98,10 +98,13 @@ def _(mo):
 
     A *joint probability distribution* describes how likely each combination of values is for two random variables. When $X$ takes possible values $x_1, x_2, \ldots, x_k$ and $Y$ takes possible values $y_1, y_2, \ldots, y_l$, the joint probability distribution lists $\mathbb{P}(X = x_i, Y = y_j)$ for every pair $(x_i, y_j)$. The table below shows one example.
 
-    |  | $x_1$ | $x_2$ | $x_3$ |
-    |---|---|---|---|
-    | $y_1$ | 0.10 | 0.15 | 0.20 |
-    | $y_2$ | 0.20 | 0.10 | 0.25 |
+    <div style="display:flex;justify-content:center;margin:1.2em 0;">
+    <table style="border-collapse:collapse;text-align:center;">
+    <tr><th style="padding:6px 18px;"></th><th style="padding:6px 18px;">x<sub>1</sub></th><th style="padding:6px 18px;">x<sub>2</sub></th><th style="padding:6px 18px;">x<sub>3</sub></th></tr>
+    <tr><td style="padding:6px 18px;">y<sub>1</sub></td><td style="padding:6px 18px;">0.10</td><td style="padding:6px 18px;">0.15</td><td style="padding:6px 18px;">0.20</td></tr>
+    <tr><td style="padding:6px 18px;">y<sub>2</sub></td><td style="padding:6px 18px;">0.20</td><td style="padding:6px 18px;">0.10</td><td style="padding:6px 18px;">0.25</td></tr>
+    </table>
+    </div>
 
     The six cells must sum to one because together they cover every possible outcome.
 
@@ -109,7 +112,20 @@ def _(mo):
 
     $$ \mathbb{P}(X = x_1) = \mathbb{P}(X = x_1, Y = y_1) + \mathbb{P}(X = x_1, Y = y_2) = 0.10 + 0.20 = 0.30. $$
 
-    In general, $\mathbb{P}(X = x_i) = \sum_j \mathbb{P}(X = x_i, Y = y_j)$, summing across the row or column for $x_i$.
+    In general, $\mathbb{P}(X = x_i) = \sum_j \mathbb{P}(X = x_i, Y = y_j)$. Summing down each column gives the marginal distribution of $X$, and summing across each row gives the marginal distribution of $Y$, both shown below.
+
+    <div style="display:flex;justify-content:center;gap:3em;margin:1.2em 0;">
+    <table style="border-collapse:collapse;text-align:center;">
+    <tr><th style="padding:6px 16px;border-bottom:1px solid #cbd2d9;" colspan="3">Marginal of X</th></tr>
+    <tr><td style="padding:6px 16px;">x<sub>1</sub></td><td style="padding:6px 16px;">x<sub>2</sub></td><td style="padding:6px 16px;">x<sub>3</sub></td></tr>
+    <tr><td style="padding:6px 16px;">0.30</td><td style="padding:6px 16px;">0.25</td><td style="padding:6px 16px;">0.45</td></tr>
+    </table>
+    <table style="border-collapse:collapse;text-align:center;">
+    <tr><th style="padding:6px 16px;border-bottom:1px solid #cbd2d9;" colspan="2">Marginal of Y</th></tr>
+    <tr><td style="padding:6px 16px;">y<sub>1</sub></td><td style="padding:6px 16px;">y<sub>2</sub></td></tr>
+    <tr><td style="padding:6px 16px;">0.45</td><td style="padding:6px 16px;">0.55</td></tr>
+    </table>
+    </div>
 
     A *conditional probability distribution* gives the distribution of one variable, given the value of the other. The conditional probability that $Y = y_j$ given $X = x_i$ is
 
@@ -120,87 +136,7 @@ def _(mo):
     $$ \mathbb{P}(Y = y_1 \mid X = x_1) = \frac{0.10}{0.30} = \frac{1}{3}. $$
 
     Bayes' rule turns up in many places, from medical testing to legal evidence. For this course, it is the bridge between the joint distribution and the conditional distribution.
-
-    Pick a value of $X$ and a value of $Y$ in the panel below. The chart highlights the cell, and the formulas beneath the chart show how the joint, marginal, and conditional probabilities are computed from the table above.
     """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(pd):
-    joint_table = pd.DataFrame({
-        "X": ["x1", "x2", "x3"] * 2,
-        "Y": ["y1", "y1", "y1", "y2", "y2", "y2"],
-        "p": [0.10, 0.15, 0.20, 0.20, 0.10, 0.25],
-    })
-    return (joint_table,)
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    jt_x = mo.ui.dropdown(
-        options=["x1", "x2", "x3"], value="x1", label="Pick X",
-    )
-    jt_y = mo.ui.dropdown(
-        options=["y1", "y2"], value="y1", label="Pick Y",
-    )
-    mo.hstack([jt_x, jt_y], justify="start")
-    return jt_x, jt_y
-
-
-@app.cell(hide_code=True)
-def _(alt, joint_table, jt_x, jt_y, mo, pd):
-    _selected = pd.DataFrame({"X": [jt_x.value], "Y": [jt_y.value]})
-
-    _heatmap = (
-        alt.Chart(joint_table)
-        .mark_rect()
-        .encode(
-            x=alt.X("X:N", title=None, axis=alt.Axis(labelExpr="'x_' + substring(datum.value, 1)")),
-            y=alt.Y("Y:N", title=None, sort=["y2", "y1"], axis=alt.Axis(labelExpr="'y_' + substring(datum.value, 1)")),
-            color=alt.Color("p:Q", scale=alt.Scale(scheme="blues"), legend=None),
-        )
-    )
-    _labels = (
-        alt.Chart(joint_table)
-        .mark_text(color="white", fontSize=16, fontWeight="bold")
-        .encode(
-            x="X:N",
-            y=alt.Y("Y:N", sort=["y2", "y1"]),
-            text=alt.Text("p:Q", format=".2f"),
-        )
-    )
-    _highlight = (
-        alt.Chart(_selected)
-        .mark_rect(fill=None, stroke="orange", strokeWidth=4)
-        .encode(
-            x="X:N",
-            y=alt.Y("Y:N", sort=["y2", "y1"]),
-        )
-    )
-    _chart = (_heatmap + _labels + _highlight).properties(
-        width=360, height=180, title="Joint probability table",
-    )
-
-    _xv = jt_x.value
-    _yv = jt_y.value
-    _xs = "x_" + _xv[1:]
-    _ys = "y_" + _yv[1:]
-    _joint = float(joint_table[(joint_table.X == _xv) & (joint_table.Y == _yv)]["p"].iloc[0])
-    _marg_x = float(joint_table[joint_table.X == _xv]["p"].sum())
-    _marg_y = float(joint_table[joint_table.Y == _yv]["p"].sum())
-    _cond = _joint / _marg_x if _marg_x > 0 else 0.0
-
-    _formulas = mo.md(
-        rf"""
-- Joint: $\mathbb{{P}}(X = {_xs},\ Y = {_ys}) = {_joint:.2f}$
-- Marginal of $X$: $\mathbb{{P}}(X = {_xs}) = {_marg_x:.2f}$
-- Marginal of $Y$: $\mathbb{{P}}(Y = {_ys}) = {_marg_y:.2f}$
-- Conditional (Bayes' rule): $\mathbb{{P}}(Y = {_ys} \mid X = {_xs}) = \dfrac{{\mathbb{{P}}(X = {_xs},\ Y = {_ys})}}{{\mathbb{{P}}(X = {_xs})}} = \dfrac{{{_joint:.2f}}}{{{_marg_x:.2f}}} = {_cond:.2f}$
-"""
-    )
-
-    mo.vstack([_chart, _formulas])
     return
 
 
@@ -212,7 +148,7 @@ def _(mo):
 
     The joint distribution describes how two random variables behave together, but it does not summarize their relationship in one number. The *covariance* of $X$ and $Y$ summarizes whether they tend to move in the same direction or in opposite directions. It is defined as
 
-    $$ \text{cov}(X, Y) \equiv \sigma_{XY} = \mathbb{E}\big[(X - \mu_X)(Y - \mu_Y)\big] = \sum_i \sum_j (x_j - \mu_X)(y_i - \mu_Y) \cdot \mathbb{P}(X = x_j, Y = y_i). $$
+    $$ \text{cov}(X, Y) \equiv \sigma_{XY} = \sum_i \sum_j (x_j - \mu_X)(y_i - \mu_Y) \cdot \mathbb{P}(X = x_j, Y = y_i). $$
 
     The sign of the covariance is what carries most of the meaning. A positive $\sigma_{XY}$ means that when $X$ is above its mean, $Y$ tends to be above its mean too, and the two tend to move together. A negative $\sigma_{XY}$ means one tends to be above its mean when the other is below it, so the two tend to move in opposite directions. A zero covariance means $X$ and $Y$ do not move together on average.
 
@@ -234,35 +170,29 @@ def _(mo):
 
     The \$594 weekly-earnings gap between high school graduates and bachelor's-degree holders from the BLS table in Lecture 1 is one way to summarize the relationship between education and earnings. The correlation between years of education and weekly earnings is another. The correlation uses every level of education at once, instead of just two, and reports the relationship as a single number between $-1$ and $1$.
 
-    The scatter plot below starts with a small sample of synthetic education-and-earnings pairs. Drag the mouse across a region of the chart to make a brush rectangle, then click ''Spray'' to add a cluster of new points centered on that rectangle. The four sample statistics under the chart update each time you add points. Use ''Clear'' to reset the scatter to its starting cloud.
+    The plot below starts empty. Click anywhere on it to place a point at that spot, and keep clicking to build up a scatter of education-and-earnings pairs. The four sample statistics under the plot update with every point you add. Double-click the plot to clear it and start over. Try placing points along an upward line and watch the correlation climb toward $+1$; then place them in a symmetric arch and watch the correlation fall back toward $0$ even though the points clearly follow a pattern.
     """)
     return
 
 
 @app.cell(hide_code=True)
-def _(mo, np):
-    _rng = np.random.default_rng(42)
-    _starter_n = 20
-    _starter_edu = _rng.uniform(10.0, 20.0, _starter_n)
-    _starter_earn = 90.0 * _starter_edu + _rng.normal(0.0, 200.0, _starter_n) + 100.0
-    starter_points = list(zip(_starter_edu.tolist(), _starter_earn.tolist()))
-
-    get_spray_points, set_spray_points = mo.state(starter_points)
-    return get_spray_points, set_spray_points, starter_points
-
-
-@app.cell(hide_code=True)
-def _(alt, get_spray_points, mo, pd):
-    _pts = get_spray_points()
-    if len(_pts) > 0:
-        _df = pd.DataFrame(_pts, columns=["education", "earnings"])
-    else:
-        _df = pd.DataFrame({"education": [0.0], "earnings": [0.0]}).iloc[0:0]
-
-    _brush = alt.selection_interval()
+def _(alt, mo, np, pd):
+    # A grid of candidate points. Clicking the plot selects the nearest grid
+    # point, so a student can place a point anywhere by clicking. Toggle lets
+    # the clicks accumulate, and a double-click clears the whole selection.
+    _edu = np.arange(1.0, 25.0, 1.0)
+    _earn = np.arange(100.0, 3000.0, 100.0)
+    _grid = pd.DataFrame(
+        [(float(x), float(y)) for x in _edu for y in _earn],
+        columns=["education", "earnings"],
+    )
+    _click = alt.selection_point(
+        on="click", nearest=True, toggle=True,
+        fields=["education", "earnings"], empty=False,
+    )
     _scatter = (
-        alt.Chart(_df)
-        .mark_circle(color="#1f4e79", size=70, opacity=0.7)
+        alt.Chart(_grid)
+        .mark_circle(color="#1f4e79")
         .encode(
             x=alt.X(
                 "education:Q",
@@ -274,86 +204,31 @@ def _(alt, get_spray_points, mo, pd):
                 scale=alt.Scale(domain=[0, 3000]),
                 title="Weekly earnings (USD)",
             ),
+            opacity=alt.condition(_click, alt.value(0.8), alt.value(0.06)),
+            size=alt.condition(_click, alt.value(90), alt.value(25)),
         )
-        .add_params(_brush)
+        .add_params(_click)
         .properties(width=560, height=340)
     )
     spray_chart = mo.ui.altair_chart(
         _scatter, chart_selection=False, legend_selection=False,
     )
+    spray_chart
     return (spray_chart,)
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    spray_n_slider = mo.ui.slider(
-        start=1, stop=50, step=1, value=10,
-        label="Points per spray", show_value=True,
-    )
-    return (spray_n_slider,)
-
-
-@app.cell(hide_code=True)
-def _(
-    get_spray_points,
-    mo,
-    np,
-    set_spray_points,
-    spray_chart,
-    spray_n_slider,
-    starter_points,
-):
-    def _on_spray(value):
-        brush_data = spray_chart.value
-        if brush_data is not None and len(brush_data) > 0:
-            cx = float(brush_data["education"].mean())
-            cy = float(brush_data["earnings"].mean())
-            n = int(spray_n_slider.value)
-            # Seed depends on current state and centroid so consecutive
-            # sprays at the same spot still produce different patterns.
-            current = get_spray_points()
-            seed = abs(hash((len(current), round(cx * 1000), round(cy * 1000)))) % (2**32)
-            rng = np.random.default_rng(seed)
-            new_x = rng.normal(cx, 1.0, n)
-            new_y = rng.normal(cy, 120.0, n)
-            new_pts = list(zip(new_x.tolist(), new_y.tolist()))
-            set_spray_points(current + new_pts)
-        return value + 1
-
-    def _on_clear(value):
-        set_spray_points(list(starter_points))
-        return value + 1
-
-    spray_button = mo.ui.button(
-        label="Spray", value=0, on_click=_on_spray,
-    )
-    clear_button = mo.ui.button(
-        label="Clear", value=0, on_click=_on_clear,
-    )
-    return clear_button, spray_button
-
-
-@app.cell(hide_code=True)
-def _(clear_button, mo, spray_button, spray_chart, spray_n_slider):
-    mo.vstack([
-        spray_chart,
-        mo.hstack(
-            [spray_n_slider, spray_button, clear_button],
-            justify="start", align="center",
-        ),
-    ])
-    return
-
-
-@app.cell(hide_code=True)
-def _(get_spray_points, mo, np):
-    _pts = get_spray_points()
-    _n = len(_pts)
-    if _n < 2:
-        _body = "Add at least two points to compute the sample statistics."
+def _(mo, np, spray_chart):
+    _sel = spray_chart.value
+    if _sel is None or len(_sel) < 2:
+        _body = (
+            "Click anywhere on the plot to place points. Each click adds the "
+            "nearest grid point, and a double-click clears the plot. Add at "
+            "least two points to see the sample statistics."
+        )
     else:
-        _x = np.array([p[0] for p in _pts])
-        _y = np.array([p[1] for p in _pts])
+        _x = _sel["education"].to_numpy(dtype=float)
+        _y = _sel["earnings"].to_numpy(dtype=float)
         _var_x = float(np.var(_x, ddof=1))
         _var_y = float(np.var(_y, ddof=1))
         _cov = float(np.cov(_x, _y, ddof=1)[0, 1])
@@ -362,7 +237,7 @@ def _(get_spray_points, mo, np):
         else:
             _corr = 0.0
         _body = (
-            rf"Based on $n = {_n}$ points: "
+            rf"Based on $n = {len(_sel)}$ points: "
             rf"$\hat{{\sigma}}_X^2 = {_var_x:.2f}$, "
             rf"$\hat{{\sigma}}_Y^2 = {_var_y:,.0f}$, "
             rf"$\hat{{\sigma}}_{{XY}} = {_cov:,.1f}$, "
@@ -397,7 +272,7 @@ def _(mo):
 
     Independence is symmetric. If $X$ is independent of $Y$, then $Y$ is independent of $X$. The three conditions above are unchanged when $X$ and $Y$ are swapped.
 
-    The third condition only goes one way. If $X$ and $Y$ are independent, then their correlation is zero. The converse, however, is not true. Two random variables can have zero correlation and still be dependent on each other, because correlation only captures the linear part of a relationship. We show an example of this in the appendix.
+    The third condition only goes one way. If $X$ and $Y$ are independent, then their correlation is zero. The converse, however, is not true. Two random variables can have zero correlation and still be dependent on each other, because correlation only captures the linear part of a relationship. You can see this for yourself in the scatter plot of Section 2. If you place points in a symmetric arch, the sample correlation stays near zero even though each point's height is fixed by its horizontal position, so the two coordinates are clearly dependent.
     """)
     return
 
@@ -425,9 +300,9 @@ def _(mo):
     <a id="sec5"></a>
     ## 5. Means and variances of sums
 
-    We often want to know the expected value and variance of a sum or weighted sum of random variables. Two short rules, both proved in the appendix, take care of most cases.
+    We often want to know the expected value and variance of a sum or weighted sum of random variables. A few short rules take care of most cases.
 
-    The first rule is the *linearity of the expected value*. For any constants $a$ and $b$,
+    The first rule is the *linearity of the expected value*, which the appendix proves. For any constants $a$ and $b$,
 
     $$ \mathbb{E}[a + b X] = a + b \mu_X. $$
 
@@ -474,49 +349,16 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""
-    <a id="appendix"></a>
-    ## Appendix
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(alt, mo, np, pd):
-    _xg = np.linspace(-1.0, 1.0, 41)
-    _yg = _xg ** 2 - 1.0 / 3.0
-    _df = pd.DataFrame({"x": _xg, "y": _yg})
-
-    _scatter = (
-        alt.Chart(_df)
-        .mark_circle(color="#1f4e79", size=70, opacity=0.85)
-        .encode(
-            x=alt.X("x:Q", title="X"),
-            y=alt.Y("y:Q", title="Y"),
-        )
-        .properties(width=520, height=260)
-    )
-
-    _corr_val = float(np.corrcoef(_xg, _yg)[0, 1])
-    _caption = mo.md(
-        '<span style="display:block;margin:0.2rem auto 0.6rem;'
-        'max-width:520px;font-size:0.85rem;line-height:1.45;'
-        'color:#6b7280;text-align:center;">'
-        rf"Forty-one points on the curve $Y = X^2 - 1/3$ with $X$ evenly "
-        rf"spaced on $[-1, 1]$. The sample correlation is "
-        rf"$\widehat{{\text{{corr}}}}(X, Y) = {_corr_val:.2f}$, yet $Y$ is "
-        rf"completely determined by $X$."
-        "</span>"
-    )
-
     _text = mo.md(r"""
         This is bonus material. You will not be tested on the content of the appendix.
 
-        **Zero correlation does not imply independence.**
+        **The covariance written with the expectation operator.**
 
-        Independence is a stronger condition than zero correlation. Correlation only captures the linear part of a relationship between two random variables. If the relationship is nonlinear, the correlation can be zero even though the two are fully dependent. The figure below illustrates this with the deterministic relationship $Y = X^2 - 1/3$, where $X$ is uniform on $[-1, 1]$. Knowing $X$ tells us $Y$ exactly, so $X$ and $Y$ are not independent. But the sample correlation is essentially zero, because the parabolic relationship has no linear component on this symmetric domain.
+        Section 2 defined the covariance as a double sum over the joint distribution. It can be written more compactly with the expectation operator,
 
-        This is the reason we cannot replace independence with zero correlation in the assumptions for econometric estimators. We need the stronger condition to rule out hidden nonlinear dependence.
+        $$ \text{cov}(X, Y) \equiv \sigma_{XY} = \mathbb{E}\big[(X - \mu_X)(Y - \mu_Y)\big]. $$
+
+        This is the same quantity. The expectation $\mathbb{E}[\cdot]$ is itself a probability-weighted sum, so expanding it reproduces the double sum from Section 2. More advanced treatments use this compact form throughout.
 
         **Proof of the linearity of the expected value.**
 
@@ -538,9 +380,7 @@ def _(alt, mo, np, pd):
         """)
 
     mo.accordion({
-        "Bonus material (not on assessments)": mo.vstack([
-            _text, _scatter, _caption,
-        ]),
+        "## Appendix": mo.vstack([_text]),
     })
     return
 
