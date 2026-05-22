@@ -7,6 +7,7 @@
 #     "altair",
 #     "scipy",
 #     "pyarrow",
+#     "drawdata",
 # ]
 # ///
 
@@ -26,8 +27,9 @@ def _():
     import pandas as pd
     import altair as alt
     from scipy import stats
+    from drawdata import ScatterWidget
 
-    return alt, mo, np, pd, stats
+    return ScatterWidget, alt, mo, np, pd, stats
 
 
 @app.cell(hide_code=True)
@@ -170,162 +172,67 @@ def _(mo):
 
     The \$594 weekly-earnings gap between high school graduates and bachelor's-degree holders from the BLS table in Lecture 1 is one way to summarize the relationship between education and earnings. The correlation between years of education and weekly earnings is another. The correlation uses every level of education at once, instead of just two, and reports the relationship as a single number between $-1$ and $1$.
 
-    The plot below starts empty. Press and drag across it to spray points, building up a scatter of education-and-earnings pairs. The sample statistics under the plot update as you spray. Use the Reset button to clear the plot and start over. Try spraying along an upward line and watch the correlation climb toward $+1$; then spray a symmetric arch and watch the correlation fall back toward $0$ even though the points clearly follow a pattern.
+    The plot below starts empty. Drag the mouse across it to spray points, building up a cloud where each dot is one paired observation of two variables $X$ and $Y$. The sample statistics under the plot update as you spray. Press Clear plot to empty it and start over. Try spraying an upward-sloping cloud and watch the correlation climb toward $+1$, then a downward-sloping cloud and watch it fall toward $-1$, and finally a symmetric arch and watch the correlation sit near $0$ even though the points clearly follow a pattern.
     """)
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    # Freehand "spray" scatter built as a self-contained HTML canvas. Dragging
-    # the mouse (or a finger) sprays points; the sample variances, covariance,
-    # and correlation are computed in JavaScript and shown beneath the plot.
-    # This runs entirely client-side, so it works in the deployed WASM build
-    # with no extra Python dependency.
-    _spray_html = r"""
-<!doctype html>
-<html>
-<head><meta charset="utf-8"><style>
-  body { margin: 0; font-family: system-ui, -apple-system, sans-serif; color: #1f4e79; }
-  #wrap { display: flex; flex-direction: column; align-items: center; padding: 6px; }
-  canvas { border: 1px solid #cbd2d9; border-radius: 4px; cursor: crosshair; touch-action: none; }
-  #controls { margin: 8px 0 4px; }
-  button {
-    font: inherit; color: #1f4e79; background: #eef3f8;
-    border: 1px solid #1f4e79; border-radius: 4px; padding: 4px 14px; cursor: pointer;
-  }
-  button:hover { background: #dce7f1; }
-  #stats { max-width: 560px; font-size: 0.9rem; line-height: 1.5; color: #6b7280; text-align: center; }
-</style></head>
-<body>
-<div id="wrap">
-  <canvas id="cv" width="560" height="340"></canvas>
-  <div id="controls"><button id="reset">Reset</button></div>
-  <div id="stats"></div>
-</div>
-<script>
-  const cv = document.getElementById("cv");
-  const ctx = cv.getContext("2d");
-  const statsEl = document.getElementById("stats");
-  const XMIN = 0, XMAX = 25, YMIN = 0, YMAX = 3000;
-  const padL = 56, padR = 14, padT = 12, padB = 40;
-  const plotW = cv.width - padL - padR;
-  const plotH = cv.height - padT - padB;
-  let points = [];
-  let drawing = false;
+    # Clicking "Clear plot" reruns the widget cell below, which rebuilds an
+    # empty ScatterWidget. The button is defined here and rendered in the
+    # widget cell so the two sit together above the canvas.
+    spray_clear = mo.ui.button(
+        label="Clear plot", value=0, on_click=lambda c: c + 1
+    )
+    return (spray_clear,)
 
-  const toPxX = x => padL + (x - XMIN) / (XMAX - XMIN) * plotW;
-  const toPxY = y => padT + (YMAX - y) / (YMAX - YMIN) * plotH;
-  const toDataX = px => XMIN + (px - padL) / plotW * (XMAX - XMIN);
-  const toDataY = py => YMAX - (py - padT) / plotH * (YMAX - YMIN);
 
-  function drawAxes() {
-    ctx.clearRect(0, 0, cv.width, cv.height);
-    ctx.strokeStyle = "#eef1f4";
-    ctx.fillStyle = "#6b7280";
-    ctx.font = "11px system-ui, sans-serif";
-    ctx.lineWidth = 1;
-    // gridlines + ticks
-    ctx.textAlign = "right"; ctx.textBaseline = "middle";
-    for (let v = 0; v <= YMAX; v += 500) {
-      const py = toPxY(v);
-      ctx.strokeStyle = "#eef1f4";
-      ctx.beginPath(); ctx.moveTo(padL, py); ctx.lineTo(cv.width - padR, py); ctx.stroke();
-      ctx.fillText(v.toLocaleString(), padL - 6, py);
-    }
-    ctx.textAlign = "center"; ctx.textBaseline = "top";
-    for (let v = 0; v <= XMAX; v += 5) {
-      const px = toPxX(v);
-      ctx.strokeStyle = "#eef1f4";
-      ctx.beginPath(); ctx.moveTo(px, padT); ctx.lineTo(px, cv.height - padB); ctx.stroke();
-      ctx.fillText(v, px, cv.height - padB + 6);
-    }
-    // axis frame
-    ctx.strokeStyle = "#cbd2d9";
-    ctx.strokeRect(padL, padT, plotW, plotH);
-    // axis titles
-    ctx.fillStyle = "#1f4e79";
-    ctx.font = "12px system-ui, sans-serif";
-    ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
-    ctx.fillText("Years of education", padL + plotW / 2, cv.height - 6);
-    ctx.save();
-    ctx.translate(12, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
-    ctx.fillText("Weekly earnings (USD)", 0, 0);
-    ctx.restore();
-  }
+@app.cell(hide_code=True)
+def _(ScatterWidget, mo, spray_clear):
+    # drawdata's ScatterWidget is an anywidget: dragging the mouse sprays points
+    # onto the canvas and syncs them to Python, where the cell below reads them
+    # and computes the sample statistics. Referencing spray_clear makes this
+    # cell rerun on each click, so a fresh (empty) widget replaces the old one.
+    spray_clear
+    spray = mo.ui.anywidget(ScatterWidget(height=360))
+    mo.vstack([spray_clear, spray])
+    return (spray,)
 
-  function drawPoints() {
-    ctx.fillStyle = "rgba(31, 78, 121, 0.7)";
-    for (const p of points) {
-      ctx.beginPath();
-      ctx.arc(toPxX(p.x), toPxY(p.y), 3, 0, 2 * Math.PI);
-      ctx.fill();
-    }
-  }
 
-  function redraw() { drawAxes(); drawPoints(); }
-
-  function fmt(v, dec) {
-    return v.toLocaleString("en-US", { minimumFractionDigits: dec, maximumFractionDigits: dec });
-  }
-
-  function updateStats() {
-    const n = points.length;
-    if (n < 2) {
-      statsEl.textContent = "Press and drag on the plot to spray points. Add at least two to see the sample statistics.";
-      return;
-    }
-    let mx = 0, my = 0;
-    for (const p of points) { mx += p.x; my += p.y; }
-    mx /= n; my /= n;
-    let sxx = 0, syy = 0, sxy = 0;
-    for (const p of points) {
-      sxx += (p.x - mx) ** 2;
-      syy += (p.y - my) ** 2;
-      sxy += (p.x - mx) * (p.y - my);
-    }
-    const varX = sxx / (n - 1), varY = syy / (n - 1), cov = sxy / (n - 1);
-    const corr = (varX > 0 && varY > 0) ? cov / Math.sqrt(varX * varY) : 0;
-    statsEl.textContent =
-      "Based on n = " + n + " points:  sample var(X) = " + fmt(varX, 2) +
-      ",  var(Y) = " + fmt(varY, 0) +
-      ",  cov(X, Y) = " + fmt(cov, 1) +
-      ",  corr(X, Y) = " + fmt(corr, 3) + ".";
-  }
-
-  function spray(px, py) {
-    if (px < padL || px > cv.width - padR || py < padT || py > cv.height - padB) return;
-    for (let i = 0; i < 3; i++) {
-      const jx = px + (Math.random() - 0.5) * 16;
-      const jy = py + (Math.random() - 0.5) * 16;
-      const x = toDataX(jx), y = toDataY(jy);
-      if (x >= XMIN && x <= XMAX && y >= YMIN && y <= YMAX) points.push({ x, y });
-    }
-    if (points.length > 2000) points = points.slice(points.length - 2000);
-    redraw(); updateStats();
-  }
-
-  function pos(e) {
-    const r = cv.getBoundingClientRect();
-    const t = e.touches ? e.touches[0] : e;
-    return [t.clientX - r.left, t.clientY - r.top];
-  }
-
-  cv.addEventListener("mousedown", e => { drawing = true; const [x, y] = pos(e); spray(x, y); });
-  cv.addEventListener("mousemove", e => { if (drawing) { const [x, y] = pos(e); spray(x, y); } });
-  window.addEventListener("mouseup", () => { drawing = false; });
-  cv.addEventListener("mouseleave", () => { drawing = false; });
-  cv.addEventListener("touchstart", e => { e.preventDefault(); drawing = true; const [x, y] = pos(e); spray(x, y); }, { passive: false });
-  cv.addEventListener("touchmove", e => { e.preventDefault(); if (drawing) { const [x, y] = pos(e); spray(x, y); } }, { passive: false });
-  cv.addEventListener("touchend", e => { e.preventDefault(); drawing = false; }, { passive: false });
-  document.getElementById("reset").addEventListener("click", () => { points = []; redraw(); updateStats(); });
-
-  redraw(); updateStats();
-</script>
-</body>
-</html>
-"""
-    mo.iframe(_spray_html, height="470px")
+@app.cell(hide_code=True)
+def _(mo, spray):
+    _df = spray.data_as_pandas
+    if _df is None or len(_df) < 2:
+        _body = (
+            "Drag on the plot above to spray points. Add at least two to see "
+            "the sample statistics."
+        )
+    else:
+        _x = _df["x"].to_numpy(dtype=float)
+        _y = _df["y"].to_numpy(dtype=float)
+        _n = len(_x)
+        _mx, _my = _x.mean(), _y.mean()
+        _var_x = ((_x - _mx) ** 2).sum() / (_n - 1)
+        _var_y = ((_y - _my) ** 2).sum() / (_n - 1)
+        _cov = ((_x - _mx) * (_y - _my)).sum() / (_n - 1)
+        _corr = (
+            _cov / (_var_x**0.5 * _var_y**0.5)
+            if _var_x > 0 and _var_y > 0
+            else 0.0
+        )
+        _body = (
+            rf"From the $n = {_n}$ points you sprayed, the sample variance of "
+            rf"$X$ is {_var_x:,.1f}, the sample variance of $Y$ is "
+            rf"{_var_y:,.1f}, the sample covariance between them is "
+            rf"{_cov:,.1f}, and the sample correlation is {_corr:.3f}."
+        )
+    mo.md(
+        '<span style="display:block;margin:0.2rem auto 1rem;max-width:560px;'
+        'font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;">'
+        + _body
+        + "</span>"
+    )
     return
 
 
