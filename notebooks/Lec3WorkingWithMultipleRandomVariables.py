@@ -395,21 +395,19 @@ def _(mo):
     We often want to know the expected value and variance of a sum or weighted sum of random variables. One approach would be to treat the whole sum as a new random variable and then apply the formulas from Lecture 2 to that new variable. But this can quickly become unwieldy. Instead, we can use a few simple rules that cover most cases.
 
     1. The *linearity of expected value* says that adding a constant shifts the expected value by that constant, and multiplying a random variable by a constant multiplies its expected value by that constant. For any numbers $a$ and $b$, which we call *constants* to distinguish them from random variables,
-       $$\mathbb{E}[a + b X] = a + b\mathbb{E}[X] = a + b \mu_X. $$
+    $$\mathbb{E}[a + b X] = a + b\mathbb{E}[X] = a + b \mu_X. $$
 
     2. The expected value of a sum is the sum of the expected values. This rule holds whether or not the random variables are independent,
-       $$ \mathbb{E}[X_1 + X_2 + \cdots + X_n] = \mathbb{E}[X_1] + \mathbb{E}[X_2] + \cdots + \mathbb{E}[X_n] = n\mu_X. $$
+    $$ \mathbb{E}[X_1 + X_2 + \cdots + X_n] = \mathbb{E}[X_1] + \mathbb{E}[X_2] + \cdots + \mathbb{E}[X_n] = n\mu_X. $$
 
     3. The variance of a shifted and scaled random variable follows a different rule. Adding a constant does not change the variance, but multiplying by a constant multiplies the variance by the square of that constant. For any constants $a$ and $b$,
-       $$ \text{var}(a + b X) = b^2 \sigma_X^2. $$
+    $$ \text{var}(a + b X) = b^2 \sigma_X^2. $$
 
     4. Covariance is symmetric and linear in each argument. Symmetry means that the order of the two variables does not matter. Linearity means that the covariance between one variable and a sum can be split into separate covariances,
-
-       $$ \text{cov}(X, Y) = \text{cov}(Y, X), \qquad \text{cov}(X, Y + Z) = \text{cov}(X, Y) + \text{cov}(X, Z). $$
+    $$ \text{cov}(X, Y) = \text{cov}(Y, X), \qquad \text{cov}(X, Y + Z) = \text{cov}(X, Y) + \text{cov}(X, Z). $$
 
     5. The variance of a sum depends on whether the random variables move together. If $X_1, X_2, \ldots, X_n$ are i.i.d. with variance $\sigma_X^2$, then the variance of the sum is simply $n$ times the variance of one draw,
-
-       $$ \text{var}(X_1 + X_2 + \cdots + X_n) = n \sigma_X^2. $$
+    $$ \text{var}(X_1 + X_2 + \cdots + X_n) = n \sigma_X^2. $$
 
     Notice that the variance of the sample mean from Lecture 2 follows directly from Rule 5. If
 
