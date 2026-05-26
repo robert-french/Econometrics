@@ -110,9 +110,9 @@ def _(mo):
     # by marimo's ".markdown table { display:block }" rule.
     _joint = """
     <table style="border-collapse:collapse;text-align:center;">
-    <tr><td style="padding:6px 18px;"></td><td style="padding:6px 18px;">x<sub>1</sub></td><td style="padding:6px 18px;">x<sub>2</sub></td><td style="padding:6px 18px;">x<sub>3</sub></td></tr>
-    <tr><td style="padding:6px 18px;">y<sub>1</sub></td><td style="padding:6px 18px;">0.10</td><td style="padding:6px 18px;">0.15</td><td style="padding:6px 18px;">0.20</td></tr>
-    <tr><td style="padding:6px 18px;">y<sub>2</sub></td><td style="padding:6px 18px;">0.20</td><td style="padding:6px 18px;">0.10</td><td style="padding:6px 18px;">0.25</td></tr>
+    <tr style="background:var(--lime-2,#f8faf3);"><td style="padding:6px 18px;"></td><td style="padding:6px 18px;">x<sub>1</sub></td><td style="padding:6px 18px;">x<sub>2</sub></td><td style="padding:6px 18px;">x<sub>3</sub></td></tr>
+    <tr style="background:var(--card,#fff);"><td style="padding:6px 18px;">y<sub>1</sub></td><td style="padding:6px 18px;">0.10</td><td style="padding:6px 18px;">0.15</td><td style="padding:6px 18px;">0.20</td></tr>
+    <tr style="background:var(--lime-2,#f8faf3);"><td style="padding:6px 18px;">y<sub>2</sub></td><td style="padding:6px 18px;">0.20</td><td style="padding:6px 18px;">0.10</td><td style="padding:6px 18px;">0.25</td></tr>
     </table>
     """
     mo.center(mo.Html(_joint))
@@ -139,16 +139,16 @@ def _(mo):
     # spans its own table via colspan, so it sits centered over the whole table.
     _marg_x = """
     <table style="border-collapse:collapse;text-align:center;">
-    <tr><th style="padding:6px 16px;border-bottom:1px solid #cbd2d9;" colspan="3">Marginal of X</th></tr>
-    <tr><td style="padding:6px 16px;">x<sub>1</sub></td><td style="padding:6px 16px;">x<sub>2</sub></td><td style="padding:6px 16px;">x<sub>3</sub></td></tr>
-    <tr><td style="padding:6px 16px;">0.30</td><td style="padding:6px 16px;">0.25</td><td style="padding:6px 16px;">0.45</td></tr>
+    <tr style="background:var(--lime-2,#f8faf3);"><th style="padding:6px 16px;border-bottom:1px solid #cbd2d9;" colspan="3">Marginal of X</th></tr>
+    <tr style="background:var(--card,#fff);"><td style="padding:6px 16px;">x<sub>1</sub></td><td style="padding:6px 16px;">x<sub>2</sub></td><td style="padding:6px 16px;">x<sub>3</sub></td></tr>
+    <tr style="background:var(--lime-2,#f8faf3);"><td style="padding:6px 16px;">0.30</td><td style="padding:6px 16px;">0.25</td><td style="padding:6px 16px;">0.45</td></tr>
     </table>
     """
     _marg_y = """
     <table style="border-collapse:collapse;text-align:center;">
-    <tr><th style="padding:6px 16px;border-bottom:1px solid #cbd2d9;" colspan="2">Marginal of Y</th></tr>
-    <tr><td style="padding:6px 16px;">y<sub>1</sub></td><td style="padding:6px 16px;">y<sub>2</sub></td></tr>
-    <tr><td style="padding:6px 16px;">0.45</td><td style="padding:6px 16px;">0.55</td></tr>
+    <tr style="background:var(--lime-2,#f8faf3);"><th style="padding:6px 16px;border-bottom:1px solid #cbd2d9;" colspan="2">Marginal of Y</th></tr>
+    <tr style="background:var(--card,#fff);"><td style="padding:6px 16px;">y<sub>1</sub></td><td style="padding:6px 16px;">y<sub>2</sub></td></tr>
+    <tr style="background:var(--lime-2,#f8faf3);"><td style="padding:6px 16px;">0.45</td><td style="padding:6px 16px;">0.55</td></tr>
     </table>
     """
     mo.hstack(
