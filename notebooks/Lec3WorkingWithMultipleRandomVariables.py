@@ -29,7 +29,7 @@ def _():
     from scipy import stats
     import anywidget
 
-    return alt, anywidget, mo, np, pd, stats
+    return anywidget, mo
 
 
 @app.cell(hide_code=True)
@@ -96,9 +96,9 @@ def _(mo):
     <a id="sec1"></a>
     ## 1. Joint, marginal, and conditional distributions
 
-    In Lecture 2 we focused on one random variable at a time. We described its distribution, its expected value, and its spread. Most questions in econometrics, however, ask about two variables together. Does a person's earnings depend on their level of education? Does the unemployment rate depend on the inflation rate? To answer these questions we need to extend the tools from one random variable to two.
+    In Lecture 2 we focused on one random variable at a time. We defined its distribution, its expected value, and its spread or variance. Most questions in econometrics, however, ask about two variables together. Does a person's earnings depend on their level of education? Does the unemployment rate depend on the inflation rate? To answer these questions we need to extend the tools from one random variable to two.
 
-    A *joint probability distribution* describes how likely each combination of values is for two random variables. When $X$ takes possible values $x_1, x_2, \ldots, x_k$ and $Y$ takes possible values $y_1, y_2, \ldots, y_l$, the joint probability distribution lists $\mathbb{P}(X = x_i, Y = y_j)$ for every pair $(x_i, y_j)$. The table below shows one example.
+    A *joint probability distribution* describes how likely each combination of values is for two random variables. When $X$ takes possible values $x_1, x_2, \ldots, x_k$ and $Y$ takes possible values $y_1, y_2, \ldots, y_l$, the joint probability distribution lists the probability of each combination of these possible values, denoted $\mathbb{P}(X = x_i, Y = y_j)$, for every pair $(x_i, y_j)$. The table below shows one example.
 
     <div style="display:flex;justify-content:center;margin:1.2em 0;">
     <table style="border-collapse:collapse;text-align:center;">
@@ -110,7 +110,7 @@ def _(mo):
 
     The six cells must sum to one because together they cover every possible outcome.
 
-    A *marginal probability distribution* gives the distribution of a single variable, ignoring the other. We compute it by summing the joint probabilities over the values of the other variable. The marginal probability that $X = x_1$ is
+    A *marginal probability distribution* gives the distribution of a single variable, ignoring the other. We compute it by summing the joint probabilities over the values of the other variable. For example, the marginal probability that $X = x_1$ is
 
     $$ \mathbb{P}(X = x_1) = \mathbb{P}(X = x_1, Y = y_1) + \mathbb{P}(X = x_1, Y = y_2) = 0.10 + 0.20 = 0.30. $$
 
@@ -133,11 +133,11 @@ def _(mo):
 
     $$ \mathbb{P}(Y = y_j \mid X = x_i) = \frac{\mathbb{P}(X = x_i, Y = y_j)}{\mathbb{P}(X = x_i)}. $$
 
-    This formula is also known as *Bayes' rule*. It rewrites the question ''how likely is $Y = y_j$, knowing that $X = x_i$ has occurred?'' in terms of probabilities we can read off the table. For our example, the conditional probability that $Y = y_1$ given $X = x_1$ is
+    This formula is also known as *Bayes' rule*. It restates the question ''how likely is $Y = y_j$, knowing that $X = x_i$ has occurred?'' in terms of probabilities we can read off the probability tables. For our example, the conditional probability that $Y = y_1$ given $X = x_1$ is
 
     $$ \mathbb{P}(Y = y_1 \mid X = x_1) = \frac{0.10}{0.30} = \frac{1}{3}. $$
 
-    Bayes' rule turns up in many places, from medical testing to legal evidence. For this course, it is the bridge between the joint distribution and the conditional distribution.
+    We could similarly compute $\mathbb{P}(X = x_2 \mid Y = 2_2)$, or any other such combination. Bayes' rule turns up in many places in statistics. For this course, it is the bridge between the joint distribution and the conditional distribution.
     """)
     return
 
@@ -152,27 +152,25 @@ def _(mo):
 
     $$ \text{cov}(X, Y) \equiv \sigma_{XY} = \sum_i \sum_j (x_j - \mu_X)(y_i - \mu_Y) \cdot \mathbb{P}(X = x_j, Y = y_i). $$
 
-    The sign of the covariance is what carries most of the meaning. A positive $\sigma_{XY}$ means that when $X$ is above its mean, $Y$ tends to be above its mean too, and the two tend to move together. A negative $\sigma_{XY}$ means one tends to be above its mean when the other is below it, so the two tend to move in opposite directions. A zero covariance means $X$ and $Y$ do not move together on average.
+    The sign of the covariance is what carries most of its meaning. A positive $\sigma_{XY}$ means that when $X$ is above its mean, $Y$ tends to be above its mean too, and thus the two random variables tend to move together. A negative $\sigma_{XY}$ means one tends to be above its mean when the other is below it, so the two random variables tend to move in opposite directions. A zero covariance means $X$ and $Y$ do not move together on average.
 
-    The size of the covariance is harder to interpret because it depends on the units of $X$ and $Y$. The covariance between years of education and weekly earnings would be in (years $\times$ dollars), while the covariance between height and weight would be in (inches $\times$ pounds). The numbers are not comparable.
+    The size of the covariance is harder to interpret because it depends on the units of $X$ and $Y$. The covariance between years of education and weekly earnings would be in units of (years $\times$ dollars), while the covariance between height and weight would be in units of (inches $\times$ pounds). These numbers are not comparable.
 
-    To get a unit-free summary we divide by the standard deviations of $X$ and $Y$. The *correlation coefficient*, also written *correlation*, is
+    To get a unit-free summary we divide the covariance by the standard deviations of $X$ and $Y$. The *correlation coefficient*, also referred to simply as the *correlation*, is
 
     $$ \text{corr}(X, Y) \equiv \rho_{XY} = \frac{\sigma_{XY}}{\sigma_X \sigma_Y}. $$
 
     The correlation always sits between $-1$ and $1$. A correlation of $+1$ means $Y$ is an exactly increasing linear function of $X$. A correlation of $-1$ means $Y$ is an exactly decreasing linear function of $X$. A correlation of $0$ means $X$ and $Y$ have no linear relationship on average.
 
-    With data we do not observe $\sigma_{XY}$, $\sigma_X$, $\sigma_Y$ directly. We estimate them from a sample of $n$ paired observations $(X_1, Y_1), (X_2, Y_2), \ldots, (X_n, Y_n)$. The *sample covariance* is
+    However, just like for the variance and expected value introduced last lecture, when working with data we do not observe $\sigma_{XY}$, $\sigma_X$, or $\sigma_Y$ directly. We instead try to estimate them from a sample of $n$ paired observations $(X_1, Y_1), (X_2, Y_2), \ldots, (X_n, Y_n)$. We compute the *sample covariance* as
 
     $$ \hat{\sigma}_{XY} = \frac{1}{n - 1} \sum_{i=1}^{n} (X_i - \hat{\mu}_X)(Y_i - \hat{\mu}_Y), $$
 
-    and the *sample correlation* is
+    and the *sample correlation* as
 
     $$ \widehat{\text{corr}}(X, Y) = \frac{\hat{\sigma}_{XY}}{\hat{\sigma}_X \hat{\sigma}_Y}. $$
 
-    The \$594 weekly-earnings gap between high school graduates and bachelor's-degree holders from the BLS table in Lecture 1 is one way to summarize the relationship between education and earnings. The correlation between years of education and weekly earnings is another. The correlation uses every level of education at once, instead of just two, and reports the relationship as a single number between $-1$ and $1$.
-
-    The plot below starts empty, with both axes running from $-10$ to $10$. Drag the mouse across it to spray points, building up a cloud where each dot is one paired observation of two variables $X$ and $Y$. The sample statistics under the plot update as you spray. Press Reset to empty it and start over. Try spraying an upward-sloping cloud and watch the correlation climb toward $+1$, then a downward-sloping cloud and watch it fall toward $-1$, and finally a symmetric arch and watch the correlation sit near $0$ even though the points clearly follow a pattern.
+    Use the interactive plot below to explore how sample statistics correspond to their underlying data points. Sample statistics update under the plot as you spray it with data points.
     """)
     return
 
@@ -186,37 +184,37 @@ def _(anywidget):
         # shown beneath the plot. Delivered as an anywidget so the drawing runs
         # client-side in the deployed WASM build.
         _esm = r"""
-function render({ model, el }) {
-  const XMIN = -15, XMAX = 15, YMIN = -10, YMAX = 10;
-  const W = 660, H = 448, padL = 44, padR = 16, padT = 14, padB = 34;
-  const plotW = W - padL - padR, plotH = H - padT - padB;
+    function render({ model, el }) {
+      const XMIN = -15, XMAX = 15, YMIN = -10, YMAX = 10;
+      const W = 660, H = 448, padL = 44, padR = 16, padT = 14, padB = 34;
+      const plotW = W - padL - padR, plotH = H - padT - padB;
 
-  const wrap = document.createElement("div");
-  wrap.style.cssText = "font-family:system-ui,-apple-system,sans-serif;color:#1f4e79;display:flex;flex-direction:column;align-items:center;";
-  const cv = document.createElement("canvas");
-  cv.width = W; cv.height = H;
-  cv.style.cssText = "cursor:crosshair;touch-action:none;max-width:100%;";
-  const controls = document.createElement("div");
-  controls.style.cssText = "margin:8px 0 4px;";
-  const btn = document.createElement("button");
-  btn.textContent = "Reset";
-  btn.style.cssText = "font:inherit;color:#1f4e79;background:#eef3f8;border:1px solid #1f4e79;border-radius:4px;padding:4px 14px;cursor:pointer;";
-  controls.appendChild(btn);
-  const statsEl = document.createElement("div");
-  statsEl.style.cssText = "max-width:620px;font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;";
-  wrap.appendChild(cv); wrap.appendChild(controls); wrap.appendChild(statsEl);
-  el.appendChild(wrap);
+      const wrap = document.createElement("div");
+      wrap.style.cssText = "font-family:system-ui,-apple-system,sans-serif;color:#1f4e79;display:flex;flex-direction:column;align-items:center;";
+      const cv = document.createElement("canvas");
+      cv.width = W; cv.height = H;
+      cv.style.cssText = "cursor:crosshair;touch-action:none;max-width:100%;";
+      const controls = document.createElement("div");
+      controls.style.cssText = "margin:8px 0 4px;";
+      const btn = document.createElement("button");
+      btn.textContent = "Reset";
+      btn.style.cssText = "font:inherit;color:#1f4e79;background:#eef3f8;border:1px solid #1f4e79;border-radius:4px;padding:4px 14px;cursor:pointer;";
+      controls.appendChild(btn);
+      const statsEl = document.createElement("div");
+      statsEl.style.cssText = "max-width:620px;font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;";
+      wrap.appendChild(cv); wrap.appendChild(controls); wrap.appendChild(statsEl);
+      el.appendChild(wrap);
 
-  const ctx = cv.getContext("2d");
-  let points = [];
-  let drawing = false;
+      const ctx = cv.getContext("2d");
+      let points = [];
+      let drawing = false;
 
-  const toPxX = x => padL + (x - XMIN) / (XMAX - XMIN) * plotW;
-  const toPxY = y => padT + (YMAX - y) / (YMAX - YMIN) * plotH;
-  const toDataX = px => XMIN + (px - padL) / plotW * (XMAX - XMIN);
-  const toDataY = py => YMAX - (py - padT) / plotH * (YMAX - YMIN);
+      const toPxX = x => padL + (x - XMIN) / (XMAX - XMIN) * plotW;
+      const toPxY = y => padT + (YMAX - y) / (YMAX - YMIN) * plotH;
+      const toDataX = px => XMIN + (px - padL) / plotW * (XMAX - XMIN);
+      const toDataY = py => YMAX - (py - padT) / plotH * (YMAX - YMIN);
 
-  function drawAxes() {
+      function drawAxes() {
     ctx.clearRect(0, 0, W, H);
     ctx.lineWidth = 1;
     ctx.font = "11px system-ui, sans-serif";
@@ -243,22 +241,22 @@ function render({ model, el }) {
     ctx.translate(11, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
     ctx.fillText("Y", 0, 0);
     ctx.restore();
-  }
+      }
 
-  function drawPoints() {
+      function drawPoints() {
     ctx.fillStyle = "rgba(31, 78, 121, 0.7)";
     for (const p of points) {
       ctx.beginPath(); ctx.arc(toPxX(p.x), toPxY(p.y), 3, 0, 2 * Math.PI); ctx.fill();
     }
-  }
+      }
 
-  function redraw() { drawAxes(); drawPoints(); }
+      function redraw() { drawAxes(); drawPoints(); }
 
-  function fmt(v, d) {
+      function fmt(v, d) {
     return v.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
-  }
+      }
 
-  function updateStats() {
+      function updateStats() {
     const n = points.length;
     if (n < 2) {
       statsEl.textContent = "Press and drag on the plot to spray points. Add at least two to see the sample statistics.";
@@ -278,9 +276,9 @@ function render({ model, el }) {
       fmt(vX, 2) + ", the sample variance of Y is " + fmt(vY, 2) +
       ", the sample covariance is " + fmt(cov, 2) +
       ", and the sample correlation is " + fmt(corr, 3) + ".";
-  }
+      }
 
-  function spray(px, py) {
+      function spray(px, py) {
     if (px < padL || px > padL + plotW || py < padT || py > padT + plotH) return;
     for (let i = 0; i < 3; i++) {
       const jx = px + (Math.random() - 0.5) * 16;
@@ -290,23 +288,23 @@ function render({ model, el }) {
     }
     if (points.length > 3000) points = points.slice(points.length - 3000);
     redraw(); updateStats();
-  }
+      }
 
-  function pos(e) {
+      function pos(e) {
     const r = cv.getBoundingClientRect();
     return [(e.clientX - r.left) * (W / r.width), (e.clientY - r.top) * (H / r.height)];
-  }
+      }
 
-  cv.addEventListener("pointerdown", e => { drawing = true; cv.setPointerCapture(e.pointerId); const [x, y] = pos(e); spray(x, y); });
-  cv.addEventListener("pointermove", e => { if (drawing) { const [x, y] = pos(e); spray(x, y); } });
-  cv.addEventListener("pointerup", () => { drawing = false; });
-  cv.addEventListener("pointercancel", () => { drawing = false; });
-  btn.addEventListener("click", () => { points = []; redraw(); updateStats(); });
+      cv.addEventListener("pointerdown", e => { drawing = true; cv.setPointerCapture(e.pointerId); const [x, y] = pos(e); spray(x, y); });
+      cv.addEventListener("pointermove", e => { if (drawing) { const [x, y] = pos(e); spray(x, y); } });
+      cv.addEventListener("pointerup", () => { drawing = false; });
+      cv.addEventListener("pointercancel", () => { drawing = false; });
+      btn.addEventListener("click", () => { points = []; redraw(); updateStats(); });
 
-  redraw(); updateStats();
-}
-export default { render };
-"""
+      redraw(); updateStats();
+    }
+    export default { render };
+    """
 
     return (SprayWidget,)
 
@@ -323,19 +321,17 @@ def _(mo):
     <a id="sec3"></a>
     ## 3. Independence
 
-    Two random variables are *independent* when knowing the value of one tells us nothing about the value of the other. In probability, that informal statement comes from three equivalent conditions. If $X$ and $Y$ are independent, then
+    Two random variables are *independent* when knowing the value of one is not informative about the value of the other. In probability, that informal statement comes from three equivalent conditions. Specifically, if $X$ and $Y$ are independent, then:
 
-    1. The conditional distribution of $Y$ does not depend on $X$, that is $\mathbb{P}(Y = y \mid X = x) = \mathbb{P}(Y = y)$ for every $x$ and $y$.
+    1. The conditional distribution of $Y$ does not depend on $X$ (and vicer versa). That is, $\mathbb{P}(Y = y \mid X = x) = \mathbb{P}(Y = y)$ for every $x$ and $y$.
     2. The joint distribution factors into the product of the marginals, $\mathbb{P}(X = x, Y = y) = \mathbb{P}(X = x) \cdot \mathbb{P}(Y = y)$.
     3. The correlation and the covariance are both zero, $\text{corr}(X, Y) = \sigma_{XY} = 0$.
 
-    Any one of these conditions can serve as the definition; the other two follow.
+    Any one of these conditions can serve as the definition of independence as they each imply the remaining two. And the three conditions above are unchanged when $X$ and $Y$ are swapped.
 
-    A coin flip and an unrelated die roll are independent. Knowing that the coin landed heads tells us nothing about which face of the die is showing, so the conditional distribution of the die given the coin is the same as the unconditional distribution. The result of the first die in a pair, however, is not independent of the sum of the two dice. If we know the sum is $11$, then the first die is very likely a $5$ or a $6$, and definitely not a $1$, so the conditional distribution of the first die given the sum is different from the unconditional distribution.
+    For example, a coin flip and an unrelated die roll are independent. Knowing that the coin landed heads tells us nothing about which face of the die is showing, so the conditional distribution of the die given the coin is the same as the unconditional distribution. The result of the first die in a pair of rolls, however, is not independent of the sum of the two dice. If we know the sum is $11$, then the first die is very likely a $5$ or a $6$, and definitely not a $1$. So the conditional distribution of the first die given the sum is different from the unconditional distribution.
 
-    Independence is symmetric. If $X$ is independent of $Y$, then $Y$ is independent of $X$. The three conditions above are unchanged when $X$ and $Y$ are swapped.
-
-    The third condition only goes one way. If $X$ and $Y$ are independent, then their correlation is zero. The converse, however, is not true. Two random variables can have zero correlation and still be dependent on each other, because correlation only captures the linear part of a relationship. You can see this for yourself in the scatter plot of Section 2. If you place points in a symmetric arch, the sample correlation stays near zero even though each point's height is fixed by its horizontal position, so the two coordinates are clearly dependent.
+    Note, however, that third condition only goes one way. If $X$ and $Y$ are independent, then their correlation is zero. The converse is not true though. Two random variables can have zero correlation and still be dependent on each other, because correlation only captures the linear part of a relationship. You can see this for yourself in the interactive scatter plot of Section 2. If you place points in a symmetric arch or trough, the sample correlation will stay near zero even though each point's height is informed by its horizontal position, so the two coordinates are clearly dependent.
     """)
     return
 
@@ -346,13 +342,13 @@ def _(mo):
     <a id="sec4"></a>
     ## 4. Independent and identically distributed
 
-    A sequence of random variables $X_1, X_2, \ldots, X_n$ is *independently and identically distributed* (i.i.d.) when two conditions hold. First, every $X_i$ has the same distribution. Second, every pair of $X_i$ and $X_j$ with $i \ne j$ is independent. We write $X_i \stackrel{\text{i.i.d.}}{\sim} F$ for a sequence drawn i.i.d. from a distribution $F$.
+    We say the random variables $X_1, X_2, \ldots, X_n$ are *independently and identically distributed* (i.i.d.) when two conditions hold. First, every $X_i$ has the same distribution. This means each random variable comes from the same underlying population, so the corresponding observations differ only because of random chance, not because they were drawn from different groups. Second, every pair of $X_i$ and $X_j$ with $i \ne j$ is independent. We write $X_i \stackrel{\text{i.i.d.}}{\sim} F$ for random variables drawn i.i.d. from a distribution $F$.
 
     The sixty thousand households the Census Bureau surveys each month for the Bureau of Labor Statistics are treated as an i.i.d. sample from the population of U.S. households. Each household is drawn at random, so any one household's wage tells us nothing about the wages of the others (independence), and each draw comes from the same underlying population distribution of wages (identically distributed). This i.i.d. assumption is what lets us use the law of large numbers and the central limit theorem from the previous lecture on real survey data.
 
     Both parts of i.i.d. can fail in practice. Heights measured within the same family are not independent because tall parents tend to have tall children, so a parent's height is informative about a child's height. Heights are also not identically distributed across people of different ages, because children's heights are systematically smaller than adults'. Sampling a hundred members of one family would violate both conditions.
 
-    The i.i.d. assumption is the starting point for the estimator properties we study in the next lecture. When it is in doubt, the methods of this course must be adjusted, and parts of the course later on (panel data, time series) deal with exactly those settings.
+    The i.i.d. assumption is the starting point for the estimator properties we study in the next lecture. When it is in doubt, the methods of this course must be adjusted, and parts of the course later on (e.g., panel data) deal with exactly those settings.
     """)
     return
 
@@ -363,31 +359,64 @@ def _(mo):
     <a id="sec5"></a>
     ## 5. Means and variances of sums
 
-    We often want to know the expected value and variance of a sum or weighted sum of random variables. A few short rules, numbered below, take care of most cases.
+    We often want to know the expected value and variance of a sum or weighted sum of random variables. One approach would be to treat the whole sum as a new random variable and then apply the formulas from Lecture 2 to that new variable. But this can quickly become unwieldy. Instead, we can use a few simple rules that cover most cases.
 
-    Rule 1 is the *linearity of the expected value*, which the appendix proves. For any constants $a$ and $b$,
+    1. The *linearity of expected value* says that adding a constant shifts the expected value by that constant, and multiplying a random variable by a constant multiplies its expected value by that constant. For any numbers $a$ and $b$, which we call *constants* to distinguish them from random variables,
 
-    $$ \mathbb{E}[a + b X] = a + b \mu_X. $$
+    $$
+    \mathbb{E}[a + b X] = a + b\mathbb{E}[X] = a + b \mu_X.
+    $$
 
-    Rule 2 extends linearity to a sum of several random variables. The expected value of a sum is the sum of the expected values, whether or not the variables are independent,
+    2. The expected value of a sum is the sum of the expected values. This rule holds whether or not the random variables are independent,
 
-    $$ \mathbb{E}[X_1 + X_2 + \cdots + X_n] = \mathbb{E}[X_1] + \mathbb{E}[X_2] + \cdots + \mathbb{E}[X_n]. $$
+    $$
+    \mathbb{E}[X_1 + X_2 + \cdots + X_n]
+    =
+    \mathbb{E}[X_1] + \mathbb{E}[X_2] + \cdots + \mathbb{E}[X_n] = n\mu_X.
+    $$
 
-    Rule 3 is the variance counterpart, which is more restrictive. For constants $a$ and $b$,
+    3. The variance of a shifted and scaled random variable follows a different rule. Adding a constant does not change the variance, but multiplying by a constant multiplies the variance by the square of that constant. For any constants $a$ and $b$,
 
-    $$ \text{var}(a + b X) = b^2 \sigma_X^2. $$
+    $$
+    \text{var}(a + b X) = b^2 \sigma_X^2.
+    $$
 
-    Rule 4 says covariance is symmetric and linear in each argument,
+    4. Covariance is symmetric and linear in each argument. Symmetry means that the order of the two variables does not matter. Linearity means that the covariance between one variable and a sum can be split into separate covariances,
 
-    $$ \text{cov}(X, Y) = \text{cov}(Y, X), \qquad \text{cov}(X, Y + Z) = \text{cov}(X, Y) + \text{cov}(X, Z). $$
+    $$
+    \text{cov}(X, Y) = \text{cov}(Y, X),
+    \qquad
+    \text{cov}(X, Y + Z) = \text{cov}(X, Y) + \text{cov}(X, Z).
+    $$
 
-    Rule 5 gives the variance of a sum, which depends on whether the variables move together. When $X_1, X_2, \ldots, X_n$ are i.i.d. with variance $\sigma_X^2$, the cross covariances are zero, so the variance of the sum is simply $n$ times the variance of one,
+    5. The variance of a sum depends on whether the random variables move together. If $X_1, X_2, \ldots, X_n$ are i.i.d. with variance $\sigma_X^2$, then the variance of the sum is simply $n$ times the variance of one draw,
 
-    $$ \text{var}(X_1 + X_2 + \cdots + X_n) = n \sigma_X^2. $$
+       $$\text{var}(X_1 + X_2 + \cdots + X_n) = n \sigma_X^2.$$
+       When the random variables are not i.i.d., you have to account for how they are related. In that case, the variance of the sum is larger or smaller depending on whether the variables tend to move together or in opposite directions.
 
-    When the variables are correlated, the cross covariances do not vanish, and the variance of the sum is larger or smaller depending on the sign of the correlations.
+    Notice that the variance of the sample mean from Lecture 2 follows directly from Rule 5. If
 
-    The variance of the sample mean from Lecture 2 is a direct corollary. If $\hat{\mu}_X = \frac{1}{n}\sum_{i=1}^{n} X_i$ and the $X_i$ are i.i.d. with variance $\sigma_X^2$, then $\text{var}(\hat{\mu}_X) = n \sigma_X^2 / n^2 = \sigma_X^2 / n$, so $\sigma_{\hat{\mu}_X} = \sigma_X / \sqrt{n}$.
+    $$
+    \hat{\mu}_X = \frac{1}{n}\sum_{i=1}^{n} X_i
+    $$
+
+    and the $X_i$ are i.i.d. with variance $\sigma_X^2$, then
+
+    $$
+    \text{var}(\hat{\mu}_X)
+    =
+    \frac{1}{n^2}\text{var}\left(\sum_{i=1}^{n} X_i\right)
+    =
+    \frac{1}{n^2} n \sigma_X^2
+    =
+    \frac{\sigma_X^2}{n}.
+    $$
+
+    Therefore,
+
+    $$
+    \sigma_{\hat{\mu}_X} = \frac{\sigma_X}{\sqrt{n}}.
+    $$
     """)
     return
 
@@ -400,7 +429,7 @@ def _(mo):
             "probability distribution, conditional probability distribution, "
             "Bayes' rule, covariance, correlation, correlation coefficient, "
             "sample covariance, sample correlation, independence, "
-            "independently and identically distributed (i.i.d.).\n\n"
+            "independently and identically distributed (i.i.d.), constants.\n\n"
             "**Key concepts covered:** linearity of the expected value, "
             "variance of a sum of i.i.d. random variables, zero correlation "
             "does not imply independence."
