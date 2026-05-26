@@ -1,0 +1,448 @@
+# /// script
+# requires-python = ">=3.14"
+# dependencies = [
+#     "marimo>=0.23.3",
+#     "numpy",
+#     "pandas",
+#     "altair",
+#     "scipy",
+#     "pyarrow",
+# ]
+# ///
+
+import marimo
+
+__generated_with = "0.23.6"
+app = marimo.App(
+    app_title="Lecture 4: Estimation, Hypothesis Testing, and Confidence Intervals",
+    css_file="marimo-overrides.css",
+)
+
+
+@app.cell(hide_code=True)
+def _():
+    import marimo as mo
+    import numpy as np
+    import pandas as pd
+    import altair as alt
+    from scipy import stats
+
+    return alt, mo, np, pd, stats
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.sidebar(
+        [
+            mo.md('<a href="https://robert-french.github.io/Econometrics/" target="_self" style="display: block; margin-bottom: 1.5em;">Course home</a>'),
+            mo.md("# [Lecture 4](#top)"),
+            mo.md("Estimation, Hypothesis Testing, and Confidence Intervals"),
+            mo.nav_menu(
+                {
+                    "#sec1": "1. Estimators and estimates",
+                    "#sec2": "2. Bias and consistency",
+                    "#sec3": "3. Mean squared error and efficiency",
+                    "#sec4": "4. Hypothesis tests",
+                    "#sec5": "5. P-values and the t-statistic",
+                    "#sec6": "6. Confidence intervals",
+                },
+                orientation="vertical",
+            ),
+        ],
+        width="260px",
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.hstack(
+        [
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec3WorkingWithMultipleRandomVariables.html" target="_self">← Lecture 3</a>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec5SimpleLinearRegression.html" target="_self">Lecture 5 →</a>'),
+        ],
+        justify="space-between", align="center",
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    <a id="top"></a>
+    # Lecture 4: Estimation, Hypothesis Testing, and Confidence Intervals
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## Contents
+
+    1. [Estimators and estimates](#sec1)
+    2. [Bias and consistency](#sec2)
+    3. [Mean squared error and efficiency](#sec3)
+    4. [Hypothesis tests](#sec4)
+    5. [P-values and the t-statistic](#sec5)
+    6. [Confidence intervals](#sec6)
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    <a id="sec1"></a>
+    ## 1. Estimators and estimates
+
+    The previous three lectures built up the language of random variables and their distributions. We now turn to the central task of econometrics, which is using a sample of data to learn about a population we cannot fully observe. Lecture 1 introduced the gap of about \$594 between the median weekly earnings of high school graduates and bachelor's-degree holders. That number came from a sample of households, not from every worker in the country, so it is a guess about the true population gap rather than the gap itself.
+
+    An *estimator* is a rule that turns a random sample into a guess about a population quantity. The sample mean $\hat{\mu}_X = \frac{1}{n}\sum_{i=1}^{n} X_i$ is an estimator of the population mean $\mu_X$. Because the sample is drawn at random, the estimator is itself a random variable, with a distribution, an expected value, and a variance, exactly like the random variables from Lecture 2. The particular number an estimator produces from one specific sample is called an *estimate*. The estimator is the rule, and the estimate is the realized number, in the same way that a random variable is a rule and its realization is a single observed draw.
+
+    A population quantity can be estimated in more than one way. Suppose we want to estimate the average value of a fair die roll, which we know is $3.5$. We could use the sample mean of $n$ rolls, or the value of a single roll, or the lowest value among $n$ rolls. Each of these is a valid estimator, and each produces a different guess. Some estimators are clearly better than others, so we need a way to compare them. The next two sections give three properties that make an estimator good.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    <a id="sec2"></a>
+    ## 2. Bias and consistency
+
+    The first property concerns whether an estimator is right on average. The *bias* of an estimator $\hat{\theta}$ of a population quantity $\theta$ is the difference between its expected value and the truth,
+
+    $$ \text{Bias}(\hat{\theta}) = \mathbb{E}[\hat{\theta}] - \theta. $$
+
+    An estimator is *unbiased* when its bias is zero, so that $\mathbb{E}[\hat{\theta}] = \theta$. If we could draw many independent samples and recompute the estimate from each, the average of those estimates would land on the truth. The sample mean is unbiased, because $\mathbb{E}[\hat{\mu}_X] = \mu_X$, a fact we saw in Lecture 2. A single die roll is also unbiased for the value $3.5$, because the average outcome of one roll is $3.5$. The lowest of $n$ rolls, by contrast, is biased downward, since the smallest of several rolls tends to sit below $3.5$.
+
+    The second property concerns what happens as the sample grows. An estimator is *consistent* when it gets closer and closer to the truth as the sample size increases, written $\hat{\theta} \xrightarrow{p} \theta$, which reads as $\hat{\theta}$ converges in probability to $\theta$. In plain terms, with enough data the probability that the estimate sits far from the truth shrinks toward zero. The sample mean is consistent by the law of large numbers from Lecture 2, since $\hat{\mu}_X \to \mu_X$ as $n$ grows. A single die roll is not consistent, because using one roll throws away all the other data, so collecting more rolls never improves it.
+
+    Bias and consistency are separate ideas. A single die roll is unbiased but not consistent. Going the other way, the sample mean plus $1/n$ is biased in any finite sample, yet it is consistent, because the $1/n$ nudge vanishes as $n$ grows.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    <a id="sec3"></a>
+    ## 3. Mean squared error and efficiency
+
+    Bias and consistency each capture one aspect of a good estimator, but we often want a single number that measures how close an estimator lands to the truth. The *mean squared error* averages the squared distance between the estimator and the truth,
+
+    $$ \text{MSE}(\hat{\theta}) = \mathbb{E}\big[(\hat{\theta} - \theta)^2\big]. $$
+
+    Squaring means large misses count for much more than small ones, and an estimator with a smaller mean squared error is generally preferable. The mean squared error splits cleanly into two parts, the variance of the estimator and its squared bias,
+
+    $$ \text{MSE}(\hat{\theta}) = \text{var}(\hat{\theta}) + \text{Bias}(\hat{\theta})^2. $$
+
+    The appendix proves this. The split shows the two ways an estimator can miss. It can be off-center, which is bias, or it can be noisy from one sample to the next, which is variance. A good estimator keeps both small.
+
+    When we compare two unbiased estimators, the bias term is zero for both, so the one with the smaller variance has the smaller mean squared error. We say that an unbiased estimator $\hat{\theta}_1$ is more *efficient* than another unbiased estimator $\hat{\theta}_2$ when it has a smaller variance, $\text{var}(\hat{\theta}_1) < \text{var}(\hat{\theta}_2)$. Among unbiased estimators, the most efficient one is the most reliable, because its estimates cluster most tightly around the truth.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    <a id="sec4"></a>
+    ## 4. Hypothesis tests
+
+    Estimation produces a best guess about a population quantity. Often we instead want to judge a specific claim about that quantity. A *hypothesis test* starts with a question, such as whether the mean hourly earnings of recent college graduates equals \$20.
+
+    We write the claim to be tested as the *null hypothesis* $H_0$, for example $H_0: \mathbb{E}[X] = 20$, where $X$ is the hourly earnings of a randomly chosen graduate. We write the competing claim as the *alternative hypothesis* $H_1$. The alternative can be a *two-sided alternative*, $H_1: \mathbb{E}[X] \neq 20$, which allows the mean to be either above or below \$20, or it can be a *one-sided alternative*, such as $H_1: \mathbb{E}[X] < 20$, which allows it only to be below. The goal is to use a random sample of graduates to decide whether to reject $H_0$ in favor of $H_1$, or not to reject it. The next section turns that decision into a number.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    <a id="sec5"></a>
+    ## 5. P-values and the t-statistic
+
+    Suppose the null hypothesis sets the mean to $\mu_{X,0}$, and our sample produces a sample mean $\hat{\mu}_X$ that comes out well above $\mu_{X,0}$. There are two explanations. Either the null is wrong and the true mean really is higher, or the null is right and our sample happened to land above the truth by chance. The *p-value* measures how easily chance alone could account for what we saw. It is the probability, computed assuming the null hypothesis is true, of drawing a sample mean at least as far from $\mu_{X,0}$ as the one we actually got,
+
+    $$ p\text{-value} = \mathbb{P}_{H_0}\big( | \hat{\mu}_X - \mu_{X,0} | > | \hat{\mu}_X^{\text{act}} - \mu_{X,0} | \big), $$
+
+    where $\hat{\mu}_X^{\text{act}}$ is the value actually computed from the sample. A small p-value means the data would be surprising if the null were true, which counts as evidence against the null.
+
+    To compute the p-value we first rescale the gap between the sample mean and the null value into a *test statistic*. The *t-statistic* divides that gap by the standard error of the sample mean,
+
+    $$ t = \frac{\hat{\mu}_X - \mu_{X,0}}{\text{se}(\hat{\mu}_X)}. $$
+
+    The standard error, from Lecture 2, is the standard deviation of the sample mean, $\text{se}(\hat{\mu}_X) = \sigma_X / \sqrt{n}$. When the null hypothesis is true and the sample is large, the central limit theorem tells us the t-statistic behaves like a standard normal random variable, $t \approx \mathcal{N}(0, 1)$. The two-sided p-value is then the standard normal probability of landing at least $|t|$ away from zero in either direction,
+
+    $$ p = 2\,\Phi(-|t^{\text{act}}|), $$
+
+    where $\Phi$ is the cumulative distribution function of the standard normal. We reject the null when the p-value falls below a chosen *significance level* $\alpha$, with $\alpha = 0.05$ the most common choice.
+
+    For our earnings example, suppose a large sample gives $\hat{\mu}_X = 22$ with a standard error of $1$. Then $t = (22 - 20)/1 = 2.0$, and the two-sided p-value is $p = 2\Phi(-2.0) \approx 0.046$. Because that is below $0.05$, we reject the null that mean earnings equal \$20. The plot below shows the p-value as the shaded tail area under the standard normal. Drag the t-statistic and watch the shaded area, and so the p-value, grow as $t$ moves toward zero and shrink as it moves out into the tails.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    t_side = mo.ui.dropdown(
+        options=["Two-sided", "One-sided (right tail)"],
+        value="Two-sided", label="Test type",
+    )
+    t_stat = mo.ui.slider(
+        start=-4.0, stop=4.0, step=0.05, value=2.0,
+        label="t-statistic", show_value=True,
+    )
+    mo.vstack([t_side, t_stat])
+    return t_side, t_stat
+
+
+@app.cell(hide_code=True)
+def _(alt, mo, np, pd, stats, t_side, t_stat):
+    _t = float(t_stat.value)
+    _twosided = t_side.value == "Two-sided"
+    _x = np.linspace(-4.0, 4.0, 401)
+    _frame = pd.DataFrame({"x": _x, "pdf": stats.norm.pdf(_x)})
+
+    if _twosided:
+        _mask = np.abs(_x) >= abs(_t)
+        _p = 2.0 * float(stats.norm.cdf(-abs(_t)))
+        _rules = pd.DataFrame({"x": [_t, -_t]})
+        _sides = "two"
+    else:
+        _mask = _x >= _t
+        _p = float(stats.norm.cdf(-_t))
+        _rules = pd.DataFrame({"x": [_t]})
+        _sides = "one"
+    _tail = _frame[_mask]
+
+    _base = (
+        alt.Chart(_frame)
+        .mark_area(color="#1f4e79", opacity=0.18)
+        .encode(
+            x=alt.X("x:Q", title="t under the null (standard normal)"),
+            y=alt.Y("pdf:Q", title="Density"),
+        )
+    )
+    _shade = (
+        alt.Chart(_tail)
+        .mark_area(color="#1f4e79", opacity=0.55)
+        .encode(x="x:Q", y="pdf:Q")
+    )
+    _line = (
+        alt.Chart(_frame)
+        .mark_line(color="#1f4e79", size=1.5)
+        .encode(x="x:Q", y="pdf:Q")
+    )
+    _marks = (
+        alt.Chart(_rules)
+        .mark_rule(color="orange", strokeDash=[4, 3], size=2)
+        .encode(x="x:Q")
+    )
+    _chart = (_base + _shade + _line + _marks).properties(
+        width=560, height=300, title="The p-value is the shaded tail area"
+    )
+
+    _reject = "rejects" if _p < 0.05 else "does not reject"
+    _body = (
+        rf"With $t = {_t:.2f}$, the {_sides}-sided p-value is the shaded area, "
+        rf"$p = {_p:.3f}$. At a significance level of $\alpha = 0.05$ this "
+        rf"{_reject} the null hypothesis."
+    )
+    _caption = mo.md(
+        '<span style="display:block;margin:0.2rem auto 1rem;max-width:560px;'
+        'font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;">'
+        + _body
+        + "</span>"
+    )
+    mo.vstack([_chart, _caption])
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    <a id="sec6"></a>
+    ## 6. Confidence intervals
+
+    A hypothesis test starts from a claim and asks whether the data reject it. A *confidence interval* turns the question around. It starts from the estimate $\hat{\mu}_X$ and reports a whole range of plausible values for the population mean. One way to read it is as the set of null hypotheses that the data would not reject at level $\alpha$. Another way is more direct. A confidence interval is a range around $\hat{\mu}_X$ built so that it contains the true mean $\mu_X$ in a fixed fraction $(1 - \alpha)$ of repeated samples.
+
+    For a large sample, the interval centers on $\hat{\mu}_X$ and stretches a multiple of the standard error in each direction,
+
+    $$ \text{CI for } \mu_X = \hat{\mu}_X \pm c \cdot \text{se}(\hat{\mu}_X). $$
+
+    The multiplier $c$ is a *critical value* read from the standard normal, and it grows as we demand more confidence. The common choices are $1.64$ for a 90% interval, $1.96$ for a 95% interval, and $2.58$ for a 99% interval. A higher confidence level uses a larger multiplier and so produces a wider interval, while a larger sample shrinks the standard error and so narrows it.
+
+    The phrase $(1 - \alpha)$ of repeated samples describes the long-run *coverage* of the procedure. Any single interval either contains the true mean or it does not, but across many samples the fraction that cover the truth settles near the confidence level. The plot below makes this concrete. It draws one hundred samples, builds a confidence interval from each, and marks the true mean of \$20 with a dashed line. Intervals that miss the truth are highlighted. Raise the sample size to see every interval narrow, and change the confidence level to see them all widen or shrink together.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    ci_level = mo.ui.dropdown(
+        options=["90%", "95%", "99%"], value="95%", label="Confidence level",
+    )
+    ci_n = mo.ui.slider(
+        start=5, stop=200, step=5, value=30,
+        label="Sample size n", show_value=True,
+    )
+    ci_button = mo.ui.button(
+        label="Draw new samples", value=0, on_click=lambda c: c + 1,
+    )
+    mo.vstack([ci_level, ci_n, ci_button])
+    return ci_button, ci_level, ci_n
+
+
+@app.cell(hide_code=True)
+def _(alt, ci_button, ci_level, ci_n, mo, np, pd):
+    _K = 100
+    _NMAX = 200
+    _mu = 20.0
+    _sigma = 6.0
+    _zmap = {"90%": 1.645, "95%": 1.960, "99%": 2.576}
+    _z = _zmap[ci_level.value]
+    _n = int(ci_n.value)
+
+    _rng = np.random.default_rng(7 + ci_button.value)
+    _pool = _rng.normal(_mu, _sigma, (_K, _NMAX))
+    _means = _pool[:, :_n].mean(axis=1)
+    _se = _sigma / np.sqrt(_n)
+    _half = _z * _se
+    _lo = _means - _half
+    _hi = _means + _half
+    _contains = (_lo <= _mu) & (_hi >= _mu)
+    _frame = pd.DataFrame({
+        "idx": np.arange(_K),
+        "lo": _lo,
+        "hi": _hi,
+        "mean": _means,
+        "status": np.where(_contains, "contains the true mean", "misses the true mean"),
+    })
+
+    _intervals = (
+        alt.Chart(_frame)
+        .mark_rule(size=1.5)
+        .encode(
+            x=alt.X("lo:Q", title="Hourly earnings (USD)", scale=alt.Scale(zero=False)),
+            x2="hi:Q",
+            y=alt.Y("idx:Q", axis=None, title=None),
+            color=alt.Color(
+                "status:N",
+                scale=alt.Scale(
+                    domain=["contains the true mean", "misses the true mean"],
+                    range=["#1f4e79", "orange"],
+                ),
+                legend=alt.Legend(title=None, orient="top"),
+            ),
+        )
+    )
+    _truth = (
+        alt.Chart(pd.DataFrame({"mu": [_mu]}))
+        .mark_rule(color="#6b7280", strokeDash=[4, 3], size=2)
+        .encode(x="mu:Q")
+    )
+    _chart = (_intervals + _truth).properties(
+        width=560, height=360, title=f"{_K} sample confidence intervals",
+    )
+
+    _k = int(_contains.sum())
+    _body = (
+        rf"{_k} of {_K} intervals contain the true mean of \$20, which is "
+        rf"{100 * _k / _K:.0f}% coverage, close to the {ci_level.value} "
+        rf"confidence level. Press Draw new samples to see a fresh set."
+    )
+    _caption = mo.md(
+        '<span style="display:block;margin:0.2rem auto 1rem;max-width:560px;'
+        'font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;">'
+        + _body
+        + "</span>"
+    )
+    mo.vstack([_chart, _caption])
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.callout(
+        mo.md(
+            "**Key terms covered:** estimator, estimate, bias, unbiased, "
+            "consistency, mean squared error, efficiency, null hypothesis, "
+            "alternative hypothesis, two-sided alternative, one-sided "
+            "alternative, p-value, test statistic, t-statistic, standard "
+            "error, significance level, confidence interval, critical value, "
+            "coverage.\n\n"
+            "**Key concepts covered:** an estimator is a random variable, the "
+            "bias-variance decomposition, the t-statistic is approximately "
+            "standard normal under the null by the central limit theorem, "
+            "confidence interval coverage."
+        ),
+        kind="info",
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    tbl_t = mo.ui.number(
+        start=-5.0, stop=5.0, step=0.01, value=2.01, label="t value",
+    )
+    return (tbl_t,)
+
+
+@app.cell(hide_code=True)
+def _(mo, stats, tbl_t):
+    _t = float(tbl_t.value)
+    _phi = float(stats.norm.cdf(-abs(_t)))
+    _p = 2.0 * _phi
+    _readout = mo.md(
+        rf"For $t = {_t:.2f}$, the table gives $\Phi(-|t|) = {_phi:.4f}$, so "
+        rf"the two-sided p-value is $p = 2 \times {_phi:.4f} = {_p:.4f}$."
+    )
+
+    _text = mo.md(r"""
+        This is bonus material. You will not be tested on the content of the appendix.
+
+        **The bias-variance decomposition.**
+
+        Section 3 split the mean squared error into a variance term and a squared bias term. Here is why. Start from the definition and add and subtract the expected value of the estimator inside the square,
+
+        $$ \text{MSE}(\hat{\theta}) = \mathbb{E}\big[(\hat{\theta} - \theta)^2\big] = \mathbb{E}\big[(\hat{\theta} - \mathbb{E}[\hat{\theta}] + \mathbb{E}[\hat{\theta}] - \theta)^2\big]. $$
+
+        Expanding the square gives three terms,
+
+        $$ \mathbb{E}\big[(\hat{\theta} - \mathbb{E}[\hat{\theta}])^2\big] + 2\big(\mathbb{E}[\hat{\theta}] - \theta\big)\,\mathbb{E}\big[\hat{\theta} - \mathbb{E}[\hat{\theta}]\big] + \big(\mathbb{E}[\hat{\theta}] - \theta\big)^2. $$
+
+        The middle term is zero, because $\mathbb{E}\big[\hat{\theta} - \mathbb{E}[\hat{\theta}]\big] = \mathbb{E}[\hat{\theta}] - \mathbb{E}[\hat{\theta}] = 0$. The first term is the variance of $\hat{\theta}$ and the last term is its squared bias, which leaves
+
+        $$ \text{MSE}(\hat{\theta}) = \text{var}(\hat{\theta}) + \text{Bias}(\hat{\theta})^2. $$
+
+        **Looking up a p-value in a standard normal table.**
+
+        Before statistical software was common, p-values were read from a printed table of the standard normal cumulative distribution function $\Phi$. The table gives $\Phi(z)$, the probability that a standard normal random variable falls below $z$. To find a two-sided p-value from a t-statistic, compute $p = 2\,\Phi(-|t^{\text{act}}|)$, which needs the single table value $\Phi(-|t^{\text{act}}|)$.
+
+        For example, take $t^{\text{act}} = 2.01$. Find the row for $-2.0$ and the column for the second decimal $0.01$, which gives $\Phi(-2.01) \approx 0.0222$. The two-sided p-value is $p = 2 \times 0.0222 = 0.0444$. The tool below does this lookup for any t value.
+        """)
+
+    mo.accordion({
+        "## Appendix": mo.vstack([_text, tbl_t, _readout]),
+    })
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.hstack(
+        [
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec3WorkingWithMultipleRandomVariables.html" target="_self">← Lecture 3</a>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec5SimpleLinearRegression.html" target="_self">Lecture 5 →</a>'),
+        ],
+        justify="space-between", align="center",
+    )
+    return
+
+
+if __name__ == "__main__":
+    app.run()
