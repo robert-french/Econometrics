@@ -99,15 +99,29 @@ def _(mo):
     In Lecture 2 we focused on one random variable at a time. We defined its distribution, its expected value, and its spread or variance. Most questions in econometrics, however, ask about two variables together. Does a person's earnings depend on their level of education? Does the unemployment rate depend on the inflation rate? To answer these questions we need to extend the tools from one random variable to two.
 
     A *joint probability distribution* describes how likely each combination of values is for two random variables. When $X$ takes possible values $x_1, x_2, \ldots, x_k$ and $Y$ takes possible values $y_1, y_2, \ldots, y_l$, the joint probability distribution lists the probability of each combination of these possible values, denoted $\mathbb{P}(X = x_i, Y = y_j)$, for every pair $(x_i, y_j)$. The table below shows an example of a joint probability table.
+    """)
+    return
 
-    <div style="text-align:center;margin:1.2em 0;">
-    <table style="display:inline-table;border-collapse:collapse;text-align:center;">
+
+@app.cell(hide_code=True)
+def _(mo):
+    # Rendered through mo.center (not inside mo.md) so the table keeps its
+    # natural size and is centered, instead of being stretched to full width
+    # by marimo's ".markdown table { display:block }" rule.
+    _joint = """
+    <table style="border-collapse:collapse;text-align:center;">
     <tr><td style="padding:6px 18px;"></td><td style="padding:6px 18px;">x<sub>1</sub></td><td style="padding:6px 18px;">x<sub>2</sub></td><td style="padding:6px 18px;">x<sub>3</sub></td></tr>
     <tr><td style="padding:6px 18px;">y<sub>1</sub></td><td style="padding:6px 18px;">0.10</td><td style="padding:6px 18px;">0.15</td><td style="padding:6px 18px;">0.20</td></tr>
     <tr><td style="padding:6px 18px;">y<sub>2</sub></td><td style="padding:6px 18px;">0.20</td><td style="padding:6px 18px;">0.10</td><td style="padding:6px 18px;">0.25</td></tr>
     </table>
-    </div>
+    """
+    mo.center(mo.Html(_joint))
+    return
 
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     The six cells must sum to one because together they cover every possible outcome.
 
     A *marginal probability distribution* gives the distribution of a single variable, ignoring the other. We compute it by summing the joint probabilities over the values of the other variable. For example, the marginal probability that $X = x_1$ is
@@ -115,20 +129,38 @@ def _(mo):
     $$ \mathbb{P}(X = x_1) = \mathbb{P}(X = x_1, Y = y_1) + \mathbb{P}(X = x_1, Y = y_2) = 0.10 + 0.20 = 0.30. $$
 
     In general, $\mathbb{P}(X = x_i) = \sum_j \mathbb{P}(X = x_i, Y = y_j)$. Summing down each column gives the marginal distribution of $X$, and summing across each row gives the marginal distribution of $Y$, both shown below.
+    """)
+    return
 
-    <div style="text-align:center;margin:1.2em 0;">
-    <table style="display:inline-table;border-collapse:collapse;text-align:center;margin:0 1.5em;vertical-align:top;">
+
+@app.cell(hide_code=True)
+def _(mo):
+    # Two tables laid out side by side and centered with mo.hstack. Each title
+    # spans its own table via colspan, so it sits centered over the whole table.
+    _marg_x = """
+    <table style="border-collapse:collapse;text-align:center;">
     <tr><th style="padding:6px 16px;border-bottom:1px solid #cbd2d9;" colspan="3">Marginal of X</th></tr>
     <tr><td style="padding:6px 16px;">x<sub>1</sub></td><td style="padding:6px 16px;">x<sub>2</sub></td><td style="padding:6px 16px;">x<sub>3</sub></td></tr>
     <tr><td style="padding:6px 16px;">0.30</td><td style="padding:6px 16px;">0.25</td><td style="padding:6px 16px;">0.45</td></tr>
     </table>
-    <table style="display:inline-table;border-collapse:collapse;text-align:center;margin:0 1.5em;vertical-align:top;">
+    """
+    _marg_y = """
+    <table style="border-collapse:collapse;text-align:center;">
     <tr><th style="padding:6px 16px;border-bottom:1px solid #cbd2d9;" colspan="2">Marginal of Y</th></tr>
     <tr><td style="padding:6px 16px;">y<sub>1</sub></td><td style="padding:6px 16px;">y<sub>2</sub></td></tr>
     <tr><td style="padding:6px 16px;">0.45</td><td style="padding:6px 16px;">0.55</td></tr>
     </table>
-    </div>
+    """
+    mo.hstack(
+        [mo.Html(_marg_x), mo.Html(_marg_y)],
+        justify="center", align="start", gap=2.5,
+    )
+    return
 
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     A *conditional probability distribution* gives the distribution of one variable, given the value of the other. The conditional probability that $Y = y_j$ given $X = x_i$ is
 
     $$ \mathbb{P}(Y = y_j \mid X = x_i) = \frac{\mathbb{P}(X = x_i, Y = y_j)}{\mathbb{P}(X = x_i)}. $$
