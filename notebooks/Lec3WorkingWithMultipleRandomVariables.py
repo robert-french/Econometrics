@@ -110,7 +110,7 @@ def _(mo):
     # by marimo's ".markdown table { display:block }" rule.
     _joint = """
     <table style="border-collapse:collapse;text-align:center;">
-    <tr style="background:var(--lime-2,#f8faf3);"><th style="padding:6px 18px;border-bottom:1px solid #cbd2d9;" colspan="4">Joint of X and Y</th></tr>
+    <tr style="background:var(--lime-2,#f8faf3);"><th style="padding:6px 18px;border-bottom:1px solid #cbd2d9;" colspan="4">Joint Probability of X and Y</th></tr>
     <tr style="background:var(--card,#fff);"><td style="padding:6px 18px;"></td><td style="padding:6px 18px;">x<sub>1</sub></td><td style="padding:6px 18px;">x<sub>2</sub></td><td style="padding:6px 18px;">x<sub>3</sub></td></tr>
     <tr style="background:var(--lime-2,#f8faf3);"><td style="padding:6px 18px;">y<sub>1</sub></td><td style="padding:6px 18px;">0.10</td><td style="padding:6px 18px;">0.15</td><td style="padding:6px 18px;">0.20</td></tr>
     <tr style="background:var(--card,#fff);"><td style="padding:6px 18px;">y<sub>2</sub></td><td style="padding:6px 18px;">0.20</td><td style="padding:6px 18px;">0.10</td><td style="padding:6px 18px;">0.25</td></tr>
