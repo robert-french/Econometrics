@@ -211,9 +211,7 @@ def _(mo):
     \right).
     $$
 
-    In the expression above, $\hat{\mu}_X^{\text{est}}$ is the estimate computed from the actual sample. A small p-value means that estimates this far from the null value would be unlikely if the null were true, so small p-values count as evidence against the null.[^1]
-
-    To compute the p-value, we first convert the gap between the estimate and the null value into a test statistic. The t-statistic is one such test statistic, formed by dividing this gap by the standard error of the estimator,
+    In the expression above, $\hat{\mu}_X^{\text{est}}$ is the estimate computed from the actual sample. A small p-value means that estimates this far from the null value would be unlikely if the null were true, so small p-values count as evidence against the null.<sup><a id="fnref1" href="#fn1">1</a></sup> To compute the p-value, we first convert the gap between the estimate and the null value into a test statistic. The t-statistic is one such test statistic, formed by dividing this gap by the standard error of the estimator,
 
     $$
     t
@@ -232,11 +230,11 @@ def _(mo):
 
     where $\Phi$ is the cumulative distribution function of the standard normal distribution.
 
-    We reject the null hypothtesis when the p-value falls below a chosen *significance level* $\alpha$. The significance level is the cutoff we choose before conducting the test for how much evidence is enough to reject the null. The most common choice is $\alpha = 0.05$, so we reject $H_0$ when the p-value is less than $0.05$.
+    We reject the null hypothesis when the p-value falls below a chosen *significance level* $\alpha$. The significance level is the cutoff we choose before conducting the test for how much evidence is enough to reject the null. The most common choice is $\alpha = 0.05$, so we reject $H_0$ when the p-value is less than $0.05$.
 
     For the earnings example, suppose a large sample gives an estimate of $\hat{\mu}_X^{\text{est}} = 22$, with a standard error of $1$. The null hypothesis is $H_0: \mu_X = 20$, so the t-statistic is $t^{\text{est}} = \frac{22 - 20}{1} = 2.0.$ The two-sided p-value is $p = 2\Phi(-2.0) \approx 0.046.$ Because $0.046 < 0.05$, we reject the null hypothesis that mean hourly earnings equal \$20.
 
-    The plot below shows the p-value as the shaded tail area under the standard normal curve. Type in a sample mean estimate and a standard error to test the null fixed at \$20. The plot displays two-sided p-value associated with the t-statistic. The dashed gray lines mark the critical values for the significance level you choose, so the test rejects the null exactly when the shaded tails reach past them. As the estimate moves toward the null the p-value grows, and as it moves farther away the p-value shrinks.
+    The plot below shows how the two-sided p-value changes with the estimate, standard error, and chosen significance level when testing the null that the mean wage equals $20.
     """)
     return
 
@@ -245,18 +243,18 @@ def _(mo):
 def _(mo):
     pv_est = mo.ui.number(
         value=22.0, start=0.0, stop=100.0, step=0.5,
-        label=r"Sample mean estimate $\hat{\mu}_X$ (\$)",
+        label=r"Sample mean estimate, $\hat{\mu}_X$",
     )
     pv_se = mo.ui.number(
         value=1.0, start=-10.0, stop=50.0, step=0.25,
-        label=r"Standard error $\text{se}$ (\$)",
+        label=r"Standard error, $\text{se}(\hat{\mu}_X)$",
     )
     pv_alpha = mo.ui.dropdown(
         options={"0.10": 0.10, "0.05": 0.05, "0.01": 0.01},
-        value="0.05", label=r"Significance level $\alpha$",
+        value="0.05", label=r"Significance level, $\alpha$",
     )
     mo.vstack([
-        mo.md(r"Null hypothesis $H_0:\ \mu_X = 20$ (fixed)."),
+        mo.md(r"Null hypothesis $H_0:\ \mu_X = 20$."),
         mo.hstack([pv_est, pv_se, pv_alpha], justify="start", gap=2),
     ])
     return pv_alpha, pv_est, pv_se
@@ -290,7 +288,7 @@ def _(alt, mo, np, pd, pv_alpha, pv_est, pv_se, stats):
         .encode(
             x=alt.X(
                 "x:Q",
-                title="t under the null (standard normal)",
+                title="t-statistic assuming the null is true (standard normal distribution)",
                 scale=alt.Scale(domain=[-4.0, 4.0]),
             ),
             y=alt.Y(
@@ -559,7 +557,9 @@ def _(mo, stats, tbl_t):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    [^1]: Recall from algebra that the vertical bars denote *absolute value*, which measures distance from zero. For example, $|3|=3$ and $|-3|=3$. Here, $\left| \hat{\mu}_X^{\text{est}} - \mu_{X,0} \right|$ is the distance between the estimate and the null value, ignoring whether the estimate is above or below the null. A two-sided test uses absolute values because evidence against the null can come from either direction.
+    ---
+
+    <span id="fn1" style="display:block;font-size:0.9rem;">**1.** Recall from algebra that the vertical bars denote *absolute value*, which measures distance from zero. For example, $|3|=3$ and $|-3|=3$. Here, $\left| \hat{\mu}_X^{\text{est}} - \mu_{X,0} \right|$ is the distance between the estimate and the null value, ignoring whether the estimate is above or below the null. A two-sided test uses absolute values because evidence against the null can come from either direction. <a href="#fnref1" title="Back to text">&#8617;</a></span>
     """)
     return
 
