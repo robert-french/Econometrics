@@ -100,7 +100,7 @@ def _(mo):
 
     An *estimator* is a rule that turns a random sample into a guess about a population quantity, often called a *parameter*. The sample mean $\hat{\mu}_X = \frac{1}{n}\sum_{i=1}^{n} X_i$ is an estimator of the population mean $\mu_X$. Because the sample is drawn at random, the estimator is itself a random variable, with a distribution, an expected value, and a variance, exactly like the random variables from Lecture 2. The particular number an estimator produces from one specific sample is called an *estimate*. The estimator is the rule, and the estimate is the realized number, in the same way that a random variable is a rule and its realization is a single observed data point.
 
-    A population quantity, or parameter, can be estimated in more than one way. To see this, suppose we want to estimate the average value of a fair die roll, which we know is $3.5$. We could use the sample mean of $n$ rolls, or the only the first value of $n$ rolls, or the lowest value among $n$ rolls. Each of these is a valid estimator, and each produces a different guess. Some estimators are clearly better than others, so we need a way to compare them. The next two sections give three properties that help us evaluate the quality of an estimator.
+    A population quantity, or parameter, can be estimated in more than one way. To see this, suppose we want to estimate the average value of a fair die roll, which we know is $3.5$. We could use the sample mean of $n$ rolls, or only the first value of $n$ rolls, or the lowest value among $n$ rolls. Each of these is a valid estimator, and each produces a different guess. Some estimators are clearly better than others, so we need a way to compare them. The next two sections give three properties that help us evaluate the quality of an estimator.
     """)
     return
 
@@ -219,7 +219,7 @@ def _(mo):
     \frac{\hat{\mu}_X - \mu_{X,0}}{\text{se}(\hat{\mu}_X)}.
     $$
 
-    The standard error measures how much the estimator $\hat{\mu}_X$ varies across repeated samples. Recall from Lecture 2, the estimated standard error of the sample mean is $\text{se}(\hat{\mu}_X) = \hat{\sigma}_X / \sqrt{n}$. When the null hypothesis is true and $n$ is large, the central limit theorem tells us that the t-statistic is approximately standard normal, $t \sim \mathcal{N}(0,1)$.
+    The standard error measures how much the estimator $\hat{\mu}_X$ varies across repeated samples. Recall from Lecture 2 that the estimated standard error of the sample mean is $\text{se}(\hat{\mu}_X) = \hat{\sigma}_X / \sqrt{n}$. When the null hypothesis is true and $n$ is large, the central limit theorem tells us that the t-statistic is approximately standard normal, $t \sim \mathcal{N}(0,1)$.
 
 
     The two-sided p-value is therefore the probability that a standard normal random variable lands at least $|t^{\text{est}}|$ distance away from zero in either direction,
@@ -236,7 +236,7 @@ def _(mo):
 
     Recall the earnings example and suppose a large sample gives an estimate for the mean wage of $\hat{\mu}_X^{\text{est}} = 22$, with a standard error of $1$. Let the null hypothesis be $H_0: \mu_X = 20$, so the t-statistic is $t^{\text{est}} = \frac{22 - 20}{1} = 2.0.$ The corresponding two-sided p-value is then $p = 2\Phi(-2.0) \approx 0.046.$ We therefore reject the null hypothesis that mean hourly earnings equal \$20 when $\alpha = 0.05$ because $0.046 < 0.05$.
 
-    Now explore hypothesis testing interactively. The plot below shows how the two-sided p-value for this example changes with the estimate, $\hat{\mu}_X^{\text{est}}$, standard error, $\text{se}(\hat{\mu}_X)$, and chosen significance level, $\alpha$, when testing the null that the mean wage equals $20.
+    Now explore hypothesis testing interactively. The plot below shows how the two-sided p-value for this example changes with the estimate, $\hat{\mu}_X^{\text{est}}$, standard error, $\text{se}(\hat{\mu}_X)$, and chosen significance level, $\alpha$, when testing the null that the mean wage equals \$20.
     """)
     return
 
@@ -434,6 +434,13 @@ def _(alt, ci_button, ci_level, ci_n, mo, np, pd):
     _z = _zmap[ci_level.value]
     _n = int(ci_n.value)
 
+    # Hold the x-axis fixed at the n = 5 scale (the widest the intervals ever
+    # get) so that raising the sample size visibly shrinks the intervals
+    # instead of the axis rescaling to fit them.
+    _se5 = _sigma / np.sqrt(5)
+    _xhalf = (3.5 + _z) * _se5
+    _xdom = [_mu - _xhalf, _mu + _xhalf]
+
     _rng = np.random.default_rng(7 + ci_button.value)
     _pool = _rng.normal(_mu, _sigma, (_K, _NMAX))
     _means = _pool[:, :_n].mean(axis=1)
@@ -452,9 +459,9 @@ def _(alt, ci_button, ci_level, ci_n, mo, np, pd):
 
     _intervals = (
         alt.Chart(_frame)
-        .mark_rule(size=1.5)
+        .mark_rule(size=1.5, clip=True)
         .encode(
-            x=alt.X("lo:Q", title="Hourly earnings (USD)", scale=alt.Scale(zero=False)),
+            x=alt.X("lo:Q", title="Hourly earnings (USD)", scale=alt.Scale(domain=_xdom, nice=False)),
             x2="hi:Q",
             y=alt.Y("idx:Q", axis=None, title=None),
             color=alt.Color(
@@ -497,13 +504,15 @@ def _(mo):
     mo.callout(
         mo.md(
             "**Key terms covered:** estimator, estimate, parameter, bias, unbiased, "
-            "consistency, mean squared error, efficiency, null hypothesis, "
-            "alternative hypothesis, two-sided alternative, one-sided "
-            "alternative, p-value, test statistic, t-statistic, standard "
-            "error, significance level, confidence interval, critical value.\n\n"
+            "consistency, mean squared error, efficiency, hypothesis test, "
+            "null hypothesis, alternative hypothesis, two-sided alternative, "
+            "one-sided alternative, p-value, test statistic, t-statistic, "
+            "standard error, significance level, confidence interval, critical "
+            "value.\n\n"
             "**Key concepts covered:** an estimator is a random variable, the "
             "bias-variance decomposition, the t-statistic is approximately "
-            "standard normal under the null by the central limit theorem."
+            "standard normal under the null by the central limit theorem, the "
+            "repeated-samples (coverage) interpretation of a confidence interval."
         ),
         kind="info",
     )
@@ -547,9 +556,9 @@ def _(mo, stats, tbl_t):
 
         **Looking up a p-value in a standard normal table.**
 
-        Before statistical software was common, p-values were read from a printed table of the standard normal cumulative distribution function $\Phi$. The table gives $\Phi(z)$, the probability that a standard normal random variable falls below $z$. To find a two-sided p-value from a t-statistic, compute $p = 2\,\Phi(-|t^{\text{act}}|)$, which needs the single table value $\Phi(-|t^{\text{act}}|)$.
+        Before statistical software was common, p-values were read from a printed table of the standard normal cumulative distribution function $\Phi$. The table gives $\Phi(z)$, the probability that a standard normal random variable falls below $z$. To find a two-sided p-value from a t-statistic, compute $p = 2\,\Phi(-|t^{\text{est}}|)$, which needs the single table value $\Phi(-|t^{\text{est}}|)$.
 
-        For example, take $t^{\text{act}} = 2.01$. Find the row for $-2.0$ and the column for the second decimal $0.01$, which gives $\Phi(-2.01) \approx 0.0222$. The two-sided p-value is $p = 2 \times 0.0222 = 0.0444$. The tool below does this lookup for any t value.
+        For example, take $t^{\text{est}} = 2.01$. Find the row for $-2.0$ and the column for the second decimal $0.01$, which gives $\Phi(-2.01) \approx 0.0222$. The two-sided p-value is $p = 2 \times 0.0222 = 0.0444$. The tool below does this lookup for any t value.
         """)
 
     mo.accordion({

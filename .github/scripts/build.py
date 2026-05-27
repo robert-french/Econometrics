@@ -20,6 +20,7 @@ The script also generates an index.html file that lists both versions.
 # ///
 
 import ast
+import re
 import shutil
 import subprocess
 from typing import List, Optional, Union
@@ -187,7 +188,16 @@ def _export_from_notebooks(
         logger.warning(f"Directory not found: {source_folder}")
         return []
 
-    notebooks = list(source_folder.rglob("*.py"))
+    def _natural_key(path: Path):
+        # Sort "Lec2..." before "Lec10..." by treating digit runs as integers,
+        # so the index lists lectures in numeric order regardless of the
+        # arbitrary order rglob returns files in.
+        return [
+            int(tok) if tok.isdigit() else tok.lower()
+            for tok in re.split(r"(\d+)", path.stem)
+        ]
+
+    notebooks = sorted(source_folder.rglob("*.py"), key=_natural_key)
     logger.debug(f"Found {len(notebooks)} Python files in {source_folder}")
 
     if not notebooks:
