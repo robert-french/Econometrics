@@ -96,11 +96,11 @@ def _(mo):
     <a id="sec1"></a>
     ## 1. Estimators and estimates
 
-    The previous three lectures built up the language of random variables and their distributions. We now turn to the central task of econometrics, which is using a sample of data to learn about a population we cannot fully observe. Lecture 1 introduced the gap of about \$594 between the median weekly earnings of high school graduates and bachelor's-degree holders. That number came from a sample of households, not from every worker in the country, so it is a guess about the true population gap rather than the gap itself.
+    The previous two lectures introduced random variables and their distributions. We now turn to the central task of statistical inference, which is using a sample of data to learn about a population we cannot fully observe.
 
-    An *estimator* is a rule that turns a random sample into a guess about a population quantity. The sample mean $\hat{\mu}_X = \frac{1}{n}\sum_{i=1}^{n} X_i$ is an estimator of the population mean $\mu_X$. Because the sample is drawn at random, the estimator is itself a random variable, with a distribution, an expected value, and a variance, exactly like the random variables from Lecture 2. The particular number an estimator produces from one specific sample is called an *estimate*. The estimator is the rule, and the estimate is the realized number, in the same way that a random variable is a rule and its realization is a single observed draw.
+    An *estimator* is a rule that turns a random sample into a guess about a population quantity, often called a *parameter*. The sample mean $\hat{\mu}_X = \frac{1}{n}\sum_{i=1}^{n} X_i$ is an estimator of the population mean $\mu_X$. Because the sample is drawn at random, the estimator is itself a random variable, with a distribution, an expected value, and a variance, exactly like the random variables from Lecture 2. The particular number an estimator produces from one specific sample is called an *estimate*. The estimator is the rule, and the estimate is the realized number, in the same way that a random variable is a rule and its realization is a single observed data point.
 
-    A population quantity can be estimated in more than one way. Suppose we want to estimate the average value of a fair die roll, which we know is $3.5$. We could use the sample mean of $n$ rolls, or the value of a single roll, or the lowest value among $n$ rolls. Each of these is a valid estimator, and each produces a different guess. Some estimators are clearly better than others, so we need a way to compare them. The next two sections give three properties that make an estimator good.
+    A population quantity, or parameter, can be estimated in more than one way. To see this, suppose we want to estimate the average value of a fair die roll, which we know is $3.5$. We could use the sample mean of $n$ rolls, or the only the first value of $n$ rolls, or the lowest value among $n$ rolls. Each of these is a valid estimator, and each produces a different guess. Some estimators are clearly better than others, so we need a way to compare them. The next two sections give three properties that help us evaluate the quality of an estimator.
     """)
     return
 
@@ -111,15 +111,27 @@ def _(mo):
     <a id="sec2"></a>
     ## 2. Bias and consistency
 
-    The first property concerns whether an estimator is right on average. The *bias* of an estimator $\hat{\theta}$ of a population quantity $\theta$ is the difference between its expected value and the truth,
+    The first property concerns where an estimator is centered across repeated samples of the same size. The *bias* of an estimator $\hat{\theta}$ of a population quantity $\theta$ is the difference between the estimator’s expected value and the population quantity,
 
-    $$ \text{Bias}(\hat{\theta}) = \mathbb{E}[\hat{\theta}] - \theta. $$
+    $$
+    \text{Bias}(\hat{\theta}) = \mathbb{E}[\hat{\theta}] - \theta.
+    $$
 
-    An estimator is *unbiased* when its bias is zero, so that $\mathbb{E}[\hat{\theta}] = \theta$. If we could draw many independent samples and recompute the estimate from each, the average of those estimates would land on the truth. The sample mean is unbiased, because $\mathbb{E}[\hat{\mu}_X] = \mu_X$, a fact we saw in Lecture 2. A single die roll is also unbiased for the value $3.5$, because the average outcome of one roll is $3.5$. The lowest of $n$ rolls, by contrast, is biased downward, since the smallest of several rolls tends to sit below $3.5$.
+    An estimator is *unbiased* when this difference is zero, so that $\mathbb{E}[\hat{\theta}] = \theta$. This does not mean that every estimate equals the true parameter. A single sample can still produce an estimate that is too high or too low. Unbiasedness means that if we could draw many independent samples of the same size and recompute the estimate from each one, those estimates would be centered around the true parameter.
 
-    The second property concerns what happens as the sample grows. An estimator is *consistent* when it gets closer and closer to the truth as the sample size increases, written $\hat{\theta} \xrightarrow{p} \theta$, which reads as $\hat{\theta}$ converges in probability to $\theta$. In plain terms, with enough data the probability that the estimate sits far from the truth shrinks toward zero. The sample mean is consistent by the law of large numbers from Lecture 2, since $\hat{\mu}_X \to \mu_X$ as $n$ grows. A single die roll is not consistent, because using one roll throws away all the other data, so collecting more rolls never improves it.
+    The sample mean is unbiased because $\mathbb{E}[\hat{\mu}_X] = \mu_X$, a fact we saw in Lecture 2. A single die roll is also unbiased for the value $3.5$, because the expected outcome of one roll is $3.5$. The lowest of $n$ rolls, by contrast, is biased downward, since the smallest of several rolls tends to be below $3.5$.
 
-    Bias and consistency are separate ideas. A single die roll is unbiased but not consistent. Going the other way, the sample mean plus $1/n$ is biased in any finite sample, yet it is consistent, because the $1/n$ nudge vanishes as $n$ grows.
+    The second property concerns what happens as the sample size, $n$, grows large. An estimator is *consistent* when it gets closer and closer to the parameter as the sample size increases. We write this as
+
+    $$
+    \hat{\theta} \xrightarrow{p} \theta,
+    $$
+
+    which reads as "$\hat{\theta}$ converges in probability to $\theta$." Put simply, with enough data, the probability that the estimate sits far from the true parameter shrinks toward zero.
+
+    The sample mean is consistent by the law of large numbers from Lecture 2, since $\hat{\mu}_X \xrightarrow{p} \mu_X$ as $n$ grows. A single die roll is not consistent because it does not use the additional data. Even if we collect more rolls, an estimator based only on the first roll does not become more reliable.
+
+    Bias and consistency are separate ideas. A single die roll is unbiased for $3.5$ but not consistent. Going the other way, the sample mean plus $1/n$ is biased in any finite sample, since $\mathbb{E}[\hat{\mu}_X + 1/n] = \mu_X + 1/n > \mu_X$, yet it is consistent because the $1/n$ term becomes vanishingly small as $n$ grows.
     """)
     return
 
@@ -130,17 +142,17 @@ def _(mo):
     <a id="sec3"></a>
     ## 3. Mean squared error and efficiency
 
-    Bias and consistency each capture one aspect of a good estimator, but we often want a single number that measures how close an estimator lands to the truth. The *mean squared error* averages the squared distance between the estimator and the truth,
+    Bias and consistency each capture one aspect of a good estimator, but we often want a single number that measures how close an estimator lands to the true parameter value. The *mean squared error* averages the squared distance between the estimator and the true parameter value,
 
     $$ \text{MSE}(\hat{\theta}) = \mathbb{E}\big[(\hat{\theta} - \theta)^2\big]. $$
 
-    Squaring means large misses count for much more than small ones, and an estimator with a smaller mean squared error is generally preferable. The mean squared error splits cleanly into two parts, the variance of the estimator and its squared bias,
+    An estimator with a smaller mean squared error is generally preferable because it tends to produce estimates closer to the true parameter. The mean squared error splits cleanly into two parts, the variance of the estimator and its squared bias,
 
     $$ \text{MSE}(\hat{\theta}) = \text{var}(\hat{\theta}) + \text{Bias}(\hat{\theta})^2. $$
 
-    The appendix proves this. The split shows the two ways an estimator can miss. It can be off-center, which is bias, or it can be noisy from one sample to the next, which is variance. A good estimator keeps both small.
+    The appendix proves this. The split shows the two ways an estimator can miss. It can be off-center, which is captured by the bias term, or it can be noisy from one sample to the next, which is captured in the variance term. A good estimator keeps both small.
 
-    When we compare two unbiased estimators, the bias term is zero for both, so the one with the smaller variance has the smaller mean squared error. We say that an unbiased estimator $\hat{\theta}_1$ is more *efficient* than another unbiased estimator $\hat{\theta}_2$ when it has a smaller variance, $\text{var}(\hat{\theta}_1) < \text{var}(\hat{\theta}_2)$. Among unbiased estimators, the most efficient one is the most reliable, because its estimates cluster most tightly around the truth.
+    When we compare two unbiased estimators, the bias term is zero for both, so the one with the smaller variance has the smaller mean squared error. We say that an unbiased estimator $\hat{\theta}_1$ is more *efficient* than another unbiased estimator $\hat{\theta}_2$ when it has a smaller variance, $\text{var}(\hat{\theta}_1) < \text{var}(\hat{\theta}_2)$.
     """)
     return
 
@@ -151,9 +163,29 @@ def _(mo):
     <a id="sec4"></a>
     ## 4. Hypothesis tests
 
-    Estimation produces a best guess about a population quantity. Often we instead want to judge a specific claim about that quantity. A *hypothesis test* starts with a question, such as whether the mean hourly earnings of recent college graduates equals \$20.
+    Estimation gives us a best guess about a population quantity. A *hypothesis test* asks whether the data provide enough evidence against a specific claim about that quantity.
 
-    We write the claim to be tested as the *null hypothesis* $H_0$, for example $H_0: \mathbb{E}[X] = 20$, where $X$ is the hourly earnings of a randomly chosen graduate. We write the competing claim as the *alternative hypothesis* $H_1$. The alternative can be a *two-sided alternative*, $H_1: \mathbb{E}[X] \neq 20$, which allows the mean to be either above or below \$20, or it can be a *one-sided alternative*, such as $H_1: \mathbb{E}[X] < 20$, which allows it only to be below. The goal is to use a random sample of graduates to decide whether to reject $H_0$ in favor of $H_1$, or not to reject it. The next section turns that decision into a number.
+    The claim being tested is called the *null hypothesis* and is written as $H_0$. The competing claim is called the *alternative hypothesis* and is written as $H_1$. A hypothesis test uses a sample to decide whether to reject $H_0$ in favor of $H_1$, or whether the evidence is not strong enough to reject $H_0$.
+
+    For example, suppose we want to test whether the mean hourly earnings of recent college graduates is \$20. Let $\mu_X$ be the population mean hourly earnings of recent college graduates. The null hypothesis is
+
+    $$
+    H_0: \mu_X = 20.
+    $$
+
+    The alternative hypothesis depends on the question we want to ask. A *two-sided alternative* allows the mean to be either above or below \$20,
+
+    $$
+    H_1: \mu_X \neq 20.
+    $$
+
+    A *one-sided alternative* allows only one direction. For example, if we want to know whether mean hourly earnings are below \$20, we would write
+
+    $$
+    H_1: \mu_X < 20.
+    $$
+
+    Throughout this course, however, we will focus on two-sided alternative hypotheses. The next section explains how we measure the strength of the evidence against $H_0$.
     """)
     return
 
@@ -164,23 +196,61 @@ def _(mo):
     <a id="sec5"></a>
     ## 5. P-values and the t-statistic
 
-    Suppose the null hypothesis sets the mean to $\mu_{X,0}$, and our sample produces a sample mean $\hat{\mu}_X$ that comes out well above $\mu_{X,0}$. There are two explanations. Either the null is wrong and the true mean really is higher, or the null is right and our sample happened to land above the truth by chance. The *p-value* measures how easily chance alone could account for what we saw. It is the probability, computed assuming the null hypothesis is true, of drawing a sample mean at least as far from $\mu_{X,0}$ as the one we actually got,
+    Suppose the null hypothesis says that the population mean is $\mu_{X,0}$, and our estimator is the sample mean, $\hat{\mu}_X$. In any particular sample, the estimate may come out above or below the null value, $\mu_{X,0}$.
 
-    $$ p\text{-value} = \mathbb{P}_{H_0}\big( | \hat{\mu}_X - \mu_{X,0} | > | \hat{\mu}_X^{\text{act}} - \mu_{X,0} | \big), $$
+    If the estimate is far from $\mu_{X,0}$, there are two possible explanations. The null may be false, meaning the true population mean differs from $\mu_{X,0}$, or the null may be true and our sample happened to produce an estimate far from the null value by chance.
 
-    where $\hat{\mu}_X^{\text{act}}$ is the value actually computed from the sample. A small p-value means the data would be surprising if the null were true, which counts as evidence against the null.
+    A *p-value* measures how surprising our estimate would be if the null hypothesis were true. For a two-sided test, it is the probability, computed assuming the null hypothesis is true, of obtaining an estimate at least as far from $\mu_{X,0}$ as the estimate we actually observed,
 
-    To compute the p-value we first rescale the gap between the sample mean and the null value into a *test statistic*. The *t-statistic* divides that gap by the standard error of the sample mean,
+    $$
+    p\text{-value}
+    =
+    \mathbb{P}_{H_0}
+    \left(
+    \left| \hat{\mu}_X - \mu_{X,0} \right|
+    \geq
+    \left| \hat{\mu}_X^{\text{est}} - \mu_{X,0} \right|
+    \right).
+    $$
 
-    $$ t = \frac{\hat{\mu}_X - \mu_{X,0}}{\text{se}(\hat{\mu}_X)}. $$
+    In the expression above, $\hat{\mu}_X^{\text{est}}$ is the estimate computed from the actual sample. A small p-value means that estimates this far from the null value would be unlikely if the null were true, so small p-values count as evidence against the null. Recall from algebra that the vertical bars denote *absolute value*, which measures distance from zero. For example, $|3|=3$ and $|-3|=3$. Here, $\left| \hat{\mu}_X^{\text{est}} - \mu_{X,0} \right|$ is the distance between the estimate and the null value, ignoring whether the estimate is above or below the null. A two-sided test uses absolute values because evidence against the null can come from either direction.
 
-    The standard error, from Lecture 2, is the standard deviation of the sample mean, $\text{se}(\hat{\mu}_X) = \sigma_X / \sqrt{n}$. When the null hypothesis is true and the sample is large, the central limit theorem tells us the t-statistic behaves like a standard normal random variable, $t \approx \mathcal{N}(0, 1)$. The two-sided p-value is then the standard normal probability of landing at least $|t|$ away from zero in either direction,
+    To compute the p-value, we first convert the gap between the estimate and the null value into a test statistic. The t-statistic is one such test statistic, formed by dividing this gap by the standard error of the estimator,
 
-    $$ p = 2\,\Phi(-|t^{\text{act}}|), $$
+    $$
+    t
+    =
+    \frac{\hat{\mu}_X - \mu_{X,0}}{\text{se}(\hat{\mu}_X)}.
+    $$
 
-    where $\Phi$ is the cumulative distribution function of the standard normal. We reject the null when the p-value falls below a chosen *significance level* $\alpha$, with $\alpha = 0.05$ the most common choice.
+    The standard error measures how much the estimator $\hat{\mu}_X$ varies across repeated samples. Recall from Lecture 2, the estimated standard error of the sample mean is $\text{se}(\hat{\mu}_X) = \hat{\sigma}_X / \sqrt{n}$. When the null hypothesis is true and the sample is large, the central limit theorem tells us that the t-statistic is approximately standard normal, $t \sim \mathcal{N}(0,1)$.
 
-    For our earnings example, suppose a large sample gives $\hat{\mu}_X = 22$ with a standard error of $1$. Then $t = (22 - 20)/1 = 2.0$, and the two-sided p-value is $p = 2\Phi(-2.0) \approx 0.046$. Because that is below $0.05$, we reject the null that mean earnings equal \$20. The plot below shows the p-value as the shaded tail area under the standard normal. Drag the t-statistic and watch the shaded area, and so the p-value, grow as $t$ moves toward zero and shrink as it moves out into the tails.
+
+    The two-sided p-value is therefore the probability that a standard normal random variable lands at least $|t^{\text{est}}|$ distance away from zero in either direction,
+
+    $$
+    p = 2\Phi(-|t^{\text{est}}|),
+    $$
+
+    where $\Phi$ is the cumulative distribution function of the standard normal distribution.
+
+    We reject the null hypothtesis when the p-value falls below a chosen *significance level* $\alpha$. The significance level is the cutoff we choose before conducting the test for how much evidence is enough to reject the null. The most common choice is $\alpha = 0.05$, so we reject $H_0$ when the p-value is less than $0.05$.
+
+    For the earnings example, suppose a large sample gives an estimate of $\hat{\mu}_X^{\text{est}} = 22$, with a standard error of $1$. The null hypothesis is $H_0: \mu_X = 20$, so the t-statistic is
+
+    $$
+    t^{\text{est}} = \frac{22 - 20}{1} = 2.0.
+    $$
+
+    The two-sided p-value is
+
+    $$
+    p = 2\Phi(-2.0) \approx 0.046.
+    $$
+
+    Because $0.046 < 0.05$, we reject the null hypothesis that mean hourly earnings equal \$20.
+
+    The plot below shows the p-value as the shaded tail area under the standard normal curve. Drag the t-statistic and watch how the shaded area changes. As $t$ moves toward zero, the p-value grows. As $t$ moves farther into the tails, the p-value shrinks.
     """)
     return
 
@@ -368,7 +438,7 @@ def _(alt, ci_button, ci_level, ci_n, mo, np, pd):
 def _(mo):
     mo.callout(
         mo.md(
-            "**Key terms covered:** estimator, estimate, bias, unbiased, "
+            "**Key terms covered:** estimator, estimate, parameter, bias, unbiased, "
             "consistency, mean squared error, efficiency, null hypothesis, "
             "alternative hypothesis, two-sided alternative, one-sided "
             "alternative, p-value, test statistic, t-statistic, standard "
