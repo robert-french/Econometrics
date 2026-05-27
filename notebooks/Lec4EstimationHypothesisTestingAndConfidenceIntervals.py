@@ -196,9 +196,7 @@ def _(mo):
     <a id="sec5"></a>
     ## 5. P-values and the t-statistic
 
-    Suppose the null hypothesis says that the population mean is $\mu_{X,0}$, and our estimator is the sample mean, $\hat{\mu}_X$. In any particular sample, the estimate may come out above or below the null value, $\mu_{X,0}$.
-
-    If the estimate is far from $\mu_{X,0}$, there are two possible explanations. The null may be false, meaning the true population mean differs from $\mu_{X,0}$, or the null may be true and our sample happened to produce an estimate far from the null value by chance.
+    Suppose the null hypothesis says that the population mean is $\mu_{X,0}$, and our estimator is the sample mean, $\hat{\mu}_X$. In any particular sample, the estimate may come out above or below the null value, $\mu_{X,0}$. If the estimate is far from $\mu_{X,0}$, there are two possible explanations. The null may be false, meaning the true population mean differs from $\mu_{X,0}$, or the null may be true and our sample happened to produce an estimate far from the null value by chance.
 
     A *p-value* measures how surprising our estimate would be if the null hypothesis were true. For a two-sided test, it is the probability, computed assuming the null hypothesis is true, of obtaining an estimate at least as far from $\mu_{X,0}$ as the estimate we actually observed,
 
@@ -236,94 +234,150 @@ def _(mo):
 
     We reject the null hypothtesis when the p-value falls below a chosen *significance level* $\alpha$. The significance level is the cutoff we choose before conducting the test for how much evidence is enough to reject the null. The most common choice is $\alpha = 0.05$, so we reject $H_0$ when the p-value is less than $0.05$.
 
-    For the earnings example, suppose a large sample gives an estimate of $\hat{\mu}_X^{\text{est}} = 22$, with a standard error of $1$. The null hypothesis is $H_0: \mu_X = 20$, so the t-statistic is
+    For the earnings example, suppose a large sample gives an estimate of $\hat{\mu}_X^{\text{est}} = 22$, with a standard error of $1$. The null hypothesis is $H_0: \mu_X = 20$, so the t-statistic is $t^{\text{est}} = \frac{22 - 20}{1} = 2.0.$ The two-sided p-value is $p = 2\Phi(-2.0) \approx 0.046.$ Because $0.046 < 0.05$, we reject the null hypothesis that mean hourly earnings equal \$20.
 
-    $$
-    t^{\text{est}} = \frac{22 - 20}{1} = 2.0.
-    $$
-
-    The two-sided p-value is
-
-    $$
-    p = 2\Phi(-2.0) \approx 0.046.
-    $$
-
-    Because $0.046 < 0.05$, we reject the null hypothesis that mean hourly earnings equal \$20.
-
-    The plot below shows the p-value as the shaded tail area under the standard normal curve. Drag the t-statistic and watch how the shaded area changes. As $t$ moves toward zero, the p-value grows. As $t$ moves farther into the tails, the p-value shrinks.
+    The plot below shows the p-value as the shaded tail area under the standard normal curve. Type in a sample mean estimate and a standard error to test the null fixed at \$20. The plot displays two-sided p-value associated with the t-statistic. The dashed gray lines mark the critical values for the significance level you choose, so the test rejects the null exactly when the shaded tails reach past them. As the estimate moves toward the null the p-value grows, and as it moves farther away the p-value shrinks.
     """)
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    t_side = mo.ui.dropdown(
-        options=["Two-sided", "One-sided (right tail)"],
-        value="Two-sided", label="Test type",
+    pv_est = mo.ui.number(
+        value=22.0, start=0.0, stop=100.0, step=0.5,
+        label=r"Sample mean estimate $\hat{\mu}_X$ (\$)",
     )
-    t_stat = mo.ui.slider(
-        start=-4.0, stop=4.0, step=0.05, value=2.0,
-        label="t-statistic", show_value=True,
+    pv_se = mo.ui.number(
+        value=1.0, start=-10.0, stop=50.0, step=0.25,
+        label=r"Standard error $\text{se}$ (\$)",
     )
-    mo.vstack([t_side, t_stat])
-    return t_side, t_stat
+    pv_alpha = mo.ui.dropdown(
+        options={"0.10": 0.10, "0.05": 0.05, "0.01": 0.01},
+        value="0.05", label=r"Significance level $\alpha$",
+    )
+    mo.vstack([
+        mo.md(r"Null hypothesis $H_0:\ \mu_X = 20$ (fixed)."),
+        mo.hstack([pv_est, pv_se, pv_alpha], justify="start", gap=2),
+    ])
+    return pv_alpha, pv_est, pv_se
 
 
 @app.cell(hide_code=True)
-def _(alt, mo, np, pd, stats, t_side, t_stat):
-    _t = float(t_stat.value)
-    _twosided = t_side.value == "Two-sided"
+def _(alt, mo, np, pd, pv_alpha, pv_est, pv_se, stats):
+    _MU0 = 20.0
+    _est = float(pv_est.value)
+    _se = float(pv_se.value)
+    _alpha = float(pv_alpha.value)
+    _zcrit = float(stats.norm.ppf(1.0 - _alpha / 2.0))
+
     _x = np.linspace(-4.0, 4.0, 401)
     _frame = pd.DataFrame({"x": _x, "pdf": stats.norm.pdf(_x)})
 
-    if _twosided:
-        _mask = np.abs(_x) >= abs(_t)
+    _valid = _se > 0.0
+    if _valid:
+        _t = (_est - _MU0) / _se
         _p = 2.0 * float(stats.norm.cdf(-abs(_t)))
-        _rules = pd.DataFrame({"x": [_t, -_t]})
-        _sides = "two"
-    else:
-        _mask = _x >= _t
-        _p = float(stats.norm.cdf(-_t))
-        _rules = pd.DataFrame({"x": [_t]})
-        _sides = "one"
-    _tail = _frame[_mask]
+        _reject = _p < _alpha
+        _visible = abs(_t) < 4.0
+        _edge = min(abs(_t), 4.0)
+        _tcolor = "orange" if _reject else "#1f4e79"
 
-    _base = (
-        alt.Chart(_frame)
-        .mark_area(color="#1f4e79", opacity=0.18)
-        .encode(
-            x=alt.X("x:Q", title="t under the null (standard normal)"),
-            y=alt.Y("pdf:Q", title="Density"),
-        )
-    )
-    _shade = (
-        alt.Chart(_tail)
-        .mark_area(color="#1f4e79", opacity=0.55)
-        .encode(x="x:Q", y="pdf:Q")
-    )
+    # The curve, drawn as a line only (no full-area fill), so the shaded
+    # region equals the p-value and nothing else.
     _line = (
         alt.Chart(_frame)
         .mark_line(color="#1f4e79", size=1.5)
-        .encode(x="x:Q", y="pdf:Q")
+        .encode(
+            x=alt.X(
+                "x:Q",
+                title="t under the null (standard normal)",
+                scale=alt.Scale(domain=[-4.0, 4.0]),
+            ),
+            y=alt.Y(
+                "pdf:Q", title="Density", scale=alt.Scale(domain=[0.0, 0.42])
+            ),
+        )
     )
-    _marks = (
-        alt.Chart(_rules)
-        .mark_rule(color="orange", strokeDash=[4, 3], size=2)
+    # Faint dashed cutoffs at the critical values for the chosen alpha.
+    _cutoffs = (
+        alt.Chart(pd.DataFrame({"x": [_zcrit, -_zcrit]}))
+        .mark_rule(color="#9ca3af", strokeDash=[4, 3], size=1.5)
         .encode(x="x:Q")
     )
-    _chart = (_base + _shade + _line + _marks).properties(
+    # The null value sits at t = 0.
+    _nullrule = (
+        alt.Chart(pd.DataFrame({"x": [0.0]}))
+        .mark_rule(color="#d1d5db", size=1)
+        .encode(x="x:Q")
+    )
+
+    _layers = []
+    if _valid:
+        _ltail = pd.DataFrame({"x": np.linspace(-4.0, -_edge, 120)})
+        _ltail["pdf"] = stats.norm.pdf(_ltail["x"])
+        _rtail = pd.DataFrame({"x": np.linspace(_edge, 4.0, 120)})
+        _rtail["pdf"] = stats.norm.pdf(_rtail["x"])
+        _shade_l = (
+            alt.Chart(_ltail)
+            .mark_area(color=_tcolor, opacity=0.5)
+            .encode(x="x:Q", y="pdf:Q")
+        )
+        _shade_r = (
+            alt.Chart(_rtail)
+            .mark_area(color=_tcolor, opacity=0.5)
+            .encode(x="x:Q", y="pdf:Q")
+        )
+        _estrules = (
+            alt.Chart(pd.DataFrame({"x": [_edge, -_edge]}))
+            .mark_rule(color=_tcolor, size=2)
+            .encode(x="x:Q")
+        )
+        _layers = [_shade_l, _shade_r, _line, _nullrule, _cutoffs, _estrules]
+    else:
+        _layers = [_line, _nullrule, _cutoffs]
+
+    _chart = alt.layer(*_layers).properties(
         width=560, height=300, title="The p-value is the shaded tail area"
     )
 
-    _reject = "rejects" if _p < 0.05 else "does not reject"
-    _body = (
-        rf"With $t = {_t:.2f}$, the {_sides}-sided p-value is the shaded area, "
-        rf"$p = {_p:.3f}$. At a significance level of $\alpha = 0.05$ this "
-        rf"{_reject} the null hypothesis."
-    )
+    # Stateful caption: warning, full computation, or "too small to see".
+    if not _valid:
+        _color = "#b91c1c"
+        _body = (
+            "The standard error must be positive. Enter a value greater than "
+            "0 to compute the t-statistic."
+        )
+    else:
+        if _p < 0.001:
+            _mant, _exp = f"{_p:.1e}".split("e")
+            _pstr = rf"{_mant}\times10^{{{int(_exp)}}}"
+        else:
+            _pstr = f"{_p:.3f}"
+        _formula = (
+            rf"$t = \dfrac{{\hat{{\mu}}_X - 20}}{{\text{{se}}}} "
+            rf"= \dfrac{{{_est:g} - 20}}{{{_se:g}}} = {_t:.2f}$"
+        )
+        _color = "#6b7280"
+        if _visible:
+            _dec = "rejects" if _reject else "does not reject"
+            _cmp = "<" if _reject else r"\geq"
+            _body = (
+                _formula
+                + rf", so $p = 2\Phi(-|{_t:.2f}|) = {_pstr}$. "
+                + rf"At $\alpha = {_alpha:g}$, since $p {_cmp} \alpha$, this "
+                + rf"test {_dec} the null hypothesis $H_0: \mu_X = 20$."
+            )
+        else:
+            _body = (
+                _formula
+                + rf", giving $p \approx {_pstr}$. This t-statistic is too "
+                + r"far into the tail to show on the plot. Increase the "
+                + r"standard error or choose an estimate closer to the null "
+                + r"(\$20) to see the shaded area."
+            )
     _caption = mo.md(
         '<span style="display:block;margin:0.2rem auto 1rem;max-width:560px;'
-        'font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;">'
+        f"font-size:0.85rem;line-height:1.45;color:{_color};text-align:center;\">"
         + _body
         + "</span>"
     )
