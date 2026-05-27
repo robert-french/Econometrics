@@ -219,7 +219,7 @@ def _(mo):
     \frac{\hat{\mu}_X - \mu_{X,0}}{\text{se}(\hat{\mu}_X)}.
     $$
 
-    The standard error measures how much the estimator $\hat{\mu}_X$ varies across repeated samples. Recall from Lecture 2, the estimated standard error of the sample mean is $\text{se}(\hat{\mu}_X) = \hat{\sigma}_X / \sqrt{n}$. When the null hypothesis is true and the sample is large, the central limit theorem tells us that the t-statistic is approximately standard normal, $t \sim \mathcal{N}(0,1)$.
+    The standard error measures how much the estimator $\hat{\mu}_X$ varies across repeated samples. Recall from Lecture 2, the estimated standard error of the sample mean is $\text{se}(\hat{\mu}_X) = \hat{\sigma}_X / \sqrt{n}$. When the null hypothesis is true and $n$ is large, the central limit theorem tells us that the t-statistic is approximately standard normal, $t \sim \mathcal{N}(0,1)$.
 
 
     The two-sided p-value is therefore the probability that a standard normal random variable lands at least $|t^{\text{est}}|$ distance away from zero in either direction,
@@ -232,9 +232,11 @@ def _(mo):
 
     We reject the null hypothesis when the p-value falls below a chosen *significance level* $\alpha$. The significance level is the cutoff we choose before conducting the test for how much evidence is enough to reject the null. The most common choice is $\alpha = 0.05$, so we reject $H_0$ when the p-value is less than $0.05$.
 
-    For the earnings example, suppose a large sample gives an estimate of $\hat{\mu}_X^{\text{est}} = 22$, with a standard error of $1$. The null hypothesis is $H_0: \mu_X = 20$, so the t-statistic is $t^{\text{est}} = \frac{22 - 20}{1} = 2.0.$ The two-sided p-value is $p = 2\Phi(-2.0) \approx 0.046.$ Because $0.046 < 0.05$, we reject the null hypothesis that mean hourly earnings equal \$20.
+    ### <span style="color:#0b68cb">Hypothesis testing example</span>
 
-    The plot below shows how the two-sided p-value changes with the estimate, standard error, and chosen significance level when testing the null that the mean wage equals $20.
+    Recall the earnings example and suppose a large sample gives an estimate for the mean wage of $\hat{\mu}_X^{\text{est}} = 22$, with a standard error of $1$. Let the null hypothesis be $H_0: \mu_X = 20$, so the t-statistic is $t^{\text{est}} = \frac{22 - 20}{1} = 2.0.$ The corresponding two-sided p-value is then $p = 2\Phi(-2.0) \approx 0.046.$ Because $0.046 < 0.05$, we reject the null hypothesis that mean hourly earnings equal \$20.
+
+    Noe explore hypothesis testing interactively. The plot below shows how the two-sided p-value for this example changes with the estimate ($\hat{\mu}_X$), standard error ($\text{se}(\hat{\mu}_X)$), and chosen significance level ($\alpha$) when testing the null that the mean wage equals $20.
     """)
     return
 
