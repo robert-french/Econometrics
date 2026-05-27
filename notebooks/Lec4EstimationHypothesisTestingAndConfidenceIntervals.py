@@ -354,7 +354,7 @@ def _(alt, mo, np, pd, pv_alpha, pv_est, pv_se, stats):
         else:
             _pstr = f"{_p:.3f}"
         _formula = (
-            rf"$t = \dfrac{{\hat{{\mu}}_X^{{\text{{est}}}} - 20}}{{\text{{se}}}} "
+            rf"$t = \dfrac{{\hat{{\mu}}_X^{{\text{{est}}}} - 20}}{{\text{{se}}(\hat{{\mu}}_X)}} "
             rf"= \dfrac{{{_est:g} - 20}}{{{_se:g}}} = {_t:.2f}$"
         )
         _color = "#6b7280"
