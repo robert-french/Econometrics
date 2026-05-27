@@ -127,7 +127,7 @@ def _(mo):
     \hat{\theta} \xrightarrow{p} \theta,
     $$
 
-    which reads as "$\hat{\theta}$ converges in probability to $\theta$." Put simply, with enough data, the probability that the estimate sits far from the true parameter shrinks toward zero.
+    which reads as ''$\hat{\theta}$ converges in probability to $\theta$''. It means that, with enough data, the probability that the estimate sits far from the true parameter shrinks toward zero.
 
     The sample mean is consistent by the law of large numbers from Lecture 2, since $\hat{\mu}_X \xrightarrow{p} \mu_X$ as $n$ grows. A single die roll is not consistent because it does not use the additional data. Even if we collect more rolls, an estimator based only on the first roll does not become more reliable.
 
@@ -391,15 +391,19 @@ def _(mo):
     <a id="sec6"></a>
     ## 6. Confidence intervals
 
-    A hypothesis test starts from a claim and asks whether the data reject it. A *confidence interval* turns the question around. It starts from the estimate $\hat{\mu}_X$ and reports a whole range of plausible values for the population mean. One way to read it is as the set of null hypotheses that the data would not reject at level $\alpha$. Another way is more direct. A confidence interval is a range around $\hat{\mu}_X$ built so that it contains the true mean $\mu_X$ in a fixed fraction $(1 - \alpha)$ of repeated samples.
+    A hypothesis test starts with a claim and asks whether the data provide enough evidence to reject it. A *confidence interval* starts with the estimate and asks which values of the population mean remain plausible given uncertainty in it.
 
-    For a large sample, the interval centers on $\hat{\mu}_X$ and stretches a multiple of the standard error in each direction,
+    Suppose our estimator is the sample mean, $\hat{\mu}_X$. The estimate from one sample will usually not equal the true mean exactly. A confidence interval builds a range around $\hat{\mu}_X$ that accounts for this sampling uncertainty. For a large sample,
 
-    $$ \text{CI for } \mu_X = \hat{\mu}_X \pm c \cdot \text{se}(\hat{\mu}_X). $$
+    $$
+    \text{CI for } \mu_X = \hat{\mu}_X \pm c \cdot \text{se}(\hat{\mu}_X).
+    $$
 
-    The multiplier $c$ is a *critical value* read from the standard normal, and it grows as we demand more confidence. The common choices are $1.64$ for a 90% interval, $1.96$ for a 95% interval, and $2.58$ for a 99% interval. A higher confidence level uses a larger multiplier and so produces a wider interval, while a larger sample shrinks the standard error and so narrows it.
+    The standard error measures how much $\hat{\mu}_X$ varies across repeated samples. A larger standard error makes the interval wider, while a larger sample usually makes it narrower. The *critical value* $c$ determines how many standard errors we add on each side. Common choices for the critical value are $1.64$ for a 90% interval, $1.96$ for a 95% interval, and $2.58$ for a 99% interval.
 
-    The phrase $(1 - \alpha)$ of repeated samples describes the long-run *coverage* of the procedure. Any single interval either contains the true mean or it does not, but across many samples the fraction that cover the truth settles near the confidence level. The plot below makes this concrete. It draws one hundred samples, builds a confidence interval from each, and marks the true mean of \$20 with a dashed line. Intervals that miss the truth are highlighted. Raise the sample size to see every interval narrow, and change the confidence level to see them all widen or shrink together.
+    A 95% confidence interval does not mean there is a 95% probability that a particular interval contains the true mean. It means that if we repeatedly drew samples and built an interval the same way each time, about 95% of those intervals would contain the true mean.
+
+    The plot below illustrates this repeated-samples idea. It draws one hundred samples from a population with true mean \$20, builds a confidence interval from each sample, and marks the true mean with a dashed line. Intervals that miss the true mean are highlighted.
     """)
     return
 
@@ -496,12 +500,10 @@ def _(mo):
             "consistency, mean squared error, efficiency, null hypothesis, "
             "alternative hypothesis, two-sided alternative, one-sided "
             "alternative, p-value, test statistic, t-statistic, standard "
-            "error, significance level, confidence interval, critical value, "
-            "coverage.\n\n"
+            "error, significance level, confidence interval, critical value.\n\n"
             "**Key concepts covered:** an estimator is a random variable, the "
             "bias-variance decomposition, the t-statistic is approximately "
-            "standard normal under the null by the central limit theorem, "
-            "confidence interval coverage."
+            "standard normal under the null by the central limit theorem."
         ),
         kind="info",
     )
