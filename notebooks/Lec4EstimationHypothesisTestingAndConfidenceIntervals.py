@@ -512,7 +512,7 @@ def _(mo):
             "**Key concepts covered:** an estimator is a random variable, the "
             "bias-variance decomposition, the t-statistic is approximately "
             "standard normal under the null by the central limit theorem, the "
-            "repeated-samples (coverage) interpretation of a confidence interval."
+            "interpretation of a confidence interval."
         ),
         kind="info",
     )
@@ -537,10 +537,28 @@ def _(mo, stats, tbl_t):
         rf"the two-sided p-value is $p = 2 \times {_phi:.4f} = {_p:.4f}$."
     )
 
-    _text = mo.md(r"""
-        This is bonus material. You will not be tested on the content of the appendix.
+    _note = mo.callout(
+        mo.md(
+            r"**You will look up p-values by hand.** In class and on exams you "
+            r"will not have statistical software, so you must read two-sided "
+            r"p-values from a printed standard normal table. The steps are "
+            r"below; practice them until they are quick."
+        ),
+        kind="warn",
+    )
 
+    _text_lookup = mo.md(r"""
+        **Looking up a p-value in a standard normal table.**
+
+        The table gives $\Phi(z)$, the probability that a standard normal random variable falls below $z$. To find a two-sided p-value from a t-statistic, compute $p = 2\,\Phi(-|t^{\text{est}}|)$, which needs the single table value $\Phi(-|t^{\text{est}}|)$.
+
+        For example, take $t^{\text{est}} = 2.01$. Find the row for $-2.0$ and the column for the second decimal $0.01$, which gives $\Phi(-2.01) \approx 0.0222$. The two-sided p-value is $p = 2 \times 0.0222 = 0.0444$. The tool below does this lookup for any t value.
+        """)
+
+    _text_biasvar = mo.md(r"""
         **The bias-variance decomposition.**
+
+        This derivation is bonus material. You will not be tested on it.
 
         Section 3 split the mean squared error into a variance term and a squared bias term. Here is why. Start from the definition and add and subtract the expected value of the estimator inside the square,
 
@@ -553,16 +571,10 @@ def _(mo, stats, tbl_t):
         The middle term is zero, because $\mathbb{E}\big[\hat{\theta} - \mathbb{E}[\hat{\theta}]\big] = \mathbb{E}[\hat{\theta}] - \mathbb{E}[\hat{\theta}] = 0$. The first term is the variance of $\hat{\theta}$ and the last term is its squared bias, which leaves
 
         $$ \text{MSE}(\hat{\theta}) = \text{var}(\hat{\theta}) + \text{Bias}(\hat{\theta})^2. $$
-
-        **Looking up a p-value in a standard normal table.**
-
-        Before statistical software was common, p-values were read from a printed table of the standard normal cumulative distribution function $\Phi$. The table gives $\Phi(z)$, the probability that a standard normal random variable falls below $z$. To find a two-sided p-value from a t-statistic, compute $p = 2\,\Phi(-|t^{\text{est}}|)$, which needs the single table value $\Phi(-|t^{\text{est}}|)$.
-
-        For example, take $t^{\text{est}} = 2.01$. Find the row for $-2.0$ and the column for the second decimal $0.01$, which gives $\Phi(-2.01) \approx 0.0222$. The two-sided p-value is $p = 2 \times 0.0222 = 0.0444$. The tool below does this lookup for any t value.
         """)
 
     mo.accordion({
-        "## Appendix": mo.vstack([_text, tbl_t, _readout]),
+        "## Appendix": mo.vstack([_note, _text_lookup, tbl_t, _readout, _text_biasvar]),
     })
     return
 
