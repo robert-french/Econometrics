@@ -213,7 +213,7 @@ def _(mo):
     \right).
     $$
 
-    In the expression above, $\hat{\mu}_X^{\text{est}}$ is the estimate computed from the actual sample. A small p-value means that estimates this far from the null value would be unlikely if the null were true, so small p-values count as evidence against the null. Recall from algebra that the vertical bars denote *absolute value*, which measures distance from zero. For example, $|3|=3$ and $|-3|=3$. Here, $\left| \hat{\mu}_X^{\text{est}} - \mu_{X,0} \right|$ is the distance between the estimate and the null value, ignoring whether the estimate is above or below the null. A two-sided test uses absolute values because evidence against the null can come from either direction.
+    In the expression above, $\hat{\mu}_X^{\text{est}}$ is the estimate computed from the actual sample. A small p-value means that estimates this far from the null value would be unlikely if the null were true, so small p-values count as evidence against the null.[^1]
 
     To compute the p-value, we first convert the gap between the estimate and the null value into a test statistic. The t-statistic is one such test statistic, formed by dividing this gap by the standard error of the estimator,
 
@@ -499,6 +499,14 @@ def _(mo, stats, tbl_t):
     mo.accordion({
         "## Appendix": mo.vstack([_text, tbl_t, _readout]),
     })
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    [^1]: Recall from algebra that the vertical bars denote *absolute value*, which measures distance from zero. For example, $|3|=3$ and $|-3|=3$. Here, $\left| \hat{\mu}_X^{\text{est}} - \mu_{X,0} \right|$ is the distance between the estimate and the null value, ignoring whether the estimate is above or below the null. A two-sided test uses absolute values because evidence against the null can come from either direction.
+    """)
     return
 
 
