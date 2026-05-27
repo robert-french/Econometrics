@@ -82,6 +82,40 @@ def _extract_description(notebook_path: Path) -> Optional[str]:
     return None
 
 
+def _extract_key_terms(notebook_path: Path) -> Optional[str]:
+    """Return the notebook's 'Key terms covered' and 'Key concepts covered'
+    entries as one comma-separated string, for use as a teaser on the index
+    cards. Returns None if the summary callout is absent.
+
+    The summary callout is written as adjacent string literals, which Python
+    concatenates into a single string constant, so the whole block lives in one
+    ast.Constant node we can read directly.
+    """
+    tree = _parse_notebook(notebook_path)
+    if tree is None:
+        return None
+
+    for node in ast.walk(tree):
+        if not (isinstance(node, ast.Constant) and isinstance(node.value, str)):
+            continue
+        text = node.value
+        if "Key terms covered:" not in text:
+            continue
+        cleaned = (
+            text.replace("**", "")
+            .replace("Key terms covered:", "")
+            .replace("Key concepts covered:", "")
+        )
+        parts = [
+            seg.strip().strip(".").strip()
+            for seg in cleaned.split("\n")
+            if seg.strip()
+        ]
+        joined = ", ".join(p for p in parts if p)
+        return joined or None
+    return None
+
+
 def _export_html_wasm(
     notebook_path: Path,
     output_file: Path,
@@ -225,6 +259,7 @@ def _export_from_notebooks(
                 {
                     "display_name": display_name,
                     "description": _extract_description(nb),
+                    "key_terms": _extract_key_terms(nb),
                     "html_path": str(html_path),
                 }
             )
