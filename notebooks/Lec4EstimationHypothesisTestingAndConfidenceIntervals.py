@@ -98,9 +98,9 @@ def _(mo):
 
     The previous two lectures introduced random variables and their distributions. We now turn to the central task of statistical inference, which is using a sample of data to learn about a population we cannot fully observe.
 
-    An *estimator* is a rule that turns a random sample into a guess about a population quantity, often called a *parameter*. The sample mean $\hat{\mu}_X = \frac{1}{n}\sum_{i=1}^{n} X_i$ is an estimator of the population mean $\mu_X$. Because the sample is drawn at random, the estimator is itself a random variable, with a distribution, an expected value, and a variance, exactly like the random variables from Lecture 2. The particular number an estimator produces from one specific sample is called an *estimate*. The estimator is the rule, and the estimate is the realized number, in the same way that a random variable is a rule and its realization is a single observed data point.
+    An *estimator* is a rule that turns a random sample into a guess about a population quantity, often called a *parameter*. The sample mean $\hat{\mu}_X = \frac{1}{n}\sum_{i=1}^{n} X_i$ is an estimator of the population mean $\mu_X$, a parameter. Because the sample is drawn at random, the estimator is itself a random variable, with a distribution, an expected value, and a variance, exactly like the random variables from Lecture 2. The particular number an estimator produces from one specific sample is called an *estimate*. The estimator is the rule, and the estimate is the realized number, in the same way that a random variable is a rule and its realization is a single observed data point.
 
-    A population quantity, or parameter, can be estimated in more than one way. To see this, suppose we want to estimate the average value of a fair die roll, which we know is $3.5$. We could use the sample mean of $n$ rolls, or only the first value of $n$ rolls, or the lowest value among $n$ rolls. Each of these is a valid estimator, and each produces a different guess. Some estimators are clearly better than others, so we need a way to compare them. The next two sections give three properties that help us evaluate the quality of an estimator.
+    A population quantity, or parameter, can be estimated in more than one way. To see this, suppose we want to estimate the expected value of a fair die roll, which we know is equal to $\left(\frac{1}{6} + \frac{2}{6} + \frac{3}{6} + \frac{4}{6} + \frac{5}{6} + \frac{6}{6} \right) = 3.5$. We could use the sample mean of $n$ rolls, or only the first value of $n$ rolls, or the lowest value among $n$ rolls. Each of these is a valid estimator, and each produces a different guess. Some estimators are clearly better than others, so we need a way to compare them. The next two sections give three properties that help us evaluate the quality of an estimator.
     """)
     return
 
@@ -211,7 +211,7 @@ def _(mo):
     \right).
     $$
 
-    In the expression above, $\hat{\mu}_X^{\text{est}}$ is the estimate computed from the actual sample. A small p-value means that estimates this far from the null value would be unlikely if the null were true, so small p-values count as evidence against the null.<sup><a id="fnref1" href="#fn1">1</a></sup> To compute the p-value, we first convert the gap between the estimate and the null value into a test statistic. The t-statistic is one such test statistic, formed by dividing this gap by the standard error of the estimator,
+    In the expression above, $\hat{\mu}_X^{\text{est}}$ is the estimate computed from the actual sample.<sup><a id="fnref1" href="#fn1">1</a></sup> A small p-value means that estimates this far from the null value would be unlikely if the null were true, so small p-values count as evidence against the null. To compute the p-value, we first convert the gap between the estimate and the null value into a *test statistic*, a number that measures how far the data are from what the null predicts. The *t-statistic* is one such test statistic. It divides the gap by the standard error of the estimator,
 
     $$
     t
@@ -228,7 +228,7 @@ def _(mo):
     p = 2\Phi(-|t^{\text{est}}|),
     $$
 
-    where $\Phi$ is the cumulative distribution function of the standard normal distribution.
+    where $\Phi$ is the cumulative distribution function of the standard normal distribution and $t^{\text{est}}$ is the t-statistic evaluated at the estimate $\hat{\mu}_X^{\text{est}}$.
 
     We reject the null hypothesis when the p-value falls below a chosen *significance level* $\alpha$. The significance level is the cutoff we choose before conducting the test for how much evidence is enough to reject the null. The most common choice is $\alpha = 0.05$, so we reject $H_0$ when the p-value is less than $0.05$.
 
@@ -354,8 +354,8 @@ def _(alt, mo, np, pd, pv_alpha, pv_est, pv_se, stats):
         else:
             _pstr = f"{_p:.3f}"
         _formula = (
-            rf"$t = \dfrac{{\hat{{\mu}}_X^{{\text{{est}}}} - 20}}{{\text{{se}}(\hat{{\mu}}_X)}} "
-            rf"= \dfrac{{{_est:g} - 20}}{{{_se:g}}} = {_t:.2f}$"
+            rf"$t = \dfrac{{\hat{{\mu}}_X^{{\text{{est}}}} - \mu_{{X,0}}}}{{\text{{se}}(\hat{{\mu}}_X)}} "
+            rf"= \dfrac{{{_est:g} - {_MU0:g}}}{{{_se:g}}} = {_t:.2f}$"
         )
         _color = "#6b7280"
         if _visible:
