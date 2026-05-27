@@ -234,9 +234,9 @@ def _(mo):
 
     ### <span style="color:#0b68cb">Hypothesis testing example</span>
 
-    Recall the earnings example and suppose a large sample gives an estimate for the mean wage of $\hat{\mu}_X^{\text{est}} = 22$, with a standard error of $1$. Let the null hypothesis be $H_0: \mu_X = 20$, so the t-statistic is $t^{\text{est}} = \frac{22 - 20}{1} = 2.0.$ The corresponding two-sided p-value is then $p = 2\Phi(-2.0) \approx 0.046.$ Because $0.046 < 0.05$, we reject the null hypothesis that mean hourly earnings equal \$20.
+    Recall the earnings example and suppose a large sample gives an estimate for the mean wage of $\hat{\mu}_X^{\text{est}} = 22$, with a standard error of $1$. Let the null hypothesis be $H_0: \mu_X = 20$, so the t-statistic is $t^{\text{est}} = \frac{22 - 20}{1} = 2.0.$ The corresponding two-sided p-value is then $p = 2\Phi(-2.0) \approx 0.046.$ We therefore reject the null hypothesis that mean hourly earnings equal \$20 when $\alpha = 0.05$ because $0.046 < 0.05$.
 
-    Noe explore hypothesis testing interactively. The plot below shows how the two-sided p-value for this example changes with the estimate ($\hat{\mu}_X$), standard error ($\text{se}(\hat{\mu}_X)$), and chosen significance level ($\alpha$) when testing the null that the mean wage equals $20.
+    Now explore hypothesis testing interactively. The plot below shows how the two-sided p-value for this example changes with the estimate, $\hat{\mu}_X^{\text{est}}$, standard error, $\text{se}(\hat{\mu}_X)$, and chosen significance level, $\alpha$, when testing the null that the mean wage equals $20.
     """)
     return
 
@@ -245,15 +245,15 @@ def _(mo):
 def _(mo):
     pv_est = mo.ui.number(
         value=22.0, start=0.0, stop=100.0, step=0.5,
-        label=r"Sample mean estimate, $\hat{\mu}_X$",
+        label=r"$\hat{\mu}_X^{\text{est}}$",
     )
     pv_se = mo.ui.number(
         value=1.0, start=-10.0, stop=50.0, step=0.25,
-        label=r"Standard error, $\text{se}(\hat{\mu}_X)$",
+        label=r"$\text{se}(\hat{\mu}_X)$",
     )
     pv_alpha = mo.ui.dropdown(
         options={"0.10": 0.10, "0.05": 0.05, "0.01": 0.01},
-        value="0.05", label=r"Significance level, $\alpha$",
+        value="0.05", label=r"$\alpha$",
     )
     mo.vstack([
         mo.md(r"Null hypothesis $H_0:\ \mu_X = 20$."),
@@ -354,7 +354,7 @@ def _(alt, mo, np, pd, pv_alpha, pv_est, pv_se, stats):
         else:
             _pstr = f"{_p:.3f}"
         _formula = (
-            rf"$t = \dfrac{{\hat{{\mu}}_X - 20}}{{\text{{se}}}} "
+            rf"$t = \dfrac{{\hat{{\mu}}_X^{{\text{{est}}}} - 20}}{{\text{{se}}}} "
             rf"= \dfrac{{{_est:g} - 20}}{{{_se:g}}} = {_t:.2f}$"
         )
         _color = "#6b7280"
