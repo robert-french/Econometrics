@@ -537,22 +537,12 @@ def _(mo, stats, tbl_t):
         rf"the two-sided p-value is $p = 2 \times {_phi:.4f} = {_p:.4f}$."
     )
 
-    _note = mo.callout(
-        mo.md(
-            r"You can use the tool below to look up p-values here, but you are "
-            r"expected to know how to read them from the standard normal table "
-            r"by hand. You will use the table, not software, during tests and "
-            r"exams."
-        ),
-        kind="warn",
-    )
-
     _text_lookup = mo.md(r"""
         **Looking up a p-value in a standard normal table.**
 
         Before statistical software was common, p-values were read from a printed table of the standard normal cumulative distribution function $\Phi$. The table gives $\Phi(z)$, the probability that a standard normal random variable falls below $z$. To find a two-sided p-value from a t-statistic, compute $p = 2\,\Phi(-|t^{\text{est}}|)$, which needs the single table value $\Phi(-|t^{\text{est}}|)$.
 
-        For example, take $t^{\text{est}} = 2.01$. Find the row for $-2.0$ and the column for the second decimal $0.01$, which gives $\Phi(-2.01) \approx 0.0222$. The two-sided p-value is $p = 2 \times 0.0222 = 0.0444$. The tool below does this lookup for any t value.
+        For example, take $t^{\text{est}} = 2.01$. Find the row for $-2.0$ and the column for the second decimal $0.01$, which gives $\Phi(-2.01) \approx 0.0222$. The two-sided p-value is $p = 2 \times 0.0222 = 0.0444$. The tool below does this lookup for any t value. You may use it to check your work, but you are expected to read p-values from the table by hand, because you will use the table, not software, during tests and exams.
         """)
 
     _text_biasvar = mo.md(r"""
@@ -574,7 +564,7 @@ def _(mo, stats, tbl_t):
         """)
 
     mo.accordion({
-        "## Appendix": mo.vstack([_text_lookup, _note, tbl_t, _readout, _text_biasvar]),
+        "## Appendix": mo.vstack([_text_lookup, tbl_t, _readout, _text_biasvar]),
     })
     return
 
