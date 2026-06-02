@@ -123,7 +123,12 @@ def _export_html_wasm(
 ) -> bool:
     """Export a single marimo notebook to HTML/WebAssembly format."""
 
-    cmd: List[str] = ["uvx", "marimo", "export", "html-wasm", "--sandbox"]
+    # --execute pre-runs every cell at build time so the deployed page renders
+    # immediately with the default-state outputs (charts, captions, computed
+    # numbers) while Pyodide boots in the background. Combined with marimo's
+    # session-snapshot rendering, this kills the "blank page until Pyodide
+    # finishes" wait. See https://marimo.io/blog/newsletter-25 (PR #9437).
+    cmd: List[str] = ["uvx", "marimo", "export", "html-wasm", "--sandbox", "--execute"]
 
     if as_app:
         logger.info(f"Exporting {notebook_path} to {output_file} as app")
