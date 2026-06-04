@@ -181,16 +181,16 @@ def _(alt, mo, np, pd, reg_X, reg_Y, reg_b0_hat, reg_b1_hat, slr_b0, slr_b1, slr
 
     _resid = (
         alt.Chart(_pts)
-        .mark_rule(color="#9aa5b1", opacity=0.7, size=1)
+        .mark_rule(color="#9aa5b1", opacity=0.7, size=1, clip=True)
         .encode(
-            x=alt.X("x:Q", title="Years of education", scale=alt.Scale(domain=_xdom)),
-            y=alt.Y("y:Q", title="Hourly wage (USD)", scale=alt.Scale(domain=_ydom)),
+            x=alt.X("x:Q", title="Years of education", scale=alt.Scale(domain=_xdom, nice=False)),
+            y=alt.Y("y:Q", title="Hourly wage (USD)", scale=alt.Scale(domain=_ydom, nice=False)),
             y2="fit:Q",
         )
     )
     _scatter = (
         alt.Chart(_pts)
-        .mark_circle(color="#1f4e79", opacity=0.7, size=60)
+        .mark_circle(color="#1f4e79", opacity=0.7, size=60, clip=True)
         .encode(x="x:Q", y="y:Q")
     )
     _line = (
@@ -261,80 +261,97 @@ def _(mo):
 
     The fitted line turns any level of education into a predicted wage. Plugging a value of $X$ into $\hat{Y} = \hat{\beta}_0 + \hat{\beta}_1 X$ gives the *fitted value*, the height of the line at that point. For a worker with 16 years of schooling our line predicts about \$27 per hour.
 
-    Predictions come in two kinds. An *in-sample* prediction uses a value of $X$ inside the range of the data the line was built from, here roughly 8 to 20 years of schooling. An *out-of-sample* prediction uses a value of $X$ outside that range, which is called *extrapolation*. Extrapolation is riskier, because nothing in the data tells us the straight-line pattern continues past the values we observed. The line will report a wage for 30 years of schooling or for 2, but we have no evidence the relationship stays linear that far out.
+    Each worker in our sample has both an observed wage $Y_i$ and a fitted value $\hat{Y}_i$ from the line. The gap between them, $\hat{u}_i = Y_i - \hat{Y}_i$, is that worker's residual. Workers earning more than the line predicts have positive residuals, and those earning less have negative ones.
 
-    Move the slider below to choose a level of education and read the predicted wage off the line. When the chosen value falls outside the observed range, the prediction is flagged as an extrapolation.
+    Predictions come in two kinds. An *in-sample* prediction uses a value of $X$ inside the range of the data the line was built from, here roughly 8 to 20 years of schooling. An *out-of-sample* prediction uses a value of $X$ outside that range, which is called *extrapolation*. Extrapolation is riskier, because nothing in the data tells us the straight-line pattern continues past the values we observed. The line will happily report a wage for 30 years of schooling or for 2, but we have no evidence the relationship stays linear that far out.
+
+    Click a worker on the scatter below. The gray dashed lines mark that worker's years of education and observed wage, the orange dashed line marks the line's prediction at that $X$, and the orange segment between the point and the line is the residual.
     """)
     return
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    pred_x = mo.ui.slider(
-        start=0.0, stop=25.0, step=0.5, value=16.0,
-        label="Years of education to predict", show_value=True,
-    )
-    pred_x
-    return (pred_x,)
-
-
-@app.cell(hide_code=True)
-def _(alt, mo, np, pd, pred_x, reg_X, reg_Y, reg_b0_hat, reg_b1_hat):
-    _x = float(pred_x.value)
-    _yhat = reg_b0_hat + reg_b1_hat * _x
-    _xmin = float(reg_X.min())
-    _xmax = float(reg_X.max())
-    _inrange = _xmin <= _x <= _xmax
-    _color = "#1f4e79" if _inrange else "orange"
-
-    _xdom = [0.0, 26.0]
+def _(alt, mo, np, pd, reg_X, reg_Y, reg_b0_hat, reg_b1_hat):
+    _xdom = [7.0, 21.0]
     _ydom = [0.0, 45.0]
-    _xline = np.array([0.0, 26.0])
+    _xline = np.array([7.0, 21.0])
 
-    _pts = pd.DataFrame({"x": reg_X, "y": reg_Y})
-    _fit = pd.DataFrame({"x": _xline, "y": reg_b0_hat + reg_b1_hat * _xline})
-    _marker = pd.DataFrame({"x": [_x], "y": [_yhat]})
+    pred_pts = pd.DataFrame({
+        "x": reg_X,
+        "y": reg_Y,
+        "fit": reg_b0_hat + reg_b1_hat * reg_X,
+    })
+    _fit_line = pd.DataFrame({"x": _xline, "y": reg_b0_hat + reg_b1_hat * _xline})
+
+    _sel = alt.selection_point(on="click", nearest=True, empty=False)
+    _xscale = alt.Scale(domain=_xdom, nice=False)
+    _yscale = alt.Scale(domain=_ydom, nice=False)
 
     _scatter = (
-        alt.Chart(_pts)
-        .mark_circle(color="#1f4e79", opacity=0.5, size=55)
+        alt.Chart(pred_pts)
+        .mark_circle(color="#1f4e79", clip=True)
         .encode(
-            x=alt.X("x:Q", title="Years of education", scale=alt.Scale(domain=_xdom)),
-            y=alt.Y("y:Q", title="Hourly wage (USD)", scale=alt.Scale(domain=_ydom)),
+            x=alt.X("x:Q", title="Years of education", scale=_xscale),
+            y=alt.Y("y:Q", title="Hourly wage (USD)", scale=_yscale),
+            opacity=alt.condition(_sel, alt.value(1.0), alt.value(0.55)),
+            size=alt.condition(_sel, alt.value(160), alt.value(60)),
         )
+        .add_params(_sel)
     )
     _line = (
-        alt.Chart(_fit)
+        alt.Chart(_fit_line)
         .mark_line(color="#1f4e79", size=2, clip=True)
         .encode(x="x:Q", y="y:Q")
     )
-    _guide = (
-        alt.Chart(_marker)
-        .mark_rule(color=_color, strokeDash=[4, 3], size=1.5, clip=True)
-        .encode(x="x:Q")
-    )
-    _dot = (
-        alt.Chart(_marker)
-        .mark_point(color=_color, size=150, filled=True, clip=True)
-        .encode(x="x:Q", y="y:Q")
-    )
-    _chart = alt.layer(_scatter, _line, _guide, _dot).properties(
-        width=560, height=340, title="Predicting a wage from years of education"
-    )
 
-    _body = (
-        rf"At $X = {_x:.1f}$ years of schooling, the line predicts a wage of "
-        rf"$\hat{{Y}} = \hat{{\beta}}_0 + \hat{{\beta}}_1 \times {_x:.1f} = \${_yhat:.2f}$ per hour. "
+    _sel_filter = alt.Chart(pred_pts).transform_filter(_sel)
+    _xrule = _sel_filter.mark_rule(
+        color="#9aa5b1", strokeDash=[3, 3], size=1.5, clip=True
+    ).encode(x="x:Q")
+    _yrule = _sel_filter.mark_rule(
+        color="#9aa5b1", strokeDash=[3, 3], size=1.5, clip=True
+    ).encode(y="y:Q")
+    _yhatrule = _sel_filter.mark_rule(
+        color="orange", strokeDash=[3, 3], size=1.5, clip=True
+    ).encode(y="fit:Q")
+    _residseg = _sel_filter.mark_rule(
+        color="orange", size=3.5, clip=True
+    ).encode(x="x:Q", y="y:Q", y2="fit:Q")
+    _yhatdot = _sel_filter.mark_point(
+        color="orange", size=160, filled=True, clip=True
+    ).encode(x="x:Q", y="fit:Q")
+
+    _chart = alt.layer(
+        _xrule, _yrule, _yhatrule, _line, _residseg, _scatter, _yhatdot
+    ).properties(
+        width=560, height=340,
+        title="Click a worker to see their X, Y, predicted Y, and residual",
     )
-    if _inrange:
-        _body += (
-            rf"This is an in-sample prediction, since {_x:.1f} years lies inside the observed "
-            rf"range of {_xmin:.0f} to {_xmax:.0f} years."
+    pred_chart = mo.ui.altair_chart(
+        _chart, chart_selection=False, legend_selection=False
+    )
+    pred_chart
+    return pred_chart, pred_pts
+
+
+@app.cell(hide_code=True)
+def _(mo, pred_chart, pred_pts):
+    _v = pred_chart.apply_selection(pred_pts)
+    if len(_v) > 0:
+        _row = _v.iloc[0]
+        _x = float(_row["x"])
+        _y = float(_row["y"])
+        _yhat = float(_row["fit"])
+        _u = _y - _yhat
+        _body = (
+            rf"For the selected worker, $X = {_x:.1f}$ years of education and "
+            rf"$Y = \${_y:.2f}$ per hour. The line predicts "
+            rf"$\hat{{Y}} = \${_yhat:.2f}$, so the residual is "
+            rf"$\hat{{u}} = Y - \hat{{Y}} = {_u:+.2f}$ dollars per hour."
         )
     else:
-        _body += (
-            rf"This is an out-of-sample extrapolation, since {_x:.1f} years lies outside the observed "
-            rf"range of {_xmin:.0f} to {_xmax:.0f} years, so the prediction is less reliable."
+        _body = (
+            "Click a worker on the scatter to see their X, Y, predicted Y, and residual."
         )
     _caption = mo.md(
         '<span style="display:block;margin:0.2rem auto 1rem;max-width:560px;'
@@ -342,7 +359,7 @@ def _(alt, mo, np, pd, pred_x, reg_X, reg_Y, reg_b0_hat, reg_b1_hat):
         + _body
         + "</span>"
     )
-    mo.vstack([_chart, _caption])
+    _caption
     return
 
 
@@ -480,11 +497,51 @@ def _(mo):
 
         $$ \frac{\partial \text{SSR}}{\partial \hat{\beta}_0} = -2\sum_{i=1}^{n}\left(Y_i - \hat{\beta}_0 - \hat{\beta}_1 X_i\right) = 0, \qquad \frac{\partial \text{SSR}}{\partial \hat{\beta}_1} = -2\sum_{i=1}^{n} X_i\left(Y_i - \hat{\beta}_0 - \hat{\beta}_1 X_i\right) = 0. $$
 
-        The first condition rearranges to $\hat{\beta}_0 = \hat{\mu}_Y - \hat{\beta}_1 \hat{\mu}_X$, which says the line passes through the point of averages $(\hat{\mu}_X, \hat{\mu}_Y)$. Substituting that into the second condition and solving for the slope gives
+        Dividing each condition by $-2$ gives two equations the OLS residuals must satisfy, where $\hat{u}_i = Y_i - \hat{\beta}_0 - \hat{\beta}_1 X_i$,
+
+        $$ \text{(i)} \quad \sum_{i=1}^{n} \hat{u}_i = 0, \qquad \text{(ii)} \quad \sum_{i=1}^{n} X_i\, \hat{u}_i = 0. $$
+
+        Expanding equation (i) gives $\sum Y_i - n\hat{\beta}_0 - \hat{\beta}_1 \sum X_i = 0$. Dividing by $n$ and using the definitions $\hat{\mu}_X = \tfrac{1}{n}\sum X_i$ and $\hat{\mu}_Y = \tfrac{1}{n}\sum Y_i$,
+
+        $$ \hat{\beta}_0 = \hat{\mu}_Y - \hat{\beta}_1 \hat{\mu}_X. $$
+
+        The fitted line therefore passes through the point of averages $(\hat{\mu}_X, \hat{\mu}_Y)$. Substituting this expression for $\hat{\beta}_0$ into equation (ii),
+
+        $$ \sum_{i=1}^{n} X_i \left( Y_i - \hat{\mu}_Y + \hat{\beta}_1 \hat{\mu}_X - \hat{\beta}_1 X_i \right) = 0, $$
+
+        and grouping the slope terms on one side gives
+
+        $$ \sum_{i=1}^{n} X_i (Y_i - \hat{\mu}_Y) = \hat{\beta}_1 \sum_{i=1}^{n} X_i (X_i - \hat{\mu}_X). $$
+
+        Both sums simplify into symmetric form. Because $\sum (X_i - \hat{\mu}_X) = 0$, we can subtract $\hat{\mu}_X \sum (X_i - \hat{\mu}_X) = 0$ on each side without changing anything:
+
+        $$ \sum X_i (Y_i - \hat{\mu}_Y) = \sum (X_i - \hat{\mu}_X)(Y_i - \hat{\mu}_Y), \qquad \sum X_i (X_i - \hat{\mu}_X) = \sum (X_i - \hat{\mu}_X)^2. $$
+
+        Solving for the slope,
 
         $$ \hat{\beta}_1 = \frac{\sum_{i=1}^{n}(X_i - \hat{\mu}_X)(Y_i - \hat{\mu}_Y)}{\sum_{i=1}^{n}(X_i - \hat{\mu}_X)^2} = \frac{\widehat{\text{cov}}(X, Y)}{\widehat{\text{var}}(X)}. $$
 
         Both estimators are exactly the formulas used in Section 2.
+
+        **The variance decomposition: $\text{TSS} = \text{ESS} + \text{SSR}$.**
+
+        Section 5 used this identity but did not prove it. Write each deviation of $Y_i$ from its mean as the sum of a residual and the line's deviation from the mean,
+
+        $$ Y_i - \hat{\mu}_Y = \hat{u}_i + \left(\hat{Y}_i - \hat{\mu}_Y\right). $$
+
+        Squaring and summing,
+
+        $$ \text{TSS} = \sum_{i=1}^{n}\hat{u}_i^2 + 2\sum_{i=1}^{n}\hat{u}_i\left(\hat{Y}_i - \hat{\mu}_Y\right) + \sum_{i=1}^{n}\left(\hat{Y}_i - \hat{\mu}_Y\right)^2 = \text{SSR} + 2\,C + \text{ESS}, $$
+
+        where the cross term is $C = \sum \hat{u}_i \hat{Y}_i - \hat{\mu}_Y \sum \hat{u}_i$. The OLS first-order conditions above already gave $\sum \hat{u}_i = 0$ from (i) and $\sum X_i \hat{u}_i = 0$ from (ii). Substituting $\hat{Y}_i = \hat{\beta}_0 + \hat{\beta}_1 X_i$,
+
+        $$ \sum_{i=1}^{n} \hat{u}_i \hat{Y}_i = \hat{\beta}_0 \sum_{i=1}^{n} \hat{u}_i + \hat{\beta}_1 \sum_{i=1}^{n} X_i \hat{u}_i = 0. $$
+
+        Both pieces of $C$ vanish, so $C = 0$ and
+
+        $$ \text{TSS} = \text{ESS} + \text{SSR}. $$
+
+        This is the algebraic identity behind $R^2 = \text{ESS}/\text{TSS} = 1 - \text{SSR}/\text{TSS}$.
         """)
     })
     return
