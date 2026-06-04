@@ -5,7 +5,6 @@
 #     "numpy",
 #     "pandas",
 #     "altair",
-#     "pyarrow",
 # ]
 # ///
 

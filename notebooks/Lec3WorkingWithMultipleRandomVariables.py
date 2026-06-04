@@ -6,7 +6,6 @@
 #     "pandas",
 #     "altair",
 #     "scipy",
-#     "pyarrow",
 #     "anywidget",
 # ]
 # ///
