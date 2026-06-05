@@ -259,107 +259,70 @@ def _(mo):
     <a id="sec4"></a>
     ## 4. Prediction
 
-    The fitted line turns any level of education into a predicted wage. Plugging a value of $X$ into $\hat{Y} = \hat{\beta}_0 + \hat{\beta}_1 X$ gives the *fitted value*, the height of the line at that point. For a worker with 16 years of schooling our line predicts about \$27 per hour.
+    The fitted line turns any level of education into a predicted wage. Plugging a value of $X$ into $\hat{Y} = \hat{\beta}_0 + \hat{\beta}_1 X$ gives the *fitted value*, the height of the line at that point. With our line $\hat{Y} \approx 7.30 + 1.25\,X$, three quick examples:
 
-    Each worker in our sample has both an observed wage $Y_i$ and a fitted value $\hat{Y}_i$ from the line. The gap between them, $\hat{u}_i = Y_i - \hat{Y}_i$, is that worker's residual. Workers earning more than the line predicts have positive residuals, and those earning less have negative ones.
+    $$
+    \begin{aligned}
+    X = 12 \text{ years} &\;\Rightarrow\; \hat{Y} = 7.30 + 1.25 \cdot 12 = \$22.30 \text{ per hour}, \\
+    X = 16 \text{ years} &\;\Rightarrow\; \hat{Y} = 7.30 + 1.25 \cdot 16 = \$27.30 \text{ per hour}, \\
+    X = 25 \text{ years} &\;\Rightarrow\; \hat{Y} = 7.30 + 1.25 \cdot 25 = \$38.55 \text{ per hour}.
+    \end{aligned}
+    $$
 
-    Predictions come in two kinds. An *in-sample* prediction uses a value of $X$ inside the range of the data the line was built from, here roughly 8 to 20 years of schooling. An *out-of-sample* prediction uses a value of $X$ outside that range, which is called *extrapolation*. Extrapolation is riskier, because nothing in the data tells us the straight-line pattern continues past the values we observed. The line will happily report a wage for 30 years of schooling or for 2, but we have no evidence the relationship stays linear that far out.
+    Predictions come in two kinds. An *in-sample* prediction uses a value of $X$ inside the range of the data the line was built from, here roughly 8 to 20 years of schooling. The first two examples above are in-sample. An *out-of-sample* prediction uses a value of $X$ outside that range, which is called *extrapolation*. The third example, $X = 25$ years, sits well outside the data. Extrapolation is riskier, because nothing in the data tells us the straight-line pattern continues past the values we observed. The line will happily report a wage for 30 years of schooling or for 2, but we have no evidence the relationship stays linear that far out.
 
-    Click a worker on the scatter below. The gray dashed lines mark that worker's years of education and observed wage, the orange dashed line marks the line's prediction at that $X$, and the orange segment between the point and the line is the residual.
+    The diagram below sketches the line: the solid middle is the part backed by data, and the dashed tails are extrapolation.
     """)
     return
 
 
 @app.cell(hide_code=True)
-def _(alt, mo, np, pd, reg_X, reg_Y, reg_b0_hat, reg_b1_hat):
-    _xdom = [7.0, 21.0]
+def _(alt, pd, reg_b0_hat, reg_b1_hat):
+    def _yfn(x):
+        return reg_b0_hat + reg_b1_hat * x
+
+    _xdom = [0.0, 26.0]
     _ydom = [0.0, 45.0]
-    _xline = np.array([7.0, 21.0])
-
-    pred_pts = pd.DataFrame({
-        "x": reg_X,
-        "y": reg_Y,
-        "fit": reg_b0_hat + reg_b1_hat * reg_X,
-    })
-    _fit_line = pd.DataFrame({"x": _xline, "y": reg_b0_hat + reg_b1_hat * _xline})
-
-    _sel = alt.selection_point(on="click", nearest=True, empty=False)
     _xscale = alt.Scale(domain=_xdom, nice=False)
     _yscale = alt.Scale(domain=_ydom, nice=False)
 
-    _scatter = (
-        alt.Chart(pred_pts)
-        .mark_circle(color="#1f4e79", clip=True)
+    _left = pd.DataFrame({"x": [0.0, 8.0], "y": [_yfn(0.0), _yfn(8.0)]})
+    _mid = pd.DataFrame({"x": [8.0, 20.0], "y": [_yfn(8.0), _yfn(20.0)]})
+    _right = pd.DataFrame({"x": [20.0, 26.0], "y": [_yfn(20.0), _yfn(26.0)]})
+
+    _left_dash = (
+        alt.Chart(_left)
+        .mark_line(color="#1f4e79", strokeDash=[4, 3], size=2)
         .encode(
             x=alt.X("x:Q", title="Years of education", scale=_xscale),
-            y=alt.Y("y:Q", title="Hourly wage (USD)", scale=_yscale),
-            opacity=alt.condition(_sel, alt.value(1.0), alt.value(0.55)),
-            size=alt.condition(_sel, alt.value(160), alt.value(60)),
+            y=alt.Y("y:Q", title=None, scale=_yscale, axis=None),
         )
-        .add_params(_sel)
     )
-    _line = (
-        alt.Chart(_fit_line)
-        .mark_line(color="#1f4e79", size=2, clip=True)
+    _solid = (
+        alt.Chart(_mid)
+        .mark_line(color="#1f4e79", size=2.5)
+        .encode(x="x:Q", y="y:Q")
+    )
+    _right_dash = (
+        alt.Chart(_right)
+        .mark_line(color="#1f4e79", strokeDash=[4, 3], size=2)
         .encode(x="x:Q", y="y:Q")
     )
 
-    _sel_filter = alt.Chart(pred_pts).transform_filter(_sel)
-    _xrule = _sel_filter.mark_rule(
-        color="#9aa5b1", strokeDash=[3, 3], size=1.5, clip=True
-    ).encode(x="x:Q")
-    _yrule = _sel_filter.mark_rule(
-        color="#9aa5b1", strokeDash=[3, 3], size=1.5, clip=True
-    ).encode(y="y:Q")
-    _yhatrule = _sel_filter.mark_rule(
-        color="orange", strokeDash=[3, 3], size=1.5, clip=True
-    ).encode(y="fit:Q")
-    _residseg = _sel_filter.mark_rule(
-        color="orange", size=3.5, clip=True
-    ).encode(x="x:Q", y="y:Q", y2="fit:Q")
-    _yhatdot = _sel_filter.mark_point(
-        color="orange", size=160, filled=True, clip=True
-    ).encode(x="x:Q", y="fit:Q")
-
-    _chart = alt.layer(
-        _xrule, _yrule, _yhatrule, _line, _residseg, _scatter, _yhatdot
-    ).properties(
-        width=560, height=340,
-        title="Click a worker to see their X, Y, predicted Y, and residual",
+    _labels = pd.DataFrame({
+        "x": [4.0, 14.0, 23.0],
+        "y": [44.0, 44.0, 44.0],
+        "label": ["extrapolation", "observed range", "extrapolation"],
+    })
+    _text = (
+        alt.Chart(_labels)
+        .mark_text(color="#6b7280", fontSize=11, baseline="top")
+        .encode(x="x:Q", y="y:Q", text="label:N")
     )
-    pred_chart = mo.ui.altair_chart(
-        _chart, chart_selection=False, legend_selection=False
-    )
-    pred_chart
-    return pred_chart, pred_pts
 
-
-@app.cell(hide_code=True)
-def _(mo, pred_chart, pred_pts):
-    _v = pred_chart.apply_selection(pred_pts)
-    if len(_v) > 0:
-        _row = _v.iloc[0]
-        _x = float(_row["x"])
-        _y = float(_row["y"])
-        _yhat = float(_row["fit"])
-        _u = _y - _yhat
-        _body = (
-            rf"For the selected worker, $X = {_x:.1f}$ years of education and "
-            rf"$Y = \${_y:.2f}$ per hour. The line predicts "
-            rf"$\hat{{Y}} = \${_yhat:.2f}$, so the residual is "
-            rf"$\hat{{u}} = Y - \hat{{Y}} = {_u:+.2f}$ dollars per hour."
-        )
-    else:
-        _body = (
-            "Click a worker on the scatter to see their X, Y, predicted Y, and residual."
-        )
-    _caption = mo.md(
-        '<span style="display:block;margin:0.2rem auto 1rem;max-width:560px;'
-        'font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;">'
-        + _body
-        + "</span>"
+    alt.layer(_left_dash, _solid, _right_dash, _text).properties(
+        width=560, height=120
     )
-    _caption
     return
 
 
