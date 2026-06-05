@@ -373,11 +373,12 @@ def _(alt, fit_noise, mo, np, pd, reg_X, reg_b0_true, reg_b1_true, reg_noise):
     _yhat = _b0 + _b1 * reg_X
     _ybar = float(_Y.mean())
     _n = len(reg_X)
+    _dof = _n - 2
     _tss = float(np.sum((_Y - _ybar) ** 2))
     _ssr = float(np.sum((_Y - _yhat) ** 2))
     _ess = _tss - _ssr
     _r2 = 1.0 - _ssr / _tss
-    _ser = float(np.sqrt(_ssr / (_n - 2)))
+    _ser = float(np.sqrt(_ssr / _dof))
 
     _xdom = [7.0, 21.0]
     _ydom = [-5.0, 55.0]
@@ -408,19 +409,27 @@ def _(alt, fit_noise, mo, np, pd, reg_X, reg_b0_true, reg_b1_true, reg_noise):
         width=560, height=340, title="How scatter around the line drives R-squared and the SER"
     )
 
-    _body = (
-        rf"With this much scatter, $R^2 = {_r2:.2f}$ and the SER is \${_ser:.2f}. "
-        rf"The line explains {100 * _r2:.0f}% of the variation in wages "
-        rf"($\text{{ESS}} = {_ess:.0f}$, $\text{{TSS}} = {_tss:.0f}$, $\text{{SSR}} = {_ssr:.0f}$). "
+    _math_body = (
+        r"$$\begin{aligned}"
+        + rf"R^2 &= \frac{{\text{{ESS}}}}{{\text{{TSS}}}} = \frac{{{_ess:.0f}}}{{{_tss:.0f}}} = {_r2:.2f} \\"
+        + rf"&= 1 - \frac{{\text{{SSR}}}}{{\text{{TSS}}}} = 1 - \frac{{{_ssr:.0f}}}{{{_tss:.0f}}} = {_r2:.2f} \\"
+        + rf"\text{{SER}} &= \sqrt{{\frac{{\text{{SSR}}}}{{n - 2}}}} = \sqrt{{\frac{{{_ssr:.0f}}}{{{_dof}}}}} = \${_ser:.2f}"
+        + r"\end{aligned}$$"
+    )
+    _math = mo.md(_math_body)
+
+    _text_body = (
+        rf"With this much scatter, the line explains {100 * _r2:.0f}% of the variation in wages. "
         rf"Tighten the scatter and $R^2$ rises toward 1 while the SER falls toward 0."
     )
-    _caption = mo.md(
+    _text = mo.md(
         '<span style="display:block;margin:0.2rem auto 1rem;max-width:560px;'
         'font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;">'
-        + _body
+        + _text_body
         + "</span>"
     )
-    mo.vstack([_chart, _caption])
+
+    mo.vstack([_chart, _math, _text])
     return
 
 
