@@ -409,27 +409,22 @@ def _(alt, fit_noise, mo, np, pd, reg_X, reg_b0_true, reg_b1_true, reg_noise):
         width=560, height=340, title="How scatter around the line drives R-squared and the SER"
     )
 
-    _math_body = (
-        r"$$\begin{aligned}"
-        + rf"R^2 &= \frac{{\text{{ESS}}}}{{\text{{TSS}}}} = \frac{{{_ess:.0f}}}{{{_tss:.0f}}} = {_r2:.2f} \\"
-        + rf"&= 1 - \frac{{\text{{SSR}}}}{{\text{{TSS}}}} = 1 - \frac{{{_ssr:.0f}}}{{{_tss:.0f}}} = {_r2:.2f} \\"
-        + rf"\text{{SER}} &= \sqrt{{\frac{{\text{{SSR}}}}{{n - 2}}}} = \sqrt{{\frac{{{_ssr:.0f}}}{{{_dof}}}}} = \${_ser:.2f}"
-        + r"\end{aligned}$$"
-    )
-    _math = mo.md(_math_body)
-
     _text_body = (
-        rf"With this much scatter, the line explains {100 * _r2:.0f}% of the variation in wages. "
+        rf"With this much scatter, "
+        rf"$R^2 = \text{{ESS}}/\text{{TSS}} = {_ess:.0f}/{_tss:.0f} = {_r2:.2f}$, "
+        rf"equivalently $R^2 = 1 - \text{{SSR}}/\text{{TSS}} = 1 - {_ssr:.0f}/{_tss:.0f} = {_r2:.2f}$. "
+        rf"The standard error of the regression is "
+        rf"$\text{{SER}} = \sqrt{{\text{{SSR}}/(n-2)}} = \sqrt{{{_ssr:.0f}/{_dof}}} = \${_ser:.2f}$. "
         rf"Tighten the scatter and $R^2$ rises toward 1 while the SER falls toward 0."
     )
-    _text = mo.md(
+    _caption = mo.md(
         '<span style="display:block;margin:0.2rem auto 1rem;max-width:560px;'
         'font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;">'
         + _text_body
         + "</span>"
     )
 
-    mo.vstack([_chart, _math, _text])
+    mo.vstack([_chart, _caption])
     return
 
 
