@@ -91,17 +91,23 @@ def _(mo):
     <a id="sec1"></a>
     ## 1. The regression model
 
-    The previous lectures studied one variable at a time, and then pairs of variables through covariance and correlation. We now ask a sharper question. Given two variables that move together, what single straight line best summarizes how one depends on the other?
+    In Lecture 2, we introduced covariance and correlation as ways to describe how two random variables move together. In this lecture, we use those ideas to ask a new question. Given two variables that move together, what single straight line best summarizes their relationship?
 
-    Take hourly wages and years of education. Lecture 1 showed that workers with more education tend to earn more, and Lecture 3 measured that kind of co-movement with covariance. A *linear regression* goes one step further and draws a line through the cloud of points, so we can read off a predicted wage for any level of education.
+    Consider hourly wages and years of education. In Lecture 1, we saw that workers with more education tend to earn more. In Lecture 3, we used covariance to measure that kind of co-movement. A *linear regression* goes one step further. It draws a straight line through the cloud of data points so that we can predict a worker's wage from their years of education.
 
-    We write the model for the population as
+    We write the population regression model as
 
-    $$ Y_i = \beta_0 + \beta_1 X_i + u_i, \qquad i = 1, \ldots, n. $$
+    $$
+    Y_i = \beta_0 + \beta_1 X_i + u_i, \qquad i = 1, \ldots, n.
+    $$
 
-    Here $Y_i$ is the *dependent variable*, the outcome we want to explain, which is the hourly wage of worker $i$. $X_i$ is the *independent variable*, the input we use to explain it, which is worker $i$'s years of education. The straight line $\beta_0 + \beta_1 X_i$ is the *population regression line*. Its *intercept* $\beta_0$ is the value of $Y$ the line predicts when $X = 0$, and its *slope* $\beta_1$ is the change in predicted $Y$ for a one-unit increase in $X$. The *error term* $u_i = Y_i - (\beta_0 + \beta_1 X_i)$ is the gap between worker $i$'s actual wage and the line, and it collects everything other than education that moves the wage.
+    Here $Y_i$ is the *dependent variable*, or the outcome we want to explain. In this example, $Y_i$ is worker $i$'s hourly wage. The variable $X_i$ is the *independent variable*, or the variable we use to explain the outcome. Here, $X_i$ is worker $i$'s years of education.
 
-    The intercept and slope are population parameters we cannot see, in the same way the population mean $\mu_X$ was hidden in Lecture 2. The next section estimates them from a sample.
+    The expression $\beta_0 + \beta_1 X_i$ is the *population regression line*. The *intercept* $\beta_0$ is the value of $Y$ that the line predicts when $X = 0$. The *slope* $\beta_1$ is the change in predicted $Y$ associated with a one-unit increase in $X$. In the wage and education example, $\beta_1$ tells us how much predicted hourly wages change when years of education increase by one.
+
+    The term $u_i$ is the *error term*. It represents the part of worker $i$'s wage that is not explained by education in the population regression model. In other words, it includes all the other factors, besides education, that affect wages.
+
+    The intercept $\beta_0$ and slope $\beta_1$ are population parameters. We cannot observe them directly, just as we could not directly observe the population mean $\mu_X$ in Lecture 2. Moreover, because $\beta_0$ and $\beta_1$ are population parameters, we cannot use them to compute the true error term $u_i$. The next section shows how to estimate the population parameters $\beta_0$ and $\beta_1$ using a sample.
     """)
     return
 
@@ -112,21 +118,49 @@ def _(mo):
     <a id="sec2"></a>
     ## 2. Ordinary least squares
 
-    To draw the line we need values for the intercept and slope. A natural idea is to pick the line that comes closest to the points. For a candidate line with intercept $b_0$ and slope $b_1$, the predicted wage for worker $i$ is $b_0 + b_1 X_i$, and the *residual* is the leftover gap between the actual wage and that prediction,
+    The population regression model contains two unknown parameters, the intercept $\beta_0$ and the slope $\beta_1$. If we knew these values, we would know the population regression line. But in practice, we only have a sample of observations on wages and education. We therefore use the sample to estimate the population line.
 
-    $$ \hat{u}_i = Y_i - (b_0 + b_1 X_i). $$
+    The basic idea is simple. We draw a line through the sample data and use that line as our estimate of the population regression line. The intercept and slope of the sample line are our estimates of $\beta_0$ and $\beta_1$.
 
-    A line fits well when its residuals are small. Some residuals are positive and some are negative, so adding them directly lets them cancel. Instead we square each one, which makes every gap count and penalizes large misses more heavily, and then add the squares. *Ordinary least squares* chooses the intercept and slope that make this sum of squared residuals as small as possible,
+    To draw this line, we need a rule for choosing among all possible lines. A natural rule is to choose the line that comes closest to the data points. For a candidate line with intercept $b_0$ and slope $b_1$, the predicted wage for worker $i$ is $b_0 + b_1 X_i$. The *residual* is the gap between worker $i$'s actual wage and the wage predicted by this candidate line, $Y_i - (b_0 + b_1 X_i)$.
 
-    $$ \min_{b_0,\, b_1} \sum_{i=1}^{n} \hat{u}_i^2 = \min_{b_0,\, b_1} \sum_{i=1}^{n} \left(Y_i - b_0 - b_1 X_i\right)^2. $$
+    These residuals differ from the error terms in the population model. The error term $u_i$ is defined using the true population regression line, while a residual is defined using a line drawn through the sample data.
 
-    The minimizing values have a closed form. The slope estimate is the sample covariance of $X$ and $Y$ divided by the sample variance of $X$, and the intercept estimate then forces the line through the point of averages,
+    A line fits the sample well when its residuals are small. Some residuals are positive and some are negative, so adding them directly would allow them to cancel out. Instead, we square each residual and then add the squared residuals across all workers. Squaring makes every residual count as positive and gives extra weight to large misses.
 
-    $$ \hat{\beta}_1 = \frac{\widehat{\text{cov}}(X, Y)}{\widehat{\text{var}}(X)}, \qquad \hat{\beta}_0 = \hat{\mu}_Y - \hat{\beta}_1 \hat{\mu}_X. $$
+    *Ordinary least squares*, or OLS, chooses the intercept and slope that make the sum of squared residuals as small as possible,
 
-    The appendix derives both formulas. The slope should look familiar from Lecture 3, since covariance measures how $X$ and $Y$ move together while variance measures how much $X$ moves on its own. A positive covariance gives an upward-sloping line, a negative covariance a downward-sloping one.
+    $$
+    \min_{b_0,, b_1} \sum_{i=1}^{n} \left(Y_i - b_0 - b_1 X_i\right)^2.
+    $$
 
-    In the tool below, the points are a sample of 40 workers. Move the two sliders to set the intercept and slope of your own line, and watch the gray segments, which are the residuals, and the running sum of squared residuals. Make that sum as small as you can, then tick the box to reveal the least-squares line, the one ordinary least squares would choose.
+    The values of $b_0$ and $b_1$ that solve this problem are called the OLS estimates. We write them as $\hat{\beta}_0$ and $\hat{\beta}_1$. These estimates define the fitted regression line. The predicted value from this fitted line is called the *fitted value*,
+
+    $$
+    \hat{Y}_i = \hat{\beta}_0 + \hat{\beta}_1 X_i.
+    $$
+
+    The residuals from the fitted regression line are called the *OLS residuals*. For worker $i$, the OLS residual is the actual wage minus the fitted value,
+
+    $$
+    \hat{u}_i = Y_i - \hat{Y}_i = Y_i - (\hat{\beta}_0 + \hat{\beta}_1 X_i).
+    $$
+
+    The OLS estimates have convenient solutions. The slope estimate is the sample covariance of $X$ and $Y$ divided by the sample variance of $X$,
+
+    $$
+    \hat{\beta}_1 = \frac{\widehat{\text{cov}}(X, Y)}{\widehat{\text{var}}(X)}.
+    $$
+
+    The intercept estimate then makes the fitted line pass through the point of sample averages,
+
+    $$
+    \hat{\beta}_0 = \hat{\mu}_Y - \hat{\beta}_1 \hat{\mu}_X.
+    $$
+
+    The formula for the slope should look familiar from Lecture 3. Recall that the covariance measures how $X$ and $Y$ move together, while the variance measures how much $X$ moves on its own. When the covariance between $X$ and $Y$ is positive, the fitted line slopes upward. When the covariance is negative, the fitted line slopes downward. The appendix derives both of these formulas.
+
+    In the interactive plot below, the data points represent a sample of 40 workers. Move the two sliders to set the intercept and slope of your own line. Watch the gray segments, which show the residuals from your line. Also notice the sum of squared residuals computed beneath the plot. Try to make that sum as small as possible. Then tick the box to reveal the least-squares line, which is the line ordinary least squares chooses.
     """)
     return
 
@@ -169,7 +203,19 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(alt, mo, np, pd, reg_X, reg_Y, reg_b0_hat, reg_b1_hat, slr_b0, slr_b1, slr_show):
+def _(
+    alt,
+    mo,
+    np,
+    pd,
+    reg_X,
+    reg_Y,
+    reg_b0_hat,
+    reg_b1_hat,
+    slr_b0,
+    slr_b1,
+    slr_show,
+):
     _b0 = float(slr_b0.value)
     _b1 = float(slr_b1.value)
     _xdom = [7.0, 21.0]
