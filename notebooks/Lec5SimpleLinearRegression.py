@@ -93,7 +93,7 @@ def _(mo):
 
     In Lecture 2, we introduced covariance and correlation as ways to describe how two random variables move together. In this lecture, we use those ideas to ask a new question. Given two variables that move together, what single straight line best summarizes their relationship?
 
-    Consider hourly wages and years of education. In Lecture 1, we saw that workers with more education tend to earn more. In Lecture 3, we used covariance to measure that kind of co-movement. A *linear regression* goes one step further. It draws a straight line through the cloud of data points so that we can predict a worker's wage from their years of education.
+    Consider hourly wages and years of education. In Lecture 1, we saw that workers with more education tend to earn more. In Lecture 3, we used covariance to measure that kind of co-movement. A *linear regression* goes one step further. It represents the relationship between wages and education with a single straight line that allows us to predict a worker's wage from their years of education.
 
     We write the population regression model as
 
@@ -101,9 +101,9 @@ def _(mo):
     Y_i = \beta_0 + \beta_1 X_i + u_i, \qquad i = 1, \ldots, n.
     $$
 
-    Here $Y_i$ is the *dependent variable*, or the outcome we want to explain. In this example, $Y_i$ is worker $i$'s hourly wage. The variable $X_i$ is the *independent variable*, or the variable we use to explain the outcome. Here, $X_i$ is worker $i$'s years of education.
+    Here $Y_i$ is the *dependent variable*, or the outcome we want to explain. In this example, $Y_i$ is worker $i$'s hourly wage. The variable $X_i$ is the *independent variable*, or the variable we use to explain the outcome. Here, $X_i$ is worker $i$'s years of education. $i$ is simply an index that refers to a single worker among $1, \ldots, n$ possible workers.
 
-    The expression $\beta_0 + \beta_1 X_i$ is the *population regression line*. The *intercept* $\beta_0$ is the value of $Y$ that the line predicts when $X = 0$. The *slope* $\beta_1$ is the change in predicted $Y$ associated with a one-unit increase in $X$. In the wage and education example, $\beta_1$ tells us how much predicted hourly wages change when years of education increase by one.
+    The expression $\beta_0 + \beta_1 X$ is the *population regression line*. The *intercept* $\beta_0$ is the value of the population regression line when $X = 0$. The *slope* $\beta_1$ is the change in $Y$ associated with a one-unit increase in $X$. In the wage and education example, $\beta_1$ tells us how much hourly wages change on average when education increases by one year.
 
     The term $u_i$ is the *error term*. It represents the part of worker $i$'s wage that is not explained by education in the population regression model. In other words, it includes all the other factors, besides education, that affect wages.
 
@@ -120,15 +120,11 @@ def _(mo):
 
     The population regression model contains two unknown parameters, the intercept $\beta_0$ and the slope $\beta_1$. If we knew these values, we would know the population regression line. But in practice, we only have a sample of observations on wages and education. We therefore use the sample to estimate the population line.
 
-    The basic idea is simple. We draw a line through the sample data and use that line as our estimate of the population regression line. The intercept and slope of the sample line are our estimates of $\beta_0$ and $\beta_1$.
+    The basic idea is simple. We draw a line through the sample data and use that line as our estimate of the population regression line. The intercept and slope of the sample line are our estimates of $\beta_0$ and $\beta_1$. To draw this line, we need a rule for choosing among all possible lines. A natural rule is to choose the line that comes closest to the data points. For a candidate line with intercept $b_0$ and slope $b_1$, the predicted value of $Y$ for observation $i$ is $b_0 + b_1 X_i$. The *residual* is the gap between the actual value of $Y_i$ and the value predicted by this candidate line for observation $i$, $Y_i - (b_0 + b_1 X_i)$.<sup><a id="fnref1" href="#fn1">1</a></sup>
 
-    To draw this line, we need a rule for choosing among all possible lines. A natural rule is to choose the line that comes closest to the data points. For a candidate line with intercept $b_0$ and slope $b_1$, the predicted wage for worker $i$ is $b_0 + b_1 X_i$. The *residual* is the gap between worker $i$'s actual wage and the wage predicted by this candidate line, $Y_i - (b_0 + b_1 X_i)$.
+    A line fits the sample well when its residuals are small. Some residuals are positive and some are negative, so adding them directly would allow them to cancel out. Instead, we square each residual and then add the squared residuals across all observations. Squaring makes every residual count as positive and gives extra weight to large residuals.
 
-    These residuals differ from the error terms in the population model. The error term $u_i$ is defined using the true population regression line, while a residual is defined using a line drawn through the sample data.
-
-    A line fits the sample well when its residuals are small. Some residuals are positive and some are negative, so adding them directly would allow them to cancel out. Instead, we square each residual and then add the squared residuals across all workers. Squaring makes every residual count as positive and gives extra weight to large misses.
-
-    *Ordinary least squares*, or OLS, chooses the intercept and slope that make the sum of squared residuals as small as possible,
+    *Ordinary least squares*, or OLS, chooses the intercept and slope that make the *sum of squared residuals* as small as possible,
 
     $$
     \min_{b_0,, b_1} \sum_{i=1}^{n} \left(Y_i - b_0 - b_1 X_i\right)^2.
@@ -140,7 +136,7 @@ def _(mo):
     \hat{Y}_i = \hat{\beta}_0 + \hat{\beta}_1 X_i.
     $$
 
-    The residuals from the fitted regression line are called the *OLS residuals*. For worker $i$, the OLS residual is the actual wage minus the fitted value,
+    The residuals from the fitted regression line are called the *OLS residuals*. For observation $i$, the OLS residual is the actual value of $Y_i$ minus the fitted value $\hat{Y}_i$,
 
     $$
     \hat{u}_i = Y_i - \hat{Y}_i = Y_i - (\hat{\beta}_0 + \hat{\beta}_1 X_i).
@@ -160,7 +156,7 @@ def _(mo):
 
     The formula for the slope should look familiar from Lecture 3. Recall that the covariance measures how $X$ and $Y$ move together, while the variance measures how much $X$ moves on its own. When the covariance between $X$ and $Y$ is positive, the fitted line slopes upward. When the covariance is negative, the fitted line slopes downward. The appendix derives both of these formulas.
 
-    In the interactive plot below, the data points represent a sample of 40 workers. Move the two sliders to set the intercept and slope of your own line. Watch the gray segments, which show the residuals from your line. Also notice the sum of squared residuals computed beneath the plot. Try to make that sum as small as possible. Then tick the box to reveal the least-squares line, which is the line ordinary least squares chooses.
+    In the interactive plot below, the data points represent a sample of 40 workers from our example relating wages and years of education. Move the two sliders to set the intercept and slope of your own line. Watch the gray segments, which show the residuals from your line. Also notice the sum of squared residuals computed beneath the plot. Try to make that sum as small as possible. Then tick the box to reveal the least-squares line, which is the line ordinary least squares chooses.
     """)
     return
 
@@ -288,13 +284,27 @@ def _(mo):
     <a id="sec3"></a>
     ## 3. Interpreting the slope
 
-    Once we have the fitted line $\hat{Y}_i = \hat{\beta}_0 + \hat{\beta}_1 X_i$, the slope and intercept carry the meaning.
+    Let's now consider how to interpret the the fitted line, $\hat{Y}_i = \hat{\beta}_0 + \hat{\beta}_1 X_i$.
 
-    When $X$ is continuous, the slope is the predicted change in $Y$ for a one-unit increase in $X$, measured in the units of $Y$. In our wage data the least-squares line is about $\hat{Y} = 7.30 + 1.25\,X$, so each additional year of schooling is associated with about \$1.25 more per hour. The intercept is the predicted wage at $X = 0$, about \$7.30 per hour, though zero years of schooling sits far outside the data, so that figure is an extrapolation rather than a description of anyone we observed.
+    When $X$ is continuous, the slope $\hat{\beta}_1$ is the expected, or average, change in $Y$ associated with a one-unit increase in $X$. The units of the slope are the same as the units of $Y$. For example, if $Y$ were measured in dollars, then we should interpret $\hat{\beta}_1$ in dollar terms. In our wage and education example, the least-squares line is approximately
 
-    When $X$ is binary, taking only the values 0 and 1, the slope reads even more simply. The intercept $\hat{\beta}_0$ is the predicted $Y$ for the group with $X = 0$, and $\hat{\beta}_0 + \hat{\beta}_1$ is the predicted $Y$ for the group with $X = 1$, so the slope $\hat{\beta}_1$ is just the difference in average $Y$ between the two groups. Suppose $X$ equals 1 for female workers and 0 otherwise, and a regression of hourly wages on that indicator gives $\hat{\beta}_0 = 26$ and $\hat{\beta}_1 = -4$, both in dollars per hour. Workers with $X = 0$ are then predicted to earn \$26 per hour, and workers with $X = 1$ to earn $\hat{\beta}_0 + \hat{\beta}_1 = 22$, or \$22 per hour. The slope is the gap between the two group means, here \$4 per hour.
+    $$
+    \hat{Y} = 7.30 + 1.25X.
+    $$
 
-    One caution, which the course returns to later. These statements are about prediction and association, not cause. A positive slope on education does not by itself show that schooling raises wages, because workers with more education may differ in other ways that also affect pay. Notebook 6 makes the conditions for a causal reading precise.
+    This means that each additional year of schooling is associated with a wage that is about $1.25 higher per hour on average. The intercept is the predicted wage when $X = 0$. Here, that value is about $7.30 per hour. Since zero years of schooling lies far outside the range of the data, this intercept is an extrapolation rather than a description of workers we actually observe.
+
+    When $X$ is binary, meaning it only takes the values 0 and 1, the slope has an especially simple interpretation. The intercept $\hat{\beta}_0$ is the predicted value of $Y$ for observations with $X = 0$. The value $\hat{\beta}_0 + \hat{\beta}_1$ is the predicted value of $Y$ for observations with $X = 1$. And the estimate of $\hat{\beta}_1$ is therefore the difference in average $Y$ between the two groups.
+
+    For example, suppose $X$ equals 1 for female workers and 0 otherwise, and a regression of hourly wages on this indicator variable gives $\hat{\beta}_0 = 26$ and $\hat{\beta}_1 = -4$, both measured in dollars per hour. Workers with $X = 0$ are predicted to earn $26 per hour. Workers with $X = 1$ are predicted to earn
+
+    $$
+    \hat{\beta}_0 + \hat{\beta}_1 = 26 - 4 = 22,
+    $$
+
+    or $22 per hour. The group with $X = 1$ therefore has an average wage that is $4 per hour lower than the group with $X = 0$.
+
+    Importantly, note that these interpretations describe prediction and association, not causation. A positive slope on education does not by itself show that schooling raises wages, because workers with more education may differ in other ways that also affect pay. Notebook 6 explains the conditions needed to interpret a regression slope causally.
     """)
     return
 
@@ -303,21 +313,37 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec4"></a>
+    <a id="sec4"></a>
+
     ## 4. Prediction
 
-    The fitted line turns any level of education into a predicted wage. Plugging a value of $X$ into $\hat{Y} = \hat{\beta}_0 + \hat{\beta}_1 X$ gives the *fitted value*, the height of the line at that point. With our line $\hat{Y} \approx 7.30 + 1.25\,X$, three quick examples:
+    Once we estimate a regression line, we can use it to make predictions. The fitted line turns a value of $X$ into a predicted value of $Y$. For an observation in the sample, this predicted value is the fitted value,
+
+    $$
+    \hat{Y}_i = \hat{\beta}_0 + \hat{\beta}_1 X_i.
+    $$
+
+    We can also use the same line to predict $Y$ at other values of $X$. In the wage and education example, the fitted line is approximately
+
+    $$
+    \hat{Y} = 7.30 + 1.25X.
+    $$
+
+    Plugging in different values of $X$ gives different predicted wages,
 
     $$
     \begin{aligned}
-    X = 12 \text{ years} &\;\Rightarrow\; \hat{Y} = 7.30 + 1.25 \cdot 12 = \$22.30 \text{ per hour}, \\
-    X = 16 \text{ years} &\;\Rightarrow\; \hat{Y} = 7.30 + 1.25 \cdot 16 = \$27.30 \text{ per hour}, \\
-    X = 25 \text{ years} &\;\Rightarrow\; \hat{Y} = 7.30 + 1.25 \cdot 25 = \$38.55 \text{ per hour}.
+    X = 12 \text{ years} &;\Rightarrow; \hat{Y} = 7.30 + 1.25 \cdot 12 = \text{\$}22.30 \text{ per hour}, \\
+    X = 16 \text{ years} &;\Rightarrow; \hat{Y} = 7.30 + 1.25 \cdot 16 = \text{\$}27.30 \text{ per hour}, \\
+    X = 25 \text{ years} &;\Rightarrow; \hat{Y} = 7.30 + 1.25 \cdot 25 = \text{\$}38.55 \text{ per hour}.
     \end{aligned}
     $$
 
-    Predictions come in two kinds. An *in-sample* prediction uses a value of $X$ inside the range of the data the line was built from, here roughly 8 to 20 years of schooling. The first two examples above are in-sample. An *out-of-sample* prediction uses a value of $X$ outside that range, which is called *extrapolation*. The third example, $X = 25$ years, sits well outside the data. Extrapolation is riskier, because nothing in the data tells us the straight-line pattern continues past the values we observed. The line will happily report a wage for 30 years of schooling or for 2, but we have no evidence the relationship stays linear that far out.
+    Predictions are more reliable when they use values of $X$ similar to those observed in the sample. An *in-sample prediction* uses a value of $X$ inside the range of the data used to estimate the line. In this example, the observed values of schooling run from roughly 8 to 20 years, so the predictions for $X = 12$ and $X = 16$ are in-sample predictions.
 
-    The diagram below sketches the line: the solid middle is the part backed by data, and the dashed tails are extrapolation.
+    An *out-of-sample prediction* uses a value of $X$ outside the range of the data. This is called *extrapolation*. The prediction for $X = 25$ years is an extrapolation because it lies well outside the observed range of schooling. Extrapolation is risky because the sample does not tell us whether the straight-line relationship continues beyond the values we observed. The regression line can produce a predicted wage for 25, 30, or even 2 years of schooling, but those predictions rely on extending the line beyond the support of the data.
+
+    The diagram below illustrates this distinction. The solid part of the line shows predictions supported by the observed data, while the dashed tails show extrapolations beyond the observed range.
     """)
     return
 
@@ -376,27 +402,36 @@ def _(alt, pd, reg_b0_hat, reg_b1_hat):
 def _(mo):
     mo.md(r"""
     <a id="sec5"></a>
+    <a id="sec5"></a>
+
     ## 5. Measuring fit
 
-    A line can be the best of all straight lines and still predict poorly, if the points scatter far from it. Two measures summarize how well the fitted line explains the data.
+    OLS gives us the best-fitting straight line, but that does not mean the line predicts the data well. If the points are scattered far from the line, even the best straight line may leave large prediction errors. We therefore need measures of how closely the fitted line matches the data.
 
-    The first splits the variation in $Y$ into a part the line explains and a part it does not. Write $\hat{\mu}_Y$ for the sample mean of $Y$. The *total sum of squares* adds up how far each $Y_i$ falls from that mean, the *explained sum of squares* adds up how far each fitted value falls from it, and the *sum of squared residuals* adds up the leftover gaps,
+    The first measure is the *R-squared* ($R^2$). It is based on splitting the variation in $Y$ into two parts. One part is accounted for by the fitted line, and the other part is left in the residuals. Let $\hat{\mu}_Y$ be the sample mean of $Y$. The *total sum of squares* (TSS) measures how far the observed values of $Y$ are from their sample mean. The *explained sum of squares* (ESS) measures how far the fitted values are from that same mean. And the *sum of squared residuals* (SSR) measures the variation left over after fitting the line,
 
-    $$ \text{TSS} = \sum_{i=1}^{n}(Y_i - \hat{\mu}_Y)^2, \qquad \text{ESS} = \sum_{i=1}^{n}(\hat{Y}_i - \hat{\mu}_Y)^2, \qquad \text{SSR} = \sum_{i=1}^{n}\hat{u}_i^2. $$
 
-    These three satisfy $\text{TSS} = \text{ESS} + \text{SSR}$. The *R-squared* is the share of the total variation the line explains,
+    $$
+    \text{TSS} = \sum_{i=1}^{n}(Y_i - \hat{\mu}_Y)^2, \quad \text{ESS} = \sum_{i=1}^{n}(\hat{Y}_i - \hat{\mu}_Y)^2, \quad  \text{SSR} = \sum_{i=1}^{n}\hat{u}_i^2.
+    $$
 
-    $$ R^2 = \frac{\text{ESS}}{\text{TSS}} = 1 - \frac{\text{SSR}}{\text{TSS}}. $$
+    These three quantities satisfy $ \text{TSS} = \text{ESS} + \text{SSR}$. The $R^2$ is the share of the total variation in $Y$ accounted for by the fitted line,
 
-    It runs from 0 to 1. An $R^2$ of 0 means $X$ explains none of the variation in $Y$ and the fitted line is flat at $\hat{\mu}_Y$. An $R^2$ of 1 means every point lies exactly on the line. In our wage data $R^2$ is about $0.72$, so education explains roughly seventy percent of the variation in wages across these workers.
+    $$
+    R^2 = \frac{\text{ESS}}{\text{TSS}} = 1 - \frac{\text{SSR}}{\text{TSS}}.
+    $$
 
-    The second measure reports the typical size of a residual in the units of $Y$. The *standard error of the regression* is
+    The value of $R^2$ runs from 0 to 1. An $R^2$ of 0 means that $X$ accounts for none of the variation in $Y$, so the fitted line is flat at $\hat{\mu}_Y$. An $R^2$ of 1 means that every point lies exactly on the fitted line. In the wage and education example, $R^2$ is about $0.72$, so education accounts for roughly seventy percent of the variation in wages in this sample.
 
-    $$ \text{SER} = \sqrt{\frac{\text{SSR}}{n - 2}}, $$
+    The second measure is the *standard error of the regression* (SER). While $R^2$ is a share, the standard error of the regression is measured in the units of $Y$. It reports the typical size of a residual,
 
-    the square root of the average squared residual, dividing by $n - 2$ rather than $n$ because estimating the intercept and slope used up two pieces of information. For our wage line the SER is about \$2.94, so a typical worker's wage lands within about three dollars of the line. A larger $R^2$ and a smaller SER both signal a tighter fit.
+    $$
+    \text{SER} = \sqrt{\frac{\text{SSR}}{n - 2}}.
+    $$
 
-    Move the slider below to change how far the points scatter around a fixed true line. As the scatter shrinks the points hug the line, $R^2$ climbs toward 1, and the SER falls toward 0. As the scatter grows the reverse happens.
+    This formula takes the square root of the average squared residual. We divide by $n - 2$ rather than $n$ because estimating the intercept and slope uses up two pieces of information. In the wage and education example, the SER is about $2.94. Since wages are measured in dollars per hour, this means that a typical wage is about three dollars per hour away from the fitted line.
+
+    A larger $R^2$ and a smaller SER both indicate a tighter fit. Move the slider below to change how far the points scatter around a fixed true line. As the scatter shrinks, the points move closer to the line, $R^2$ rises toward 1, and the SER falls toward 0. As the scatter grows, the reverse happens.
     """)
     return
 
@@ -557,6 +592,16 @@ def _(mo):
         This is the algebraic identity behind $R^2 = \text{ESS}/\text{TSS} = 1 - \text{SSR}/\text{TSS}$.
         """)
     })
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ---
+
+    <span id="fn1" style="display:block;font-size:0.9rem;">**1.** These residuals differ from the error terms in the population model. The error term $u_i$ is defined using the true population regression line, while a residual is defined using a line drawn through the sample data. <a href="#fnref1" title="Back to text">&#8617;</a></span>
+    """)
     return
 
 
