@@ -5,6 +5,7 @@
 #     "numpy",
 #     "pandas",
 #     "altair",
+#     "anywidget",
 # ]
 # ///
 
@@ -26,8 +27,10 @@ def _():
     import numpy as np
     import pandas as pd
     import altair as alt
+    import anywidget
+    import traitlets
 
-    return alt, mo, np, pd
+    return alt, anywidget, mo, np, pd, traitlets
 
 
 @app.cell(hide_code=True)
@@ -42,9 +45,11 @@ def _(mo):
                     "#sec1": "1. Conditional expectation",
                     "#sec2": "2. The error term revisited",
                     "#sec3": "3. From prediction to causation",
-                    "#sec4": "4. Assumption 1: the error has mean zero given X",
-                    "#sec5": "5. Assumption 2: the data are i.i.d.",
-                    "#sec6": "6. Assumption 3: large outliers are unlikely",
+                    "#sec4": "4. The least squares assumptions",
+                    "#sec4a": "4.1 Least Squares Assumption 1",
+                    "#sec4b": "4.2 Least Squares Assumption 2",
+                    "#sec4c": "4.3 Least Squares Assumption 3",
+                    "#sec5": "5. What the assumptions give us",
                 },
                 orientation="vertical",
             ),
@@ -83,9 +88,11 @@ def _(mo):
     1. [Conditional expectation](#sec1)
     2. [The error term revisited](#sec2)
     3. [From prediction to causation](#sec3)
-    4. [Assumption 1: the error has mean zero given X](#sec4)
-    5. [Assumption 2: the data are i.i.d.](#sec5)
-    6. [Assumption 3: large outliers are unlikely](#sec6)
+    4. [The least squares assumptions](#sec4)
+        - [Least Squares Assumption 1: the conditional mean of $u$ given $X$ is zero](#sec4a)
+        - [Least Squares Assumption 2: the data are i.i.d.](#sec4b)
+        - [Least Squares Assumption 3: large outliers are unlikely](#sec4c)
+    5. [What the assumptions give us](#sec5)
     """)
     return
 
@@ -185,17 +192,17 @@ def _(mo):
     <a id="sec3"></a>
     ## 3. From prediction to causation
 
-    Everything in Lecture 5 was about prediction. The fitted slope of \$1.25 says that a worker with one more year of education is predicted to earn about \$1.25 more per hour. It does not say that sending a worker back to school for a year would raise that worker's wage by \$1.25. The *causal interpretation* of the slope is exactly this stronger claim, that increasing $X$ by one unit causes $Y$ to change by $\beta_1$ units.
+    Everything in Lecture 5 was about prediction. The fitted slope of \$1.25 says that a worker with one more year of education is predicted to earn about \$1.25 more per hour. It does not say that sending the same worker back to school for a year would raise that worker's wage by \$1.25. The *causal interpretation* of the slope is this stronger claim, that raising $X$ by one unit causes $Y$ to change by $\beta_1$ units. A student deciding whether to stay in school another year, or a government pricing a tuition subsidy, needs the causal claim, not the fact that educated workers happen to earn more.
 
-    The difference matters for decisions. A student weighing another year of school, or a government weighing a tuition subsidy, needs to know what education does to wages, not merely that educated workers happen to earn more.
+    In the population model $Y = \beta_0 + \beta_1 X + u$, the slope $\beta_1$ already is the causal effect by construction. The error $u$ holds every other influence on wages, so raising $X$ by one unit while $u$ stays fixed changes $Y$ by exactly $\beta_1$. The difficulty is that OLS never sees $u$. It fits the line that best predicts $Y$ from $X$ alone, and the slope of that line equals the causal $\beta_1$ only when the part of wages hidden in $u$ does not move with education. When that hidden part does move with education, the fitted slope blends the effect of schooling with the effect of whatever in $u$ travels alongside it.
 
-    To attribute a causal interpretation to $\hat{\beta}_1$, we make three assumptions about how the data came to be, known as the *least squares assumptions for causal inference*.
+    The condition that rules this out, together with two more that make the estimate and its precision trustworthy, are the three *least squares assumptions*.
 
-    1. The conditional distribution of $u$ given $X$ has a mean of zero. That is, $\mathbb{E}[u \mid X] = 0$.
+    1. The conditional distribution of $u$ given $X$ has a mean of zero, $\mathbb{E}[u \mid X] = 0$.
     2. The data $(X_i, Y_i)$ for $i = 1, \ldots, n$ are independently and identically distributed.
     3. Large outliers are unlikely.
 
-    The first assumption carries the causal content, and it is the one that fails most often in practice. The second and third concern the quality of the sample. The next three sections unpack them one at a time.
+    Only the first assumption carries causal content, and it is the one that fails most often in practice. The second and third say nothing about causation. They are what let us estimate $\beta_1$ from a sample and attach a margin of error to the estimate. The next three sections take the assumptions one at a time, and Section 5 collects what each one buys.
     """)
     return
 
@@ -204,23 +211,34 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec4"></a>
-    ## 4. Assumption 1: the error has mean zero given X
+    ## 4. The least squares assumptions
 
-    Assumption 1 states that the conditional mean of the error term is zero at every value of $X$,
+    Each of the three assumptions does a different job. The first decides whether the slope can be read as a causal effect. The second and third decide whether a finite sample can estimate that slope and how precisely.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    <a id="sec4a"></a>
+    ### Least Squares Assumption 1: the conditional mean of $u$ given $X$ is zero
+
+    The first assumption states that the conditional mean of the error term is zero at every value of $X$,
 
     $$
     \mathbb{E}[u \mid X] = 0.
     $$
 
-    In the wage example, this says that average ability and family background are the same at every education level. Workers with 16 years of education may differ from workers with 12 in their schooling, but on average they must differ in nothing else that affects wages.
+    In the wage example, this says that the average of everything in the error term is the same at every education level. Workers with 16 years of education may differ from workers with 12 in their schooling, but on average they must differ in nothing else that affects wages, not in ability, not in family background.
 
-    That is a strong requirement, and it is easy to see how it fails. Suppose students with higher ability find school easier and stay in it longer. Then among workers with 16 years of education, average ability is higher than among workers with 12, so $\mathbb{E}[u \mid X = 16] > \mathbb{E}[u \mid X = 12]$ and Assumption 1 fails. OLS attributes to education some of the wage gains that ability would have produced anyway, and $\hat{\beta}_1$ overstates the causal effect of schooling.
+    That is a strong requirement, and it is easy to see how it fails. Suppose students with higher ability find school easier and stay in it longer. Then among workers with 16 years of education, average ability is higher than among workers with 12, so $\mathbb{E}[u \mid X = 16] > \mathbb{E}[u \mid X = 12]$ and the assumption fails. OLS attributes to education some of the wage gains that ability would have produced anyway, and $\hat{\beta}_1$ overstates the causal effect of schooling.
 
-    The assumption cannot be tested with the data alone. The error term is unobserved, so there is no way to compute $\mathbb{E}[u \mid X = x]$ from a sample of $X$ and $Y$. Whether the assumption is plausible has to be argued from knowledge of how the data came about, not from a calculation.
+    The assumption cannot be tested with the data alone. The error term is unobserved, so there is no way to compute $\mathbb{E}[u \mid X = x]$ from a sample of $X$ and $Y$. Whether the assumption holds has to be argued from knowledge of how the data came about, not read off a calculation.
 
-    One technical note. The causal reading really requires only that $\mathbb{E}[u \mid X = x]$ does not vary with $x$. If it equaled some constant other than zero, that constant would fold into the intercept and leave the slope untouched. The appendix shows the algebra. With an intercept in the model, ''the conditional mean of $u$ does not depend on $X$'' and ''$\mathbb{E}[u \mid X] = 0$'' are the same assumption.
+    One technical note. The causal reading requires only that $\mathbb{E}[u \mid X = x]$ not vary with $x$. If it equaled some constant other than zero, that constant would fold into the intercept and leave the slope untouched. The appendix shows the algebra. With an intercept in the model, ''the conditional mean of $u$ does not depend on $X$'' and ''$\mathbb{E}[u \mid X] = 0$'' are the same assumption.
 
-    The plot below shows why no test can detect the failure. The 40 workers are the sample from Lecture 5, and the true causal effect of a year of education is fixed at \$1.20 per hour, drawn as the dashed orange line. The slider tilts average ability with education. At zero, Assumption 1 holds and the OLS line (solid navy) matches the causal line up to sampling noise. Away from zero, the OLS line rotates away from the causal line. The scatter, though, looks like an ordinary regression dataset at every slider value. Nothing in the data announces the violation.
+    The plot below makes the hidden variable visible. Each of the 40 workers is shaded by ability, faint for low ability and solid navy for high, and for this example ability is the only thing in the error term. The true causal effect of a year of education is fixed at \$1.20 per hour, drawn as the dashed orange line. The slider controls how ability is spread across education. At zero, ability is handed out at random, so faint and dense points sit at every education level, $\mathbb{E}[u \mid X] = 0$ holds, and the OLS line (solid navy) lands on the causal slope up to sampling noise. Slide toward one and ability sorts onto education, with the densest points moving to the right. Now $\mathbb{E}[u \mid X]$ climbs with education, and the OLS line can no longer separate the wage gain from schooling from the wage gain that high-ability workers would have earned anyway.
     """)
     return
 
@@ -236,35 +254,69 @@ def _(np):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    bias_delta = mo.ui.slider(
-        start=-1.0, stop=2.0, step=0.25, value=0.75,
-        label="How strongly average ability rises with education", show_value=True,
-    )
-    bias_delta
-    return (bias_delta,)
+def _(lsa_X, np):
+    # Fixed ability draws for the Assumption 1 plot. abil_random assigns ability
+    # independently of education: the raw draw is orthogonalized against education
+    # in-sample so that at slider 0 the omitted variable adds no bias and OLS
+    # recovers the causal slope. abil_sorted reassigns the same 40 values so the
+    # highest ability lands on the highest education. The slider blends the two,
+    # so nothing is re-drawn as it moves.
+    _rng = np.random.default_rng(3)
+    _a = _rng.normal(0.0, 1.0, 40)
+    _a = _a - (np.cov(_a, lsa_X, ddof=1)[0, 1] / np.var(lsa_X, ddof=1)) * (lsa_X - lsa_X.mean())
+    abil_random = _a - _a.mean()
+    _edu_rank = np.argsort(np.argsort(lsa_X))
+    abil_sorted = np.sort(abil_random)[_edu_rank]
+    abil_gamma = 4.0  # dollars per hour per standard deviation of ability
+    return abil_gamma, abil_random, abil_sorted
 
 
 @app.cell(hide_code=True)
-def _(alt, bias_delta, lsa_X, lsa_b0_true, lsa_b1_true, lsa_e, mo, np, pd):
-    _d = float(bias_delta.value)
-    _Y = lsa_b0_true + lsa_b1_true * lsa_X + _d * (lsa_X - 14.0) + lsa_e
+def _(mo):
+    sort_strength = mo.ui.slider(
+        start=0.0, stop=1.0, step=0.1, value=0.5,
+        label="How strongly ability sorts onto education (0 = randomly assigned, 1 = perfectly sorted)",
+        show_value=True,
+    )
+    sort_strength
+    return (sort_strength,)
+
+
+@app.cell(hide_code=True)
+def _(
+    abil_gamma,
+    abil_random,
+    abil_sorted,
+    alt,
+    lsa_X,
+    lsa_b0_true,
+    lsa_b1_true,
+    lsa_e,
+    mo,
+    np,
+    pd,
+    sort_strength,
+):
+    _s = float(sort_strength.value)
+    _ability = (1.0 - _s) * abil_random + _s * abil_sorted
+    _Y = lsa_b0_true + lsa_b1_true * lsa_X + abil_gamma * _ability + lsa_e
     _b1 = float(np.cov(lsa_X, _Y, ddof=1)[0, 1] / np.var(lsa_X, ddof=1))
     _b0 = float(_Y.mean() - _b1 * lsa_X.mean())
 
     _xdom = [7.0, 21.0]
     _ydom = [-5.0, 55.0]
     _xline = np.array([7.0, 21.0])
-    _pts = pd.DataFrame({"x": lsa_X, "y": _Y})
+    _pts = pd.DataFrame({"x": lsa_X, "y": _Y, "ability": _ability})
     _ols = pd.DataFrame({"x": _xline, "y": _b0 + _b1 * _xline})
     _causal = pd.DataFrame({"x": _xline, "y": lsa_b0_true + lsa_b1_true * _xline})
 
     _scatter = (
         alt.Chart(_pts)
-        .mark_circle(color="#1f4e79", opacity=0.7, size=60, clip=True)
+        .mark_circle(color="#1f4e79", size=95, stroke="#1f4e79", strokeWidth=0.5, clip=True)
         .encode(
             x=alt.X("x:Q", title="Years of education", scale=alt.Scale(domain=_xdom, nice=False)),
             y=alt.Y("y:Q", title="Hourly wage (USD)", scale=alt.Scale(domain=_ydom, nice=False)),
+            opacity=alt.Opacity("ability:Q", scale=alt.Scale(range=[0.12, 1.0]), legend=None),
         )
     )
     _causal_line = (
@@ -279,22 +331,22 @@ def _(alt, bias_delta, lsa_X, lsa_b0_true, lsa_b1_true, lsa_e, mo, np, pd):
     )
     _chart = alt.layer(_scatter, _causal_line, _ols_line).properties(
         width=560, height=340,
-        title="When ability tilts with education, OLS misses the causal effect",
+        title="Shade shows ability; sorting it onto education tilts the OLS slope",
     )
 
-    if _d == 0.0:
+    if _s == 0.0:
         _body = (
-            rf"The slider is at 0.00, so average ability is the same at every education level "
-            rf"and Assumption 1 holds. The OLS line $\hat{{Y}} = {_b0:.2f} + {_b1:.2f}\,X$ differs "
-            rf"from the causal line $Y = 8.00 + 1.20\,X$ only through sampling noise."
+            rf"Ability is assigned at random across education, so faint and dense points "
+            rf"are mixed at every education level. Here $\mathbb{{E}}[u \mid X] = 0$ holds, and "
+            rf"the OLS line $\hat{{Y}} = {_b0:.2f} + {_b1:.2f}\,X$ (solid navy) sits on the causal "
+            rf"line $Y = 8.00 + 1.20\,X$ (dashed orange) up to sampling noise."
         )
     else:
         _body = (
-            rf"With the slider at {_d:+.2f}, average ability shifts wages by {_d * 6:+.1f} dollars "
-            rf"per hour among workers with 20 years of education and by {_d * -6:+.1f} among workers "
-            rf"with 8 years, so $\mathbb{{E}}[u \mid X = x]$ varies with $x$. OLS estimates a slope "
-            rf"of {_b1:.2f} even though the causal effect is fixed at 1.20, and the scatter offers "
-            rf"no warning."
+            rf"With the slider at {_s:.1f}, higher-ability workers (darker points) hold more "
+            rf"education, so $\mathbb{{E}}[u \mid X]$ climbs with $X$. OLS reports a slope of "
+            rf"{_b1:.2f} though the causal effect is fixed at 1.20, because it credits education "
+            rf"with the extra earnings of the high-ability workers gathered on the right."
         )
     _caption = mo.md(
         '<span style="display:block;margin:0.2rem auto 1rem;max-width:560px;'
@@ -309,14 +361,14 @@ def _(alt, bias_delta, lsa_X, lsa_b0_true, lsa_b1_true, lsa_e, mo, np, pd):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    <a id="sec5"></a>
-    ## 5. Assumption 2: the data are i.i.d.
+    <a id="sec4b"></a>
+    ### Least Squares Assumption 2: the data are i.i.d.
 
-    Assumption 2 states that the observations $(X_i, Y_i)$ for $i = 1, \ldots, n$ are independently and identically distributed. Lecture 3 defined the two halves of that phrase. All observations are drawn from the same underlying distribution, and knowing one observation tells you nothing about another. Sampling workers at random from one population delivers both halves, which is why i.i.d. is a reasonable description of survey data like the wage sample.
+    The second assumption states that the observations $(X_i, Y_i)$ for $i = 1, \ldots, n$ are independently and identically distributed. Lecture 3 defined the two halves of that phrase. All observations are drawn from the same underlying distribution, and knowing one observation tells you nothing about another. Sampling workers at random from one population delivers both halves, which is why i.i.d. is a reasonable description of survey data like the wage sample.
 
-    Both halves can fail. Data collected sequentially are informative about each other. Today's temperature helps predict tomorrow's, so a year of daily weather recordings is not a set of independent draws. And pooling students sampled from different countries mixes different underlying populations, so those observations are not identically distributed.
+    Both halves can fail. Data collected in sequence carry information about each other. Today's temperature helps predict tomorrow's, so a year of daily weather recordings is not a set of independent draws. Pooling students sampled from several countries mixes different underlying populations, so those observations are not identically distributed.
 
-    Unlike Assumption 1, the i.i.d. assumption is not strictly necessary for a causal reading of $\hat{\beta}_1$. Its main role is in constructing the standard error of the slope, $\text{se}(\hat{\beta}_1)$, using the tools from Lecture 4. Lecture 7 builds that standard error and uses it to test hypotheses about $\beta_1$. Later parts of the course, on panel data and clustered standard errors, handle data where independence fails by design.
+    This assumption carries no causal content. A causal reading of $\beta_1$ rests entirely on Assumption 1, with or without i.i.d. sampling. What i.i.d. sampling buys is the estimate. It makes $\hat{\beta}_1$ an unbiased and consistent estimate of $\beta_1$, and it underpins the standard error of the slope, $\text{se}(\hat{\beta}_1)$, built from the tools in Lecture 4. Lecture 7 constructs that standard error and uses it to test hypotheses about $\beta_1$. Later parts of the course, on panel data and clustered standard errors, handle data where independence fails by design.
     """)
     return
 
@@ -324,10 +376,10 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    <a id="sec6"></a>
-    ## 6. Assumption 3: large outliers are unlikely
+    <a id="sec4c"></a>
+    ### Least Squares Assumption 3: large outliers are unlikely
 
-    An *outlier* is an observation whose value of $X$, of $Y$, or of both sits far from the rest of the data. Assumption 3 states that large outliers are unlikely. The formal version is a condition on fourth moments,
+    An *outlier* is an observation whose value of $X$, of $Y$, or of both sits far from the rest of the data. The third assumption states that large outliers are unlikely. The formal version is a condition on fourth moments,
 
     $$
     0 < \mathbb{E}\left[X_i^4\right] < \infty \quad \text{and} \quad 0 < \mathbb{E}\left[Y_i^4\right] < \infty,
@@ -335,87 +387,203 @@ def _(mo):
 
     which rules out distributions that produce values so extreme that a handful of points can dominate the sample.
 
-    Outliers matter to OLS because of the squaring in the least squares criterion from Lecture 5. A point far from the line contributes the square of a large residual to the sum being minimized, so the fitted line rotates toward it. One badly recorded observation, say an hourly wage typed as \$150 instead of \$15, can move the slope on its own. In practice this assumption is a reminder to plot the data and check extreme values before trusting a regression, because many outliers in economic data are entry errors rather than genuine values.
+    Outliers matter to OLS because of the squaring in the least squares criterion from Lecture 5. A point far from the line contributes the square of a large residual to the sum being minimized, so the fitted line swings toward it. One badly recorded observation, an hourly wage typed as \$150 instead of \$15, can move the slope on its own. In practice this assumption is a reminder to plot the data and check extreme values before trusting a regression, because many outliers in economic data are entry errors rather than real values.
 
-    Like Assumption 2, this assumption mainly supports the standard error of the slope rather than the causal interpretation itself.
+    Like the i.i.d. assumption, this one supports the standard error of the slope rather than the causal reading. It is a regularity condition that keeps the estimator and its variance well behaved.
 
-    The plot below adds a 41st worker with 19 years of education to the Lecture 5 sample. The slider sets that worker's recorded wage. Near \$31 the new point sits on the line, and the fits with and without the worker agree almost exactly. Drag the wage up to \$150, the kind of value a misplaced decimal produces, and the single orange point pulls the fitted line upward.
+    Try it below. Click anywhere on the plot to add a worker to the 40-worker sample. The navy line refits to all the points while the dashed gray line stays at the original fit. Drop a point near the cloud and the two lines barely differ. Place one near the top of the plot, far above the rest of the workers, the kind of value a misplaced decimal produces, and that single point swings the navy line on its own. The Reset button clears the points you add.
     """)
     return
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    out_wage = mo.ui.slider(
-        start=30.0, stop=150.0, step=5.0, value=100.0,
-        label="Recorded wage of the unusual worker", show_value=True,
-    )
-    out_wage
-    return (out_wage,)
+def _(anywidget, traitlets):
+    class OLSClickWidget(anywidget.AnyWidget):
+        # A canvas plotting a fixed base sample of workers (education, wage) and
+        # its OLS fit (dashed gray). Clicking anywhere adds an orange worker; the
+        # navy line refits to base plus added points, the y-axis grows to keep a
+        # high outlier on screen, and the two slopes are reported beneath.
+        # Delivered as an anywidget so the recompute runs client-side in the
+        # deployed WASM build, with no Python round-trip.
+        base_points = traitlets.List().tag(sync=True)  # [[education, wage], ...]
+        _esm = r"""
+    function render({ model, el }) {
+      const W = 600, H = 380, padL = 54, padR = 16, padT = 16, padB = 36;
+      const plotW = W - padL - padR, plotH = H - padT - padB;
+      const XMIN = 7, XMAX = 21;
+
+      const base = (model.get("base_points") || []).map(p => ({ x: p[0], y: p[1] }));
+      let added = [];
+
+      const wrap = document.createElement("div");
+      wrap.style.cssText = "font-family:system-ui,-apple-system,sans-serif;color:#1f4e79;display:flex;flex-direction:column;align-items:center;";
+      const cv = document.createElement("canvas");
+      cv.width = W; cv.height = H;
+      cv.style.cssText = "cursor:crosshair;touch-action:none;max-width:100%;";
+      const controls = document.createElement("div");
+      controls.style.cssText = "margin:8px 0 4px;";
+      const btn = document.createElement("button");
+      btn.textContent = "Reset";
+      btn.style.cssText = "font:inherit;color:#1f4e79;background:#eef3f8;border:1px solid #1f4e79;border-radius:4px;padding:4px 14px;cursor:pointer;";
+      controls.appendChild(btn);
+      const statsEl = document.createElement("div");
+      statsEl.style.cssText = "max-width:560px;font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;margin-top:2px;";
+      wrap.appendChild(cv); wrap.appendChild(controls); wrap.appendChild(statsEl);
+      el.appendChild(wrap);
+
+      const ctx = cv.getContext("2d");
+      let YTOP = 90;
+
+      function yMax() {
+        // Floor at 90 so the cloud (wages near 15-35) leaves headroom above it
+        // to click an outlier; grow past 90 if a point lands higher.
+        let m = 0;
+        for (const p of base) m = Math.max(m, p.y);
+        for (const p of added) m = Math.max(m, p.y);
+        return Math.max(90, m * 1.12);
+      }
+
+      function fit(pts) {
+        const n = pts.length;
+        if (n < 2) return null;
+        let mx = 0, my = 0;
+        for (const p of pts) { mx += p.x; my += p.y; }
+        mx /= n; my /= n;
+        let sxy = 0, sxx = 0;
+        for (const p of pts) { sxy += (p.x - mx) * (p.y - my); sxx += (p.x - mx) ** 2; }
+        if (sxx === 0) return null;
+        const b1 = sxy / sxx;
+        return { b1: b1, b0: my - b1 * mx };
+      }
+
+      const toPxX = x => padL + (x - XMIN) / (XMAX - XMIN) * plotW;
+      const toPxY = y => padT + (YTOP - y) / YTOP * plotH;
+      const toDataX = px => XMIN + (px - padL) / plotW * (XMAX - XMIN);
+      const toDataY = py => YTOP - (py - padT) / plotH * YTOP;
+
+      function drawAxes() {
+        ctx.clearRect(0, 0, W, H);
+        ctx.font = "11px system-ui, sans-serif";
+        ctx.lineWidth = 1;
+        for (let v = 8; v <= 20; v += 2) {
+          const px = toPxX(v);
+          ctx.strokeStyle = "#eef1f4";
+          ctx.beginPath(); ctx.moveTo(px, padT); ctx.lineTo(px, padT + plotH); ctx.stroke();
+        }
+        const step = YTOP > 120 ? 40 : (YTOP > 60 ? 20 : 10);
+        for (let v = 0; v <= YTOP; v += step) {
+          const py = toPxY(v);
+          ctx.strokeStyle = "#eef1f4";
+          ctx.beginPath(); ctx.moveTo(padL, py); ctx.lineTo(padL + plotW, py); ctx.stroke();
+        }
+        ctx.fillStyle = "#6b7280";
+        ctx.textAlign = "center"; ctx.textBaseline = "top";
+        for (let v = 8; v <= 20; v += 2) ctx.fillText(v, toPxX(v), padT + plotH + 5);
+        ctx.textAlign = "right"; ctx.textBaseline = "middle";
+        for (let v = 0; v <= YTOP; v += step) ctx.fillText("$" + v, padL - 6, toPxY(v));
+        ctx.fillStyle = "#1f4e79";
+        ctx.font = "12px system-ui, sans-serif";
+        ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+        ctx.fillText("Years of education", padL + plotW / 2, H - 4);
+        ctx.save();
+        ctx.translate(13, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
+        ctx.fillText("Hourly wage (USD)", 0, 0);
+        ctx.restore();
+      }
+
+      function drawLine(f, color, dash) {
+        if (!f) return;
+        ctx.strokeStyle = color; ctx.lineWidth = 2.4; ctx.setLineDash(dash);
+        ctx.beginPath();
+        ctx.moveTo(toPxX(XMIN), toPxY(f.b0 + f.b1 * XMIN));
+        ctx.lineTo(toPxX(XMAX), toPxY(f.b0 + f.b1 * XMAX));
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      function drawPoints() {
+        ctx.fillStyle = "rgba(31, 78, 121, 0.65)";
+        for (const p of base) { ctx.beginPath(); ctx.arc(toPxX(p.x), toPxY(p.y), 4, 0, 2 * Math.PI); ctx.fill(); }
+        ctx.fillStyle = "rgba(245, 130, 32, 0.95)";
+        for (const p of added) { ctx.beginPath(); ctx.arc(toPxX(p.x), toPxY(p.y), 6, 0, 2 * Math.PI); ctx.fill(); }
+      }
+
+      function fmt(v) { return v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+      function updateStats(baseFit, allFit) {
+        if (added.length === 0) {
+          statsEl.textContent = "Click on the plot to add a worker. The OLS slope on the 40 base workers is " + (baseFit ? fmt(baseFit.b1) : "—") + ".";
+          return;
+        }
+        const noun = added.length === 1 ? "point" : added.length + " points";
+        const pron = added.length === 1 ? "it" : "them";
+        statsEl.textContent =
+          "Without the added " + noun + " the OLS slope is " + fmt(baseFit.b1) +
+          "; with " + pron + " the slope is " + fmt(allFit.b1) + ".";
+      }
+
+      function redraw() {
+        YTOP = yMax();
+        drawAxes();
+        const baseFit = fit(base);
+        const allFit = fit(base.concat(added));
+        drawLine(baseFit, "#9aa5b1", [5, 4]);
+        drawLine(allFit, "#1f4e79", []);
+        drawPoints();
+        updateStats(baseFit, allFit);
+      }
+
+      function pos(e) {
+        const r = cv.getBoundingClientRect();
+        return [(e.clientX - r.left) * (W / r.width), (e.clientY - r.top) * (H / r.height)];
+      }
+
+      cv.addEventListener("pointerdown", e => {
+        const [px, py] = pos(e);
+        if (px < padL || px > padL + plotW || py < padT || py > padT + plotH) return;
+        const x = toDataX(px), y = toDataY(py);
+        if (y < 0) return;
+        added.push({ x: x, y: y });
+        redraw();
+      });
+      btn.addEventListener("click", () => { added = []; redraw(); });
+
+      redraw();
+    }
+    export default { render };
+    """
+
+    return (OLSClickWidget,)
 
 
 @app.cell(hide_code=True)
-def _(alt, lsa_X, lsa_b0_true, lsa_b1_true, lsa_e, mo, np, out_wage, pd):
-    _w = float(out_wage.value)
-    _Y = lsa_b0_true + lsa_b1_true * lsa_X + lsa_e
-    _b1_base = float(np.cov(lsa_X, _Y, ddof=1)[0, 1] / np.var(lsa_X, ddof=1))
-    _b0_base = float(_Y.mean() - _b1_base * lsa_X.mean())
+def _(OLSClickWidget, lsa_X, lsa_b0_true, lsa_b1_true, lsa_e, mo):
+    _base_points = [
+        [float(_x), float(lsa_b0_true + lsa_b1_true * _x + _e)]
+        for _x, _e in zip(lsa_X, lsa_e)
+    ]
+    mo.ui.anywidget(OLSClickWidget(base_points=_base_points))
+    return
 
-    _Xall = np.append(lsa_X, 19.0)
-    _Yall = np.append(_Y, _w)
-    _b1_all = float(np.cov(_Xall, _Yall, ddof=1)[0, 1] / np.var(_Xall, ddof=1))
-    _b0_all = float(_Yall.mean() - _b1_all * _Xall.mean())
 
-    _xdom = [7.0, 21.0]
-    _ydom = [0.0, max(60.0, _w + 10.0)]
-    _xline = np.array([7.0, 21.0])
-    _pts = pd.DataFrame({"x": lsa_X, "y": _Y})
-    _out_pt = pd.DataFrame({"x": [19.0], "y": [_w]})
-    _base = pd.DataFrame({"x": _xline, "y": _b0_base + _b1_base * _xline})
-    _all = pd.DataFrame({"x": _xline, "y": _b0_all + _b1_all * _xline})
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    <a id="sec5"></a>
+    ## 5. What the assumptions give us
 
-    _scatter = (
-        alt.Chart(_pts)
-        .mark_circle(color="#1f4e79", opacity=0.7, size=60, clip=True)
-        .encode(
-            x=alt.X("x:Q", title="Years of education", scale=alt.Scale(domain=_xdom, nice=False)),
-            y=alt.Y("y:Q", title="Hourly wage (USD)", scale=alt.Scale(domain=_ydom, nice=False)),
-        )
-    )
-    _outlier = (
-        alt.Chart(_out_pt)
-        .mark_circle(color="orange", opacity=0.9, size=90, clip=True)
-        .encode(x="x:Q", y="y:Q")
-    )
-    _base_line = (
-        alt.Chart(_base)
-        .mark_line(color="#9aa5b1", strokeDash=[4, 3], size=2, clip=True)
-        .encode(x="x:Q", y="y:Q")
-    )
-    _all_line = (
-        alt.Chart(_all)
-        .mark_line(color="#1f4e79", size=2.5, clip=True)
-        .encode(x="x:Q", y="y:Q")
-    )
-    _chart = alt.layer(_scatter, _outlier, _base_line, _all_line).properties(
-        width=560, height=340,
-        title="One unusual observation can rotate the fitted line",
-    )
+    The three assumptions are not interchangeable, and it helps to see what each one adds. Assumption 1 is the only one about causation. On its own it makes the population slope $\beta_1$ equal to the causal effect of education on wages rather than a summary of how the two move together. Whether you hold a sample at all is beside the point, since this is a claim about the population.
 
-    _body = (
-        rf"Without the unusual worker, the fitted line is "
-        rf"$\hat{{Y}} = {_b0_base:.2f} + {_b1_base:.2f}\,X$ (dashed gray). Adding one worker with "
-        rf"19 years of education and a recorded wage of \${_w:.0f} moves it to "
-        rf"$\hat{{Y}} = {_b0_all:.2f} + {_b1_all:.2f}\,X$ (solid navy). One observation out of 41 "
-        rf"moves the slope from {_b1_base:.2f} to {_b1_all:.2f}."
-    )
-    _caption = mo.md(
-        '<span style="display:block;margin:0.2rem auto 1rem;max-width:560px;'
-        'font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;">'
-        + _body
-        + "</span>"
-    )
-    mo.vstack([_chart, _caption])
+    The other two are about getting from the population to a sample and back. With Assumption 1 holding, adding the i.i.d. assumption makes $\hat{\beta}_1$ an unbiased and consistent estimate of $\beta_1$, so a large enough random sample lands near the true causal effect. Adding the no-large-outliers assumption keeps the sampling distribution of $\hat{\beta}_1$ well behaved enough to attach a standard error, and from that standard error come the hypothesis tests and confidence intervals built in Lecture 7.
+
+    | Assumptions in force | What you can claim |
+    | --- | --- |
+    | Assumption 1 | The population slope is the causal effect, not just an association. |
+    | Assumptions 1 and 2 | The estimated slope is unbiased and consistent for that causal effect. |
+    | Assumptions 1, 2, and 3 | The estimate comes with a valid standard error, so tests and confidence intervals are trustworthy. |
+
+    Causation enters at the top row and stays. The lower rows add no causal content; they turn that single causal number into something you can estimate and place error bars around. A failure of Assumption 1 is therefore fatal to a causal claim, while a failure of Assumption 2 or 3 damages the standard error, a problem the panel-data and robust-standard-error tools later in the course are built to repair.
+    """)
     return
 
 
@@ -424,15 +592,15 @@ def _(mo):
     mo.callout(
         mo.md(
             "**Key terms covered:** conditional expectation, causal "
-            "interpretation, least squares assumptions for causal inference, "
-            "outlier.\n\n"
+            "interpretation, least squares assumptions, outlier.\n\n"
             "**Key concepts covered:** the conditional expectation as the "
             "population object a regression approximates, the error term as "
-            "everything besides X that affects Y, why the mean-zero error "
-            "assumption cannot be tested from data alone, how sampling can "
-            "fail to be i.i.d., how a single outlier can rotate the OLS line, "
-            "and the population regression line as the conditional expectation "
-            "of Y given X."
+            "everything besides X that affects Y, why only the mean-zero error "
+            "assumption carries causal content, why that assumption cannot be "
+            "tested from data alone, what the i.i.d. and no-outlier assumptions "
+            "add for estimating the slope and judging its precision, how a "
+            "single outlier can swing the OLS line, and the population "
+            "regression line as the conditional expectation of Y given X."
         ),
         kind="info",
     )
