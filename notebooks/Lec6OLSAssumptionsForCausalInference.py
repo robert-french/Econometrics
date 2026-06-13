@@ -5,7 +5,6 @@
 #     "numpy",
 #     "pandas",
 #     "altair",
-#     "anywidget",
 # ]
 # ///
 
@@ -27,10 +26,8 @@ def _():
     import numpy as np
     import pandas as pd
     import altair as alt
-    import anywidget
-    import traitlets
 
-    return alt, anywidget, mo, np, pd, traitlets
+    return alt, mo, np, pd
 
 
 @app.cell(hide_code=True)
@@ -82,18 +79,23 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""
-    ## Contents
-
-    <span style="display:block;margin:0.35em 0;">1. [Conditional expectation](#sec1)</span>
-    <span style="display:block;margin:0.35em 0;">2. [The error term revisited](#sec2)</span>
-    <span style="display:block;margin:0.35em 0;">3. [From prediction to causation](#sec3)</span>
-    <span style="display:block;margin:0.35em 0;">4. [The least squares assumptions](#sec4)</span>
-    <span style="display:block;margin:0.35em 0;padding-left:1.8em;"><a href="#sec4a" style="color:#0b68cb;">Least Squares Assumption 1: the conditional mean of u given X is zero</a></span>
-    <span style="display:block;margin:0.35em 0;padding-left:1.8em;"><a href="#sec4b" style="color:#0b68cb;">Least Squares Assumption 2: the data are i.i.d.</a></span>
-    <span style="display:block;margin:0.35em 0;padding-left:1.8em;"><a href="#sec4c" style="color:#0b68cb;">Least Squares Assumption 3: large outliers are unlikely</a></span>
-    <span style="display:block;margin:0.35em 0;">5. [What the assumptions give us](#sec5)</span>
-    """)
+    # Rendered through mo.Html (raw HTML, the same path as the joint table in
+    # Section 1) rather than markdown links inside styled spans. The markdown
+    # path turns same-page anchor links into marimo's own link component, which
+    # fails to render here (React error #62); raw HTML anchors navigate fine.
+    _toc = """
+    <div style="line-height:1.55;">
+      <div style="margin:0.35em 0;"><a href="#sec1">1. Conditional expectation</a></div>
+      <div style="margin:0.35em 0;"><a href="#sec2">2. The error term revisited</a></div>
+      <div style="margin:0.35em 0;"><a href="#sec3">3. From prediction to causation</a></div>
+      <div style="margin:0.35em 0;"><a href="#sec4">4. The least squares assumptions</a></div>
+      <div style="margin:0.35em 0;padding-left:1.8em;"><a href="#sec4a" style="color:#0b68cb;">Least Squares Assumption 1: the conditional mean of u given X is zero</a></div>
+      <div style="margin:0.35em 0;padding-left:1.8em;"><a href="#sec4b" style="color:#0b68cb;">Least Squares Assumption 2: the data are i.i.d.</a></div>
+      <div style="margin:0.35em 0;padding-left:1.8em;"><a href="#sec4c" style="color:#0b68cb;">Least Squares Assumption 3: large outliers are unlikely</a></div>
+      <div style="margin:0.35em 0;"><a href="#sec5">5. What the assumptions give us</a></div>
+    </div>
+    """
+    mo.vstack([mo.md("## Contents"), mo.Html(_toc)], align="start", gap=0.5)
     return
 
 
@@ -401,190 +403,88 @@ def _(mo):
 
     Like the i.i.d. assumption, this one supports the standard error of the slope rather than the causal reading. It is a regularity condition that keeps the estimator and its variance well behaved.
 
-    Try it below. Click anywhere on the plot to add a worker to the 40-worker sample. The navy line refits to all the points while the dashed gray line stays at the original fit. Drop a point near the cloud and the two lines barely differ. To place a real outlier, press Zoom out a few times to stretch the wage axis, then click high above the cloud at a value like \$150, the kind of number a misplaced decimal produces. That single point swings the navy line on its own. Reset clears the points and returns the zoom to its starting view.
+    Try it below. The two faint orange points are wages recorded with a misplaced decimal, sitting far above the rest of the workers. The check box decides whether they count. Leave it unticked and the navy line is fit to the 40 ordinary workers, resting on top of the dashed gray line. Tick it and the two outliers join the fit, and the navy line swings up and away from the gray line, which stays where the clean data put it.
     """)
     return
 
 
 @app.cell(hide_code=True)
-def _(anywidget, traitlets):
-    class OLSClickWidget(anywidget.AnyWidget):
-        # A canvas plotting a fixed base sample of workers (education, wage) and
-        # its OLS fit (dashed gray). Clicking anywhere adds an orange worker; the
-        # navy line refits to base plus added points, the y-axis grows to keep a
-        # high outlier on screen, and the two slopes are reported beneath.
-        # Delivered as an anywidget so the recompute runs client-side in the
-        # deployed WASM build, with no Python round-trip.
-        base_points = traitlets.List().tag(sync=True)  # [[education, wage], ...]
-        _esm = r"""
-    function render({ model, el }) {
-      const W = 600, H = 380, padL = 54, padR = 16, padT = 16, padB = 36;
-      const plotW = W - padL - padR, plotH = H - padT - padB;
-      const XMIN = 7, XMAX = 21;
-
-      const base = (model.get("base_points") || []).map(p => ({ x: p[0], y: p[1] }));
-      let added = [];
-
-      const wrap = document.createElement("div");
-      wrap.style.cssText = "font-family:system-ui,-apple-system,sans-serif;color:#1f4e79;display:flex;flex-direction:column;align-items:center;";
-      const cv = document.createElement("canvas");
-      cv.width = W; cv.height = H;
-      cv.style.cssText = "cursor:crosshair;touch-action:none;max-width:100%;";
-      const controls = document.createElement("div");
-      controls.style.cssText = "margin:8px 0 4px;display:flex;gap:8px;justify-content:center;";
-      const btnStyle = "font:inherit;color:#1f4e79;background:#eef3f8;border:1px solid #1f4e79;border-radius:4px;padding:4px 14px;cursor:pointer;";
-      const zoomOutBtn = document.createElement("button");
-      zoomOutBtn.textContent = "Zoom out";
-      zoomOutBtn.style.cssText = btnStyle;
-      const zoomInBtn = document.createElement("button");
-      zoomInBtn.textContent = "Zoom in";
-      zoomInBtn.style.cssText = btnStyle;
-      const btn = document.createElement("button");
-      btn.textContent = "Reset";
-      btn.style.cssText = btnStyle;
-      controls.appendChild(zoomOutBtn);
-      controls.appendChild(zoomInBtn);
-      controls.appendChild(btn);
-      const statsEl = document.createElement("div");
-      statsEl.style.cssText = "max-width:560px;font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;margin-top:2px;";
-      wrap.appendChild(cv); wrap.appendChild(controls); wrap.appendChild(statsEl);
-      el.appendChild(wrap);
-
-      const ctx = cv.getContext("2d");
-      let userYTop = 90;  // wage ceiling, raised/lowered by the zoom buttons
-      let YTOP = 90;
-
-      function yMax() {
-        // The visible wage ceiling is whatever the zoom buttons set, but never
-        // below the tallest point so a high outlier always stays on screen.
-        let m = 0;
-        for (const p of base) m = Math.max(m, p.y);
-        for (const p of added) m = Math.max(m, p.y);
-        return Math.max(userYTop, m * 1.12);
-      }
-
-      function fit(pts) {
-        const n = pts.length;
-        if (n < 2) return null;
-        let mx = 0, my = 0;
-        for (const p of pts) { mx += p.x; my += p.y; }
-        mx /= n; my /= n;
-        let sxy = 0, sxx = 0;
-        for (const p of pts) { sxy += (p.x - mx) * (p.y - my); sxx += (p.x - mx) ** 2; }
-        if (sxx === 0) return null;
-        const b1 = sxy / sxx;
-        return { b1: b1, b0: my - b1 * mx };
-      }
-
-      const toPxX = x => padL + (x - XMIN) / (XMAX - XMIN) * plotW;
-      const toPxY = y => padT + (YTOP - y) / YTOP * plotH;
-      const toDataX = px => XMIN + (px - padL) / plotW * (XMAX - XMIN);
-      const toDataY = py => YTOP - (py - padT) / plotH * YTOP;
-
-      function drawAxes() {
-        ctx.clearRect(0, 0, W, H);
-        ctx.font = "11px system-ui, sans-serif";
-        ctx.lineWidth = 1;
-        for (let v = 8; v <= 20; v += 2) {
-          const px = toPxX(v);
-          ctx.strokeStyle = "#eef1f4";
-          ctx.beginPath(); ctx.moveTo(px, padT); ctx.lineTo(px, padT + plotH); ctx.stroke();
-        }
-        const step = YTOP > 240 ? 50 : (YTOP > 120 ? 40 : (YTOP > 60 ? 20 : 10));
-        for (let v = 0; v <= YTOP; v += step) {
-          const py = toPxY(v);
-          ctx.strokeStyle = "#eef1f4";
-          ctx.beginPath(); ctx.moveTo(padL, py); ctx.lineTo(padL + plotW, py); ctx.stroke();
-        }
-        ctx.fillStyle = "#6b7280";
-        ctx.textAlign = "center"; ctx.textBaseline = "top";
-        for (let v = 8; v <= 20; v += 2) ctx.fillText(v, toPxX(v), padT + plotH + 5);
-        ctx.textAlign = "right"; ctx.textBaseline = "middle";
-        for (let v = 0; v <= YTOP; v += step) ctx.fillText("$" + v, padL - 6, toPxY(v));
-        ctx.fillStyle = "#1f4e79";
-        ctx.font = "12px system-ui, sans-serif";
-        ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
-        ctx.fillText("Years of education", padL + plotW / 2, H - 4);
-        ctx.save();
-        ctx.translate(13, padT + plotH / 2); ctx.rotate(-Math.PI / 2);
-        ctx.fillText("Hourly wage (USD)", 0, 0);
-        ctx.restore();
-      }
-
-      function drawLine(f, color, dash) {
-        if (!f) return;
-        ctx.strokeStyle = color; ctx.lineWidth = 2.4; ctx.setLineDash(dash);
-        ctx.beginPath();
-        ctx.moveTo(toPxX(XMIN), toPxY(f.b0 + f.b1 * XMIN));
-        ctx.lineTo(toPxX(XMAX), toPxY(f.b0 + f.b1 * XMAX));
-        ctx.stroke();
-        ctx.setLineDash([]);
-      }
-
-      function drawPoints() {
-        ctx.fillStyle = "rgba(31, 78, 121, 0.65)";
-        for (const p of base) { ctx.beginPath(); ctx.arc(toPxX(p.x), toPxY(p.y), 4, 0, 2 * Math.PI); ctx.fill(); }
-        ctx.fillStyle = "rgba(245, 130, 32, 0.95)";
-        for (const p of added) { ctx.beginPath(); ctx.arc(toPxX(p.x), toPxY(p.y), 6, 0, 2 * Math.PI); ctx.fill(); }
-      }
-
-      function fmt(v) { return v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
-
-      function updateStats(baseFit, allFit) {
-        if (added.length === 0) {
-          statsEl.textContent = "Click on the plot to add a worker. The OLS slope on the 40 base workers is " + (baseFit ? fmt(baseFit.b1) : "—") + ".";
-          return;
-        }
-        const noun = added.length === 1 ? "point" : added.length + " points";
-        const pron = added.length === 1 ? "it" : "them";
-        statsEl.textContent =
-          "Without the added " + noun + " the OLS slope is " + fmt(baseFit.b1) +
-          "; with " + pron + " the slope is " + fmt(allFit.b1) + ".";
-      }
-
-      function redraw() {
-        YTOP = yMax();
-        drawAxes();
-        const baseFit = fit(base);
-        const allFit = fit(base.concat(added));
-        drawLine(baseFit, "#9aa5b1", [5, 4]);
-        drawLine(allFit, "#1f4e79", []);
-        drawPoints();
-        updateStats(baseFit, allFit);
-      }
-
-      function pos(e) {
-        const r = cv.getBoundingClientRect();
-        return [(e.clientX - r.left) * (W / r.width), (e.clientY - r.top) * (H / r.height)];
-      }
-
-      cv.addEventListener("pointerdown", e => {
-        const [px, py] = pos(e);
-        if (px < padL || px > padL + plotW || py < padT || py > padT + plotH) return;
-        const x = toDataX(px), y = toDataY(py);
-        if (y < 0) return;
-        added.push({ x: x, y: y });
-        redraw();
-      });
-      zoomOutBtn.addEventListener("click", () => { userYTop = Math.min(userYTop * 1.6, 400); redraw(); });
-      zoomInBtn.addEventListener("click", () => { userYTop = Math.max(userYTop / 1.6, 90); redraw(); });
-      btn.addEventListener("click", () => { added = []; userYTop = 90; redraw(); });
-
-      redraw();
-    }
-    export default { render };
-    """
-
-    return (OLSClickWidget,)
+def _(mo):
+    include_outliers = mo.ui.checkbox(label="Include the two mistyped wages in the fit")
+    include_outliers
+    return (include_outliers,)
 
 
 @app.cell(hide_code=True)
-def _(OLSClickWidget, lsa_X, lsa_b0_true, lsa_b1_true, lsa_e, mo):
-    _base_points = [
-        [float(_x), float(lsa_b0_true + lsa_b1_true * _x + _e)]
-        for _x, _e in zip(lsa_X, lsa_e)
-    ]
-    mo.ui.anywidget(OLSClickWidget(base_points=_base_points))
+def _(alt, include_outliers, lsa_X, lsa_b0_true, lsa_b1_true, lsa_e, mo, np, pd):
+    _inc = bool(include_outliers.value)
+    _Y = lsa_b0_true + lsa_b1_true * lsa_X + lsa_e
+    _ox = np.array([15.0, 18.0])
+    _oy = np.array([135.0, 150.0])
+
+    _b1_base = float(np.cov(lsa_X, _Y, ddof=1)[0, 1] / np.var(lsa_X, ddof=1))
+    _b0_base = float(_Y.mean() - _b1_base * lsa_X.mean())
+    _Xall = np.append(lsa_X, _ox)
+    _Yall = np.append(_Y, _oy)
+    _b1_all = float(np.cov(_Xall, _Yall, ddof=1)[0, 1] / np.var(_Xall, ddof=1))
+    _b0_all = float(_Yall.mean() - _b1_all * _Xall.mean())
+
+    _xdom = [7.0, 21.0]
+    _ydom = [0.0, 160.0]
+    _xline = np.array([7.0, 21.0])
+    _pts = pd.DataFrame({"x": lsa_X, "y": _Y})
+    _out = pd.DataFrame({"x": _ox, "y": _oy})
+    _base = pd.DataFrame({"x": _xline, "y": _b0_base + _b1_base * _xline})
+    _fit_y = (_b0_all + _b1_all * _xline) if _inc else (_b0_base + _b1_base * _xline)
+    _fit = pd.DataFrame({"x": _xline, "y": _fit_y})
+
+    _scatter = (
+        alt.Chart(_pts)
+        .mark_circle(color="#1f4e79", opacity=0.7, size=55, clip=True)
+        .encode(
+            x=alt.X("x:Q", title="Years of education", scale=alt.Scale(domain=_xdom, nice=False)),
+            y=alt.Y("y:Q", title="Hourly wage (USD)", scale=alt.Scale(domain=_ydom, nice=False)),
+        )
+    )
+    _outliers = (
+        alt.Chart(_out)
+        .mark_circle(color="orange", size=130, clip=True, opacity=(0.95 if _inc else 0.18))
+        .encode(x="x:Q", y="y:Q")
+    )
+    _base_line = (
+        alt.Chart(_base)
+        .mark_line(color="#9aa5b1", strokeDash=[5, 4], size=2, clip=True)
+        .encode(x="x:Q", y="y:Q")
+    )
+    _fit_line = (
+        alt.Chart(_fit)
+        .mark_line(color="#1f4e79", size=2.5, clip=True)
+        .encode(x="x:Q", y="y:Q")
+    )
+    _chart = alt.layer(_scatter, _outliers, _base_line, _fit_line).properties(
+        width=560, height=360,
+        title="Two mistyped wages, left out of the fit or included",
+    )
+
+    if _inc:
+        _body = (
+            rf"With the two mistyped wages included, the OLS slope swings from {_b1_base:.2f} to "
+            rf"{_b1_all:.2f}. Two points out of 42 pull the navy line away from the dashed gray line "
+            rf"fit to the clean data, even though the other 40 workers have not moved."
+        )
+    else:
+        _body = (
+            rf"The two faint orange points are wages entered with a misplaced decimal, \$135 and "
+            rf"\$150 in place of \$13.50 and \$15.00. They are not in the fit yet, so the OLS slope "
+            rf"on the 40 ordinary workers is {_b1_base:.2f}. Tick the box to add them and watch it move."
+        )
+    _caption = mo.md(
+        '<span style="display:block;margin:0.2rem auto 1rem;max-width:560px;'
+        'font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;">'
+        + _body
+        + "</span>"
+    )
+    mo.vstack([_chart, _caption])
     return
 
 
