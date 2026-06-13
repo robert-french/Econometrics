@@ -79,23 +79,28 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(mo):
-    # Rendered through mo.Html (raw HTML, the same path as the joint table in
-    # Section 1) rather than markdown links inside styled spans. The markdown
-    # path turns same-page anchor links into marimo's own link component, which
-    # fails to render here (React error #62); raw HTML anchors navigate fine.
-    _toc = """
-    <div style="line-height:1.55;">
-      <div style="margin:0.35em 0;"><a href="#sec1">1. Conditional expectation</a></div>
-      <div style="margin:0.35em 0;"><a href="#sec2">2. The error term revisited</a></div>
-      <div style="margin:0.35em 0;"><a href="#sec3">3. From prediction to causation</a></div>
-      <div style="margin:0.35em 0;"><a href="#sec4">4. The least squares assumptions</a></div>
-      <div style="margin:0.35em 0;padding-left:1.8em;"><a href="#sec4a" style="color:#0b68cb;">Least Squares Assumption 1: the conditional mean of u given X is zero</a></div>
-      <div style="margin:0.35em 0;padding-left:1.8em;"><a href="#sec4b" style="color:#0b68cb;">Least Squares Assumption 2: the data are i.i.d.</a></div>
-      <div style="margin:0.35em 0;padding-left:1.8em;"><a href="#sec4c" style="color:#0b68cb;">Least Squares Assumption 3: large outliers are unlikely</a></div>
-      <div style="margin:0.35em 0;"><a href="#sec5">5. What the assumptions give us</a></div>
-    </div>
-    """
-    mo.vstack([mo.md("## Contents"), mo.Html(_toc)], align="start", gap=0.5)
+    # Same-page (#fragment) links must stay plain markdown links with no inline
+    # style and no styled wrapper. marimo re-renders fragment links as React
+    # navigation components, and any inline style string on the link (or on a
+    # span/div around it) is passed to React as the `style` prop, which must be
+    # an object, not a string -> "Minified React error #62". Full-URL links
+    # (the sidebar and prev/next nav) stay raw HTML, which is why they tolerate
+    # inline styles. The links are already the course blue (marimo's default
+    # --link is #0b68cb); subsections are indented with em-space entities, and
+    # the matching body headings get their blue from the inline span the Lec2
+    # and Lec4 subsection headings also use.
+    mo.md(r"""
+    ## Contents
+
+    [1. Conditional expectation](#sec1)<br>
+    [2. The error term revisited](#sec2)<br>
+    [3. From prediction to causation](#sec3)<br>
+    [4. The least squares assumptions](#sec4)<br>
+    &emsp;&emsp;[Least Squares Assumption 1: the conditional mean of u given X is zero](#sec4a)<br>
+    &emsp;&emsp;[Least Squares Assumption 2: the data are i.i.d.](#sec4b)<br>
+    &emsp;&emsp;[Least Squares Assumption 3: large outliers are unlikely](#sec4c)<br>
+    [5. What the assumptions give us](#sec5)
+    """)
     return
 
 
