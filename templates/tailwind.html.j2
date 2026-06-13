@@ -104,9 +104,16 @@
           {% set _topic = _parts[1] if _parts|length == 2 else app.display_name %}
           <article class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
 
-            <p class="text-sm font-medium text-slate-500 mb-2">
-              {{ _label }}
-            </p>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <p class="text-sm font-medium text-slate-500">
+                {{ _label }}
+              </p>
+              {% if app.preliminary %}
+              <span class="inline-flex items-center rounded-full bg-amber-100 text-amber-800 text-xs font-semibold px-2.5 py-0.5">
+                Preliminary
+              </span>
+              {% endif %}
+            </div>
 
             <h3 class="text-xl font-semibold leading-snug min-h-[3.4375rem] flex items-center">
               {{ _topic }}
@@ -138,9 +145,16 @@
         {% set _topic = _parts[1] if _parts|length == 2 else notebook.display_name %}
         <article class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
 
-          <p class="text-sm font-medium text-slate-500 mb-2">
-            {{ _label }}
-          </p>
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <p class="text-sm font-medium text-slate-500">
+              {{ _label }}
+            </p>
+            {% if notebook.preliminary %}
+            <span class="inline-flex items-center rounded-full bg-amber-100 text-amber-800 text-xs font-semibold px-2.5 py-0.5">
+              Preliminary
+            </span>
+            {% endif %}
+          </div>
 
           <h3 class="text-xl font-semibold leading-snug min-h-[3.4375rem] flex items-center">
             {{ _topic }}

@@ -82,6 +82,29 @@ def _extract_description(notebook_path: Path) -> Optional[str]:
     return None
 
 
+def _extract_preliminary(notebook_path: Path) -> bool:
+    """Return True if the notebook sets a module-level `__preliminary__ = True`.
+
+    Used to flag a lecture as a work in progress so the homepage card can show
+    a "Preliminary" badge. Absent or falsy assignment means not preliminary.
+    """
+    tree = _parse_notebook(notebook_path)
+    if tree is None:
+        return False
+
+    for node in tree.body:
+        if not isinstance(node, ast.Assign):
+            continue
+        for target in node.targets:
+            if (
+                isinstance(target, ast.Name)
+                and target.id == "__preliminary__"
+                and isinstance(node.value, ast.Constant)
+            ):
+                return bool(node.value.value)
+    return False
+
+
 def _extract_key_terms(notebook_path: Path) -> Optional[str]:
     """Return the notebook's 'Key terms covered' and 'Key concepts covered'
     entries as one comma-separated string, for use as a teaser on the index
@@ -265,6 +288,7 @@ def _export_from_notebooks(
                     "display_name": display_name,
                     "description": _extract_description(nb),
                     "key_terms": _extract_key_terms(nb),
+                    "preliminary": _extract_preliminary(nb),
                     "html_path": str(html_path),
                 }
             )
