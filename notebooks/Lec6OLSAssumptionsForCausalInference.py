@@ -85,14 +85,14 @@ def _(mo):
     mo.md(r"""
     ## Contents
 
-    1. [Conditional expectation](#sec1)
-    2. [The error term revisited](#sec2)
-    3. [From prediction to causation](#sec3)
-    4. [The least squares assumptions](#sec4)
-        - [Least Squares Assumption 1: the conditional mean of $u$ given $X$ is zero](#sec4a)
-        - [Least Squares Assumption 2: the data are i.i.d.](#sec4b)
-        - [Least Squares Assumption 3: large outliers are unlikely](#sec4c)
-    5. [What the assumptions give us](#sec5)
+    <span style="display:block;margin:0.35em 0;">1. [Conditional expectation](#sec1)</span>
+    <span style="display:block;margin:0.35em 0;">2. [The error term revisited](#sec2)</span>
+    <span style="display:block;margin:0.35em 0;">3. [From prediction to causation](#sec3)</span>
+    <span style="display:block;margin:0.35em 0;">4. [The least squares assumptions](#sec4)</span>
+    <span style="display:block;margin:0.35em 0;padding-left:1.8em;"><a href="#sec4a" style="color:#0b68cb;">Least Squares Assumption 1: the conditional mean of u given X is zero</a></span>
+    <span style="display:block;margin:0.35em 0;padding-left:1.8em;"><a href="#sec4b" style="color:#0b68cb;">Least Squares Assumption 2: the data are i.i.d.</a></span>
+    <span style="display:block;margin:0.35em 0;padding-left:1.8em;"><a href="#sec4c" style="color:#0b68cb;">Least Squares Assumption 3: large outliers are unlikely</a></span>
+    <span style="display:block;margin:0.35em 0;">5. [What the assumptions give us](#sec5)</span>
     """)
     return
 
@@ -222,7 +222,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec4a"></a>
-    ### Least Squares Assumption 1: the conditional mean of $u$ given $X$ is zero
+    ### <span style="color:#0b68cb">Least Squares Assumption 1: the conditional mean of $u$ given $X$ is zero</span>
 
     The first assumption states that the conditional mean of the error term is zero at every value of $X$,
 
@@ -238,7 +238,7 @@ def _(mo):
 
     One technical note. The causal reading requires only that $\mathbb{E}[u \mid X = x]$ not vary with $x$. If it equaled some constant other than zero, that constant would fold into the intercept and leave the slope untouched. The appendix shows the algebra. With an intercept in the model, ''the conditional mean of $u$ does not depend on $X$'' and ''$\mathbb{E}[u \mid X] = 0$'' are the same assumption.
 
-    The plot below makes the hidden variable visible. Each of the 40 workers is shaded by ability, faint for low ability and solid navy for high, and for this example ability is the only thing in the error term. The true causal effect of a year of education is fixed at \$1.20 per hour, drawn as the dashed orange line. The slider controls how ability is spread across education. At zero, ability is handed out at random, so faint and dense points sit at every education level, $\mathbb{E}[u \mid X] = 0$ holds, and the OLS line (solid navy) lands on the causal slope up to sampling noise. Slide toward one and ability sorts onto education, with the densest points moving to the right. Now $\mathbb{E}[u \mid X]$ climbs with education, and the OLS line can no longer separate the wage gain from schooling from the wage gain that high-ability workers would have earned anyway.
+    The plot below splits the 40 workers into two groups, lower ability in light gray and higher ability in navy, and for this example ability is the only thing in the error term. Within each group the true causal effect of a year of education is the same \$1.20 per hour, drawn as the two parallel dashed orange lines. The higher-ability group earns more at every education level, which is why its line sits above the other. The slider controls how strongly the two groups differ in schooling. At zero, both groups have the same spread of education, $\mathbb{E}[u \mid X] = 0$ holds, and the pooled OLS line (solid navy) through all 40 workers matches the within-group slope of 1.20. As the slider rises, the higher-ability workers shift to more education and the lower-ability workers to less, the two clouds pull apart, and the pooled OLS line tilts steeper than 1.20 even though nothing changed the true effect inside either group.
     """)
     return
 
@@ -254,74 +254,85 @@ def _(np):
 
 
 @app.cell(hide_code=True)
-def _(lsa_X, np):
-    # Fixed ability draws for the Assumption 1 plot. abil_random assigns ability
-    # independently of education: the raw draw is orthogonalized against education
-    # in-sample so that at slider 0 the omitted variable adds no bias and OLS
-    # recovers the causal slope. abil_sorted reassigns the same 40 values so the
-    # highest ability lands on the highest education. The slider blends the two,
-    # so nothing is re-drawn as it moves.
-    _rng = np.random.default_rng(3)
-    _a = _rng.normal(0.0, 1.0, 40)
-    _a = _a - (np.cov(_a, lsa_X, ddof=1)[0, 1] / np.var(lsa_X, ddof=1)) * (lsa_X - lsa_X.mean())
-    abil_random = _a - _a.mean()
-    _edu_rank = np.argsort(np.argsort(lsa_X))
-    abil_sorted = np.sort(abil_random)[_edu_rank]
-    abil_gamma = 4.0  # dollars per hour per standard deviation of ability
-    return abil_gamma, abil_random, abil_sorted
+def _(np):
+    # Fixed data for the Assumption 1 plot: 40 workers in two ability groups.
+    # Both groups are given the SAME 20 education values, so at slider 0 the group
+    # (ability) is unrelated to education and the pooled fit is unbiased. The wage
+    # noise is residualized against education and group so that only the slider's
+    # selection drives the bias. Nothing is re-drawn as the slider moves.
+    _rng = np.random.default_rng(11)
+    _u = _rng.uniform(11.0, 17.0, 20)
+    grp_baseX = np.concatenate([_u, _u])
+    grp_D = np.concatenate([np.zeros(20), np.ones(20)])  # 0 = lower ability, 1 = higher
+    _e = _rng.normal(0.0, 2.5, 40)
+    _Z = np.column_stack([np.ones(40), grp_baseX, grp_D])
+    grp_e = _e - _Z @ np.linalg.lstsq(_Z, _e, rcond=None)[0]
+    grp_b0, grp_b1, grp_gamma, grp_spread = 8.0, 1.20, 8.0, 3.0
+    return grp_D, grp_b0, grp_b1, grp_baseX, grp_e, grp_gamma, grp_spread
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    sort_strength = mo.ui.slider(
+    sel_strength = mo.ui.slider(
         start=0.0, stop=1.0, step=0.1, value=0.5,
-        label="How strongly ability sorts onto education (0 = randomly assigned, 1 = perfectly sorted)",
+        label="How strongly higher-ability workers get more education (0 = no link, 1 = strong)",
         show_value=True,
     )
-    sort_strength
-    return (sort_strength,)
+    sel_strength
+    return (sel_strength,)
 
 
 @app.cell(hide_code=True)
 def _(
-    abil_gamma,
-    abil_random,
-    abil_sorted,
     alt,
-    lsa_X,
-    lsa_b0_true,
-    lsa_b1_true,
-    lsa_e,
+    grp_D,
+    grp_b0,
+    grp_b1,
+    grp_baseX,
+    grp_e,
+    grp_gamma,
+    grp_spread,
     mo,
     np,
     pd,
-    sort_strength,
+    sel_strength,
 ):
-    _s = float(sort_strength.value)
-    _ability = (1.0 - _s) * abil_random + _s * abil_sorted
-    _Y = lsa_b0_true + lsa_b1_true * lsa_X + abil_gamma * _ability + lsa_e
-    _b1 = float(np.cov(lsa_X, _Y, ddof=1)[0, 1] / np.var(lsa_X, ddof=1))
-    _b0 = float(_Y.mean() - _b1 * lsa_X.mean())
+    _sel = float(sel_strength.value)
+    _X = grp_baseX + _sel * grp_spread * (2.0 * grp_D - 1.0)
+    _Y = grp_b0 + grp_b1 * _X + grp_gamma * grp_D + grp_e
+    _b1 = float(np.cov(_X, _Y, ddof=1)[0, 1] / np.var(_X, ddof=1))
+    _b0 = float(_Y.mean() - _b1 * _X.mean())
 
     _xdom = [7.0, 21.0]
-    _ydom = [-5.0, 55.0]
-    _xline = np.array([7.0, 21.0])
-    _pts = pd.DataFrame({"x": lsa_X, "y": _Y, "ability": _ability})
+    _ydom = [5.0, 50.0]
+    _xline = np.array([8.0, 20.0])
+    _group = np.where(grp_D > 0.5, "Higher ability", "Lower ability")
+    _pts = pd.DataFrame({"x": _X, "y": _Y, "group": _group})
     _ols = pd.DataFrame({"x": _xline, "y": _b0 + _b1 * _xline})
-    _causal = pd.DataFrame({"x": _xline, "y": lsa_b0_true + lsa_b1_true * _xline})
+    _true_low = pd.DataFrame({"x": _xline, "y": grp_b0 + grp_b1 * _xline})
+    _true_high = pd.DataFrame({"x": _xline, "y": grp_b0 + grp_gamma + grp_b1 * _xline})
 
     _scatter = (
         alt.Chart(_pts)
-        .mark_circle(color="#1f4e79", size=95, stroke="#1f4e79", strokeWidth=0.5, clip=True)
+        .mark_circle(size=95, clip=True)
         .encode(
             x=alt.X("x:Q", title="Years of education", scale=alt.Scale(domain=_xdom, nice=False)),
             y=alt.Y("y:Q", title="Hourly wage (USD)", scale=alt.Scale(domain=_ydom, nice=False)),
-            opacity=alt.Opacity("ability:Q", scale=alt.Scale(range=[0.12, 1.0]), legend=None),
+            color=alt.Color(
+                "group:N",
+                scale=alt.Scale(domain=["Lower ability", "Higher ability"], range=["#b6c2cf", "#1f4e79"]),
+                legend=alt.Legend(title=None, orient="top"),
+            ),
         )
     )
-    _causal_line = (
-        alt.Chart(_causal)
-        .mark_line(color="orange", strokeDash=[6, 4], size=2.5, clip=True)
+    _true_low_line = (
+        alt.Chart(_true_low)
+        .mark_line(color="orange", strokeDash=[6, 4], size=2, clip=True)
+        .encode(x="x:Q", y="y:Q")
+    )
+    _true_high_line = (
+        alt.Chart(_true_high)
+        .mark_line(color="orange", strokeDash=[6, 4], size=2, clip=True)
         .encode(x="x:Q", y="y:Q")
     )
     _ols_line = (
@@ -329,24 +340,23 @@ def _(
         .mark_line(color="#1f4e79", size=2.5, clip=True)
         .encode(x="x:Q", y="y:Q")
     )
-    _chart = alt.layer(_scatter, _causal_line, _ols_line).properties(
+    _chart = alt.layer(_scatter, _true_low_line, _true_high_line, _ols_line).properties(
         width=560, height=340,
-        title="Shade shows ability; sorting it onto education tilts the OLS slope",
+        title="Within each group the true return is 1.20; pooling them tilts OLS steeper",
     )
 
-    if _s == 0.0:
+    if _sel == 0.0:
         _body = (
-            rf"Ability is assigned at random across education, so faint and dense points "
-            rf"are mixed at every education level. Here $\mathbb{{E}}[u \mid X] = 0$ holds, and "
-            rf"the OLS line $\hat{{Y}} = {_b0:.2f} + {_b1:.2f}\,X$ (solid navy) sits on the causal "
-            rf"line $Y = 8.00 + 1.20\,X$ (dashed orange) up to sampling noise."
+            rf"The two groups have the same spread of education, so $\mathbb{{E}}[u \mid X] = 0$ "
+            rf"holds. The pooled OLS line $\hat{{Y}} = {_b0:.2f} + {_b1:.2f}\,X$ (solid navy) matches "
+            rf"the within-group return of 1.20 drawn by the two parallel dashed orange lines."
         )
     else:
         _body = (
-            rf"With the slider at {_s:.1f}, higher-ability workers (darker points) hold more "
-            rf"education, so $\mathbb{{E}}[u \mid X]$ climbs with $X$. OLS reports a slope of "
-            rf"{_b1:.2f} though the causal effect is fixed at 1.20, because it credits education "
-            rf"with the extra earnings of the high-ability workers gathered on the right."
+            rf"With the slider at {_sel:.1f}, higher-ability workers (navy) hold more education and "
+            rf"lower-ability workers (gray) hold less. Pooling the two groups, OLS reports a slope of "
+            rf"{_b1:.2f}, steeper than the 1.20 return that still holds inside each group, because it "
+            rf"credits education with earnings that come from ability."
         )
     _caption = mo.md(
         '<span style="display:block;margin:0.2rem auto 1rem;max-width:560px;'
@@ -362,7 +372,7 @@ def _(
 def _(mo):
     mo.md(r"""
     <a id="sec4b"></a>
-    ### Least Squares Assumption 2: the data are i.i.d.
+    ### <span style="color:#0b68cb">Least Squares Assumption 2: the data are i.i.d.</span>
 
     The second assumption states that the observations $(X_i, Y_i)$ for $i = 1, \ldots, n$ are independently and identically distributed. Lecture 3 defined the two halves of that phrase. All observations are drawn from the same underlying distribution, and knowing one observation tells you nothing about another. Sampling workers at random from one population delivers both halves, which is why i.i.d. is a reasonable description of survey data like the wage sample.
 
@@ -377,7 +387,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec4c"></a>
-    ### Least Squares Assumption 3: large outliers are unlikely
+    ### <span style="color:#0b68cb">Least Squares Assumption 3: large outliers are unlikely</span>
 
     An *outlier* is an observation whose value of $X$, of $Y$, or of both sits far from the rest of the data. The third assumption states that large outliers are unlikely. The formal version is a condition on fourth moments,
 
@@ -391,7 +401,7 @@ def _(mo):
 
     Like the i.i.d. assumption, this one supports the standard error of the slope rather than the causal reading. It is a regularity condition that keeps the estimator and its variance well behaved.
 
-    Try it below. Click anywhere on the plot to add a worker to the 40-worker sample. The navy line refits to all the points while the dashed gray line stays at the original fit. Drop a point near the cloud and the two lines barely differ. Place one near the top of the plot, far above the rest of the workers, the kind of value a misplaced decimal produces, and that single point swings the navy line on its own. The Reset button clears the points you add.
+    Try it below. Click anywhere on the plot to add a worker to the 40-worker sample. The navy line refits to all the points while the dashed gray line stays at the original fit. Drop a point near the cloud and the two lines barely differ. To place a real outlier, press Zoom out a few times to stretch the wage axis, then click high above the cloud at a value like \$150, the kind of number a misplaced decimal produces. That single point swings the navy line on its own. Reset clears the points and returns the zoom to its starting view.
     """)
     return
 
@@ -421,10 +431,19 @@ def _(anywidget, traitlets):
       cv.width = W; cv.height = H;
       cv.style.cssText = "cursor:crosshair;touch-action:none;max-width:100%;";
       const controls = document.createElement("div");
-      controls.style.cssText = "margin:8px 0 4px;";
+      controls.style.cssText = "margin:8px 0 4px;display:flex;gap:8px;justify-content:center;";
+      const btnStyle = "font:inherit;color:#1f4e79;background:#eef3f8;border:1px solid #1f4e79;border-radius:4px;padding:4px 14px;cursor:pointer;";
+      const zoomOutBtn = document.createElement("button");
+      zoomOutBtn.textContent = "Zoom out";
+      zoomOutBtn.style.cssText = btnStyle;
+      const zoomInBtn = document.createElement("button");
+      zoomInBtn.textContent = "Zoom in";
+      zoomInBtn.style.cssText = btnStyle;
       const btn = document.createElement("button");
       btn.textContent = "Reset";
-      btn.style.cssText = "font:inherit;color:#1f4e79;background:#eef3f8;border:1px solid #1f4e79;border-radius:4px;padding:4px 14px;cursor:pointer;";
+      btn.style.cssText = btnStyle;
+      controls.appendChild(zoomOutBtn);
+      controls.appendChild(zoomInBtn);
       controls.appendChild(btn);
       const statsEl = document.createElement("div");
       statsEl.style.cssText = "max-width:560px;font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;margin-top:2px;";
@@ -432,15 +451,16 @@ def _(anywidget, traitlets):
       el.appendChild(wrap);
 
       const ctx = cv.getContext("2d");
+      let userYTop = 90;  // wage ceiling, raised/lowered by the zoom buttons
       let YTOP = 90;
 
       function yMax() {
-        // Floor at 90 so the cloud (wages near 15-35) leaves headroom above it
-        // to click an outlier; grow past 90 if a point lands higher.
+        // The visible wage ceiling is whatever the zoom buttons set, but never
+        // below the tallest point so a high outlier always stays on screen.
         let m = 0;
         for (const p of base) m = Math.max(m, p.y);
         for (const p of added) m = Math.max(m, p.y);
-        return Math.max(90, m * 1.12);
+        return Math.max(userYTop, m * 1.12);
       }
 
       function fit(pts) {
@@ -470,7 +490,7 @@ def _(anywidget, traitlets):
           ctx.strokeStyle = "#eef1f4";
           ctx.beginPath(); ctx.moveTo(px, padT); ctx.lineTo(px, padT + plotH); ctx.stroke();
         }
-        const step = YTOP > 120 ? 40 : (YTOP > 60 ? 20 : 10);
+        const step = YTOP > 240 ? 50 : (YTOP > 120 ? 40 : (YTOP > 60 ? 20 : 10));
         for (let v = 0; v <= YTOP; v += step) {
           const py = toPxY(v);
           ctx.strokeStyle = "#eef1f4";
@@ -546,7 +566,9 @@ def _(anywidget, traitlets):
         added.push({ x: x, y: y });
         redraw();
       });
-      btn.addEventListener("click", () => { added = []; redraw(); });
+      zoomOutBtn.addEventListener("click", () => { userYTop = Math.min(userYTop * 1.6, 400); redraw(); });
+      zoomInBtn.addEventListener("click", () => { userYTop = Math.max(userYTop / 1.6, 90); redraw(); });
+      btn.addEventListener("click", () => { added = []; userYTop = 90; redraw(); });
 
       redraw();
     }
