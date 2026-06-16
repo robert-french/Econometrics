@@ -43,9 +43,6 @@ def _(mo):
                     "#sec2": "2. The error term revisited",
                     "#sec3": "3. From prediction to causation",
                     "#sec4": "4. The least squares assumptions",
-                    "#sec4a": "4.1 Least Squares Assumption 1",
-                    "#sec4b": "4.2 Least Squares Assumption 2",
-                    "#sec4c": "4.3 Least Squares Assumption 3",
                     "#sec5": "5. What the assumptions give us",
                 },
                 orientation="vertical",
@@ -281,7 +278,7 @@ def _(np):
 @app.cell(hide_code=True)
 def _(mo):
     sel_strength = mo.ui.slider(
-        start=0.0, stop=1.0, step=0.1, value=0.5,
+        start=0.0, stop=1.0, step=0.1, value=0.0,
         label="How strongly higher-ability workers get more education (0 = no link, 1 = strong)",
         show_value=True,
     )
@@ -396,13 +393,7 @@ def _(mo):
     <a id="sec4c"></a>
     ### <span style="color:#0b68cb">Least Squares Assumption 3: large outliers are unlikely</span>
 
-    An *outlier* is an observation whose value of $X$, of $Y$, or of both sits far from the rest of the data. The third assumption states that large outliers are unlikely. The formal version is a condition on fourth moments,
-
-    $$
-    0 < \mathbb{E}\left[X_i^4\right] < \infty \quad \text{and} \quad 0 < \mathbb{E}\left[Y_i^4\right] < \infty,
-    $$
-
-    which rules out distributions that produce values so extreme that a handful of points can dominate the sample.
+    An *outlier* is an observation whose value of $X$, of $Y$, or of both sits far from the rest of the data. The third assumption states that large outliers are unlikely. It rules out distributions that produce values so extreme that a handful of points can dominate the sample. The formal version, a condition on the fourth moments of $X$ and $Y$, is in the appendix.
 
     Outliers matter to OLS because of the squaring in the least squares criterion from Lecture 5. A point far from the line contributes the square of a large residual to the sum being minimized, so the fitted line swings toward it. One badly recorded observation, an hourly wage typed as \$150 instead of \$15, can move the slope on its own. In practice this assumption is a reminder to plot the data and check extreme values before trusting a regression, because many outliers in economic data are entry errors rather than real values.
 
@@ -559,6 +550,14 @@ def _(mo):
         $$ Y = \beta_0 + \beta_1 X + u = (\beta_0 + c) + \beta_1 X + (u - c) = \tilde{\beta}_0 + \beta_1 X + \tilde{u}, $$
 
         and the new error satisfies $\mathbb{E}[\tilde{u} \mid X = x] = c - c = 0$. The rewritten model satisfies Assumption 1, and the slope $\beta_1$ is the same in both versions. A constant level of ability across all education groups changes where the line sits, not how steep it is.
+
+        **The no-large-outliers condition in symbols.**
+
+        Least Squares Assumption 3 says large outliers are unlikely. The formal version is a condition on the fourth moments of $X$ and $Y$,
+
+        $$ 0 < \mathbb{E}\left[X_i^4\right] < \infty \quad \text{and} \quad 0 < \mathbb{E}\left[Y_i^4\right] < \infty. $$
+
+        A finite fourth moment rules out distributions whose tails are heavy enough that a single draw can be enormous, the kind that would dominate the sum of squares OLS minimizes. With finite fourth moments the sampling distribution of $\hat{\beta}_1$ settles to the normal shape the standard error in Lecture 7 relies on.
         """)
     })
     return
