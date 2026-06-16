@@ -11,9 +11,6 @@
 import marimo
 
 __generated_with = "0.23.9"
-# Flags this notebook as a work in progress. build.py reads this module-level
-# constant and the homepage template renders a "Preliminary" badge on the card.
-__preliminary__ = True
 app = marimo.App(
     app_title="Lecture 6: OLS Assumptions for Causal Inference",
     css_file="marimo-overrides.css",
@@ -107,15 +104,15 @@ def _(mo):
     <a id="sec1"></a>
     ## 1. Conditional expectation
 
-    Lecture 5 fit a line through a sample of wages and education and was careful to interpret the slope as a description of association. This lecture states the conditions under which that slope can instead be read as a causal effect. The conditions are claims about averages within groups, so the first step is a tool for talking about such averages.
+    Lecture 5 fit a line through sample data on wages and years of education, and interpreted the slope as describing an association. But what is the line trying to summarize? At each level of education, it estimates the average wage among people with that level of education. Before asking when the slope of that line has a causal interpretation, we therefore need to define the population average that regression is trying to approximate.
 
-    The *conditional expectation* of $Y$ given $X$ is the average of $Y$ among observations that share the same value of $X$. We write it as
+    The *conditional expectation* of $Y$ given $X$ is the average value of $Y$ among observations with a given value of $X$ which we denote with a lower-case $x$. We write it as
 
     $$
     \mathbb{E}[Y \mid X = x].
     $$
 
-    Like the expected value $\mathbb{E}[Y]$ from Lecture 2, the conditional expectation describes the population, not a sample. It is also the object a regression approximates. The fitted line from Lecture 5 is a straight-line estimate of the average value of $Y$ at each value of $X$, which is exactly what $\mathbb{E}[Y \mid X = x]$ records.
+    Like the expected value $\mathbb{E}[Y]$ from Lecture 2, the conditional expectation is a population object, not a sample statistic. The difference is that $\mathbb{E}[Y]$ averages over the whole population, while $\mathbb{E}[Y \mid X = x]$ averages only over the subpopulation with $X = x$. This is also the population object that regression tries to approximate with a straight line.
 
     For discrete random variables, the joint probability tables from Lecture 3 contain everything needed to compute a conditional expectation. Suppose $X$ is a student's class standing, Freshman or Senior, and $Y$ is the student's GPA, rounded to 2.0, 3.0, or 4.0. The table below lists the probability of each combination.
     """)
@@ -164,7 +161,7 @@ def _(mo):
     \mathbb{E}[Y \mid X = \text{Senior}] = 2.0(0.10) + 3.0(0.40) + 4.0(0.50) = 3.4.
     $$
 
-    The expected GPA is 2.9 among freshmen and 3.4 among seniors. Every value of $X$ gets its own average of $Y$, and this collection of averages, viewed as a function of $x$, is the relationship a regression line tries to trace out.
+    The expected GPA is 2.9 among freshmen and 3.4 among seniors. Every value of $X$ gets its own average of $Y$, and this collection of averages, viewed as a function of $x$, is the relationship a regression line tries to approximate.
     """)
     return
 
@@ -181,11 +178,11 @@ def _(mo):
     Y = \beta_0 + \beta_1 X + u,
     $$
 
-    where $Y$ is a worker's hourly wage, $X$ is the worker's years of education, and $u$ is the error term. The error term holds everything besides education that is related to wages. Ability, family background, health, and luck all affect what a worker earns, and none of them appear in the model, so all of them sit inside $u$.
+    where $Y$ is a worker's hourly wage, $X$ is the worker's years of education, and $u$ is the error term. The error term represents everything besides education that is related to wages. Ability, family background, health, and luck all affect what a worker earns, and none of them appear in the model directly, so all of them sit inside $u$.
 
     The error term is not the residual from Lecture 5. The residual $\hat{u}_i = Y_i - \hat{\beta}_0 - \hat{\beta}_1 X_i$ is the gap between an observed wage and the line we fit through one sample. The error $u$ is the gap between a wage and the true population line. Because the population intercept $\beta_0$ and slope $\beta_1$ are never observed, the error term is never observed either.
 
-    The conditional expectation from Section 1 gives us a precise way to talk about these unobserved factors. The quantity $\mathbb{E}[u \mid X = x]$ is the average effect of everything in the error term among workers with $x$ years of education. In the wage example, $\mathbb{E}[u \mid X = 16]$ is the average contribution of ability and family background to the wages of workers with 16 years of education. Whether that average is allowed to change with education turns out to be the dividing line between prediction and causation.
+    The conditional expectation from Section 1 gives us a precise way to talk about these unobserved factors. The quantity $\mathbb{E}[u \mid X = x]$ is the average value of the error term among workers with $x$ years of education. In the wage example, $\mathbb{E}[u \mid X = 16]$ is the average contribution of all unobserved factors including ability and family background to the wages of workers with 16 years of education. If you assume that this unobserved average does not vary with years of education, then you can interpret $\beta_1$ causally. We will state this condition more precisely in the following two sections.
     """)
     return
 
@@ -196,17 +193,25 @@ def _(mo):
     <a id="sec3"></a>
     ## 3. From prediction to causation
 
-    Everything in Lecture 5 was about prediction. The fitted slope of \$1.25 says that a worker with one more year of education is predicted to earn about \$1.25 more per hour. It does not say that sending the same worker back to school for a year would raise that worker's wage by \$1.25. The *causal interpretation* of the slope is this stronger claim, that raising $X$ by one unit causes $Y$ to change by $\beta_1$ units. A student deciding whether to stay in school another year, or a government pricing a tuition subsidy, needs the causal claim, not the fact that educated workers happen to earn more.
+    Lecture 5 was about prediction. The fitted slope of $\hat{\beta}_1 =$ $1.25 says that a worker with one more year of education is predicted to earn about $1.25 more per hour. It does not say that sending the same worker back to school for one more year would raise that worker's wage by $1.25. The *causal interpretation* of the slope is this stronger claim. It says that increasing $X$ by one unit causes $Y$ to change by $\beta_1$ units. A student deciding whether to stay in school for another year, or a government deciding how much to spend on tuition subsidies, needs to know the causal effect of education on earnings, not just the fact that more educated workers tend to earn more.
 
-    In the population model $Y = \beta_0 + \beta_1 X + u$, the slope $\beta_1$ already is the causal effect by construction. The error $u$ holds every other influence on wages, so raising $X$ by one unit while $u$ stays fixed changes $Y$ by exactly $\beta_1$. The difficulty is that OLS never sees $u$. It fits the line that best predicts $Y$ from $X$ alone, and the slope of that line equals the causal $\beta_1$ only when the part of wages hidden in $u$ does not move with education. When that hidden part does move with education, the fitted slope blends the effect of schooling with the effect of whatever in $u$ travels alongside it.
+    In the population model
 
-    The condition that rules this out, together with two more that make the estimate and its precision trustworthy, are the three *least squares assumptions*.
+    $$
+    Y = \beta_0 + \beta_1 X + u,
+    $$
 
-    1. The conditional distribution of $u$ given $X$ has a mean of zero, $\mathbb{E}[u \mid X] = 0$.
+    the slope $\beta_1$ describes how $Y$ changes when $X$ changes and $u$ is held fixed. In the wage example, $u$ contains every other determinant of wages in the model, such as ability, family background, health, and luck. If education increases by one year while those other determinants stay fixed, then wages change by exactly $\beta_1$.
+
+    The difficulty is that we never observe $u$. OLS fits the line that best predicts $Y$ from $X$ alone. The slope of that line equals the causal $\beta_1$ only when the part of wages hidden in $u$ is not systematically related to education. If workers with more education also tend to have higher ability, stronger family support, or other wage advantages, then the fitted slope blends the effect of education with the effects of those omitted factors.
+
+    The condition that rules out this problem, together with two additional conditions that make estimation and inference reliable, gives us the three *least squares assumptions*.
+
+    1. The conditional distribution of $u$ given $X$ has mean zero, $\mathbb{E}[u \mid X] = 0$.
     2. The data $(X_i, Y_i)$ for $i = 1, \ldots, n$ are independently and identically distributed.
     3. Large outliers are unlikely.
 
-    Only the first assumption carries causal content, and it is the one that fails most often in practice. The second and third say nothing about causation. They are what let us estimate $\beta_1$ from a sample and attach a margin of error to the estimate. The next three sections take the assumptions one at a time, and Section 5 collects what each one buys.
+    Only the first assumption carries causal content, and it is the one that fails most often in practice. The second and third assumptions do not make the slope causal. They explain when sample data can recover the population slope and when we can attach a useful margin of error to the estimate. We now go over each assumption one at a time.
     """)
     return
 
@@ -216,8 +221,6 @@ def _(mo):
     mo.md(r"""
     <a id="sec4"></a>
     ## 4. The least squares assumptions
-
-    Each of the three assumptions does a different job. The first decides whether the slope can be read as a causal effect. The second and third decide whether a finite sample can estimate that slope and how precisely.
     """)
     return
 
@@ -228,21 +231,23 @@ def _(mo):
     <a id="sec4a"></a>
     ### <span style="color:#0b68cb">Least Squares Assumption 1: the conditional mean of $u$ given $X$ is zero</span>
 
-    The first assumption states that the conditional mean of the error term is zero at every value of $X$,
+    The first least squares assumption says that the conditional mean of the error term is zero at every value of $X$,
 
     $$
     \mathbb{E}[u \mid X] = 0.
     $$
 
-    In the wage example, this says that the average of everything in the error term is the same at every education level. Workers with 16 years of education may differ from workers with 12 in their schooling, but on average they must differ in nothing else that affects wages, not in ability, not in family background.
+    In the wage example, this means that workers with different levels of education do not systematically differ in the other determinants of wages contained in $u$. Workers with 16 years of education may differ from workers with 12 years of education in their schooling, but on average they must not differ in ability, family background, health, luck, or anything else in the error term that affects wages.
 
-    That is a strong requirement, and it is easy to see how it fails. Suppose students with higher ability find school easier and stay in it longer. Then among workers with 16 years of education, average ability is higher than among workers with 12, so $\mathbb{E}[u \mid X = 16] > \mathbb{E}[u \mid X = 12]$ and the assumption fails. OLS attributes to education some of the wage gains that ability would have produced anyway, and $\hat{\beta}_1$ overstates the causal effect of schooling.
+    This is a strong requirement, and it is easy to see how it can fail. Suppose students with higher ability find school easier and therefore stay in school longer. Then workers with 16 years of education will have higher average ability than workers with 12 years of education. In that case, $\mathbb{E}[u \mid X = 16] > \mathbb{E}[u \mid X = 12],$ and the assumption fails. OLS then attributes to education some of the wage gains that ability would have produced anyway, so $\hat{\beta}_1$ overstates the causal effect of schooling.
 
-    The assumption cannot be tested with the data alone. The error term is unobserved, so there is no way to compute $\mathbb{E}[u \mid X = x]$ from a sample of $X$ and $Y$. Whether the assumption holds has to be argued from knowledge of how the data came about, not read off a calculation.
+    This assumption cannot be tested with the data alone. The error term is unobserved, so we cannot compute $\mathbb{E}[u \mid X = x]$ from a sample of $X$ and $Y$. Whether the assumption holds must be argued from what we know about how the data were generated, not read from a calculation.
 
-    One technical note. The causal reading requires only that $\mathbb{E}[u \mid X = x]$ not vary with $x$. If it equaled some constant other than zero, that constant would fold into the intercept and leave the slope untouched. The appendix shows the algebra. With an intercept in the model, ''the conditional mean of $u$ does not depend on $X$'' and ''$\mathbb{E}[u \mid X] = 0$'' are the same assumption.
+    An equivalent way of stating the assumption is that the average value of the error term does not vary with $X$. For the slope to have a causal interpretation, the key requirement is that $\mathbb{E}[u \mid X = x]$ be the same at every value of $x$. If that common value were some constant other than zero, it would be absorbed into the intercept and the slope would be unchanged. With an intercept in the model, we can therefore write the condition as $\mathbb{E}[u \mid X] = 0$. The appendix shows why this is true mathematically.
 
-    The plot below splits the 40 workers into two groups, lower ability in light gray and higher ability in navy, and for this example ability is the only thing in the error term. Within each group the true causal effect of a year of education is the same \$1.20 per hour, drawn as the two parallel dashed orange lines. The higher-ability group earns more at every education level, which is why its line sits above the other. The slider controls how strongly the two groups differ in schooling. At zero, both groups have the same spread of education, $\mathbb{E}[u \mid X] = 0$ holds, and the pooled OLS line (solid navy) through all 40 workers matches the within-group slope of 1.20. As the slider rises, the higher-ability workers shift to more education and the lower-ability workers to less, the two clouds pull apart, and the pooled OLS line tilts steeper than 1.20 even though nothing changed the true effect inside either group.
+    The plot below shows the same idea visually. It splits 40 workers into two groups, lower ability in light gray and higher ability in navy. In this example, ability is the only factor in the error term. Within each ability group, the true causal effect of one more year of education is the same $1.20 per hour, shown by the two parallel dashed orange lines. The higher-ability group earns more at every education level, so its line sits above the lower-ability line.
+
+    The slider controls how strongly ability and education are related. When the slider equals zero, both ability groups have the same distribution of education. The condition $\mathbb{E}[u \mid X] = 0$ holds, and the pooled OLS line through all 40 workers has the same slope as the two within-group lines. As the slider rises, higher-ability workers shift toward more education and lower-ability workers shift toward less education. The two groups pull apart, and the pooled OLS line becomes steeper than $1.20 as it blends the effect of education with the effect of ability, even though the true causal effect of education within each ability group has not changed.
     """)
     return
 
@@ -279,7 +284,7 @@ def _(np):
 def _(mo):
     sel_strength = mo.ui.slider(
         start=0.0, stop=1.0, step=0.1, value=0.0,
-        label="How strongly higher-ability workers get more education (0 = no link, 1 = strong)",
+        label="Do higher-ability workers tend to get more education? (0 = No, 1 = Yes, strongly)",
         show_value=True,
     )
     sel_strength
@@ -346,12 +351,12 @@ def _(
     )
     _chart = alt.layer(_scatter, _true_low_line, _true_high_line, _ols_line).properties(
         width=560, height=340,
-        title="Within each group the true return is 1.20; pooling them tilts OLS steeper",
+        title="Within each ability group the true effect of a year's education is 1.20; pooling them tilts OLS steeper",
     )
 
     if _sel == 0.0:
         _body = (
-            rf"The two groups have the same spread of education, so $\mathbb{{E}}[u \mid X] = 0$ "
+            rf"The two groups have the same spread of educational attainment, so $\mathbb{{E}}[u \mid X] = 0$ "
             rf"holds. The pooled OLS line $\hat{{Y}} = {_b0:.2f} + {_b1:.2f}\,X$ (solid navy) matches "
             rf"the within-group return of 1.20 drawn by the two parallel dashed orange lines."
         )
@@ -378,11 +383,11 @@ def _(mo):
     <a id="sec4b"></a>
     ### <span style="color:#0b68cb">Least Squares Assumption 2: the data are i.i.d.</span>
 
-    The second assumption states that the observations $(X_i, Y_i)$ for $i = 1, \ldots, n$ are independently and identically distributed. Lecture 3 defined the two halves of that phrase. All observations are drawn from the same underlying distribution, and knowing one observation tells you nothing about another. Sampling workers at random from one population delivers both halves, which is why i.i.d. is a reasonable description of survey data like the wage sample.
+    The second least squares assumption says that the observations $(X_i, Y_i)$ for $i = 1, \ldots, n$ are independently and identically distributed (i.i.d). Recall from Lecture 3 that this means we assume the sample is comprised of random draws from the same population. The “Identically distributed” part means that each observation is drawn in the same way. The “Independent” part means that knowing one observation does not provide information about another.
 
-    Both halves can fail. Data collected in sequence carry information about each other. Today's temperature helps predict tomorrow's, so a year of daily weather recordings is not a set of independent draws. Pooling students sampled from several countries mixes different underlying populations, so those observations are not identically distributed.
+    Both parts of i.i.d. can fail. Independence fails when observations are linked to each other. For example, workers from the same firm may have wages that move together because they share the same pay policies, local labor market, or manager. Identical distribution fails when observations are not all drawn in the same way. For example, if one part of a wage sample comes from workers interviewed before a recession and another part comes from workers interviewed after, the observations may come from different wage-education distributions.
 
-    This assumption carries no causal content. A causal reading of $\beta_1$ rests entirely on Assumption 1, with or without i.i.d. sampling. What i.i.d. sampling buys is the estimate. It makes $\hat{\beta}_1$ an unbiased and consistent estimate of $\beta_1$, and it underpins the standard error of the slope, $\text{se}(\hat{\beta}_1)$, built from the tools in Lecture 4. Lecture 7 constructs that standard error and uses it to test hypotheses about $\beta_1$. Later parts of the course, on panel data and clustered standard errors, handle data where independence fails by design.
+    i.i.d. sampling helps connect the sample to the population. Because observations are random draws from the same distribution, the law of large numbers makes sample averages converge to population averages as the sample grows. Together with the other least squares assumptions, this helps make $\hat{\beta}_1$ a consistent and unbiased estimator of $\beta_1$, two concepts we defined in Lecture 4.  I.i.d. sampling also supports the construction of the standard error, $\text{se}(\hat{\beta}_1)$, which Lecture 7 uses to test hypotheses about $\beta_1$. Later parts of the course handle data where independence fails by design, such as with panel data and clustered data.
     """)
     return
 
@@ -393,13 +398,13 @@ def _(mo):
     <a id="sec4c"></a>
     ### <span style="color:#0b68cb">Least Squares Assumption 3: large outliers are unlikely</span>
 
-    An *outlier* is an observation whose value of $X$, of $Y$, or of both sits far from the rest of the data. The third assumption states that large outliers are unlikely. It rules out distributions that produce values so extreme that a handful of points can dominate the sample. The formal version, a condition on the fourth moments of $X$ and $Y$, is in the appendix.
+    An *outlier* is an observation whose value of $X$, of $Y$, or of both sits far from the rest of the data. The third assumption states that large outliers are unlikely. It rules out distributions that produce values so extreme that a handful of points can dominate the sample. The mathematical definition of an outlier is in the appendix.
 
-    Outliers matter to OLS because of the squaring in the least squares criterion from Lecture 5. A point far from the line contributes the square of a large residual to the sum being minimized, so the fitted line swings toward it. One badly recorded observation, an hourly wage typed as \$150 instead of \$15, can move the slope on its own. In practice this assumption is a reminder to plot the data and check extreme values before trusting a regression, because many outliers in economic data are entry errors rather than real values.
+    Outliers matter to OLS because of the squaring in the least squares criterion from Lecture 5. A point far from the line contributes the square of a large residual to the sum being minimized, so the fitted line swings toward it. One badly recorded observation, an hourly wage typed as \$150 instead of \$15, can move the slope on its own. In practice this assumption is a reminder to plot the data and check extreme values before trusting a regression estimate, because many outliers in economic data are entry errors rather than real values.
 
-    Like the i.i.d. assumption, this one supports the standard error of the slope rather than the causal reading. It is a regularity condition that keeps the estimator and its variance well behaved.
+    Like the i.i.d. assumption, this one supports the standard error of the slope rather than the causal interpretation of $\hat{\beta}_1$.
 
-    Try it below. The two faint orange points are wages recorded with a misplaced decimal, sitting far above the rest of the workers. The check box decides whether they count. Leave it unticked and the navy line is fit to the 40 ordinary workers, resting on top of the dashed gray line. Tick it and the two outliers join the fit, and the navy line swings up and away from the gray line, which stays where the clean data put it.
+    Consider the example below. The two faint orange points are wages recorded with a misplaced decimal, sitting far above the rest of the workers. The check box decides whether they are included in the OLS regression. Leave it unticked and the navy line is fit to the 40 properly recorded workers, resting on top of the dashed gray line. Tick it and the two outliers are included in the OLS regression line.
     """)
     return
 
@@ -412,7 +417,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(alt, include_outliers, lsa_X, lsa_b0_true, lsa_b1_true, lsa_e, mo, np, pd):
+def _(
+    alt,
+    include_outliers,
+    lsa_X,
+    lsa_b0_true,
+    lsa_b1_true,
+    lsa_e,
+    mo,
+    np,
+    pd,
+):
     _inc = bool(include_outliers.value)
     _Y = lsa_b0_true + lsa_b1_true * lsa_X + lsa_e
     _ox = np.array([15.0, 18.0])
@@ -486,27 +501,6 @@ def _(alt, include_outliers, lsa_X, lsa_b0_true, lsa_b1_true, lsa_e, mo, np, pd)
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""
-    <a id="sec5"></a>
-    ## 5. What the assumptions give us
-
-    The three assumptions are not interchangeable, and it helps to see what each one adds. Assumption 1 is the only one about causation. On its own it makes the population slope $\beta_1$ equal to the causal effect of education on wages rather than a summary of how the two move together. Whether you hold a sample at all is beside the point, since this is a claim about the population.
-
-    The other two are about getting from the population to a sample and back. With Assumption 1 holding, adding the i.i.d. assumption makes $\hat{\beta}_1$ an unbiased and consistent estimate of $\beta_1$, so a large enough random sample lands near the true causal effect. Adding the no-large-outliers assumption keeps the sampling distribution of $\hat{\beta}_1$ well behaved enough to attach a standard error, and from that standard error come the hypothesis tests and confidence intervals built in Lecture 7.
-
-    | Assumptions in force | What you can claim |
-    | --- | --- |
-    | Assumption 1 | The population slope is the causal effect, not just an association. |
-    | Assumptions 1 and 2 | The estimated slope is unbiased and consistent for that causal effect. |
-    | Assumptions 1, 2, and 3 | The estimate comes with a valid standard error, so tests and confidence intervals are trustworthy. |
-
-    Causation enters at the top row and stays. The lower rows add no causal content; they turn that single causal number into something you can estimate and place error bars around. A failure of Assumption 1 is therefore fatal to a causal claim, while a failure of Assumption 2 or 3 damages the standard error, a problem the panel-data and robust-standard-error tools later in the course are built to repair.
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
     mo.callout(
         mo.md(
             "**Key terms covered:** conditional expectation, causal "
@@ -516,7 +510,7 @@ def _(mo):
             "everything besides X that affects Y, why only the mean-zero error "
             "assumption carries causal content, why that assumption cannot be "
             "tested from data alone, what the i.i.d. and no-outlier assumptions "
-            "add for estimating the slope and judging its precision, how a "
+            "add for estimating the slope and its standard error, how a "
             "single outlier can swing the OLS line, and the population "
             "regression line as the conditional expectation of Y given X."
         ),
@@ -550,6 +544,34 @@ def _(mo):
         $$ Y = \beta_0 + \beta_1 X + u = (\beta_0 + c) + \beta_1 X + (u - c) = \tilde{\beta}_0 + \beta_1 X + \tilde{u}, $$
 
         and the new error satisfies $\mathbb{E}[\tilde{u} \mid X = x] = c - c = 0$. The rewritten model satisfies Assumption 1, and the slope $\beta_1$ is the same in both versions. A constant level of ability across all education groups changes where the line sits, not how steep it is.
+
+        **Assumption 1 makes the OLS slope unbiased.**
+
+        The OLS slope from Lecture 5 is
+
+        $$ \hat{\beta}_1 = \frac{\sum_{i=1}^{n} (X_i - \hat{\mu}_X)(Y_i - \hat{\mu}_Y)}{\sum_{i=1}^{n} (X_i - \hat{\mu}_X)^2}. $$
+
+        Substitute the population model $Y_i = \beta_0 + \beta_1 X_i + u_i$. Averaging that model over the sample gives $\hat{\mu}_Y = \beta_0 + \beta_1 \hat{\mu}_X + \hat{\mu}_u$, and subtracting it cancels the intercept,
+
+        $$ Y_i - \hat{\mu}_Y = \beta_1 (X_i - \hat{\mu}_X) + (u_i - \hat{\mu}_u). $$
+
+        Put this into the numerator and split it into two sums,
+
+        $$ \sum_{i=1}^{n} (X_i - \hat{\mu}_X)(Y_i - \hat{\mu}_Y) = \beta_1 \sum_{i=1}^{n} (X_i - \hat{\mu}_X)^2 + \sum_{i=1}^{n} (X_i - \hat{\mu}_X)\,u_i, $$
+
+        where the $\hat{\mu}_u$ term drops out because $\sum_{i=1}^{n} (X_i - \hat{\mu}_X) = 0$. Dividing by $\sum_{i=1}^{n} (X_i - \hat{\mu}_X)^2$ leaves the estimator as the true slope plus a term built from the errors,
+
+        $$ \hat{\beta}_1 = \beta_1 + \frac{\sum_{i=1}^{n} (X_i - \hat{\mu}_X)\,u_i}{\sum_{i=1}^{n} (X_i - \hat{\mu}_X)^2}. $$
+
+        Average $\hat{\beta}_1$ over repeated samples while holding the education values $X_1, \dots, X_n$ fixed. The weights $(X_i - \hat{\mu}_X)$ and the denominator are then fixed numbers, so they pass outside the expectation,
+
+        $$ \mathbb{E}[\hat{\beta}_1 \mid X_1, \dots, X_n] = \beta_1 + \frac{\sum_{i=1}^{n} (X_i - \hat{\mu}_X)\,\mathbb{E}[u_i \mid X_1, \dots, X_n]}{\sum_{i=1}^{n} (X_i - \hat{\mu}_X)^2}. $$
+
+        Because the observations are i.i.d. (Assumption 2), worker $i$'s error is unrelated to the other workers' education, so $\mathbb{E}[u_i \mid X_1, \dots, X_n] = \mathbb{E}[u_i \mid X_i]$. Assumption 1 sets that conditional mean to zero, so every term in the sum vanishes and
+
+        $$ \mathbb{E}[\hat{\beta}_1 \mid X_1, \dots, X_n] = \beta_1. $$
+
+        Averaging this over the education values leaves $\mathbb{E}[\hat{\beta}_1] = \beta_1$. The OLS slope is unbiased, so its average across repeated samples is the true effect. Assumption 1 does the work here, since it is what forces the errors to average to zero at each level of education. Without it the second term above would not vanish, and $\hat{\beta}_1$ would be biased.
 
         **The no-large-outliers condition in symbols.**
 
