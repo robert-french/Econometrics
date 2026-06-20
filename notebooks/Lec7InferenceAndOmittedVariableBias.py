@@ -396,34 +396,33 @@ def _(mo):
 
     This is the *heteroskedasticity-robust standard error*. It lets the spread of the error change with $X$, and it counts a large residual more heavily when that residual sits far from the average education, since a point far out on the horizontal axis has more pull on the slope. Robust standard errors are correct whether or not the error is homoskedastic, so regression software reports them by default and this course uses them throughout.
 
-    The plot below puts the two estimates side by side. Click the education bands on the scatter to make wages more variable there, and drag the slider to set how much more variable. Beneath the plot, the equal-spread estimate of the variance of $\hat{\beta}_1$ sits next to the robust estimate. With no bands selected the two nearly match. As you concentrate the variance, they pull apart, and the equal-spread estimate is the one that goes wrong.
+    The plot below puts the two estimates side by side. Use the controls to choose which education bands have more variable wages, and the slider to set how much more variable. Beneath the plot, the equal-spread estimate of the variance of $\hat{\beta}_1$ sits next to the robust estimate. With no bands selected the two nearly match. As you concentrate the variance, they pull apart, and the equal-spread estimate is the one that goes wrong.
     """)
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    get_hbands, set_hbands = mo.state(frozenset())
-    return get_hbands, set_hbands
-
-
-@app.cell(hide_code=True)
-def _(mo, set_hbands):
+    het_bands = mo.ui.multiselect(
+        options=["8 to 10", "10 to 12", "12 to 14", "14 to 16", "16 to 18", "18 to 20"],
+        label="Education bands with more variable wages",
+    )
     het_mult = mo.ui.slider(
         start=1.0, stop=8.0, step=0.5, value=4.0,
-        label="How much larger is the spread in the selected bands?",
+        label="How much larger is the spread in those bands?",
         show_value=True,
     )
-    het_clear = mo.ui.button(
-        label="Clear bands", on_change=lambda _v: set_hbands(frozenset()),
-    )
-    mo.hstack([het_mult, het_clear], justify="start", align="end")
-    return (het_mult,)
+    mo.vstack([het_bands, het_mult])
+    return het_bands, het_mult
 
 
 @app.cell(hide_code=True)
-def _(alt, get_hbands, het_mult, mo, np, pd):
-    _selected = set(int(b) for b in get_hbands())
+def _(alt, het_bands, het_mult, mo, np, pd):
+    _label_to_band = {
+        "8 to 10": 0, "10 to 12": 1, "12 to 14": 2,
+        "14 to 16": 3, "16 to 18": 4, "18 to 20": 5,
+    }
+    _selected = {_label_to_band[_l] for _l in het_bands.value}
     _mult = float(het_mult.value)
 
     _rng = np.random.default_rng(3)
@@ -447,11 +446,10 @@ def _(alt, get_hbands, het_mult, mo, np, pd):
     _den = float((np.sum(_dev2) / _n) ** 2)
     _var_robust = (1.0 / _n) * _num / _den
 
-    _pts = pd.DataFrame({"x": _X, "y": _Y, "band": _band_idx, "high": _is_high.astype(int)})
+    _pts = pd.DataFrame({"x": _X, "y": _Y, "high": _is_high.astype(int)})
     _xline = np.array([8.0, 20.0])
     _fitdf = pd.DataFrame({"x": _xline, "y": _b0h + _b1h * _xline})
     _bands = pd.DataFrame({
-        "band": [0, 1, 2, 3, 4, 5],
         "x0": [8.0, 10.0, 12.0, 14.0, 16.0, 18.0],
         "x1": [10.0, 12.0, 14.0, 16.0, 18.0, 20.0],
         "active": [b in _selected for b in range(6)],
@@ -460,7 +458,7 @@ def _(alt, get_hbands, het_mult, mo, np, pd):
     _xsc = alt.Scale(domain=[8.0, 20.0], nice=False)
     _ysc = alt.Scale(domain=[0.0, 62.0], nice=False)
 
-    # Band backgrounds (highlight only) sit behind the points.
+    # Band backgrounds highlight the bands chosen in the control above.
     _rects = (
         alt.Chart(_bands)
         .mark_rect()
@@ -476,7 +474,6 @@ def _(alt, get_hbands, het_mult, mo, np, pd):
         .mark_line(color="#111827", size=2.5, clip=True)
         .encode(x=alt.X("x:Q", scale=_xsc), y=alt.Y("y:Q", scale=_ysc))
     )
-    # The points are the click target; their colour shows which bands are active.
     _points = (
         alt.Chart(_pts)
         .mark_circle(size=45, opacity=0.55, clip=True)
@@ -486,9 +483,8 @@ def _(alt, get_hbands, het_mult, mo, np, pd):
             color=alt.condition("datum.high == 1", alt.value("#e8973a"), alt.value("#1f4e79")),
         )
     )
-    het_spec = (_rects + _line + _points).properties(
-        width=560, height=320,
-        title="Click a point to raise the variance in its band; drag the slider for how much",
+    _chart = (_rects + _line + _points).properties(
+        width=560, height=320, title="Wages and education"
     )
 
     _homo_str = f"{_var_homo:.5f}"
@@ -507,7 +503,7 @@ $$\hat{\sigma}^2_{\hat{\beta}_1} = \frac{\frac{1}{n}\cdot\frac{1}{n-2}\sum_i (X_
         + _rob_str
         + r"$$"
     )
-    het_formulas = mo.hstack(
+    _formulas = mo.hstack(
         [_homo_panel, _rob_panel], justify="center", align="center", gap=2.0
     )
 
@@ -518,32 +514,16 @@ $$\hat{\sigma}^2_{\hat{\beta}_1} = \frac{\frac{1}{n}\cdot\frac{1}{n-2}\sum_i (X_
         )
     else:
         _msg = (
-            "Wages are more variable in the orange bands you selected. The two "
+            "Wages are more variable in the orange bands you picked. The two "
             "estimates have pulled apart, and the equal-spread estimate no longer "
             "reports the right variance."
         )
-    het_caption = mo.md(
+    _caption = mo.md(
         '<span style="display:block;margin:0.2rem auto 1rem;max-width:560px;'
         'font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;">'
         + _msg + "</span>"
     )
-    return het_caption, het_formulas, het_spec
-
-
-@app.cell(hide_code=True)
-def _(get_hbands, het_caption, het_formulas, het_spec, mo, set_hbands):
-    def _toggle(value):
-        if value is None or len(value) == 0 or "band" not in value:
-            return
-        _clicked = set(int(b) for b in value["band"].tolist())
-        _cur = set(get_hbands())
-        _cur ^= _clicked
-        set_hbands(frozenset(_cur))
-
-    het_chart = mo.ui.altair_chart(
-        het_spec, chart_selection="point", legend_selection=False, on_change=_toggle,
-    )
-    mo.vstack([het_chart, het_formulas, het_caption])
+    mo.vstack([_chart, _formulas, _caption])
     return
 
 
