@@ -49,7 +49,6 @@ def _(mo):
                     "#sec5": "5. Confidence intervals for the slope",
                     "#sec6": "6. Unbiasedness and consistency",
                     "#sec7": "7. Omitted variable bias",
-                    "#appendix": "Appendix",
                 },
                 orientation="vertical",
             ),
@@ -100,8 +99,7 @@ def _(mo):
     [4. Hypothesis tests for the slope](#sec4)<br>
     [5. Confidence intervals for the slope](#sec5)<br>
     [6. Unbiasedness and consistency](#sec6)<br>
-    [7. Omitted variable bias](#sec7)<br>
-    [Appendix](#appendix)
+    [7. Omitted variable bias](#sec7)
     """)
     return
 
@@ -299,41 +297,52 @@ def _(alt, get_acc, mo, np, pd, sd_errsd, sd_n, sd_xspread, stats):
         _arr = np.asarray([], dtype=float)
         _dlo, _dhi = _base_lo, _base_hi
 
-    _nbins = 30
-    _step = (_dhi - _dlo) / _nbins
-    _df = pd.DataFrame({"b": _arr})
-    _hist = (
-        alt.Chart(_df)
-        .mark_bar(color="#1f4e79", opacity=0.85, clip=True)
-        .encode(
-            x=alt.X(
-                "b:Q",
-                bin=alt.Bin(extent=[_dlo, _dhi], step=_step),
-                title="Collected slope estimates",
-                scale=alt.Scale(domain=[_dlo, _dhi], nice=False),
-            ),
-            y=alt.Y("count()", title="Number of draws"),
+    _xscale = alt.Scale(domain=[_dlo, _dhi], nice=False)
+    _has_kde = len(_arr) >= 2 and float(np.std(_arr)) > 1e-9
+
+    _grid = np.linspace(_dlo, _dhi, 200)
+    if _has_kde:
+        _dens = stats.gaussian_kde(_arr)(_grid)
+        _ymax = float(_dens.max()) * 1.15
+    else:
+        _dens = np.zeros_like(_grid)
+        _ymax = 1.0
+
+    _show_normal = len(_arr) >= 50
+    if _show_normal:
+        _se_th = float(sd_errsd.value) / (float(sd_xspread.value) * (int(sd_n.value) ** 0.5))
+        _norm = stats.norm.pdf(_grid, _b1, _se_th)
+        _ymax = max(_ymax, float(_norm.max()) * 1.15)
+
+    _yscale = alt.Scale(domain=[0.0, _ymax], nice=False)
+
+    _layers = []
+    if _has_kde:
+        _layers.append(
+            alt.Chart(pd.DataFrame({"b": _grid, "density": _dens}))
+            .mark_area(color="#1f4e79", opacity=0.25, line={"color": "#1f4e79"})
+            .encode(
+                x=alt.X("b:Q", scale=_xscale, title="Collected slope estimates"),
+                y=alt.Y("density:Q", scale=_yscale, title="Density"),
+            )
         )
-    )
-    _rule = (
+    if _show_normal:
+        _layers.append(
+            alt.Chart(pd.DataFrame({"b": _grid, "density": _norm}))
+            .mark_line(color="#9aa5b1", strokeDash=[4, 3], size=2)
+            .encode(x=alt.X("b:Q", scale=_xscale), y=alt.Y("density:Q", scale=_yscale))
+        )
+    if len(_arr) > 0:
+        _layers.append(
+            alt.Chart(pd.DataFrame({"b": _arr, "density": np.zeros_like(_arr)}))
+            .mark_tick(color="#1f4e79", opacity=0.5, thickness=1, size=10)
+            .encode(x=alt.X("b:Q", scale=_xscale), y=alt.Y("density:Q", scale=_yscale))
+        )
+    _layers.append(
         alt.Chart(pd.DataFrame({"b": [_b1]}))
         .mark_rule(color="orange", size=2.5)
-        .encode(x="b:Q")
+        .encode(x=alt.X("b:Q", scale=_xscale, title="Collected slope estimates"))
     )
-    _layers = [_hist, _rule]
-
-    if len(_betas) >= 50:
-        _se_th = float(sd_errsd.value) / (float(sd_xspread.value) * (int(sd_n.value) ** 0.5))
-        _grid = np.linspace(_dlo, _dhi, 200)
-        _curve = (
-            alt.Chart(pd.DataFrame({
-                "b": _grid,
-                "count": stats.norm.pdf(_grid, _b1, _se_th) * len(_betas) * _step,
-            }))
-            .mark_line(color="orange", size=2)
-            .encode(x="b:Q", y="count:Q")
-        )
-        _layers.append(_curve)
 
     _chart = alt.layer(*_layers).properties(
         width=370, height=300, title="Sampling distribution built from your draws"
@@ -342,10 +351,13 @@ def _(alt, get_acc, mo, np, pd, sd_errsd, sd_n, sd_xspread, stats):
     _c = len(_betas)
     _plural = "" if _c == 1 else "s"
     _body = (
-        f"You have collected {_c} slope estimate{_plural}. Each press of Draw new "
-        f"sample adds one more. The orange line marks the true slope of 1.2. Keep "
-        f"drawing and the bars settle into a bell centered there."
+        f"You have collected {_c} slope estimate{_plural}, each drawn as a tick on "
+        f"the axis. The shaded curve is their kernel density, scaled so the area "
+        f"under it is one. The orange line marks the true slope of 1.2. Keep "
+        f"drawing and the density piles up into a bell centered there."
     )
+    if _show_normal:
+        _body += " The grey dashed curve is the normal density the theory predicts."
     _caption = mo.md(
         '<span style="display:block;margin:0.2rem auto 0.5rem;max-width:370px;'
         'font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;">'
@@ -365,134 +377,8 @@ def _(mo):
 
     The variance formula in Section 1 assumed the error spread is the same at every level of education. The error is *heteroskedastic* when that spread changes with $X$. Wages fit this case. Among workers with little education, hourly wages sit in a narrow band near the bottom. Among workers with a college degree, some earn close to the average for their group while others earn far more, so the band of wages is much wider.
 
-    We never see $u$ itself, but the residuals $\hat{u}_i = Y_i - \hat{\beta}_0 - \hat{\beta}_1 X_i$ estimate it, and their spread is what a scatter plot shows. Click bands of education in the plot below to make wages more variable there. The two formulas underneath report the estimated variance of $\hat{\beta}_1$ two ways. The first assumes equal spread everywhere. The second allows the spread to change with education. With no bands selected the two nearly match. As you concentrate the variance, they pull apart, and the equal-spread formula is the one that goes wrong.
+    We never see $u$ itself, but the residuals $\hat{u}_i = Y_i - \hat{\beta}_0 - \hat{\beta}_1 X_i$ estimate it, and their spread is what a scatter plot shows.
     """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(alt, mo, pd):
-    _bands = pd.DataFrame({
-        "band": [0, 1, 2, 3, 4, 5],
-        "x0": [8.0, 10.0, 12.0, 14.0, 16.0, 18.0],
-        "x1": [10.0, 12.0, 14.0, 16.0, 18.0, 20.0],
-        "xm": [9.0, 11.0, 13.0, 15.0, 17.0, 19.0],
-        "label": ["8 to 10", "10 to 12", "12 to 14", "14 to 16", "16 to 18", "18 to 20"],
-    })
-    _sel = alt.selection_point(fields=["band"], toggle=True, empty=False)
-    _rects = (
-        alt.Chart(_bands)
-        .mark_rect(stroke="white", strokeWidth=2)
-        .encode(
-            x=alt.X("x0:Q", scale=alt.Scale(domain=[8.0, 20.0], nice=False), title=None, axis=None),
-            x2="x1:Q",
-            color=alt.condition(_sel, alt.value("#e8973a"), alt.value("#cdd6df")),
-        )
-    )
-    _text = (
-        alt.Chart(_bands)
-        .mark_text(color="#1f2937", fontSize=11, baseline="middle")
-        .encode(
-            x=alt.X("xm:Q", scale=alt.Scale(domain=[8.0, 20.0], nice=False)),
-            y=alt.value(20),
-            text="label:N",
-        )
-    )
-    _strip = (
-        (_rects + _text)
-        .add_params(_sel)
-        .properties(width=560, height=40, title="Click bands of education to make wages more variable there")
-    )
-    het_strip = mo.ui.altair_chart(_strip, chart_selection=False, legend_selection=False)
-    het_strip
-    return (het_strip,)
-
-
-@app.cell(hide_code=True)
-def _(alt, het_strip, mo, np, pd):
-    _selected = set()
-    _v = het_strip.value
-    if _v is not None and len(_v) > 0 and "band" in _v:
-        _selected = set(int(b) for b in _v["band"].tolist())
-
-    _rng = np.random.default_rng(3)
-    _n = 240
-    _X = _rng.uniform(8.0, 20.0, _n)
-    _band_idx = np.clip(((_X - 8.0) // 2.0).astype(int), 0, 5)
-    _base_sd, _high_sd = 2.0, 6.0
-    _is_high = np.isin(_band_idx, list(_selected)) if _selected else np.zeros(_n, dtype=bool)
-    _sd_i = np.where(_is_high, _high_sd, _base_sd)
-    _Z = _rng.standard_normal(_n)
-    _Y = 8.0 + 1.2 * _X + _sd_i * _Z
-
-    _b1h = float(np.cov(_X, _Y, ddof=1)[0, 1] / np.var(_X, ddof=1))
-    _b0h = float(_Y.mean() - _b1h * _X.mean())
-    _resid = _Y - (_b0h + _b1h * _X)
-    _dev2 = (_X - _X.mean()) ** 2
-    _sxx = float(np.sum(_dev2))
-    _varhat_u = float(np.sum(_resid ** 2) / (_n - 2))
-    _var_homo = _varhat_u / _sxx
-    _num = float(np.sum(_dev2 * _resid ** 2) / (_n - 2))
-    _den = float((np.sum(_dev2) / _n) ** 2)
-    _var_robust = (1.0 / _n) * _num / _den
-
-    _pts = pd.DataFrame({"x": _X, "y": _Y, "high": _is_high.astype(int)})
-    _xline = np.array([8.0, 20.0])
-    _fit = pd.DataFrame({"x": _xline, "y": _b0h + _b1h * _xline})
-    _xdom = [8.0, 20.0]
-    _ydom = [0.0, 55.0]
-    _scatter = (
-        alt.Chart(_pts)
-        .mark_circle(opacity=0.55, size=45, clip=True)
-        .encode(
-            x=alt.X("x:Q", title="Years of education", scale=alt.Scale(domain=_xdom, nice=False)),
-            y=alt.Y("y:Q", title="Hourly wage (USD)", scale=alt.Scale(domain=_ydom, nice=False)),
-            color=alt.condition("datum.high == 1", alt.value("#e8973a"), alt.value("#1f4e79")),
-        )
-    )
-    _line = (
-        alt.Chart(_fit)
-        .mark_line(color="#111827", size=2.5, clip=True)
-        .encode(x="x:Q", y="y:Q")
-    )
-    _chart = (_scatter + _line).properties(width=560, height=300, title="Wages and education")
-
-    _homo_str = f"{_var_homo:.5f}"
-    _rob_str = f"{_var_robust:.5f}"
-    _formulas = mo.md(
-        r"""
-The homoskedastic estimate, which assumes the spread is the same everywhere, is
-
-$$\hat{\sigma}^2_{\hat{\beta}_1} = \frac{\widehat{\operatorname{var}}(\hat{u})}{\sum_i (X_i-\hat{\mu}_X)^2} = """
-        + _homo_str
-        + r""".$$
-
-The heteroskedasticity-robust estimate, which lets the spread change with education, is
-
-$$\hat{\sigma}^2_{\hat{\beta}_1} = \frac{\frac{1}{n}\cdot\frac{1}{n-2}\sum_i (X_i-\hat{\mu}_X)^2\,\hat{u}_i^2}{\left[\frac{1}{n}\sum_i (X_i-\hat{\mu}_X)^2\right]^2} = """
-        + _rob_str
-        + r""".$$
-"""
-    )
-
-    if not _selected:
-        _msg = (
-            "With no bands selected the spread is equal everywhere, and the two "
-            "estimates of the variance of the slope nearly match."
-        )
-    else:
-        _msg = (
-            "The orange points sit in the bands you selected, where wages are now "
-            "more variable. The two estimates have pulled apart, and the equal-spread "
-            "estimate no longer reports the right variance."
-        )
-    _caption = mo.md(
-        '<span style="display:block;margin:0.2rem auto 1rem;max-width:560px;'
-        'font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;">'
-        + _msg + "</span>"
-    )
-
-    mo.vstack([_chart, _formulas, _caption])
     return
 
 
@@ -508,8 +394,168 @@ def _(mo):
     \hat{\sigma}^2_{\hat{\beta}_1} = \frac{1}{n} \cdot \frac{\frac{1}{n-2}\sum_{i=1}^{n}(X_i-\hat{\mu}_X)^2\,\hat{u}_i^2}{\left[\frac{1}{n}\sum_{i=1}^{n}(X_i-\hat{\mu}_X)^2\right]^2}.
     $$
 
-    This is the *heteroskedasticity-robust standard error*, the second number under the plot above. It lets the spread of the error change with $X$, and it counts a large residual more heavily when that residual sits far from the average education, since a point far out on the horizontal axis has more pull on the slope. Robust standard errors are correct whether or not the error is homoskedastic, so regression software reports them by default and this course uses them throughout.
+    This is the *heteroskedasticity-robust standard error*. It lets the spread of the error change with $X$, and it counts a large residual more heavily when that residual sits far from the average education, since a point far out on the horizontal axis has more pull on the slope. Robust standard errors are correct whether or not the error is homoskedastic, so regression software reports them by default and this course uses them throughout.
+
+    The plot below puts the two estimates side by side. Click the education bands on the scatter to make wages more variable there, and drag the slider to set how much more variable. Beneath the plot, the equal-spread estimate of the variance of $\hat{\beta}_1$ sits next to the robust estimate. With no bands selected the two nearly match. As you concentrate the variance, they pull apart, and the equal-spread estimate is the one that goes wrong.
     """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    het_mult = mo.ui.slider(
+        start=1.0, stop=8.0, step=0.5, value=4.0,
+        label="How much larger is the spread in the selected bands?",
+        show_value=True,
+    )
+    het_mult
+    return (het_mult,)
+
+
+@app.cell(hide_code=True)
+def _(alt, het_mult, mo, np, pd):
+    _mult = float(het_mult.value)
+    _rng = np.random.default_rng(3)
+    _n = 240
+    _X = _rng.uniform(8.0, 20.0, _n)
+    _band_idx = np.clip(((_X - 8.0) // 2.0).astype(int), 0, 5)
+    _Z = _rng.standard_normal(_n)
+    _base_sd = 2.0
+    _fit_y = 8.0 + 1.2 * _X
+    _ybase = _fit_y + _base_sd * _Z
+    _yhigh = _fit_y + _base_sd * _mult * _Z
+
+    # The slope is barely affected by heteroskedasticity, so a single baseline
+    # OLS line is drawn and held fixed while the spread changes.
+    _b1h = float(np.cov(_X, _ybase, ddof=1)[0, 1] / np.var(_X, ddof=1))
+    _b0h = float(_ybase.mean() - _b1h * _X.mean())
+    _xline = np.array([8.0, 20.0])
+    _fitdf = pd.DataFrame({"x": _xline, "y": _b0h + _b1h * _xline})
+
+    _pts = pd.DataFrame({"x": _X, "ybase": _ybase, "yhigh": _yhigh, "band": _band_idx})
+    _bands = pd.DataFrame({
+        "band": [0, 1, 2, 3, 4, 5],
+        "x0": [8.0, 10.0, 12.0, 14.0, 16.0, 18.0],
+        "x1": [10.0, 12.0, 14.0, 16.0, 18.0, 20.0],
+    })
+
+    _xsc = alt.Scale(domain=[8.0, 20.0], nice=False)
+    _ysc = alt.Scale(domain=[0.0, 62.0], nice=False)
+    _sel = alt.selection_point(fields=["band"], toggle=True, empty=False)
+
+    # Baseline points, hidden inside a selected band so the wider points show.
+    _base = (
+        alt.Chart(_pts)
+        .mark_circle(size=40, color="#1f4e79", clip=True)
+        .encode(
+            x=alt.X("x:Q", title="Years of education", scale=_xsc),
+            y=alt.Y("ybase:Q", title="Hourly wage (USD)", scale=_ysc),
+            opacity=alt.condition(_sel, alt.value(0.0), alt.value(0.55)),
+        )
+    )
+    # Wider points, shown only inside a selected band.
+    _high = (
+        alt.Chart(_pts)
+        .mark_circle(size=40, color="#e8973a", clip=True)
+        .encode(
+            x=alt.X("x:Q", scale=_xsc),
+            y=alt.Y("yhigh:Q", scale=_ysc),
+            opacity=alt.condition(_sel, alt.value(0.7), alt.value(0.0)),
+        )
+    )
+    _line = (
+        alt.Chart(_fitdf)
+        .mark_line(color="#111827", size=2.5, clip=True)
+        .encode(x=alt.X("x:Q", scale=_xsc), y=alt.Y("y:Q", scale=_ysc))
+    )
+    # Full-height band backgrounds carry the click target.
+    _rects = (
+        alt.Chart(_bands)
+        .mark_rect()
+        .encode(
+            x=alt.X("x0:Q", scale=_xsc),
+            x2="x1:Q",
+            color=alt.condition(_sel, alt.value("#e8973a"), alt.value("#9aa5b1")),
+            opacity=alt.condition(_sel, alt.value(0.18), alt.value(0.05)),
+        )
+    )
+    _spec = (
+        (_base + _high + _line + _rects)
+        .add_params(_sel)
+        .properties(
+            width=560, height=320,
+            title="Click bands to raise the variance there; drag the slider for how much",
+        )
+    )
+    het_chart = mo.ui.altair_chart(_spec, chart_selection=False, legend_selection=False)
+    het_chart
+    return (het_chart,)
+
+
+@app.cell(hide_code=True)
+def _(het_chart, het_mult, mo, np, pd):
+    _selected = set()
+    _v = het_chart.value
+    if _v is not None and len(_v) > 0 and "band" in _v:
+        _selected = set(int(b) for b in _v["band"].tolist())
+    _mult = float(het_mult.value)
+
+    _rng = np.random.default_rng(3)
+    _n = 240
+    _X = _rng.uniform(8.0, 20.0, _n)
+    _band_idx = np.clip(((_X - 8.0) // 2.0).astype(int), 0, 5)
+    _Z = _rng.standard_normal(_n)
+    _base_sd = 2.0
+    _is_high = np.isin(_band_idx, list(_selected)) if _selected else np.zeros(_n, dtype=bool)
+    _sd_i = np.where(_is_high, _base_sd * _mult, _base_sd)
+    _Y = 8.0 + 1.2 * _X + _sd_i * _Z
+
+    _b1h = float(np.cov(_X, _Y, ddof=1)[0, 1] / np.var(_X, ddof=1))
+    _b0h = float(_Y.mean() - _b1h * _X.mean())
+    _resid = _Y - (_b0h + _b1h * _X)
+    _dev2 = (_X - _X.mean()) ** 2
+    _sxx = float(np.sum(_dev2))
+    _varhat_u = float(np.sum(_resid ** 2) / (_n - 2))
+    _var_homo = _varhat_u / _sxx
+    _num = float(np.sum(_dev2 * _resid ** 2) / (_n - 2))
+    _den = float((np.sum(_dev2) / _n) ** 2)
+    _var_robust = (1.0 / _n) * _num / _den
+
+    _homo_str = f"{_var_homo:.5f}"
+    _rob_str = f"{_var_robust:.5f}"
+    _formulas = mo.md(
+        r"""
+The equal-spread (homoskedastic) estimate is
+
+$$\hat{\sigma}^2_{\hat{\beta}_1} = \frac{\widehat{\operatorname{var}}(\hat{u})}{\sum_i (X_i-\hat{\mu}_X)^2} = """
+        + _homo_str
+        + r""".$$
+
+The heteroskedasticity-robust estimate is
+
+$$\hat{\sigma}^2_{\hat{\beta}_1} = \frac{\frac{1}{n}\cdot\frac{1}{n-2}\sum_i (X_i-\hat{\mu}_X)^2\,\hat{u}_i^2}{\left[\frac{1}{n}\sum_i (X_i-\hat{\mu}_X)^2\right]^2} = """
+        + _rob_str
+        + r""".$$
+"""
+    )
+
+    if not _selected:
+        _msg = (
+            "No bands are selected, so the spread is the same everywhere and the "
+            "two estimates of the variance of the slope nearly match."
+        )
+    else:
+        _msg = (
+            "Wages are more variable in the orange bands you selected. The two "
+            "estimates have pulled apart, and the equal-spread estimate no longer "
+            "reports the right variance."
+        )
+    _caption = mo.md(
+        '<span style="display:block;margin:0.2rem auto 1rem;max-width:560px;'
+        'font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;">'
+        + _msg + "</span>"
+    )
+    mo.vstack([_formulas, _caption])
     return
 
 
@@ -629,15 +675,6 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""
-    <a id="appendix"></a>
-    ## Appendix
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
     _appendix = mo.md(r"""
     This appendix derives the two results used in the main text. You will not be tested on it.
 
@@ -673,7 +710,7 @@ def _(mo):
 
     So $\mathbb{E}[\hat{\beta}_1 \mid X] = \beta_1$, and averaging over $X$ by the law of iterated expectations gives $\mathbb{E}[\hat{\beta}_1] = \beta_1$.
     """)
-    mo.accordion({"Bonus material (not on assessments)": _appendix})
+    mo.accordion({"## Appendix": _appendix})
     return
 
 
