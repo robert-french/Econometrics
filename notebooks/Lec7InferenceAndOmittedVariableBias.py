@@ -403,101 +403,27 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(mo):
+    get_hbands, set_hbands = mo.state(frozenset())
+    return get_hbands, set_hbands
+
+
+@app.cell(hide_code=True)
+def _(mo, set_hbands):
     het_mult = mo.ui.slider(
         start=1.0, stop=8.0, step=0.5, value=4.0,
         label="How much larger is the spread in the selected bands?",
         show_value=True,
     )
-    het_mult
+    het_clear = mo.ui.button(
+        label="Clear bands", on_change=lambda _v: set_hbands(frozenset()),
+    )
+    mo.hstack([het_mult, het_clear], justify="start", align="end")
     return (het_mult,)
 
 
 @app.cell(hide_code=True)
-def _(alt, het_mult, mo, np, pd):
-    _mult = float(het_mult.value)
-    _rng = np.random.default_rng(3)
-    _n = 240
-    _X = _rng.uniform(8.0, 20.0, _n)
-    _band_idx = np.clip(((_X - 8.0) // 2.0).astype(int), 0, 5)
-    _Z = _rng.standard_normal(_n)
-    _base_sd = 2.0
-    _fit_y = 8.0 + 1.2 * _X
-    _ybase = _fit_y + _base_sd * _Z
-    _yhigh = _fit_y + _base_sd * _mult * _Z
-
-    # The slope is barely affected by heteroskedasticity, so a single baseline
-    # OLS line is drawn and held fixed while the spread changes.
-    _b1h = float(np.cov(_X, _ybase, ddof=1)[0, 1] / np.var(_X, ddof=1))
-    _b0h = float(_ybase.mean() - _b1h * _X.mean())
-    _xline = np.array([8.0, 20.0])
-    _fitdf = pd.DataFrame({"x": _xline, "y": _b0h + _b1h * _xline})
-
-    _pts = pd.DataFrame({"x": _X, "ybase": _ybase, "yhigh": _yhigh, "band": _band_idx})
-    _bands = pd.DataFrame({
-        "band": [0, 1, 2, 3, 4, 5],
-        "x0": [8.0, 10.0, 12.0, 14.0, 16.0, 18.0],
-        "x1": [10.0, 12.0, 14.0, 16.0, 18.0, 20.0],
-    })
-
-    _xsc = alt.Scale(domain=[8.0, 20.0], nice=False)
-    _ysc = alt.Scale(domain=[0.0, 62.0], nice=False)
-    _sel = alt.selection_point(fields=["band"], toggle=True, empty=False)
-
-    # Baseline points, hidden inside a selected band so the wider points show.
-    _base = (
-        alt.Chart(_pts)
-        .mark_circle(size=40, color="#1f4e79", clip=True)
-        .encode(
-            x=alt.X("x:Q", title="Years of education", scale=_xsc),
-            y=alt.Y("ybase:Q", title="Hourly wage (USD)", scale=_ysc),
-            opacity=alt.condition(_sel, alt.value(0.0), alt.value(0.55)),
-        )
-    )
-    # Wider points, shown only inside a selected band.
-    _high = (
-        alt.Chart(_pts)
-        .mark_circle(size=40, color="#e8973a", clip=True)
-        .encode(
-            x=alt.X("x:Q", scale=_xsc),
-            y=alt.Y("yhigh:Q", scale=_ysc),
-            opacity=alt.condition(_sel, alt.value(0.7), alt.value(0.0)),
-        )
-    )
-    _line = (
-        alt.Chart(_fitdf)
-        .mark_line(color="#111827", size=2.5, clip=True)
-        .encode(x=alt.X("x:Q", scale=_xsc), y=alt.Y("y:Q", scale=_ysc))
-    )
-    # Full-height band backgrounds carry the click target.
-    _rects = (
-        alt.Chart(_bands)
-        .mark_rect()
-        .encode(
-            x=alt.X("x0:Q", scale=_xsc),
-            x2="x1:Q",
-            color=alt.condition(_sel, alt.value("#e8973a"), alt.value("#9aa5b1")),
-            opacity=alt.condition(_sel, alt.value(0.18), alt.value(0.05)),
-        )
-    )
-    _spec = (
-        (_base + _high + _line + _rects)
-        .add_params(_sel)
-        .properties(
-            width=560, height=320,
-            title="Click bands to raise the variance there; drag the slider for how much",
-        )
-    )
-    het_chart = mo.ui.altair_chart(_spec, chart_selection=False, legend_selection=False)
-    het_chart
-    return (het_chart,)
-
-
-@app.cell(hide_code=True)
-def _(het_chart, het_mult, mo, np, pd):
-    _selected = set()
-    _v = het_chart.value
-    if _v is not None and len(_v) > 0 and "band" in _v:
-        _selected = set(int(b) for b in _v["band"].tolist())
+def _(alt, get_hbands, het_mult, mo, np, pd):
+    _selected = set(int(b) for b in get_hbands())
     _mult = float(het_mult.value)
 
     _rng = np.random.default_rng(3)
@@ -521,22 +447,68 @@ def _(het_chart, het_mult, mo, np, pd):
     _den = float((np.sum(_dev2) / _n) ** 2)
     _var_robust = (1.0 / _n) * _num / _den
 
+    _pts = pd.DataFrame({"x": _X, "y": _Y, "band": _band_idx, "high": _is_high.astype(int)})
+    _xline = np.array([8.0, 20.0])
+    _fitdf = pd.DataFrame({"x": _xline, "y": _b0h + _b1h * _xline})
+    _bands = pd.DataFrame({
+        "band": [0, 1, 2, 3, 4, 5],
+        "x0": [8.0, 10.0, 12.0, 14.0, 16.0, 18.0],
+        "x1": [10.0, 12.0, 14.0, 16.0, 18.0, 20.0],
+        "active": [b in _selected for b in range(6)],
+    })
+
+    _xsc = alt.Scale(domain=[8.0, 20.0], nice=False)
+    _ysc = alt.Scale(domain=[0.0, 62.0], nice=False)
+
+    # Band backgrounds (highlight only) sit behind the points.
+    _rects = (
+        alt.Chart(_bands)
+        .mark_rect()
+        .encode(
+            x=alt.X("x0:Q", scale=_xsc, title="Years of education"),
+            x2="x1:Q",
+            color=alt.condition("datum.active", alt.value("#e8973a"), alt.value("#9aa5b1")),
+            opacity=alt.condition("datum.active", alt.value(0.18), alt.value(0.05)),
+        )
+    )
+    _line = (
+        alt.Chart(_fitdf)
+        .mark_line(color="#111827", size=2.5, clip=True)
+        .encode(x=alt.X("x:Q", scale=_xsc), y=alt.Y("y:Q", scale=_ysc))
+    )
+    # The points are the click target; their colour shows which bands are active.
+    _points = (
+        alt.Chart(_pts)
+        .mark_circle(size=45, opacity=0.55, clip=True)
+        .encode(
+            x=alt.X("x:Q", scale=_xsc, title="Years of education"),
+            y=alt.Y("y:Q", scale=_ysc, title="Hourly wage (USD)"),
+            color=alt.condition("datum.high == 1", alt.value("#e8973a"), alt.value("#1f4e79")),
+        )
+    )
+    het_spec = (_rects + _line + _points).properties(
+        width=560, height=320,
+        title="Click a point to raise the variance in its band; drag the slider for how much",
+    )
+
     _homo_str = f"{_var_homo:.5f}"
     _rob_str = f"{_var_robust:.5f}"
-    _formulas = mo.md(
-        r"""
-The equal-spread (homoskedastic) estimate is
+    _homo_panel = mo.md(
+        r"""**Equal-spread (homoskedastic)**
 
 $$\hat{\sigma}^2_{\hat{\beta}_1} = \frac{\widehat{\operatorname{var}}(\hat{u})}{\sum_i (X_i-\hat{\mu}_X)^2} = """
         + _homo_str
-        + r""".$$
-
-The heteroskedasticity-robust estimate is
+        + r"$$"
+    )
+    _rob_panel = mo.md(
+        r"""**Heteroskedasticity-robust**
 
 $$\hat{\sigma}^2_{\hat{\beta}_1} = \frac{\frac{1}{n}\cdot\frac{1}{n-2}\sum_i (X_i-\hat{\mu}_X)^2\,\hat{u}_i^2}{\left[\frac{1}{n}\sum_i (X_i-\hat{\mu}_X)^2\right]^2} = """
         + _rob_str
-        + r""".$$
-"""
+        + r"$$"
+    )
+    het_formulas = mo.hstack(
+        [_homo_panel, _rob_panel], justify="center", align="center", gap=2.0
     )
 
     if not _selected:
@@ -550,12 +522,28 @@ $$\hat{\sigma}^2_{\hat{\beta}_1} = \frac{\frac{1}{n}\cdot\frac{1}{n-2}\sum_i (X_
             "estimates have pulled apart, and the equal-spread estimate no longer "
             "reports the right variance."
         )
-    _caption = mo.md(
+    het_caption = mo.md(
         '<span style="display:block;margin:0.2rem auto 1rem;max-width:560px;'
         'font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;">'
         + _msg + "</span>"
     )
-    mo.vstack([_formulas, _caption])
+    return het_caption, het_formulas, het_spec
+
+
+@app.cell(hide_code=True)
+def _(get_hbands, het_caption, het_formulas, het_spec, mo, set_hbands):
+    def _toggle(value):
+        if value is None or len(value) == 0 or "band" not in value:
+            return
+        _clicked = set(int(b) for b in value["band"].tolist())
+        _cur = set(get_hbands())
+        _cur ^= _clicked
+        set_hbands(frozenset(_cur))
+
+    het_chart = mo.ui.altair_chart(
+        het_spec, chart_selection="point", legend_selection=False, on_change=_toggle,
+    )
+    mo.vstack([het_chart, het_formulas, het_caption])
     return
 
 
