@@ -6,6 +6,7 @@
 #     "pandas",
 #     "altair",
 #     "scipy",
+#     "pyarrow",
 # ]
 # ///
 
@@ -39,11 +40,11 @@ def _(mo):
             mo.md("Inference and Omitted Variable Bias in Simple Regression"),
             mo.nav_menu(
                 {
-                    "#sec1": "1. Homoskedasticity and heteroskedasticity",
-                    "#sec2": "2. The variance of the slope estimator",
-                    "#sec2a": "What drives the variance",
-                    "#sec2b": "Heteroskedasticity-robust standard errors",
-                    "#sec3": "3. The sampling distribution of the slope",
+                    "#sec1": "1. The variance of the slope estimator",
+                    "#sec1a": "What drives the variance",
+                    "#sec2": "2. The sampling distribution of the slope",
+                    "#sec3": "3. Heteroskedasticity",
+                    "#sec3a": "Heteroskedasticity-robust standard errors",
                     "#sec4": "4. Hypothesis tests for the slope",
                     "#sec5": "5. Confidence intervals for the slope",
                     "#sec6": "6. Unbiasedness and consistency",
@@ -91,11 +92,11 @@ def _(mo):
     mo.md(r"""
     ## Contents
 
-    [1. Homoskedasticity and heteroskedasticity](#sec1)<br>
-    [2. The variance of the slope estimator](#sec2)<br>
-    &emsp;&emsp;[What drives the variance](#sec2a)<br>
-    &emsp;&emsp;[Heteroskedasticity-robust standard errors](#sec2b)<br>
-    [3. The sampling distribution of the slope](#sec3)<br>
+    [1. The variance of the slope estimator](#sec1)<br>
+    &emsp;&emsp;[What drives the variance](#sec1a)<br>
+    [2. The sampling distribution of the slope](#sec2)<br>
+    [3. Heteroskedasticity](#sec3)<br>
+    &emsp;&emsp;[Heteroskedasticity-robust standard errors](#sec3a)<br>
     [4. Hypothesis tests for the slope](#sec4)<br>
     [5. Confidence intervals for the slope](#sec5)<br>
     [6. Unbiasedness and consistency](#sec6)<br>
@@ -109,96 +110,15 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec1"></a>
-    ## 1. Homoskedasticity and heteroskedasticity
+    ## 1. The variance of the slope estimator
 
-    Lecture 6 wrote the regression model as $Y_i = \beta_0 + \beta_1 X_i + u_i$, where the error $u_i$ collects everything other than education that moves a worker's wage. That error has a spread around the line, and the size of that spread can either stay the same across education levels or change with them.
-
-    The error is *homoskedastic* when the variance of $u$ does not depend on $X$, so the vertical spread of wages around the line is the same at eight years of education as it is at twenty. The error is *heteroskedastic* when that variance changes with $X$. Wages fit the heteroskedastic case. Among workers with little education, hourly wages sit in a narrow band near the bottom. Among workers with a college degree, some earn close to the average for their group while others earn far more, so the band of wages is much wider.
-
-    We never see $u$ itself, but the residuals $\hat{u}_i = Y_i - \hat{\beta}_0 - \hat{\beta}_1 X_i$ estimate it, and their spread is what a scatter plot shows. The slider below grows that spread with education. At zero the band has the same width everywhere. Move it toward one and the points fan out toward the right.
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    het_strength = mo.ui.slider(
-        start=0.0, stop=1.0, step=0.1, value=0.0,
-        label="How much does the spread grow with education?",
-        show_value=True,
-    )
-    het_strength
-    return (het_strength,)
-
-
-@app.cell(hide_code=True)
-def _(alt, het_strength, mo, np, pd):
-    _rng = np.random.default_rng(7)
-    _n = 140
-    _b0, _b1 = 8.0, 1.2
-    _X = _rng.uniform(8.0, 20.0, _n)
-    _Z = _rng.standard_normal(_n)
-    _het = float(het_strength.value)
-    _scale = 1.0 + _het * (_X - 8.0) / 6.0
-    _Y = _b0 + _b1 * _X + 2.5 * _scale * _Z
-
-    _b1h = float(np.cov(_X, _Y, ddof=1)[0, 1] / np.var(_X, ddof=1))
-    _b0h = float(_Y.mean() - _b1h * _X.mean())
-    _xline = np.array([8.0, 20.0])
-    _pts = pd.DataFrame({"x": _X, "y": _Y})
-    _fit = pd.DataFrame({"x": _xline, "y": _b0h + _b1h * _xline})
-
-    _xdom = [7.0, 21.0]
-    _ydom = [0.0, 50.0]
-    _scatter = (
-        alt.Chart(_pts)
-        .mark_circle(color="#1f4e79", opacity=0.6, size=55, clip=True)
-        .encode(
-            x=alt.X("x:Q", title="Years of education", scale=alt.Scale(domain=_xdom, nice=False)),
-            y=alt.Y("y:Q", title="Hourly wage (USD)", scale=alt.Scale(domain=_ydom, nice=False)),
-        )
-    )
-    _line = (
-        alt.Chart(_fit)
-        .mark_line(color="orange", size=2.5, clip=True)
-        .encode(x="x:Q", y="y:Q")
-    )
-    _chart = (_scatter + _line).properties(
-        width=560, height=340, title="Wages and education, with the OLS line"
-    )
-
-    if _het == 0.0:
-        _body = (
-            "The vertical spread of wages around the line is the same at every "
-            "level of education. This is the homoskedastic case."
-        )
-    else:
-        _body = (
-            "The points now fan out as education rises, so wages are more spread "
-            "out among the highly educated than among the least educated. This is "
-            "the heteroskedastic case. The orange line barely moves, because "
-            "heteroskedasticity changes the spread around the line, not its slope."
-        )
-    _caption = mo.md(
-        '<span style="display:block;margin:0.2rem auto 1rem;max-width:560px;'
-        'font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;">'
-        + _body + "</span>"
-    )
-    mo.vstack([_chart, _caption])
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    <a id="sec2"></a>
-    ## 2. The variance of the slope estimator
-
-    The slope estimate $\hat{\beta}_1$ changes from one sample to the next, because each sample draws different workers. To judge how far a single estimate might sit from the truth, we need the variance of $\hat{\beta}_1$ across samples. When the error is homoskedastic, that variance is
+    Lecture 6 wrote the regression model as $Y_i = \beta_0 + \beta_1 X_i + u_i$, where the error $u_i$ collects everything other than education that moves a worker's wage. The slope estimate $\hat{\beta}_1$ changes from one sample to the next, because each sample draws different workers. To judge how far a single estimate might sit from the true slope, we need the variance of $\hat{\beta}_1$ across samples. When the spread of the error around the line is the same at every level of education, a case called *homoskedasticity*, that variance is
 
     $$
     \sigma^2_{\hat{\beta}_1} = \frac{\operatorname{var}(u)}{(n-1)\cdot \widehat{\operatorname{var}}(X)}.
     $$
+
+    Section 3 takes up the opposite case, where the spread changes with education.
 
     We never observe $\operatorname{var}(u)$, so we estimate it from the residuals as $\widehat{\operatorname{var}}(\hat{u}) = \frac{1}{n-2}\sum_{i=1}^{n}\hat{u}_i^2$, the sum of squared residuals divided by $n-2$. The divisor is $n-2$ rather than $n$ because estimating $\hat{\beta}_0$ and $\hat{\beta}_1$ uses up two pieces of information from the sample. Putting this estimate into the formula gives the sample version,
 
@@ -214,59 +134,107 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    <a id="sec2a"></a>
+    <a id="sec1a"></a>
     ### <span style="color:#0b68cb">What drives the variance</span>
 
-    Three quantities in the formula set the size of $\sigma^2_{\hat{\beta}_1}$. The variance of $X$ sits in the denominator, so a wider spread of education across workers makes the slope easier to pin down and shrinks the variance. The variance of $u$ sits in the numerator, so noisier wages around the line make the slope harder to pin down and raise the variance. The sample size $n$ enters through the $(n-1)$ factor and the sum over all $n$ observations, so collecting more workers shrinks the variance.
-
-    The plot below draws a fresh sample of workers and reports $\operatorname{se}(\hat{\beta}_1)$. The black line is the OLS fit, and the orange dashed lines are the slopes 1.96 standard errors on either side, the edge of a 95% confidence interval for the slope. Raise the sample size or widen the spread of education and the orange fan tightens. Raise the error spread and it widens.
+    Three quantities in the formula set the size of $\sigma^2_{\hat{\beta}_1}$. The variance of $X$ sits in the denominator, so a wider spread of education across workers makes the slope easier to pin down and shrinks the variance. The variance of $u$ sits in the numerator, so noisier wages around the line make the slope harder to pin down and raise the variance. The sample size $n$ enters through the $(n-1)$ factor and the sum over all $n$ observations, so collecting more workers shrinks the variance. The interactive plot in Section 2 lets you change all three and watch the standard error respond.
     """)
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    vd_n = mo.ui.slider(
-        start=20, stop=400, step=20, value=80,
-        label="Sample size (n)", show_value=True,
-    )
-    vd_xspread = mo.ui.slider(
-        start=1.0, stop=6.0, step=0.5, value=3.5,
-        label="Spread of education (standard deviation of X)", show_value=True,
-    )
-    vd_errsd = mo.ui.slider(
-        start=1.0, stop=8.0, step=0.5, value=3.0,
-        label="Error standard deviation", show_value=True,
-    )
-    vd_button = mo.ui.button(
-        label="Draw new sample", value=0, on_click=lambda c: c + 1,
-    )
-    mo.vstack([vd_n, vd_xspread, vd_errsd, vd_button])
-    return vd_button, vd_errsd, vd_n, vd_xspread
+    mo.md(r"""
+    <a id="sec2"></a>
+    ## 2. The sampling distribution of the slope
+
+    Knowing the variance of $\hat{\beta}_1$ is only useful once we also know the shape of its distribution across samples. Under the three least squares assumptions from Lecture 6, that the conditional mean of the error is zero, that the data are independent and identically distributed, and that large outliers are unlikely, the estimate follows a normal distribution,
+
+    $$
+    \hat{\beta}_1 \sim \mathcal{N}\!\left(\beta_1,\ \sigma^2_{\hat{\beta}_1}\right).
+    $$
+
+    The result comes from the central limit theorem of Lecture 2. The slope estimate can be written as a kind of sample average over the $n$ workers, and a sample average of independent draws is close to normal once $n$ is reasonably large. The center of the distribution is the true slope $\beta_1$, and its spread is the standard error from Section 1.
+
+    The plot below makes this concrete. Set the sliders, then press Draw new sample. Each draw shows one sample of workers, fits the OLS line, and reports its standard error. The orange dashed lines are the slopes 1.96 standard errors to each side, the reach of a 95% confidence interval. Each draw also drops its slope estimate into the histogram beneath, so repeated draws build up the sampling distribution by hand. Press Reset histogram to empty it, and reset after moving a slider so the collected slopes all come from the same settings.
+    """)
+    return
 
 
 @app.cell(hide_code=True)
-def _(alt, mo, np, pd, vd_button, vd_errsd, vd_n, vd_xspread):
-    _rng = np.random.default_rng(20 + vd_button.value)
-    _n = int(vd_n.value)
-    _xsd = float(vd_xspread.value)
-    _esd = float(vd_errsd.value)
-    _b0, _b1 = 8.0, 1.2
-    _xbar = 14.0
-    _Zx = _rng.standard_normal(_n)
-    _Zu = _rng.standard_normal(_n)
-    _X = _xbar + _xsd * _Zx
-    _Y = _b0 + _b1 * _X + _esd * _Zu
+def _(np):
+    def draw_sample(n, xsd, esd, seed):
+        rng = np.random.default_rng(seed)
+        X = 14.0 + xsd * rng.standard_normal(n)
+        Y = 8.0 + 1.2 * X + esd * rng.standard_normal(n)
+        b1h = float(np.cov(X, Y, ddof=1)[0, 1] / np.var(X, ddof=1))
+        b0h = float(Y.mean() - b1h * X.mean())
+        resid = Y - (b0h + b1h * X)
+        sxx = float(np.sum((X - X.mean()) ** 2))
+        se = float(np.sqrt(np.sum(resid ** 2) / max(n - 2, 1) / sxx))
+        return {
+            "X": X.tolist(), "Y": Y.tolist(),
+            "b0h": b0h, "b1h": b1h, "se": se,
+            "xbar": float(X.mean()), "ybar": float(Y.mean()),
+        }
 
-    _b1h = float(np.cov(_X, _Y, ddof=1)[0, 1] / np.var(_X, ddof=1))
-    _b0h = float(_Y.mean() - _b1h * _X.mean())
-    _resid = _Y - (_b0h + _b1h * _X)
-    _sxx = float(np.sum((_X - _X.mean()) ** 2))
-    _varhat = float(np.sum(_resid ** 2) / max(_n - 2, 1))
-    _se = float(np.sqrt(_varhat / _sxx))
+    return (draw_sample,)
 
-    _xb = float(_X.mean())
-    _yb = float(_Y.mean())
+
+@app.cell(hide_code=True)
+def _(draw_sample, mo):
+    _init = draw_sample(80, 3.5, 3.0, 50)
+    get_acc, set_acc = mo.state({"betas": [], "sample": _init})
+    return get_acc, set_acc
+
+
+@app.cell(hide_code=True)
+def _(draw_sample, get_acc, mo, set_acc):
+    sd_n = mo.ui.slider(
+        start=20, stop=400, step=20, value=80,
+        label="Sample size (n)", show_value=True,
+    )
+    sd_xspread = mo.ui.slider(
+        start=1.0, stop=6.0, step=0.5, value=3.5,
+        label="Spread of education (standard deviation of X)", show_value=True,
+    )
+    sd_errsd = mo.ui.slider(
+        start=1.0, stop=8.0, step=0.5, value=3.0,
+        label="Error standard deviation", show_value=True,
+    )
+
+    def _on_draw(_v):
+        _st = get_acc()
+        _k = len(_st["betas"])
+        _s = draw_sample(
+            int(sd_n.value), float(sd_xspread.value), float(sd_errsd.value), 50 + _k
+        )
+        set_acc({"betas": _st["betas"] + [_s["b1h"]], "sample": _s})
+
+    def _on_reset(_v):
+        set_acc({"betas": [], "sample": get_acc()["sample"]})
+
+    draw_button = mo.ui.button(label="Draw new sample", on_change=_on_draw)
+    reset_button = mo.ui.button(label="Reset histogram", on_change=_on_reset)
+
+    mo.vstack([
+        sd_n, sd_xspread, sd_errsd,
+        mo.hstack([draw_button, reset_button], justify="start"),
+    ])
+    return sd_errsd, sd_n, sd_xspread
+
+
+@app.cell(hide_code=True)
+def _(alt, get_acc, mo, np, pd):
+    _s = get_acc()["sample"]
+    _X = np.array(_s["X"])
+    _Y = np.array(_s["Y"])
+    _b1h = _s["b1h"]
+    _se = _s["se"]
+    _xb = _s["xbar"]
+    _yb = _s["ybar"]
+    _n = len(_X)
+
     _xline = np.array([2.0, 26.0])
     _pts = pd.DataFrame({"x": _X, "y": _Y})
     _fit = pd.DataFrame({"x": _xline, "y": _yb + _b1h * (_xline - _xb)})
@@ -300,22 +268,19 @@ def _(alt, mo, np, pd, vd_button, vd_errsd, vd_n, vd_xspread):
         .encode(x="x:Q", y="y:Q")
     )
     _chart = (_scatter + _edges + _ols).properties(
-        width=560, height=340,
-        title="A fresh sample, its OLS line, and the slope uncertainty",
+        width=560, height=300,
+        title="One sample, its OLS line, and the slope uncertainty",
     )
 
     _lo = _b1h - 1.96 * _se
     _hi = _b1h + 1.96 * _se
     _body = (
-        rf"This sample gives $\hat{{\beta}}_1 = {_b1h:.2f}$ with "
-        rf"$\operatorname{{se}}(\hat{{\beta}}_1) = {_se:.3f}$, so a 95% confidence "
-        rf"interval for the slope runs from {_lo:.2f} to {_hi:.2f}. The orange "
-        rf"dashed lines are the slopes 1.96 standard errors to each side. Raise "
-        rf"the sample size or the spread of education and the fan tightens. Raise "
-        rf"the error standard deviation and it widens."
+        rf"This sample of {_n} workers gives $\hat{{\beta}}_1 = {_b1h:.2f}$ with "
+        rf"$\operatorname{{se}}(\hat{{\beta}}_1) = {_se:.3f}$, so its 95% confidence "
+        rf"interval for the slope runs from {_lo:.2f} to {_hi:.2f}."
     )
     _caption = mo.md(
-        '<span style="display:block;margin:0.2rem auto 1rem;max-width:560px;'
+        '<span style="display:block;margin:0.2rem auto 0.5rem;max-width:560px;'
         'font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;">'
         + _body + "</span>"
     )
@@ -324,97 +289,34 @@ def _(alt, mo, np, pd, vd_button, vd_errsd, vd_n, vd_xspread):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    <a id="sec2b"></a>
-    ### <span style="color:#0b68cb">Heteroskedasticity-robust standard errors</span>
+def _(alt, get_acc, mo, np, pd, sd_errsd, sd_n, sd_xspread, stats):
+    _betas = get_acc()["betas"]
+    _b1 = 1.2
+    _base_lo, _base_hi = 0.4, 2.0
+    _cap_lo, _cap_hi = -1.8, 4.2
 
-    The formula above assumed the error is homoskedastic. When the error is heteroskedastic, that formula is wrong, and a standard error built from it can be too small or too large. The fix keeps the same idea but weights each observation by how far its education sits from the average,
+    if len(_betas) > 0:
+        _arr = np.clip(np.asarray(_betas, dtype=float), _cap_lo, _cap_hi)
+        _dlo = min(_base_lo, float(_arr.min()))
+        _dhi = max(_base_hi, float(_arr.max()))
+    else:
+        _arr = np.asarray([], dtype=float)
+        _dlo, _dhi = _base_lo, _base_hi
 
-    $$
-    \hat{\sigma}^2_{\hat{\beta}_1} = \frac{1}{n} \cdot \frac{\frac{1}{n-2}\sum_{i=1}^{n}(X_i-\hat{\mu}_X)^2\,\hat{u}_i^2}{\left[\frac{1}{n}\sum_{i=1}^{n}(X_i-\hat{\mu}_X)^2\right]^2}.
-    $$
-
-    This is the *heteroskedasticity-robust standard error*. It lets the spread of the error change with $X$, and it counts a large residual more heavily when that residual sits far from the average education, since a point far out on the horizontal axis has more pull on the slope. Robust standard errors are correct whether or not the error is homoskedastic, so regression software reports them by default and this course uses them throughout.
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    <a id="sec3"></a>
-    ## 3. The sampling distribution of the slope
-
-    Knowing the variance of $\hat{\beta}_1$ is only useful once we also know the shape of its distribution across samples. Under the three least squares assumptions from Lecture 6, that the conditional mean of the error is zero, that the data are independent and identically distributed, and that large outliers are unlikely, the estimate follows a normal distribution,
-
-    $$
-    \hat{\beta}_1 \sim \mathcal{N}\!\left(\beta_1,\ \sigma^2_{\hat{\beta}_1}\right).
-    $$
-
-    The result comes from the central limit theorem of Lecture 2. The slope estimate can be written as a kind of sample average over the $n$ workers, and a sample average of independent draws is close to normal once $n$ is reasonably large. The center of the distribution is the true slope $\beta_1$, and its spread is the standard error from Section 2.
-
-    The histogram below draws many samples, computes $\hat{\beta}_1$ in each one, and stacks the estimates. The orange curve is the normal distribution the theory predicts. Raise the sample size and the histogram pulls in tightly around the true slope, marked by the orange vertical line.
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    sdist_n = mo.ui.slider(
-        start=20, stop=200, step=20, value=80,
-        label="Sample size (n)", show_value=True,
-    )
-    sdist_errsd = mo.ui.slider(
-        start=1.0, stop=8.0, step=0.5, value=3.0,
-        label="Error standard deviation", show_value=True,
-    )
-    sdist_reps = mo.ui.slider(
-        start=200, stop=3000, step=100, value=1500,
-        label="Number of samples", show_value=True,
-    )
-    sdist_button = mo.ui.button(
-        label="Draw new samples", value=0, on_click=lambda c: c + 1,
-    )
-    mo.vstack([sdist_n, sdist_errsd, sdist_reps, sdist_button])
-    return sdist_button, sdist_errsd, sdist_n, sdist_reps
-
-
-@app.cell(hide_code=True)
-def _(np, sdist_button):
-    # New samples are drawn only when the button is clicked (the seed depends
-    # only on the button). The sliders below slice and rescale this pool, so
-    # dragging them does not reroll the underlying draws.
-    _MAX, _NMAX = 3000, 200
-    _rng = np.random.default_rng(11 + sdist_button.value)
-    sdist_Xpool = _rng.normal(14.0, 3.5, (_MAX, _NMAX))
-    sdist_Upool = _rng.standard_normal((_MAX, _NMAX))
-    return sdist_Upool, sdist_Xpool
-
-
-@app.cell(hide_code=True)
-def _(alt, mo, np, pd, sdist_Upool, sdist_Xpool, sdist_errsd, sdist_n, sdist_reps, stats):
-    _n = int(sdist_n.value)
-    _esd = float(sdist_errsd.value)
-    _reps = int(sdist_reps.value)
-    _b0, _b1 = 8.0, 1.2
-
-    _Xs = sdist_Xpool[:_reps, :_n]
-    _Us = sdist_Upool[:_reps, :_n] * _esd
-    _Ys = _b0 + _b1 * _Xs + _Us
-
-    _Xm = _Xs.mean(axis=1, keepdims=True)
-    _Ym = _Ys.mean(axis=1, keepdims=True)
-    _num = ((_Xs - _Xm) * (_Ys - _Ym)).sum(axis=1)
-    _den = ((_Xs - _Xm) ** 2).sum(axis=1)
-    _b1hats = _num / _den
-
+    _nbins = 30
+    _step = (_dhi - _dlo) / _nbins
+    _df = pd.DataFrame({"b": _arr})
     _hist = (
-        alt.Chart(pd.DataFrame({"b": _b1hats}))
-        .mark_bar(color="#1f4e79", opacity=0.85)
+        alt.Chart(_df)
+        .mark_bar(color="#1f4e79", opacity=0.85, clip=True)
         .encode(
-            x=alt.X("b:Q", bin=alt.Bin(maxbins=40), title="Estimated slope"),
-            y=alt.Y("count()", title="Number of samples"),
+            x=alt.X(
+                "b:Q",
+                bin=alt.Bin(extent=[_dlo, _dhi], step=_step),
+                title="Collected slope estimates",
+                scale=alt.Scale(domain=[_dlo, _dhi], nice=False),
+            ),
+            y=alt.Y("count()", title="Number of draws"),
         )
     )
     _rule = (
@@ -422,36 +324,31 @@ def _(alt, mo, np, pd, sdist_Upool, sdist_Xpool, sdist_errsd, sdist_n, sdist_rep
         .mark_rule(color="orange", size=2.5)
         .encode(x="b:Q")
     )
+    _layers = [_hist, _rule]
 
-    _se_theory = _esd / (3.5 * (_n ** 0.5))
-    _lo = float(_b1hats.min())
-    _hi = float(_b1hats.max())
-    if _hi > _lo and _se_theory > 0:
-        _grid = np.linspace(_lo, _hi, 200)
-        _binw = (_hi - _lo) / 40.0
+    if len(_betas) >= 50:
+        _se_th = float(sd_errsd.value) / (float(sd_xspread.value) * (int(sd_n.value) ** 0.5))
+        _grid = np.linspace(_dlo, _dhi, 200)
         _curve = (
             alt.Chart(pd.DataFrame({
                 "b": _grid,
-                "count": stats.norm.pdf(_grid, _b1, _se_theory) * _reps * _binw,
+                "count": stats.norm.pdf(_grid, _b1, _se_th) * len(_betas) * _step,
             }))
             .mark_line(color="orange", size=2)
             .encode(x="b:Q", y="count:Q")
         )
-        _chart = _hist + _curve + _rule
-    else:
-        _chart = _hist + _rule
+        _layers.append(_curve)
 
-    _chart = _chart.properties(
-        width=560, height=320,
-        title="Distribution of the slope estimate across many samples",
+    _chart = alt.layer(*_layers).properties(
+        width=560, height=240, title="Sampling distribution built from your draws"
     )
 
+    _c = len(_betas)
+    _plural = "" if _c == 1 else "s"
     _body = (
-        rf"Each of the {_reps} samples holds {_n} workers and gives its own slope "
-        rf"estimate $\hat{{\beta}}_1$. The estimates pile up in a bell centered on "
-        rf"the true slope $\beta_1 = {_b1:.1f}$, the orange line, with a standard "
-        rf"error near {_se_theory:.3f}. Raise the sample size and the bell tightens "
-        rf"against the true slope, which is what consistency means."
+        f"You have collected {_c} slope estimate{_plural}. Each press of Draw new "
+        f"sample adds one more. The orange line marks the true slope of 1.2. Keep "
+        f"drawing and the bars settle into a bell centered there."
     )
     _caption = mo.md(
         '<span style="display:block;margin:0.2rem auto 1rem;max-width:560px;'
@@ -459,6 +356,162 @@ def _(alt, mo, np, pd, sdist_Upool, sdist_Xpool, sdist_errsd, sdist_n, sdist_rep
         + _body + "</span>"
     )
     mo.vstack([_chart, _caption])
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    <a id="sec3"></a>
+    ## 3. Heteroskedasticity
+
+    The variance formula in Section 1 assumed the error spread is the same at every level of education. The error is *heteroskedastic* when that spread changes with $X$. Wages fit this case. Among workers with little education, hourly wages sit in a narrow band near the bottom. Among workers with a college degree, some earn close to the average for their group while others earn far more, so the band of wages is much wider.
+
+    We never see $u$ itself, but the residuals $\hat{u}_i = Y_i - \hat{\beta}_0 - \hat{\beta}_1 X_i$ estimate it, and their spread is what a scatter plot shows. Click bands of education in the plot below to make wages more variable there. The two formulas underneath report the estimated variance of $\hat{\beta}_1$ two ways. The first assumes equal spread everywhere. The second allows the spread to change with education. With no bands selected the two nearly match. As you concentrate the variance, they pull apart, and the equal-spread formula is the one that goes wrong.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(alt, mo, pd):
+    _bands = pd.DataFrame({
+        "band": [0, 1, 2, 3, 4, 5],
+        "x0": [8.0, 10.0, 12.0, 14.0, 16.0, 18.0],
+        "x1": [10.0, 12.0, 14.0, 16.0, 18.0, 20.0],
+        "xm": [9.0, 11.0, 13.0, 15.0, 17.0, 19.0],
+        "label": ["8 to 10", "10 to 12", "12 to 14", "14 to 16", "16 to 18", "18 to 20"],
+    })
+    _sel = alt.selection_point(fields=["band"], toggle=True, empty=False)
+    _rects = (
+        alt.Chart(_bands)
+        .mark_rect(stroke="white", strokeWidth=2)
+        .encode(
+            x=alt.X("x0:Q", scale=alt.Scale(domain=[8.0, 20.0], nice=False), title=None, axis=None),
+            x2="x1:Q",
+            color=alt.condition(_sel, alt.value("#e8973a"), alt.value("#cdd6df")),
+        )
+    )
+    _text = (
+        alt.Chart(_bands)
+        .mark_text(color="#1f2937", fontSize=11, baseline="middle")
+        .encode(
+            x=alt.X("xm:Q", scale=alt.Scale(domain=[8.0, 20.0], nice=False)),
+            y=alt.value(20),
+            text="label:N",
+        )
+    )
+    _strip = (
+        (_rects + _text)
+        .add_params(_sel)
+        .properties(width=560, height=40, title="Click bands of education to make wages more variable there")
+    )
+    het_strip = mo.ui.altair_chart(_strip, chart_selection=False, legend_selection=False)
+    het_strip
+    return (het_strip,)
+
+
+@app.cell(hide_code=True)
+def _(alt, het_strip, mo, np, pd):
+    _selected = set()
+    _v = het_strip.value
+    if _v is not None and len(_v) > 0 and "band" in _v:
+        _selected = set(int(b) for b in _v["band"].tolist())
+
+    _rng = np.random.default_rng(3)
+    _n = 240
+    _X = _rng.uniform(8.0, 20.0, _n)
+    _band_idx = np.clip(((_X - 8.0) // 2.0).astype(int), 0, 5)
+    _base_sd, _high_sd = 2.0, 6.0
+    _is_high = np.isin(_band_idx, list(_selected)) if _selected else np.zeros(_n, dtype=bool)
+    _sd_i = np.where(_is_high, _high_sd, _base_sd)
+    _Z = _rng.standard_normal(_n)
+    _Y = 8.0 + 1.2 * _X + _sd_i * _Z
+
+    _b1h = float(np.cov(_X, _Y, ddof=1)[0, 1] / np.var(_X, ddof=1))
+    _b0h = float(_Y.mean() - _b1h * _X.mean())
+    _resid = _Y - (_b0h + _b1h * _X)
+    _dev2 = (_X - _X.mean()) ** 2
+    _sxx = float(np.sum(_dev2))
+    _varhat_u = float(np.sum(_resid ** 2) / (_n - 2))
+    _var_homo = _varhat_u / _sxx
+    _num = float(np.sum(_dev2 * _resid ** 2) / (_n - 2))
+    _den = float((np.sum(_dev2) / _n) ** 2)
+    _var_robust = (1.0 / _n) * _num / _den
+
+    _pts = pd.DataFrame({"x": _X, "y": _Y, "high": _is_high.astype(int)})
+    _xline = np.array([8.0, 20.0])
+    _fit = pd.DataFrame({"x": _xline, "y": _b0h + _b1h * _xline})
+    _xdom = [8.0, 20.0]
+    _ydom = [0.0, 55.0]
+    _scatter = (
+        alt.Chart(_pts)
+        .mark_circle(opacity=0.55, size=45, clip=True)
+        .encode(
+            x=alt.X("x:Q", title="Years of education", scale=alt.Scale(domain=_xdom, nice=False)),
+            y=alt.Y("y:Q", title="Hourly wage (USD)", scale=alt.Scale(domain=_ydom, nice=False)),
+            color=alt.condition("datum.high == 1", alt.value("#e8973a"), alt.value("#1f4e79")),
+        )
+    )
+    _line = (
+        alt.Chart(_fit)
+        .mark_line(color="#111827", size=2.5, clip=True)
+        .encode(x="x:Q", y="y:Q")
+    )
+    _chart = (_scatter + _line).properties(width=560, height=300, title="Wages and education")
+
+    _homo_str = f"{_var_homo:.5f}"
+    _rob_str = f"{_var_robust:.5f}"
+    _formulas = mo.md(
+        r"""
+The homoskedastic estimate, which assumes the spread is the same everywhere, is
+
+$$\hat{\sigma}^2_{\hat{\beta}_1} = \frac{\widehat{\operatorname{var}}(\hat{u})}{\sum_i (X_i-\hat{\mu}_X)^2} = """
+        + _homo_str
+        + r""".$$
+
+The heteroskedasticity-robust estimate, which lets the spread change with education, is
+
+$$\hat{\sigma}^2_{\hat{\beta}_1} = \frac{\frac{1}{n}\cdot\frac{1}{n-2}\sum_i (X_i-\hat{\mu}_X)^2\,\hat{u}_i^2}{\left[\frac{1}{n}\sum_i (X_i-\hat{\mu}_X)^2\right]^2} = """
+        + _rob_str
+        + r""".$$
+"""
+    )
+
+    if not _selected:
+        _msg = (
+            "With no bands selected the spread is equal everywhere, and the two "
+            "estimates of the variance of the slope nearly match."
+        )
+    else:
+        _msg = (
+            "The orange points sit in the bands you selected, where wages are now "
+            "more variable. The two estimates have pulled apart, and the equal-spread "
+            "estimate no longer reports the right variance."
+        )
+    _caption = mo.md(
+        '<span style="display:block;margin:0.2rem auto 1rem;max-width:560px;'
+        'font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;">'
+        + _msg + "</span>"
+    )
+
+    mo.vstack([_chart, _formulas, _caption])
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    <a id="sec3a"></a>
+    ### <span style="color:#0b68cb">Heteroskedasticity-robust standard errors</span>
+
+    The equal-spread formula gives the wrong variance once the error is heteroskedastic, so a standard error built from it can be too small or too large. The fix keeps the same idea but weights each observation by how far its education sits from the average,
+
+    $$
+    \hat{\sigma}^2_{\hat{\beta}_1} = \frac{1}{n} \cdot \frac{\frac{1}{n-2}\sum_{i=1}^{n}(X_i-\hat{\mu}_X)^2\,\hat{u}_i^2}{\left[\frac{1}{n}\sum_{i=1}^{n}(X_i-\hat{\mu}_X)^2\right]^2}.
+    $$
+
+    This is the *heteroskedasticity-robust standard error*, the second number under the plot above. It lets the spread of the error change with $X$, and it counts a large residual more heavily when that residual sits far from the average education, since a point far out on the horizontal axis has more pull on the slope. Robust standard errors are correct whether or not the error is homoskedastic, so regression software reports them by default and this course uses them throughout.
+    """)
     return
 
 
@@ -512,7 +565,7 @@ def _(mo):
     <a id="sec6"></a>
     ## 6. Unbiasedness and consistency
 
-    The normal sampling distribution in Section 3 is centered on the true slope, and two properties explain why. The estimator $\hat{\beta}_1$ is *unbiased* when its average across all possible samples equals the true value,
+    The normal sampling distribution in Section 2 is centered on the true slope, and two properties explain why. The estimator $\hat{\beta}_1$ is *unbiased* when its average across all possible samples equals the true value,
 
     $$
     \mathbb{E}[\hat{\beta}_1] = \beta_1.
@@ -526,7 +579,7 @@ def _(mo):
     \hat{\beta}_1 \overset{p}{\to} \beta_1.
     $$
 
-    Consistency follows from the variance in Section 2 shrinking toward zero as $n$ grows, which pulls the whole sampling distribution in around $\beta_1$. The sampling-distribution plot in Section 3 showed this directly, with a larger sample size squeezing the histogram against the line at the true slope.
+    Consistency follows from the variance in Section 1 shrinking toward zero as $n$ grows, which pulls the whole sampling distribution in around $\beta_1$. The histogram in Section 2 shows this directly, with a larger sample size squeezing the collected slopes against the line at the true value.
     """)
     return
 
@@ -560,11 +613,11 @@ def _(mo):
 def _(mo):
     mo.callout(
         mo.md(
-            "**Key terms covered:** homoskedasticity, heteroskedasticity, "
-            "standard error, heteroskedasticity-robust standard error, sampling "
-            "distribution, hypothesis test, null hypothesis, t-statistic, "
-            "p-value, confidence interval, significance level, unbiasedness, "
-            "consistency, omitted variable bias.\n\n"
+            "**Key terms covered:** homoskedasticity, standard error, sampling "
+            "distribution, heteroskedasticity, heteroskedasticity-robust standard "
+            "error, hypothesis test, null hypothesis, t-statistic, p-value, "
+            "confidence interval, significance level, unbiasedness, consistency, "
+            "omitted variable bias.\n\n"
             "**Key concepts covered:** the variance of the slope estimator and "
             "what drives it, the normal sampling distribution from the central "
             "limit theorem, testing whether a slope is zero, a confidence "

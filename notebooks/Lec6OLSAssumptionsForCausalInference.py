@@ -40,7 +40,6 @@ def _(mo):
                     "#sec2": "2. The error term revisited",
                     "#sec3": "3. From prediction to causation",
                     "#sec4": "4. The least squares assumptions",
-                    "#sec5": "5. What the assumptions give us",
                 },
                 orientation="vertical",
             ),
@@ -92,8 +91,7 @@ def _(mo):
     [4. The least squares assumptions](#sec4)<br>
     &emsp;&emsp;[Least Squares Assumption 1: the conditional mean of u given X is zero](#sec4a)<br>
     &emsp;&emsp;[Least Squares Assumption 2: the data are i.i.d.](#sec4b)<br>
-    &emsp;&emsp;[Least Squares Assumption 3: large outliers are unlikely](#sec4c)<br>
-    [5. What the assumptions give us](#sec5)
+    &emsp;&emsp;[Least Squares Assumption 3: large outliers are unlikely](#sec4c)
     """)
     return
 
@@ -544,34 +542,6 @@ def _(mo):
         $$ Y = \beta_0 + \beta_1 X + u = (\beta_0 + c) + \beta_1 X + (u - c) = \tilde{\beta}_0 + \beta_1 X + \tilde{u}, $$
 
         and the new error satisfies $\mathbb{E}[\tilde{u} \mid X = x] = c - c = 0$. The rewritten model satisfies Assumption 1, and the slope $\beta_1$ is the same in both versions. A constant level of ability across all education groups changes where the line sits, not how steep it is.
-
-        **Assumption 1 makes the OLS slope unbiased.**
-
-        The OLS slope from Lecture 5 is
-
-        $$ \hat{\beta}_1 = \frac{\sum_{i=1}^{n} (X_i - \hat{\mu}_X)(Y_i - \hat{\mu}_Y)}{\sum_{i=1}^{n} (X_i - \hat{\mu}_X)^2}. $$
-
-        Substitute the population model $Y_i = \beta_0 + \beta_1 X_i + u_i$. Averaging that model over the sample gives $\hat{\mu}_Y = \beta_0 + \beta_1 \hat{\mu}_X + \hat{\mu}_u$, and subtracting it cancels the intercept,
-
-        $$ Y_i - \hat{\mu}_Y = \beta_1 (X_i - \hat{\mu}_X) + (u_i - \hat{\mu}_u). $$
-
-        Put this into the numerator and split it into two sums,
-
-        $$ \sum_{i=1}^{n} (X_i - \hat{\mu}_X)(Y_i - \hat{\mu}_Y) = \beta_1 \sum_{i=1}^{n} (X_i - \hat{\mu}_X)^2 + \sum_{i=1}^{n} (X_i - \hat{\mu}_X)\,u_i, $$
-
-        where the $\hat{\mu}_u$ term drops out because $\sum_{i=1}^{n} (X_i - \hat{\mu}_X) = 0$. Dividing by $\sum_{i=1}^{n} (X_i - \hat{\mu}_X)^2$ leaves the estimator as the true slope plus a term built from the errors,
-
-        $$ \hat{\beta}_1 = \beta_1 + \frac{\sum_{i=1}^{n} (X_i - \hat{\mu}_X)\,u_i}{\sum_{i=1}^{n} (X_i - \hat{\mu}_X)^2}. $$
-
-        Average $\hat{\beta}_1$ over repeated samples while holding the education values $X_1, \dots, X_n$ fixed. The weights $(X_i - \hat{\mu}_X)$ and the denominator are then fixed numbers, so they pass outside the expectation,
-
-        $$ \mathbb{E}[\hat{\beta}_1 \mid X_1, \dots, X_n] = \beta_1 + \frac{\sum_{i=1}^{n} (X_i - \hat{\mu}_X)\,\mathbb{E}[u_i \mid X_1, \dots, X_n]}{\sum_{i=1}^{n} (X_i - \hat{\mu}_X)^2}. $$
-
-        Because the observations are i.i.d. (Assumption 2), worker $i$'s error is unrelated to the other workers' education, so $\mathbb{E}[u_i \mid X_1, \dots, X_n] = \mathbb{E}[u_i \mid X_i]$. Assumption 1 sets that conditional mean to zero, so every term in the sum vanishes and
-
-        $$ \mathbb{E}[\hat{\beta}_1 \mid X_1, \dots, X_n] = \beta_1. $$
-
-        Averaging this over the education values leaves $\mathbb{E}[\hat{\beta}_1] = \beta_1$. The OLS slope is unbiased, so its average across repeated samples is the true effect. Assumption 1 does the work here, since it is what forces the errors to average to zero at each level of education. Without it the second term above would not vanish, and $\hat{\beta}_1$ would be biased.
 
         **The no-large-outliers condition in symbols.**
 
