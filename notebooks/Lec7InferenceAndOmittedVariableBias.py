@@ -225,7 +225,7 @@ def _(draw_sample, get_acc, mo, set_acc):
 
 
 @app.cell(hide_code=True)
-def _(alt, get_acc, mo, np, pd):
+def _(alt, get_acc, mo, np, pd, sd_errsd, sd_n, sd_xspread, stats):
     _s = get_acc()["sample"]
     _X = np.array(_s["X"])
     _Y = np.array(_s["Y"])
@@ -268,8 +268,8 @@ def _(alt, get_acc, mo, np, pd):
         .encode(x="x:Q", y="y:Q")
     )
     _chart = (_scatter + _edges + _ols).properties(
-        width=560, height=300,
-        title="One sample, its OLS line, and the slope uncertainty",
+        width=370, height=300,
+        title="One sample and its OLS line",
     )
 
     _lo = _b1h - 1.96 * _se
@@ -280,16 +280,12 @@ def _(alt, get_acc, mo, np, pd):
         rf"interval for the slope runs from {_lo:.2f} to {_hi:.2f}."
     )
     _caption = mo.md(
-        '<span style="display:block;margin:0.2rem auto 0.5rem;max-width:560px;'
+        '<span style="display:block;margin:0.2rem auto 0.5rem;max-width:370px;'
         'font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;">'
         + _body + "</span>"
     )
-    mo.vstack([_chart, _caption])
-    return
+    _left = mo.vstack([_chart, _caption])
 
-
-@app.cell(hide_code=True)
-def _(alt, get_acc, mo, np, pd, sd_errsd, sd_n, sd_xspread, stats):
     _betas = get_acc()["betas"]
     _b1 = 1.2
     _base_lo, _base_hi = 0.4, 2.0
@@ -340,7 +336,7 @@ def _(alt, get_acc, mo, np, pd, sd_errsd, sd_n, sd_xspread, stats):
         _layers.append(_curve)
 
     _chart = alt.layer(*_layers).properties(
-        width=560, height=240, title="Sampling distribution built from your draws"
+        width=370, height=300, title="Sampling distribution built from your draws"
     )
 
     _c = len(_betas)
@@ -351,11 +347,13 @@ def _(alt, get_acc, mo, np, pd, sd_errsd, sd_n, sd_xspread, stats):
         f"drawing and the bars settle into a bell centered there."
     )
     _caption = mo.md(
-        '<span style="display:block;margin:0.2rem auto 1rem;max-width:560px;'
+        '<span style="display:block;margin:0.2rem auto 0.5rem;max-width:370px;'
         'font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;">'
         + _body + "</span>"
     )
-    mo.vstack([_chart, _caption])
+    _right = mo.vstack([_chart, _caption])
+
+    mo.hstack([_left, _right], justify="center", align="start")
     return
 
 
