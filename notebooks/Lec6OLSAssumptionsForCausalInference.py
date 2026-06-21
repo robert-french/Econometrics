@@ -40,6 +40,7 @@ def _(mo):
                     "#sec2": "2. The error term revisited",
                     "#sec3": "3. From prediction to causation",
                     "#sec4": "4. The least squares assumptions",
+                    "#sec5": "5. Unbiasedness and consistency",
                 },
                 orientation="vertical",
             ),
@@ -91,7 +92,8 @@ def _(mo):
     [4. The least squares assumptions](#sec4)<br>
     &emsp;&emsp;[Least Squares Assumption 1: the conditional mean of u given X is zero](#sec4a)<br>
     &emsp;&emsp;[Least Squares Assumption 2: the data are i.i.d.](#sec4b)<br>
-    &emsp;&emsp;[Least Squares Assumption 3: large outliers are unlikely](#sec4c)
+    &emsp;&emsp;[Least Squares Assumption 3: large outliers are unlikely](#sec4c)<br>
+    [5. Unbiasedness and consistency](#sec5)
     """)
     return
 
@@ -237,7 +239,7 @@ def _(mo):
 
     In the wage example, this means that workers with different levels of education do not systematically differ in the other determinants of wages contained in $u$. Workers with 16 years of education may differ from workers with 12 years of education in their schooling, but on average they must not differ in ability, family background, health, luck, or anything else in the error term that affects wages.
 
-    This is a strong requirement, and it is easy to see how it can fail. Suppose students with higher ability find school easier and therefore stay in school longer. Then workers with 16 years of education will have higher average ability than workers with 12 years of education. In that case, $\mathbb{E}[u \mid X = 16] > \mathbb{E}[u \mid X = 12],$ and the assumption fails. OLS then attributes to education some of the wage gains that ability would have produced anyway, so $\hat{\beta}_1$ overstates the causal effect of schooling.
+    This is a strong requirement, and it is easy to see how it can fail. Suppose students with higher ability find school easier and therefore stay in school longer. Then workers with 16 years of education will have higher average ability than workers with 12 years of education. In that case, $\mathbb{E}[u \mid X = 16] > \mathbb{E}[u \mid X = 12],$ and the assumption fails. OLS then attributes to education some of the wage gains that ability would have produced anyway, so $\hat{\beta}_1$ overstates the causal effect of schooling. When the assumption does hold, by contrast, this first assumption is exactly what makes the OLS slope estimator unbiased, so that across repeated samples its average equals the true causal effect $\beta_1$. Section 5 develops this property and its companion, consistency.
 
     This assumption cannot be tested with the data alone. The error term is unobserved, so we cannot compute $\mathbb{E}[u \mid X = x]$ from a sample of $X$ and $Y$. Whether the assumption holds must be argued from what we know about how the data were generated, not read from a calculation.
 
@@ -499,18 +501,46 @@ def _(
 
 @app.cell(hide_code=True)
 def _(mo):
+    mo.md(r"""
+    <a id="sec5"></a>
+    ## 5. Unbiasedness and consistency
+
+    The least squares assumptions do more than license a causal reading of the slope. They also give the OLS estimator $\hat{\beta}_1$ two properties that describe how it behaves across repeated samples. The estimator $\hat{\beta}_1$ is *unbiased* when its average across all possible samples equals the true value,
+
+    $$
+    \mathbb{E}[\hat{\beta}_1] = \beta_1.
+    $$
+
+    Unbiasedness holds as long as the first least squares assumption holds, that the conditional mean of the error given $X$ is zero. The appendix shows the few lines of algebra. Unbiasedness does not say a single estimate equals $\beta_1$, only that estimates are right on average rather than systematically too high or too low.
+
+    The estimator is also *consistent*, meaning it converges to the true value as the sample grows,
+
+    $$
+    \hat{\beta}_1 \overset{p}{\to} \beta_1.
+    $$
+
+    Consistency holds because the spread of $\hat{\beta}_1$ across samples shrinks toward zero as the sample grows, collapsing the estimates onto $\beta_1$. Lecture 7 derives that variance and shows it falling as $n$ rises.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
     mo.callout(
         mo.md(
             "**Key terms covered:** conditional expectation, causal "
-            "interpretation, least squares assumptions, outlier.\n\n"
+            "interpretation, least squares assumptions, outlier, unbiasedness, "
+            "consistency.\n\n"
             "**Key concepts covered:** the conditional expectation as the "
             "population object a regression approximates, the error term as "
             "everything besides X that affects Y, why only the mean-zero error "
             "assumption carries causal content, why that assumption cannot be "
             "tested from data alone, what the i.i.d. and no-outlier assumptions "
             "add for estimating the slope and its standard error, how a "
-            "single outlier can swing the OLS line, and the population "
-            "regression line as the conditional expectation of Y given X."
+            "single outlier can swing the OLS line, the population "
+            "regression line as the conditional expectation of Y given X, and "
+            "why the first assumption makes the slope estimator unbiased while "
+            "the assumptions together make it consistent."
         ),
         kind="info",
     )
@@ -550,6 +580,18 @@ def _(mo):
         $$ 0 < \mathbb{E}\left[X_i^4\right] < \infty \quad \text{and} \quad 0 < \mathbb{E}\left[Y_i^4\right] < \infty. $$
 
         A finite fourth moment rules out distributions whose tails are heavy enough that a single draw can be enormous, the kind that would dominate the sum of squares OLS minimizes. With finite fourth moments the sampling distribution of $\hat{\beta}_1$ settles to the normal shape the standard error in Lecture 7 relies on.
+
+        **Unbiasedness of $\hat{\beta}_1$.**
+
+        Write $S_{XX} = \sum_{i=1}^{n}(X_i - \hat{\mu}_X)^2$. The OLS slope from Lecture 5 can be written
+
+        $$ \hat{\beta}_1 = \frac{\sum_{i=1}^{n}(X_i - \hat{\mu}_X)(Y_i - \hat{\mu}_Y)}{S_{XX}}. $$
+
+        Substituting the model $Y_i = \beta_0 + \beta_1 X_i + u_i$ and subtracting sample means gives $Y_i - \hat{\mu}_Y = \beta_1 (X_i - \hat{\mu}_X) + (u_i - \bar{u})$, so
+
+        $$ \hat{\beta}_1 - \beta_1 = \frac{1}{S_{XX}}\sum_{i=1}^{n}(X_i - \hat{\mu}_X)\,u_i. $$
+
+        Take the expectation conditional on the values of $X$. Assumption 1, $\mathbb{E}[u_i \mid X] = 0$, makes every term on the right have conditional mean zero, so $\mathbb{E}[\hat{\beta}_1 \mid X] = \beta_1$. Averaging over $X$ by the law of iterated expectations gives $\mathbb{E}[\hat{\beta}_1] = \beta_1$, which is what unbiasedness means.
         """)
     })
     return

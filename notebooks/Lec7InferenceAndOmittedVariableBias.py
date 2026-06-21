@@ -14,7 +14,7 @@ import marimo
 
 __generated_with = "0.23.9"
 app = marimo.App(
-    app_title="Lecture 7: Inference and Omitted Variable Bias in Simple Regression",
+    app_title="Lecture 7: Inference in Simple Regression",
     css_file="marimo-overrides.css",
 )
 
@@ -36,7 +36,7 @@ def _(mo):
         [
             mo.md('<a href="https://robert-french.github.io/Econometrics/" target="_self" style="display: block; margin-bottom: 1.5em;">Course home</a>'),
             mo.md("# [Lecture 7](#top)"),
-            mo.md("Inference and Omitted Variable Bias in Simple Regression"),
+            mo.md("Inference in Simple Regression"),
             mo.nav_menu(
                 {
                     "#sec1": "1. The variance of the slope estimator",
@@ -44,8 +44,6 @@ def _(mo):
                     "#sec3": "3. Heteroskedasticity",
                     "#sec4": "4. Hypothesis tests for the slope",
                     "#sec5": "5. Confidence intervals for the slope",
-                    "#sec6": "6. Unbiasedness and consistency",
-                    "#sec7": "7. Omitted variable bias",
                 },
                 orientation="vertical",
             ),
@@ -71,7 +69,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="top"></a>
-    # Lecture 7: Inference and Omitted Variable Bias in Simple Regression
+    # Lecture 7: Inference in Simple Regression
     """)
     return
 
@@ -92,9 +90,7 @@ def _(mo):
     [2. The sampling distribution of the slope](#sec2)<br>
     [3. Heteroskedasticity](#sec3)<br>
     [4. Hypothesis tests for the slope](#sec4)<br>
-    [5. Confidence intervals for the slope](#sec5)<br>
-    [6. Unbiasedness and consistency](#sec6)<br>
-    [7. Omitted variable bias](#sec7)
+    [5. Confidence intervals for the slope](#sec5)
     """)
     return
 
@@ -151,7 +147,7 @@ def _(mo):
     \hat{\beta}_1 \sim \mathcal{N}\:\left(\beta_1,\ \sigma^2_{\hat{\beta}_1}\right).
     $$
 
-    This means that repeated estimates of $\hat{\beta}_1$ would be centered around the true slope, $\beta_1$, with variance given by $\sigma^2_{\hat{\beta}_1}$, defined in Section 1.
+    This means that repeated estimates of $\hat{\beta}_1$ would be centered around the true slope, $\beta_1$ (the estimator is unbiased, as shown in Lecture 6), with variance given by $\sigma^2_{\hat{\beta}_1}$, defined in Section 1.
 
     This normal approximation comes from the central limit theorem from Lecture 2 because the slope estimate can be written as a weighted mean of sample observations. When the observations are independent and identically distributed as the second least squares assumption states, averages like this are close to normally distributed in large samples. The third least squares assumption that large outliers are unlikely helps ensure that no single observation dominates the estimate.
 
@@ -543,7 +539,7 @@ def _(mo):
 
     Lecture 4 introduced hypothesis tests, p-values, and t-statistics. Here we use the same ideas to test claims about the OLS estimates $\hat{\beta}_0$ and $\hat{\beta}_1$. For example, a common question in econometrics is whether education affects wages. In the population regression model, this is the claim that the slope parameter $\beta_1$ equals zero. Hypothesis tests formalize these claims.
 
-    A *hypothesis test* for the regression slope uses the sample estimate $\hat{\beta}_1$ to assess a null hypothesis about the parameter $\beta_1$. We write the null value as $\beta_{1,H_0}$. The null hypothesis is the claim that $\beta_1 = \beta_{1,H_0}$. In our example, setting $\beta_{1,H_0} = 0$ represents the null hypothesis that education, $X$, has no effect on wages, $Y$.
+    A *hypothesis test* for the regression slope uses the sample estimate $\hat{\beta}_1$ to assess a null hypothesis about the parameter $\beta_1$. We denote the null value as $\beta_{1,H_0}$. The null hypothesis is the claim that $\beta_1 = \beta_{1,H_0}$. In our example, setting $\beta_{1,H_0} = 0$ represents the null hypothesis that education, $X$, has no effect on wages, $Y$.
 
     Hypothesis tests for a single coefficient like the OLS slope estimator are based on the *t-statistic*,
 
@@ -578,7 +574,7 @@ def _(mo):
     <a id="sec5"></a>
     ## 5. Confidence intervals for the slope
 
-    A hypothesis test asks whether the data are consistent with one particular guess about $\beta_1$. Often, though, we want more than a yes-or-no answer for a single guess. We want to know which values of $\beta_1$ remain plausible after looking at the data. A *confidence interval* gives that range.
+    A hypothesis test asks whether the data are consistent with one particular guess about $\beta_1$. Often, though, we want more than a yes-or-no answer for a single guess. We want to know which values of $\beta_1$ remain plausible after looking at the data. A *confidence interval* gives us that range.
 
     Recall from Lecture 4 that to build a confidence interval, we start from the estimate $\hat{\beta}_1$. We then collect the null values that the test in Section 4 would not reject at a chosen *significance level* $\alpha$. The significance level is the chance of rejecting a true null that the researcher is willing to accept. A common choice is $\alpha = 0.05$.
 
@@ -599,68 +595,16 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""
-    <a id="sec6"></a>
-    ## 6. Unbiasedness and consistency
-
-    The normal sampling distribution in Section 2 is centered on the true slope, and two properties explain why. The estimator $\hat{\beta}_1$ is *unbiased* when its average across all possible samples equals the true value,
-
-    $$
-    \mathbb{E}[\hat{\beta}_1] = \beta_1.
-    $$
-
-    Unbiasedness holds as long as the first least squares assumption holds, that the conditional mean of the error given $X$ is zero. The appendix shows the few lines of algebra. Unbiasedness does not say a single estimate equals $\beta_1$, only that estimates are right on average rather than systematically too high or too low.
-
-    The estimator is also *consistent*, meaning it converges to the true value as the sample grows,
-
-    $$
-    \hat{\beta}_1 \overset{p}{\to} \beta_1.
-    $$
-
-    Consistency follows from the variance in Section 1 shrinking toward zero as $n$ grows, which pulls the whole sampling distribution in around $\beta_1$. The histogram in Section 2 shows this directly, with a larger sample size squeezing the collected slopes against the line at the true value.
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    <a id="sec7"></a>
-    ## 7. Omitted variable bias
-
-    Every property in this lecture rested on the first least squares assumption, that the conditional mean of the error given $X$ is zero. That assumption fails whenever a variable left out of the regression both belongs in the error and moves with education. When the omitted variable is correlated with $X$, the error is correlated with $X$, written $\operatorname{cov}(X,u) \neq 0$, and then $\mathbb{E}[u\mid X]\neq 0$. The estimate no longer centers on the true slope. This is *omitted variable bias*.
-
-    With such a variable left out, the slope estimate converges not to $\beta_1$ but to
-
-    $$
-    \hat{\beta}_1 \overset{p}{\to} \beta_1 + \operatorname{corr}(X,u)\cdot\frac{\sigma_u}{\sigma_X} = \beta_1 + \rho_{Xu}\,\frac{\sigma_u}{\sigma_X}.
-    $$
-
-    The second term is the bias, and its sign is the sign of the correlation between $X$ and the omitted part of the error. Two conditions are both needed for the bias to appear. The omitted variable must be correlated with $X$, and it must affect $Y$ so that it carries real weight inside the error. If either fails, the bias term is zero and the estimate stays on target.
-
-    Return to the wage regression. Ability is left out of the error, and it raises both schooling and earnings, so education and the error are positively correlated. The bias term is then positive, and the estimated return to schooling comes out too high, because we credit schooling with part of what is really the payoff to ability.
-
-    A second case is new housing and rents. Let $Y$ be local home prices and $X$ the number of new units built. Developers build more when interest rates are low, and low rates also raise demand and push prices up, so the omitted interest-rate conditions are positively correlated with building. The estimated effect of new supply on prices is biased upward for the same reason.
-
-    Omitted variable bias is why a single explanatory variable is rarely enough for a causal claim. The next notebook adds more variables to the regression so that a factor like ability can be held constant instead of left in the error.
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
     mo.callout(
         mo.md(
             "**Key terms covered:** homoskedasticity, standard error, sampling "
             "distribution, heteroskedasticity, heteroskedasticity-robust standard "
             "error, hypothesis test, null hypothesis, t-statistic, p-value, "
-            "confidence interval, significance level, unbiasedness, consistency, "
-            "omitted variable bias.\n\n"
+            "confidence interval, significance level.\n\n"
             "**Key concepts covered:** the variance of the slope estimator and "
             "what drives it, the normal sampling distribution from the central "
-            "limit theorem, testing whether a slope is zero, a confidence "
-            "interval as the set of guesses the data do not reject, the bias "
-            "formula and its two conditions."
+            "limit theorem, testing whether a slope is zero, and a confidence "
+            "interval as the set of guesses the data do not reject."
         ),
         kind="info",
     )
@@ -670,7 +614,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     _appendix = mo.md(r"""
-    This appendix derives the two results used in the main text. You will not be tested on it.
+    This appendix derives the variance of $\hat{\beta}_1$ used in the main text. You will not be tested on it.
 
     **The variance of $\hat{\beta}_1$ under homoskedasticity**
 
@@ -693,16 +637,6 @@ def _(mo):
     $$
 
     Replacing $\sigma_u^2$ with the residual estimate $\hat{\sigma}_u^2 = \frac{1}{n-2}\sum_{i=1}^{n}\hat{u}_i^2$ gives the standard error $\operatorname{se}(\hat{\beta}_1) = \sqrt{\hat{\sigma}_u^2 / S_{XX}}$.
-
-    **Unbiasedness of $\hat{\beta}_1$**
-
-    Start from the same identity. Take the expectation conditional on the values of $X$. The first least squares assumption $\mathbb{E}[u_i \mid X] = 0$ makes every term in the sum have conditional mean zero, so
-
-    $$
-    \mathbb{E}[\hat{\beta}_1 - \beta_1 \mid X] = \frac{1}{S_{XX}}\sum_{i=1}^{n}(X_i - \hat{\mu}_X)\,\mathbb{E}[u_i \mid X] = 0.
-    $$
-
-    So $\mathbb{E}[\hat{\beta}_1 \mid X] = \beta_1$, and averaging over $X$ by the law of iterated expectations gives $\mathbb{E}[\hat{\beta}_1] = \beta_1$.
     """)
     mo.accordion({"## Appendix": _appendix})
     return
