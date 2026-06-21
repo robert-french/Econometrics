@@ -505,22 +505,24 @@ def _(mo):
     <a id="sec5"></a>
     ## 5. Unbiasedness and consistency
 
-    The least squares assumptions do more than license a causal reading of the slope. They also give the OLS estimator $\hat{\beta}_1$ two properties that describe how it behaves across repeated samples. The estimator $\hat{\beta}_1$ is *unbiased* when its average across all possible samples equals the true value,
+    The least squares assumptions do more than justify a causal interpretation of the slope. They also inform us of how the OLS estimator $\hat{\beta}_1$ behaves across repeated samples.
 
-    $$
-    \mathbb{E}[\hat{\beta}_1] = \beta_1.
-    $$
+First, $\hat{\beta}_1$ is *unbiased* if its average value across all possible samples equals the true slope,
 
-    Unbiasedness holds as long as the first least squares assumption holds, that the conditional mean of the error given $X$ is zero. The appendix shows the few lines of algebra. Unbiasedness does not say a single estimate equals $\beta_1$, only that estimates are right on average rather than systematically too high or too low.
+$$
+\mathbb{E}[\hat{\beta}_1] = \beta_1.
+$$
 
-    The estimator is also *consistent*, meaning it converges to the true value as the sample grows,
+Unbiasedness follows from the first least squares assumption, which says that the conditional mean of the error given $X$ is zero. The appendix proves why this is true with algebra. The point is not that any one estimate must equal $\beta_1$. It is that the estimator is right on average, rather than systematically too high or too low.
 
-    $$
-    \hat{\beta}_1 \overset{p}{\to} \beta_1.
-    $$
+Second, $\hat{\beta}_1$ is *consistent* if it converges to the true slope as the sample grows,
 
-    Consistency holds because the spread of $\hat{\beta}_1$ across samples shrinks toward zero as the sample grows, collapsing the estimates onto $\beta_1$. Lecture 7 derives that variance and shows it falling as $n$ rises.
-    """)
+$$
+\hat{\beta}_1 \overset{p}{\to} \beta_1.
+$$
+
+Consistency implies that estimates from large samples are more likely to be closer to $\beta_1$. As $n$ rises, the spread of $\hat{\beta}_1$ across repeated samples shrinks, so the estimates cluster closer and closer to the true value. Lecture 7 derives the variance for $\hat{\beta}_1$, and shows how it falls with the sample size.
+""")
     return
 
 
