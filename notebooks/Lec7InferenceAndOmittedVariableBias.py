@@ -105,10 +105,6 @@ def _(mo):
     <a id="sec1"></a>
     ## 1. The variance of the slope estimator
 
-    <a id="sec1"></a>
-
-    ## 1. The variance of the slope estimator
-
     In Lecture 6, we wrote the regression model as $Y_i = \beta_0 + \beta_1 X_i + u_i$. Let's again suppose $Y_i$ is a worker’s wage and $X_i$ is the worker’s years of education. In this example, $u_i$ includes everything other than education that affects the worker’s wage.
 
     When we estimate the model using one sample, we get one estimate of the slope, $\hat{\beta}_1$. In our wage and education example, we might estimate with a single sample that each additional year of education is associated with a $1.20 increase in hourly wages. But another sample would usually give us a different slope estimate, because the estimate depends on the particular observations included in the sample.
@@ -157,7 +153,7 @@ def _(mo):
 
     This means that repeated estimates of $\hat{\beta}_1$ would be centered around the true slope, $\beta_1$, with variance given by $\sigma^2_{\hat{\beta}_1}$, defined in Section 1.
 
-    This normal approximation comes from the central limit theorem from Lecture 2; the slope estimate can be written as a weighted mean of sample observations. When the observations are independent and identically distributed, averages like this are close to normally distributed in large samples. The third least squares assumption that large outliers are unlikely helps ensure that no single observation dominates the estimate.
+    This normal approximation comes from the central limit theorem from Lecture 2 because the slope estimate can be written as a weighted mean of sample observations. When the observations are independent and identically distributed as the second least squares assumption states, averages like this are close to normally distributed in large samples. The third least squares assumption that large outliers are unlikely helps ensure that no single observation dominates the estimate.
 
     The plot below helps you see these ideas in practice. Use the sliders to set the underlying population and choose how many observations are drawn in each sample, then press the ''Draw new sample''. Each draw creates one sample, fits the corresponding OLS line, and reports its standard error. The orange dashed lines plot the OLS slope estimate multiplied by both plus and minus 1.96 times its standard error. These lines represent the range of a 95% confidence interval, which we consider again in Section 5. Each draw also adds its slope estimate to the adjacent density plot, so repeated draws build the sampling distribution one estimate at a time. Press ''Reset plots'' to start over. You should reset the plots after moving a slider so that all the collected slope estimates come from the same settings.
     """)
@@ -543,19 +539,35 @@ def _(alt, het_s1, het_s2, het_s3, het_s4, het_s5, mo, np, pd):
 def _(mo):
     mo.md(r"""
     <a id="sec4"></a>
-    ## 4. Hypothesis tests for the slope - this is where i got to.
+    ## 4. Hypothesis tests in the regression model
 
-    A common question is whether education affects wages at all, which is the claim that the true slope is zero. A *hypothesis test* compares a specific guess about $\beta_1$, the null hypothesis $H_0:\ \beta_1 = \beta_{1,H_0}$, against the estimate. The guess we test is usually $\beta_{1,H_0} = 0$, since that is the case of no effect.
+    Lecture 4 introduced hypothesis tests, p-values, and t-statistics. Here we use the same ideas to test claims about the OLS estimates $\hat{\beta}_0$ and $\hat{\beta}_1$. For example, a common question in econometrics is whether education affects wages. In the population regression model, this is the claim that the slope parameter $\beta_1$ equals zero. Hypothesis tests formalize these claims.
 
-    The test rests on the *t-statistic*,
+    A *hypothesis test* for the regression slope uses the sample estimate $\hat{\beta}_1$ to assess a null hypothesis about the parameter $\beta_1$. We write the null value as $\beta_{1,H_0}$. The null hypothesis is the claim that $\beta_1 = \beta_{1,H_0}$. In our example, setting $\beta_{1,H_0} = 0$ represents the null hypothesis that education, $X$, has no effect on wages, $Y$.
+
+    Hypothesis tests for a single coefficient like the OLS slope estimator are based on the *t-statistic*,
 
     $$
-    t = \frac{\hat{\beta}_1 - \beta_{1,H_0}}{\operatorname{se}(\hat{\beta}_1)},
+    t = \frac{\hat{\beta}_1 - \beta_{1,H_0}}{\operatorname{se}(\hat{\beta}_1)}.
     $$
 
-    which counts how many standard errors separate the estimate from the guess. When the null hypothesis is true, $t$ follows the standard normal distribution from Lecture 2, so values far from zero are unlikely. The *p-value* is the probability of seeing a $t$-statistic at least this far from zero when the null is true, $p = 2\,\Phi(-|t|)$, where $\Phi$ is the standard normal cumulative distribution. A small p-value means the estimate would be surprising if the slope really were $\beta_{1,H_0}$, which counts as evidence against the null.
+    The numerator is the gap between the estimated slope and the null value. The denominator is the standard error of the slope estimator. The t-statistic therefore measures the gap in standard-error units. For a two-sided test, the *p-value* is the probability of seeing a t-statistic at least this far from zero when the null is true,
 
-    Suppose a sample gives $\hat{\beta}_1 = 1.20$ with $\operatorname{se}(\hat{\beta}_1) = 0.30$, testing the null of no effect. Then $t = 1.20 / 0.30 = 4.0$, and the p-value is $2\,\Phi(-4.0) \approx 0.00006$. An estimate four standard errors away from zero is so unlikely when the slope is really zero that we reject the null.
+    $$
+    p = 2\cdot\Phi(-|t|),
+    $$
+
+    where $\Phi$ is the standard normal cumulative distribution. A small p-value means that the estimated slope would be surprising if the null hypothesis were true, so it counts as evidence against the null hypothesis.
+
+    Suppose a sample gives $\hat{\beta}_1 = 1.20$ with $\operatorname{se}(\hat{\beta}_1) = 0.30$, and we test the null hypothesis of no effect. Then
+
+    $$
+    t = \frac{1.20 - 0}{0.30} = 4.0,
+    $$
+
+    and the p-value is $2\cdot\Phi(-4.0) \approx 0.00006$. An estimated slope four standard errors away from zero is very unlikely to arise from sampling error when the population slope parameter is zero, so we reject the null hypothesis of no effect.
+
+    Note that the hypothesis itself is about the causal effect of education on wages, represented by $\beta_1$, but the test uses the estimate $\hat{\beta}_1$ to evaluate that hypothesis. When the first OLS assumption from Lecture 6 holds, $\hat{\beta}_1$ is centered on the true causal slope (i.e., $\hat{\beta}_1$ is an unbiased estimator of $\beta_1$). In that case, rejecting the null hypothesis gives evidence that the causal effect of education on wages is not zero. When the first OLS assumption fails, the hypothesis test no longer gives clear evidence about the causal effect of education on wages, but on the strength of their association.
     """)
     return
 
@@ -566,7 +578,9 @@ def _(mo):
     <a id="sec5"></a>
     ## 5. Confidence intervals for the slope
 
-    A hypothesis test checks one guess about $\beta_1$ at a time. A *confidence interval* reports the whole range of guesses the data do not reject. Start from the estimate $\hat{\beta}_1$ and collect every null value the test in Section 4 would not reject at a chosen *significance level* $\alpha$, the chance of rejecting a true null that the researcher is willing to accept, commonly $\alpha = 0.05$.
+    A hypothesis test asks whether the data are consistent with one particular guess about $\beta_1$. Often, though, we want more than a yes-or-no answer for a single guess. We want to know which values of $\beta_1$ remain plausible after looking at the data. A *confidence interval* gives that range.
+
+    Recall from Lecture 4 that to build a confidence interval, we start from the estimate $\hat{\beta}_1$. We then collect the null values that the test in Section 4 would not reject at a chosen *significance level* $\alpha$. The significance level is the chance of rejecting a true null that the researcher is willing to accept. A common choice is $\alpha = 0.05$.
 
     For large $n$, where the $t$-statistic is standard normal, that range is the estimate plus or minus a multiple of its standard error,
 
@@ -578,7 +592,7 @@ def _(mo):
     \end{aligned}
     $$
 
-    A 95% confidence interval is built so that, across many samples, the interval holds the true $\beta_1$ in 95 of every 100. With $\hat{\beta}_1 = 1.20$ and $\operatorname{se}(\hat{\beta}_1) = 0.30$, the 95% interval runs from $1.20 - 1.96(0.30) = 0.61$ to $1.20 + 1.96(0.30) = 1.79$. That interval lies entirely above zero, so the data reject the null of no effect at the 5% level, which matches the small p-value from Section 4.
+    A 95% confidence interval is built so that, across many samples, it contains the true $\beta_1$ in 95 out of every 100 samples. With $\hat{\beta}_1 = 1.20$ and $\operatorname{se}(\hat{\beta}_1) = 0.30$, the 95% interval runs from $1.20 - 1.96(0.30) = 0.61$ to $1.20 + 1.96(0.30) = 1.79$. The whole interval lies above zero, so the data reject the null of no effect at the 5% level.
     """)
     return
 

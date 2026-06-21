@@ -201,7 +201,7 @@ def _(mo):
 
     the slope $\beta_1$ describes how $Y$ changes when $X$ changes and $u$ is held fixed. In the wage example, $u$ contains every other determinant of wages in the model, such as ability, family background, health, and luck. If education increases by one year while those other determinants stay fixed, then wages change by exactly $\beta_1$.
 
-    The difficulty is that we never observe $u$. OLS fits the line that best predicts $Y$ from $X$ alone. The slope of that line equals the causal $\beta_1$ only when the part of wages hidden in $u$ is not systematically related to education. If workers with more education also tend to have higher ability, stronger family support, or other wage advantages, then the fitted slope blends the effect of education with the effects of those omitted factors.
+    The main difficulty in interpreting an estimate of $\beta_1$ causally is that we never observe $u$. OLS fits the line that best predicts $Y$ from $X$ alone. The slope of that line equals the causal $\beta_1$ only when the part of wages hidden in $u$ is not systematically related to education. If workers with more education also tend to have higher ability, stronger family support, or other wage advantages, then the fitted slope blends the effect of education with the effects of those omitted factors.
 
     The condition that rules out this problem, together with two additional conditions that make estimation and inference reliable, gives us the three *least squares assumptions*.
 

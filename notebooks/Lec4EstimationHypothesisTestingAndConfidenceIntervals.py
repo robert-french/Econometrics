@@ -210,7 +210,8 @@ def _(mo):
     \right).
     $$
 
-    In the expression above, $\hat{\mu}_X^{\text{est}}$ is the estimate computed from the actual sample.<sup><a id="fnref1" href="#fn1">1</a></sup> A small p-value means that estimates this far from the null value would be unlikely if the null were true, so small p-values count as evidence against the null. To compute the p-value, we first convert the gap between the estimate and the null value into a *test statistic*, a number that measures how far the data are from what the null predicts. The *t-statistic* is one such test statistic. It divides the gap by the standard error of the estimator,
+    In the expression above, $\hat{\mu}_X^{\text{est}}$ is the estimate computed from the actual sample.<sup><a id="fnref1" href="#fn1">1</a></sup> A small p-value means that estimates this far from the null value would be unlikely if the null were true, so small p-values count as evidence against the null. To compute the p-value, we first convert the gap between the estimate and the null value into a *test statistic*, a number that measures how far the data are from what the null predicts. The *t-statistic* is one such test statistic. It divides the gap between the estimate and the null value by the estimator's standard error, so the gap is measured in standard-error units:
+
 
     $$
     t
