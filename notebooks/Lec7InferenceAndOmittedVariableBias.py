@@ -399,17 +399,20 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(mo):
-    _opts = dict(start=1.0, stop=10.0, step=0.5, value=2.5, show_value=True)
+    _opts = dict(start=1.0, stop=10.0, step=0.5, value=2.5, show_value=True, full_width=True)
     het_s1 = mo.ui.slider(label="8-10", **_opts)
     het_s2 = mo.ui.slider(label="10-12", **_opts)
     het_s3 = mo.ui.slider(label="12-14", **_opts)
     het_s4 = mo.ui.slider(label="14-16", **_opts)
     het_s5 = mo.ui.slider(label="16-18", **_opts)
+    # The leading spacer offsets the sliders to the right by roughly the width
+    # of the chart's y-axis, so each thin slider sits over its slice.
     mo.vstack([
         mo.md("Error spread (standard deviation) in each slice of the education range"),
         mo.hstack(
-            [het_s1, het_s2, het_s3, het_s4, het_s5],
-            justify="space-between", align="end",
+            [mo.Html("<div></div>"), het_s1, het_s2, het_s3, het_s4, het_s5],
+            widths=[0.55, 1, 1, 1, 1, 1],
+            gap=0.4,
         ),
     ])
     return het_s1, het_s2, het_s3, het_s4, het_s5
@@ -445,23 +448,18 @@ def _(alt, het_s1, het_s2, het_s3, het_s4, het_s5, mo, np, pd):
     _pts = pd.DataFrame({"x": _X, "y": _Y})
     _xline = np.array([8.0, 18.0])
     _fitdf = pd.DataFrame({"x": _xline, "y": _b0h + _b1h * _xline})
-    _panels = pd.DataFrame({"x0": _edges[:-1], "x1": _edges[1:], "sd": _sds})
+    _panels = pd.DataFrame({"x0": _edges[:-1], "x1": _edges[1:]})
 
     _xsc = alt.Scale(domain=[8.0, 18.0], nice=False)
     _ysc = alt.Scale(domain=[0.0, 60.0], nice=False)
 
-    # Each slice's background darkens with the spread its slider sets.
+    # Fixed faint columns mark the five slices and do not change with the sliders.
     _rects = (
         alt.Chart(_panels)
-        .mark_rect(color="#e8973a")
+        .mark_rect(color="#e8edf3", stroke="white", strokeWidth=1.5)
         .encode(
             x=alt.X("x0:Q", scale=_xsc, title="Years of education"),
             x2="x1:Q",
-            opacity=alt.Opacity(
-                "sd:Q",
-                scale=alt.Scale(domain=[1.0, 10.0], range=[0.03, 0.3]),
-                legend=None,
-            ),
         )
     )
     _line = (
