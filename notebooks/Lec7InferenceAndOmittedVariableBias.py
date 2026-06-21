@@ -13,7 +13,6 @@
 import marimo
 
 __generated_with = "0.23.9"
-__preliminary__ = True
 app = marimo.App(
     app_title="Lecture 7: Inference and Omitted Variable Bias in Simple Regression",
     css_file="marimo-overrides.css",
@@ -106,21 +105,29 @@ def _(mo):
     <a id="sec1"></a>
     ## 1. The variance of the slope estimator
 
-    Lecture 6 wrote the regression model as $Y_i = \beta_0 + \beta_1 X_i + u_i$, where the error $u_i$ collects everything other than education that moves a worker's wage. Fitting it to one sample of workers gives a single slope estimate $\hat{\beta}_1$, say a rise of \$1.20 in hourly wage for each extra year of education. That one number says nothing on its own about how firmly it is pinned down. A different sample of workers would hand us a different estimate, since the slope is computed from whichever workers happened to be drawn, and a slope built from a few dozen people can land well away from the truth. Before leaning on the estimate, we need to know how widely $\hat{\beta}_1$ would swing from one sample to the next. That swing is its variance across samples. When the spread of the error around the line is the same at every level of education, a case called *homoskedasticity*, that variance is
+    <a id="sec1"></a>
+
+    ## 1. The variance of the slope estimator
+
+    In Lecture 6, we wrote the regression model as $Y_i = \beta_0 + \beta_1 X_i + u_i$. Let's again suppose $Y_i$ is a worker’s wage and $X_i$ is the worker’s years of education. In this example, $u_i$ includes everything other than education that affects the worker’s wage.
+
+    When we estimate the model using one sample, we get one estimate of the slope, $\hat{\beta}_1$. In our wage and education example, we might estimate with a single sample that each additional year of education is associated with a $1.20 increase in hourly wages. But another sample would usually give us a different slope estimate, because the estimate depends on the particular observations included in the sample.
+
+    To understand how reliable $\hat{\beta}_1$ is, we need to know how much it would vary across repeated samples. This is the variance of the slope estimator. When the errors have the same dispersion at every value of $X$, the variance of $\hat{\beta}_1$ is
 
     $$
     \sigma^2_{\hat{\beta}_1} = \frac{\operatorname{var}(u)}{(n-1)\cdot \widehat{\operatorname{var}}(X)}.
     $$
 
-    Section 3 takes up the opposite case, where the spread changes with education.
+    This formula shows that the slope estimate is more precise when the errors are less spread out, when the sample is larger, and when there is more variation in $X$. Section 3 considers the case where the dispersion of the errors differs across values of $X$. In practice, we do not observe $\operatorname{var}(u)$, so we estimate it using the residuals, $\widehat{\operatorname{var}}(\hat{u}) = \frac{1}{n-2}\sum_{i=1}^{n}\hat{u}_i^2$. This is the sum of squared residuals divided by $n-2$. We divide by $n-2$ rather than $n$ because estimating the intercept, $\hat{\beta}_0$, and the slope, $\hat{\beta}_1$, uses up two pieces of information from the sample.
 
-    We never observe $\operatorname{var}(u)$, so we estimate it from the residuals as $\widehat{\operatorname{var}}(\hat{u}) = \frac{1}{n-2}\sum_{i=1}^{n}\hat{u}_i^2$, the sum of squared residuals divided by $n-2$. The divisor is $n-2$ rather than $n$ because estimating $\hat{\beta}_0$ and $\hat{\beta}_1$ uses up two pieces of information from the sample. Putting this estimate into the formula gives the sample version,
+    Using this estimate of the error variance gives the estimated variance of the slope estimator:
 
     $$
-    \hat{\sigma}^2_{\hat{\beta}_1} = \frac{\widehat{\operatorname{var}}(\hat{u})}{\sum_{i=1}^{n}(X_i - \hat{\mu}_X)^2}.
+    \hat{\sigma}^2_{\hat{\beta}*1} = \frac{\widehat{\operatorname{var}}(\hat{u})}{\sum_{i=1}^{n}(X_i - \hat{\mu}_X)^2}.
     $$
 
-    The square root of this quantity is the *standard error* of $\hat{\beta}_1$, written $\operatorname{se}(\hat{\beta}_1)$. It is the typical distance between the estimate and the true slope, measured in the same units as the slope.
+    The square root of this quantity is the standard error of $\hat{\beta}_1$, written $\operatorname{se}(\hat{\beta}_1)$. The standard error tells us the typical size of the sampling error in the slope estimate. It is measured in the same units as the slope.
     """)
     return
 
@@ -129,9 +136,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec1a"></a>
-    ### <span style="color:#0b68cb">What drives the variance</span>
-
-    Three quantities in the formula set the size of $\sigma^2_{\hat{\beta}_1}$. The variance of $X$ sits in the denominator, so a wider spread of education across workers makes the slope easier to pin down and shrinks the variance. The variance of $u$ sits in the numerator, so noisier wages around the line make the slope harder to pin down and raise the variance. The sample size $n$ enters through the $(n-1)$ factor and the sum over all $n$ observations, so collecting more workers shrinks the variance. The interactive plot in Section 2 lets you change all three and watch the standard error respond.
+    The formula shows why some slope estimates are more precise than others. Three things matter. First, the denominator contains the variation in $X$. In the wage and education example, a sample with workers who have very different levels of education gives us clearer comparisons between high-education and low-education workers. Those comparisons make it easier to see how wages change when education changes. Second, the numerator contains $\operatorname{var}(u)$. When wages are less spread out around the regression line for reasons not captured by education, there is less noise hiding the relationship between wages and education. That makes the slope easier to estimate precisely. Third, the sample size $n$ matters. Each additional observation adds information about the relationship between $Y$ and $X$, so the estimate depends less on any one unusual worker. As the sample gets larger, the slope estimate varies less from one sample to the next.
     """)
     return
 
@@ -142,15 +147,27 @@ def _(mo):
     <a id="sec2"></a>
     ## 2. The sampling distribution of the slope
 
-    Knowing the variance of $\hat{\beta}_1$ is only useful once we also know the shape of its distribution across samples. Under the three least squares assumptions from Lecture 6, that the conditional mean of the error is zero, that the data are independent and identically distributed, and that large outliers are unlikely, the estimate follows a normal distribution,
+    Knowing the variance of $\hat{\beta}_1$ is useful because it tells us how spread out the slope estimates are across repeated samples. To use that variance for confidence intervals and hypothesis tests, we also need to know the shape of the sampling distribution.
+
+    Under the three least squares assumptions from Lecture 6, $\hat{\beta}_1$ is approximately normally distributed when the sample is reasonably large:
 
     $$
-    \hat{\beta}_1 \sim \mathcal{N}\!\left(\beta_1,\ \sigma^2_{\hat{\beta}_1}\right).
+    \hat{\beta}_1 \sim \mathcal{N}\:\left(\beta_1,\ \sigma^2_{\hat{\beta}_1}\right).
     $$
 
-    The result comes from the central limit theorem of Lecture 2. The slope estimate can be written as a kind of sample average over the $n$ workers, and a sample average of independent draws is close to normal once $n$ is reasonably large. The center of the distribution is the true slope $\beta_1$, and its spread is the standard error from Section 1.
+    This means that repeated estimates of $\hat{\beta}_1$ would be centered around the true slope, $\beta_1$, with variance given by $\sigma^2_{\hat{\beta}_1}$, defined in Section 1.
 
-    The plot below makes this concrete. Set the sliders, then press Draw new sample. Each draw shows one sample of workers, fits the OLS line, and reports its standard error. The orange dashed lines are the slopes 1.96 standard errors to each side, the reach of a 95% confidence interval. Each draw also drops its slope estimate into the histogram beneath, so repeated draws build up the sampling distribution by hand. Press Reset histogram to empty it, and reset after moving a slider so the collected slopes all come from the same settings.
+    This normal approximation comes from the central limit theorem from Lecture 2; the slope estimate can be written as a weighted mean of sample observations. When the observations are independent and identically distributed, averages like this are close to normally distributed in large samples. The third least squares assumption that large outliers are unlikely helps ensure that no single observation dominates the estimate.
+
+    The plot below helps you see these ideas in practice. Use the sliders to set the underlying population and choose how many observations are drawn in each sample, then press the ''Draw new sample''. Each draw creates one sample, fits the corresponding OLS line, and reports its standard error. The orange dashed lines plot the OLS slope estimate multiplied by both plus and minus 1.96 times its standard error. These lines represent the range of a 95% confidence interval, which we consider again in Section 5. Each draw also adds its slope estimate to the adjacent density plot, so repeated draws build the sampling distribution one estimate at a time. Press ''Reset plots'' to start over. You should reset the plots after moving a slider so that all the collected slope estimates come from the same settings.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### <span style="color:#0b68cb">What determines the variance of the sampling distribution?</span>
     """)
     return
 
@@ -209,7 +226,7 @@ def _(draw_sample, get_acc, mo, set_acc):
         set_acc({"betas": [], "sample": get_acc()["sample"]})
 
     draw_button = mo.ui.button(label="Draw new sample", on_change=_on_draw)
-    reset_button = mo.ui.button(label="Reset histogram", on_change=_on_reset)
+    reset_button = mo.ui.button(label="Reset plot", on_change=_on_reset)
 
     mo.vstack([
         sd_n, sd_xspread, sd_errsd,
@@ -348,12 +365,12 @@ def _(alt, get_acc, mo, np, pd, sd_errsd, sd_n, sd_xspread, stats):
     _plural = "" if _c == 1 else "s"
     _body = (
         f"You have collected {_c} slope estimate{_plural}, each drawn as a tick on "
-        f"the axis. The shaded curve is their kernel density, scaled so the area "
-        f"under it is one. The orange line marks the true slope of 1.2. Keep "
-        f"drawing and the density piles up into a bell centered there."
+        f"the axis. The shaded curve is an empirical density plot. "
+        f"The orange line marks the true slope of 1.2. Keep "
+        f"drawing and the density should pile up into a bell-shaped curve centered there."
     )
     if _show_normal:
-        _body += " The grey dashed curve is the normal density the theory predicts."
+        _body += " The grey dashed curve is the true normal density your sample draws should approximate."
     _caption = mo.md(
         '<span style="display:block;margin:0.2rem auto 0.5rem;max-width:370px;'
         'font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;">'
@@ -371,9 +388,11 @@ def _(mo):
     <a id="sec3"></a>
     ## 3. Heteroskedasticity
 
-    The variance formula in Section 1 assumed the error spread is the same at every level of education. The error is *heteroskedastic* when that spread changes with $X$. Wages fit this case. Among workers with little education, hourly wages sit in a narrow band near the bottom. Among workers with a college degree, some earn close to the average for their group while others earn far more, so the band of wages is much wider.
+    The variance formula in Section 1 assumes that the error term has the same dispersion at every value of $X$. In that case, we say the error term is *homoskedastic*. By contrast, the error is *heteroskedastic* when its dispersion changes with $X$.
 
-    We never see $u$ itself, but the residuals $\hat{u}_i = Y_i - \hat{\beta}_0 - \hat{\beta}_1 X_i$ estimate it, and their spread is what a scatter plot shows.
+    The error term in the wage and education example may be heteroskedastic. Among workers with little education, hourly wages may be clustered in a relatively narrow range. Among workers with a college degree, some workers may earn close to the group average, while others may earn much more or much less. As a result, wages may be more dispersed at higher levels of education.
+
+    Remember that we never observe $u_i$ itself. We instead estimate the residual $\hat{u}_i = Y_i - \hat{\beta}_0 - \hat{\beta}_1 X_i$. In a scatter plot, heteroskedasticity appears as a change in the vertical dispersion of the points, or size of the residuals, around the fitted line.
     """)
     return
 
@@ -384,15 +403,17 @@ def _(mo):
     <a id="sec3a"></a>
     ### <span style="color:#0b68cb">Heteroskedasticity-robust standard errors</span>
 
-    The equal-spread formula gives the wrong variance once the error is heteroskedastic, so a standard error built from it can be too small or too large. The fix keeps the same idea but weights each observation by how far its education sits from the average,
+    When the error is heteroskedastic, the formula in Section 1 no longer gives the right variance for $\hat{\beta}_1$. A standard error based on that formula can therefore be too small or too large.
+
+    When the error is heteroskedastic, we instead estimate the variance of $\hat{\beta}_1$ with a formula that weights each observation’s squared residual differently, rather than assuming the error has the same dispersion everywhere.
 
     $$
-    \hat{\sigma}^2_{\hat{\beta}_1} = \frac{1}{n} \cdot \frac{\frac{1}{n-2}\sum_{i=1}^{n}(X_i-\hat{\mu}_X)^2\,\hat{u}_i^2}{\left[\frac{1}{n}\sum_{i=1}^{n}(X_i-\hat{\mu}_X)^2\right]^2}.
+    \hat{\sigma}^2_{\hat{\beta}_1} = \frac{1}{n} \cdot \frac{\frac{1}{n-2}\sum_{i=1}^{n}(X_i-\hat{\mu}_X)^2\hat{u}_i^2}{\left[\frac{1}{n}\sum_{i=1}^{n}(X_i-\hat{\mu}_X)^2\right]^2}.
     $$
 
-    This is the *heteroskedasticity-robust standard error*. It lets the spread of the error change with $X$, and it counts a large residual more heavily when that residual sits far from the average education, since a point far out on the horizontal axis has more pull on the slope. Robust standard errors are correct whether or not the error is homoskedastic, so regression software reports them by default and this course uses them throughout.
+    This is the *heteroskedasticity-robust* estimate of the variance of $\hat{\beta}_1$. Its square root is the heteroskedasticity-robust standard error. The formula allows the residuals to be more spread out at some values of $X$ than at others. It gives more weight to a large residual when the corresponding observation is far from the average value of $X$, because points far along the horizontal axis have more influence on the OLS slope estimate.
 
-    The plot below puts the two estimates side by side. The five sliders set the error spread in five slices of the education range, from the least educated on the left to the most educated on the right. When all five are equal the spread is the same everywhere; raising some above the others concentrates the variance. Beneath the plot, the equal-spread estimate of the variance of $\hat{\beta}_1$ sits next to the robust estimate. With the sliders level the two nearly match. As the spread varies across the range, they pull apart, and the equal-spread estimate is the one that goes wrong.
+    The plot below compares the variance formula that assumes homoskedastic errors with the heteroskedasticity-robust variance formula. The five sliders set the spread of the error in five parts of the education range, from the least educated workers on the left to the most educated workers on the right. When all five sliders are equal, the error is homoskedastic. When some sliders are higher than others, the error is heteroskedastic. Beneath the plot, the homoskedastic variance estimate appears next to the robust variance estimate. When the sliders are level, the two estimates are similar. As the spread changes across the education range, the two estimates move apart, and the homoskedastic estimate is the one that becomes unreliable.
     """)
     return
 
@@ -413,7 +434,7 @@ def _(mo):
         gap=0.4,
     ).style({"margin-left": "-0.75in"})
     mo.vstack([
-        mo.md("Error spread (standard deviation) in each slice of the education range"),
+        mo.md("Choose the dispersion of the error term in each slice of the education range and see how it impacts the variance estimates."),
         _row,
     ])
     return het_s1, het_s2, het_s3, het_s4, het_s5
@@ -473,7 +494,7 @@ def _(alt, het_s1, het_s2, het_s3, het_s4, het_s5, mo, np, pd):
     _rob_str = f"{_var_robust:.5f}"
     _homo_group = mo.vstack(
         [
-            mo.md("**Equal-spread (homoskedastic)**"),
+            mo.md("**Assuming homoskedasticity**"),
             mo.md(
                 r"$$\hat{\sigma}^2_{\hat{\beta}_1} = \frac{\widehat{\operatorname{var}}(\hat{u})}{\sum_i (X_i-\hat{\mu}_X)^2} = "
                 + _homo_str
@@ -500,13 +521,13 @@ def _(alt, het_s1, het_s2, het_s3, het_s4, het_s5, mo, np, pd):
     _homosked = len(set(_sds)) == 1
     if _homosked:
         _msg = (
-            "The spread is the same in every slice, so the error is homoskedastic and "
+            "The error dispersion is currently the same in every slice, so the error is homoskedastic and "
             "the two estimates of the variance of the slope nearly match."
         )
     else:
         _msg = (
             "The spread differs across slices, so the error is heteroskedastic. The two "
-            "estimates have pulled apart, and the equal-spread estimate no longer reports "
+            "estimates have pulled apart, and the variance estimate assuming homoskedasticity no longer reports "
             "the right variance."
         )
     _caption = mo.md(
@@ -522,7 +543,7 @@ def _(alt, het_s1, het_s2, het_s3, het_s4, het_s5, mo, np, pd):
 def _(mo):
     mo.md(r"""
     <a id="sec4"></a>
-    ## 4. Hypothesis tests for the slope
+    ## 4. Hypothesis tests for the slope - this is where i got to.
 
     A common question is whether education affects wages at all, which is the claim that the true slope is zero. A *hypothesis test* compares a specific guess about $\beta_1$, the null hypothesis $H_0:\ \beta_1 = \beta_{1,H_0}$, against the estimate. The guess we test is usually $\beta_{1,H_0} = 0$, since that is the case of no effect.
 
