@@ -405,15 +405,16 @@ def _(mo):
     het_s3 = mo.ui.slider(label="12-14", **_opts)
     het_s4 = mo.ui.slider(label="14-16", **_opts)
     het_s5 = mo.ui.slider(label="16-18", **_opts)
-    # A small leading spacer offsets the sliders to the right by roughly the
-    # width of the chart's y-axis, so each thin slider sits over its slice.
+    # The negative left margin slides the whole slider row left so each thin
+    # slider sits closer to its slice; tune the inch value to nudge it.
+    _row = mo.hstack(
+        [mo.Html("<div></div>"), het_s1, het_s2, het_s3, het_s4, het_s5],
+        widths=[0.1, 1, 1, 1, 1, 1],
+        gap=0.4,
+    ).style({"margin-left": "-0.5in"})
     mo.vstack([
         mo.md("Error spread (standard deviation) in each slice of the education range"),
-        mo.hstack(
-            [mo.Html("<div></div>"), het_s1, het_s2, het_s3, het_s4, het_s5],
-            widths=[0.1, 1, 1, 1, 1, 1],
-            gap=0.4,
-        ),
+        _row,
     ])
     return het_s1, het_s2, het_s3, het_s4, het_s5
 
