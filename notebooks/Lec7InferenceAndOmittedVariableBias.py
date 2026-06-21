@@ -400,18 +400,18 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     _opts = dict(start=1.0, stop=10.0, step=0.5, value=2.5, show_value=True, full_width=True)
-    het_s1 = mo.ui.slider(label="8-10", **_opts)
-    het_s2 = mo.ui.slider(label="10-12", **_opts)
-    het_s3 = mo.ui.slider(label="12-14", **_opts)
-    het_s4 = mo.ui.slider(label="14-16", **_opts)
-    het_s5 = mo.ui.slider(label="16-18", **_opts)
+    het_s1 = mo.ui.slider(label="8-10 years", **_opts)
+    het_s2 = mo.ui.slider(label="10-12 years", **_opts)
+    het_s3 = mo.ui.slider(label="12-14 years", **_opts)
+    het_s4 = mo.ui.slider(label="14-16 years", **_opts)
+    het_s5 = mo.ui.slider(label="16-18 years", **_opts)
     # The negative left margin slides the whole slider row left so each thin
     # slider sits closer to its slice; tune the inch value to nudge it.
     _row = mo.hstack(
         [mo.Html("<div></div>"), het_s1, het_s2, het_s3, het_s4, het_s5],
         widths=[0.1, 1, 1, 1, 1, 1],
         gap=0.4,
-    ).style({"margin-left": "-0.5in"})
+    ).style({"margin-left": "-0.75in"})
     mo.vstack([
         mo.md("Error spread (standard deviation) in each slice of the education range"),
         _row,
