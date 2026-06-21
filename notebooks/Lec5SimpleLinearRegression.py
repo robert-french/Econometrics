@@ -415,7 +415,7 @@ def _(mo):
     \text{TSS} = \sum_{i=1}^{n}(Y_i - \hat{\mu}_Y)^2, \quad \text{ESS} = \sum_{i=1}^{n}(\hat{Y}_i - \hat{\mu}_Y)^2, \quad  \text{SSR} = \sum_{i=1}^{n}\hat{u}_i^2.
     $$
 
-    These three quantities satisfy $ \text{TSS} = \text{ESS} + \text{SSR}$. The $R^2$ is the share of the total variation in $Y$ accounted for by the fitted line,
+    These three quantities satisfy $\text{TSS} = \text{ESS} + \text{SSR}$. The $R^2$ is the share of the total variation in $Y$ accounted for by the fitted line,
 
     $$
     R^2 = \frac{\text{ESS}}{\text{TSS}} = 1 - \frac{\text{SSR}}{\text{TSS}}.
