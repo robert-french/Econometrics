@@ -41,10 +41,8 @@ def _(mo):
             mo.nav_menu(
                 {
                     "#sec1": "1. The variance of the slope estimator",
-                    "#sec1a": "What drives the variance",
                     "#sec2": "2. The sampling distribution of the slope",
                     "#sec3": "3. Heteroskedasticity",
-                    "#sec3a": "Heteroskedasticity-robust standard errors",
                     "#sec4": "4. Hypothesis tests for the slope",
                     "#sec5": "5. Confidence intervals for the slope",
                     "#sec6": "6. Unbiasedness and consistency",
@@ -92,10 +90,8 @@ def _(mo):
     ## Contents
 
     [1. The variance of the slope estimator](#sec1)<br>
-    &emsp;&emsp;[What drives the variance](#sec1a)<br>
     [2. The sampling distribution of the slope](#sec2)<br>
     [3. Heteroskedasticity](#sec3)<br>
-    &emsp;&emsp;[Heteroskedasticity-robust standard errors](#sec3a)<br>
     [4. Hypothesis tests for the slope](#sec4)<br>
     [5. Confidence intervals for the slope](#sec5)<br>
     [6. Unbiasedness and consistency](#sec6)<br>
@@ -110,7 +106,7 @@ def _(mo):
     <a id="sec1"></a>
     ## 1. The variance of the slope estimator
 
-    Lecture 6 wrote the regression model as $Y_i = \beta_0 + \beta_1 X_i + u_i$, where the error $u_i$ collects everything other than education that moves a worker's wage. The slope estimate $\hat{\beta}_1$ changes from one sample to the next, because each sample draws different workers. To judge how far a single estimate might sit from the true slope, we need the variance of $\hat{\beta}_1$ across samples. When the spread of the error around the line is the same at every level of education, a case called *homoskedasticity*, that variance is
+    Lecture 6 wrote the regression model as $Y_i = \beta_0 + \beta_1 X_i + u_i$, where the error $u_i$ collects everything other than education that moves a worker's wage. Fitting it to one sample of workers gives a single slope estimate $\hat{\beta}_1$, say a rise of \$1.20 in hourly wage for each extra year of education. That one number says nothing on its own about how firmly it is pinned down. A different sample of workers would hand us a different estimate, since the slope is computed from whichever workers happened to be drawn, and a slope built from a few dozen people can land well away from the truth. Before leaning on the estimate, we need to know how widely $\hat{\beta}_1$ would swing from one sample to the next. That swing is its variance across samples. When the spread of the error around the line is the same at every level of education, a case called *homoskedasticity*, that variance is
 
     $$
     \sigma^2_{\hat{\beta}_1} = \frac{\operatorname{var}(u)}{(n-1)\cdot \widehat{\operatorname{var}}(X)}.
@@ -396,43 +392,43 @@ def _(mo):
 
     This is the *heteroskedasticity-robust standard error*. It lets the spread of the error change with $X$, and it counts a large residual more heavily when that residual sits far from the average education, since a point far out on the horizontal axis has more pull on the slope. Robust standard errors are correct whether or not the error is homoskedastic, so regression software reports them by default and this course uses them throughout.
 
-    The plot below puts the two estimates side by side. Use the controls to choose which education bands have more variable wages, and the slider to set how much more variable. Beneath the plot, the equal-spread estimate of the variance of $\hat{\beta}_1$ sits next to the robust estimate. With no bands selected the two nearly match. As you concentrate the variance, they pull apart, and the equal-spread estimate is the one that goes wrong.
+    The plot below puts the two estimates side by side. The five sliders set the error spread in five slices of the education range, from the least educated on the left to the most educated on the right. When all five are equal the spread is the same everywhere; raising some above the others concentrates the variance. Beneath the plot, the equal-spread estimate of the variance of $\hat{\beta}_1$ sits next to the robust estimate. With the sliders level the two nearly match. As the spread varies across the range, they pull apart, and the equal-spread estimate is the one that goes wrong.
     """)
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    het_bands = mo.ui.multiselect(
-        options=["8 to 10", "10 to 12", "12 to 14", "14 to 16", "16 to 18", "18 to 20"],
-        label="Education bands with more variable wages",
-    )
-    het_mult = mo.ui.slider(
-        start=1.0, stop=8.0, step=0.5, value=4.0,
-        label="How much larger is the spread in those bands?",
-        show_value=True,
-    )
-    mo.vstack([het_bands, het_mult])
-    return het_bands, het_mult
+    _opts = dict(start=1.0, stop=10.0, step=0.5, value=2.5, show_value=True)
+    het_s1 = mo.ui.slider(label="8-10", **_opts)
+    het_s2 = mo.ui.slider(label="10-12", **_opts)
+    het_s3 = mo.ui.slider(label="12-14", **_opts)
+    het_s4 = mo.ui.slider(label="14-16", **_opts)
+    het_s5 = mo.ui.slider(label="16-18", **_opts)
+    mo.vstack([
+        mo.md("Error spread (standard deviation) in each slice of the education range"),
+        mo.hstack(
+            [het_s1, het_s2, het_s3, het_s4, het_s5],
+            justify="space-between", align="end",
+        ),
+    ])
+    return het_s1, het_s2, het_s3, het_s4, het_s5
 
 
 @app.cell(hide_code=True)
-def _(alt, het_bands, het_mult, mo, np, pd):
-    _label_to_band = {
-        "8 to 10": 0, "10 to 12": 1, "12 to 14": 2,
-        "14 to 16": 3, "16 to 18": 4, "18 to 20": 5,
-    }
-    _selected = {_label_to_band[_l] for _l in het_bands.value}
-    _mult = float(het_mult.value)
+def _(alt, het_s1, het_s2, het_s3, het_s4, het_s5, mo, np, pd):
+    _sds = [
+        float(het_s1.value), float(het_s2.value), float(het_s3.value),
+        float(het_s4.value), float(het_s5.value),
+    ]
+    _edges = [8.0, 10.0, 12.0, 14.0, 16.0, 18.0]
 
     _rng = np.random.default_rng(3)
-    _n = 240
-    _X = _rng.uniform(8.0, 20.0, _n)
-    _band_idx = np.clip(((_X - 8.0) // 2.0).astype(int), 0, 5)
+    _n = 250
+    _X = _rng.uniform(8.0, 18.0, _n)
+    _panel = np.clip(((_X - 8.0) // 2.0).astype(int), 0, 4)
     _Z = _rng.standard_normal(_n)
-    _base_sd = 2.0
-    _is_high = np.isin(_band_idx, list(_selected)) if _selected else np.zeros(_n, dtype=bool)
-    _sd_i = np.where(_is_high, _base_sd * _mult, _base_sd)
+    _sd_i = np.array(_sds)[_panel]
     _Y = 8.0 + 1.2 * _X + _sd_i * _Z
 
     _b1h = float(np.cov(_X, _Y, ddof=1)[0, 1] / np.var(_X, ddof=1))
@@ -446,27 +442,26 @@ def _(alt, het_bands, het_mult, mo, np, pd):
     _den = float((np.sum(_dev2) / _n) ** 2)
     _var_robust = (1.0 / _n) * _num / _den
 
-    _pts = pd.DataFrame({"x": _X, "y": _Y, "high": _is_high.astype(int)})
-    _xline = np.array([8.0, 20.0])
+    _pts = pd.DataFrame({"x": _X, "y": _Y})
+    _xline = np.array([8.0, 18.0])
     _fitdf = pd.DataFrame({"x": _xline, "y": _b0h + _b1h * _xline})
-    _bands = pd.DataFrame({
-        "x0": [8.0, 10.0, 12.0, 14.0, 16.0, 18.0],
-        "x1": [10.0, 12.0, 14.0, 16.0, 18.0, 20.0],
-        "active": [b in _selected for b in range(6)],
-    })
+    _panels = pd.DataFrame({"x0": _edges[:-1], "x1": _edges[1:], "sd": _sds})
 
-    _xsc = alt.Scale(domain=[8.0, 20.0], nice=False)
-    _ysc = alt.Scale(domain=[0.0, 62.0], nice=False)
+    _xsc = alt.Scale(domain=[8.0, 18.0], nice=False)
+    _ysc = alt.Scale(domain=[0.0, 60.0], nice=False)
 
-    # Band backgrounds highlight the bands chosen in the control above.
+    # Each slice's background darkens with the spread its slider sets.
     _rects = (
-        alt.Chart(_bands)
-        .mark_rect()
+        alt.Chart(_panels)
+        .mark_rect(color="#e8973a")
         .encode(
             x=alt.X("x0:Q", scale=_xsc, title="Years of education"),
             x2="x1:Q",
-            color=alt.condition("datum.active", alt.value("#e8973a"), alt.value("#9aa5b1")),
-            opacity=alt.condition("datum.active", alt.value(0.18), alt.value(0.05)),
+            opacity=alt.Opacity(
+                "sd:Q",
+                scale=alt.Scale(domain=[1.0, 10.0], range=[0.03, 0.3]),
+                legend=None,
+            ),
         )
     )
     _line = (
@@ -476,11 +471,10 @@ def _(alt, het_bands, het_mult, mo, np, pd):
     )
     _points = (
         alt.Chart(_pts)
-        .mark_circle(size=45, opacity=0.55, clip=True)
+        .mark_circle(size=40, opacity=0.55, color="#1f4e79", clip=True)
         .encode(
             x=alt.X("x:Q", scale=_xsc, title="Years of education"),
             y=alt.Y("y:Q", scale=_ysc, title="Hourly wage (USD)"),
-            color=alt.condition("datum.high == 1", alt.value("#e8973a"), alt.value("#1f4e79")),
         )
     )
     _chart = (_rects + _line + _points).properties(
@@ -489,34 +483,43 @@ def _(alt, het_bands, het_mult, mo, np, pd):
 
     _homo_str = f"{_var_homo:.5f}"
     _rob_str = f"{_var_robust:.5f}"
-    _homo_panel = mo.md(
-        r"""**Equal-spread (homoskedastic)**
-
-$$\hat{\sigma}^2_{\hat{\beta}_1} = \frac{\widehat{\operatorname{var}}(\hat{u})}{\sum_i (X_i-\hat{\mu}_X)^2} = """
-        + _homo_str
-        + r"$$"
+    _homo_group = mo.vstack(
+        [
+            mo.md("**Equal-spread (homoskedastic)**"),
+            mo.md(
+                r"$$\hat{\sigma}^2_{\hat{\beta}_1} = \frac{\widehat{\operatorname{var}}(\hat{u})}{\sum_i (X_i-\hat{\mu}_X)^2} = "
+                + _homo_str
+                + r"$$"
+            ),
+        ],
+        align="center",
     )
-    _rob_panel = mo.md(
-        r"""**Heteroskedasticity-robust**
-
-$$\hat{\sigma}^2_{\hat{\beta}_1} = \frac{\frac{1}{n}\cdot\frac{1}{n-2}\sum_i (X_i-\hat{\mu}_X)^2\,\hat{u}_i^2}{\left[\frac{1}{n}\sum_i (X_i-\hat{\mu}_X)^2\right]^2} = """
-        + _rob_str
-        + r"$$"
+    _rob_group = mo.vstack(
+        [
+            mo.md("**Heteroskedasticity-robust**"),
+            mo.md(
+                r"$$\hat{\sigma}^2_{\hat{\beta}_1} = \frac{\frac{1}{n}\cdot\frac{1}{n-2}\sum_i (X_i-\hat{\mu}_X)^2\,\hat{u}_i^2}{\left[\frac{1}{n}\sum_i (X_i-\hat{\mu}_X)^2\right]^2} = "
+                + _rob_str
+                + r"$$"
+            ),
+        ],
+        align="center",
     )
     _formulas = mo.hstack(
-        [_homo_panel, _rob_panel], justify="center", align="center", gap=2.0
+        [_homo_group, _rob_group], justify="center", align="start", gap=2.0
     )
 
-    if not _selected:
+    _homosked = len(set(_sds)) == 1
+    if _homosked:
         _msg = (
-            "No bands are selected, so the spread is the same everywhere and the "
-            "two estimates of the variance of the slope nearly match."
+            "The spread is the same in every slice, so the error is homoskedastic and "
+            "the two estimates of the variance of the slope nearly match."
         )
     else:
         _msg = (
-            "Wages are more variable in the orange bands you picked. The two "
-            "estimates have pulled apart, and the equal-spread estimate no longer "
-            "reports the right variance."
+            "The spread differs across slices, so the error is heteroskedastic. The two "
+            "estimates have pulled apart, and the equal-spread estimate no longer reports "
+            "the right variance."
         )
     _caption = mo.md(
         '<span style="display:block;margin:0.2rem auto 1rem;max-width:560px;'
