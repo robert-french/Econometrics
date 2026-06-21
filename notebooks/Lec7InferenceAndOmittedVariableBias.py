@@ -405,13 +405,13 @@ def _(mo):
     het_s3 = mo.ui.slider(label="12-14", **_opts)
     het_s4 = mo.ui.slider(label="14-16", **_opts)
     het_s5 = mo.ui.slider(label="16-18", **_opts)
-    # The leading spacer offsets the sliders to the right by roughly the width
-    # of the chart's y-axis, so each thin slider sits over its slice.
+    # A small leading spacer offsets the sliders to the right by roughly the
+    # width of the chart's y-axis, so each thin slider sits over its slice.
     mo.vstack([
         mo.md("Error spread (standard deviation) in each slice of the education range"),
         mo.hstack(
             [mo.Html("<div></div>"), het_s1, het_s2, het_s3, het_s4, het_s5],
-            widths=[0.55, 1, 1, 1, 1, 1],
+            widths=[0.1, 1, 1, 1, 1, 1],
             gap=0.4,
         ),
     ])
@@ -424,7 +424,6 @@ def _(alt, het_s1, het_s2, het_s3, het_s4, het_s5, mo, np, pd):
         float(het_s1.value), float(het_s2.value), float(het_s3.value),
         float(het_s4.value), float(het_s5.value),
     ]
-    _edges = [8.0, 10.0, 12.0, 14.0, 16.0, 18.0]
 
     _rng = np.random.default_rng(3)
     _n = 250
@@ -448,20 +447,10 @@ def _(alt, het_s1, het_s2, het_s3, het_s4, het_s5, mo, np, pd):
     _pts = pd.DataFrame({"x": _X, "y": _Y})
     _xline = np.array([8.0, 18.0])
     _fitdf = pd.DataFrame({"x": _xline, "y": _b0h + _b1h * _xline})
-    _panels = pd.DataFrame({"x0": _edges[:-1], "x1": _edges[1:]})
 
     _xsc = alt.Scale(domain=[8.0, 18.0], nice=False)
     _ysc = alt.Scale(domain=[0.0, 60.0], nice=False)
 
-    # Fixed faint columns mark the five slices and do not change with the sliders.
-    _rects = (
-        alt.Chart(_panels)
-        .mark_rect(color="#e8edf3", stroke="white", strokeWidth=1.5)
-        .encode(
-            x=alt.X("x0:Q", scale=_xsc, title="Years of education"),
-            x2="x1:Q",
-        )
-    )
     _line = (
         alt.Chart(_fitdf)
         .mark_line(color="#111827", size=2.5, clip=True)
@@ -475,7 +464,7 @@ def _(alt, het_s1, het_s2, het_s3, het_s4, het_s5, mo, np, pd):
             y=alt.Y("y:Q", scale=_ysc, title="Hourly wage (USD)"),
         )
     )
-    _chart = (_rects + _line + _points).properties(
+    _chart = (_points + _line).properties(
         width=560, height=320, title="Wages and education"
     )
 
