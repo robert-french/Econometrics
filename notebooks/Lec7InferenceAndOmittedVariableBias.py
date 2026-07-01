@@ -518,9 +518,9 @@ def _(alt, het_s1, het_s2, het_s3, het_s4, het_s5, mo, np, pd):
         )
     else:
         _msg = (
-            "The spread differs across slices, so the error is heteroskedastic. The two "
-            "estimates have pulled apart, and the variance estimate assuming homoskedasticity no longer reports "
-            "the right variance."
+            "The spread differs with years of education, so the error is heteroskedastic. The two "
+            "variance estimates have pulled apart, and the estimate assuming homoskedasticity no longer reports "
+            "the correct variance."
         )
     _caption = mo.md(
         '<span style="display:block;margin:0.2rem auto 1rem;max-width:560px;'
