@@ -139,7 +139,7 @@ def _(mo):
 
     The rest of this lecture works with a simulated sample of 200 school districts. For each district we observe the average test score of its students, the class size measured in students per teacher, and the average income of the students' parents in thousands of dollars. Districts with richer parents tend to run smaller classes, so class size and parental income are negatively correlated, exactly the setup of Section 1. Regressing test scores on class size and parental income together, $\beta_1$ is the change in a district's average score for one more student per teacher among districts with the same parental income. The phrase ''among districts with the same parental income'' is what the single-variable slope could not deliver, because there income was free to move along with class size.
 
-    Geometry gives the same idea a picture. With one regressor the fitted model is a line through a two-dimensional scatter plot. With two regressors it is a plane floating in three dimensions, one horizontal axis for each regressor and the vertical axis for the outcome. Each slope is the tilt of the plane along its own axis, so holding parental income fixed means walking across the plane parallel to the class-size axis, and the slope of that walk is $\beta_1$. The next section puts the plane on screen and lets you tilt it yourself.
+    Geometry gives the same idea a picture. With one regressor the fitted model is a line through a two-dimensional scatter plot. With two regressors it is a plane floating in three dimensions, one horizontal axis for each regressor and the vertical axis for the outcome. Each slope is the tilt of the plane along its own axis, so holding parental income fixed means walking across the plane parallel to the class-size axis, and the slope of that walk is $\beta_1$. The next section builds this picture on screen one step at a time.
     """)
     return
 
@@ -172,177 +172,168 @@ def _(mo):
 
     The class-size coefficient moves from $-2.31$ to $-1.10$, less than half its former size. This is the omitted variable bias of Section 1 being removed. Parental income raises test scores and is lower where classes are larger, so the single-variable slope blamed class size for part of what was really the effect of income. The income coefficient says that among districts with the same class size, each additional thousand dollars of parental income goes with 0.67 more points.
 
-    The figure below opens up the minimization. The slider sets one of the three dials, the coefficient on parental income. Whatever value you choose, OLS turns the other two dials for you, picking the intercept and class-size slope that minimize the sum of squared residuals given your choice. The left panel draws the resulting fit for a district with average parental income, next to the dashed single-regressor line it started from. The right panel draws the same fit as a plane in three dimensions. The curve underneath tracks the sum of squared residuals as the income coefficient moves. Slide until the residuals stop falling and you will have run OLS by hand.
+    The figure below retraces the move from one regressor to two, one view at a time. The first view is the flat scatter that ignores income, the only picture a single-regressor model can see. The next views reveal the income axis, show that the flat picture was the cloud's shadow, fit the plane, and slice it at fixed income levels. Watch the two slopes as you click through, the uncontrolled $-2.31$ that lives in the shadow and the controlled $-1.10$ that lives on the plane.
     """)
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    gamma_slider = mo.ui.slider(
-        start=0.0, stop=1.0, step=0.01, value=0.0,
-        label="Coefficient on parental income (points per thousand dollars)",
-        show_value=True,
+    stage_radio = mo.ui.radio(
+        options=[
+            "1. The flat view",
+            "2. Reveal parental income",
+            "3. Fit the plane",
+            "4. Slice at fixed incomes",
+        ],
+        value="1. The flat view",
+        inline=True,
     )
     mo.vstack(
         [
             mo.md(
-                "Set the income coefficient yourself. OLS picks the intercept and "
-                "class-size slope that minimize the sum of squared residuals given "
-                "your choice. Drag the 3D panel to rotate it."
+                "Click through the four views in order. Each view replaces the "
+                "last, and the 3D views rotate when you drag them."
             ),
-            gamma_slider,
+            stage_radio,
         ]
     )
-    return (gamma_slider,)
+    return (stage_radio,)
 
 
 @app.cell(hide_code=True)
-def _(
-    alt,
-    b_short,
-    cs,
-    gamma_hat,
-    gamma_slider,
-    go,
-    mo,
-    np,
-    pd,
-    prnt,
-    sse_curve,
-    ssr_min,
-    ts,
-):
-    _g = float(gamma_slider.value)
-    _bb, *_ = np.linalg.lstsq(
-        np.column_stack([np.ones(len(ts)), cs]), ts - _g * prnt, rcond=None
-    )
-    _b0, _b1 = float(_bb[0]), float(_bb[1])
-    _resid = ts - (_b0 + _b1 * cs + _g * prnt)
-    _ssr = float(_resid @ _resid)
-    _gap = _ssr - ssr_min
-    _pm = float(prnt.mean())
-
+def _(alt, b_multi, b_short, cs, go, mo, np, pd, prnt, stage_radio, ts):
+    _stage = stage_radio.value
     _xline = np.array([15.0, 26.0])
-    _pts = pd.DataFrame({"x": cs, "y": ts})
-    _short_df = pd.DataFrame({"x": _xline, "y": b_short[0] + b_short[1] * _xline})
-    _cur_df = pd.DataFrame({"x": _xline, "y": (_b0 + _g * _pm) + _b1 * _xline})
-    _scatter = (
-        alt.Chart(_pts)
-        .mark_circle(size=42, color="#1f4e79", opacity=0.55, clip=True)
-        .encode(
-            x=alt.X("x:Q", title="Class size (students per teacher)", scale=alt.Scale(domain=[14.5, 26.5], nice=False)),
-            y=alt.Y("y:Q", title="Test score", scale=alt.Scale(domain=[640, 732], nice=False)),
-        )
-    )
-    _short_line = (
-        alt.Chart(_short_df)
-        .mark_line(color="#9aa5b1", strokeDash=[6, 4], size=2, clip=True)
-        .encode(x="x:Q", y="y:Q")
-    )
-    _cur_line = (
-        alt.Chart(_cur_df)
-        .mark_line(color="#f59e0b", size=2.5, clip=True)
-        .encode(x="x:Q", y="y:Q")
-    )
-    _chart2d = alt.layer(_scatter, _short_line, _cur_line).properties(
-        width=300, height=290, title="Fit at average parental income",
-    )
+    _floor = float(prnt.min()) - 2.0
 
-    _csg = np.array([15.0, 26.0])
-    _png = np.array([float(prnt.min()), float(prnt.max())])
-    _gz = (_b0 + _b1 * _csg[None, :]) + _g * _png[:, None]
-    _fig = go.Figure()
-    _fig.add_trace(
-        go.Scatter3d(
-            x=cs, y=prnt, z=ts, mode="markers",
-            marker=dict(size=3, color="#1f4e79", opacity=0.7),
+    if _stage == "1. The flat view":
+        _pts = pd.DataFrame({"x": cs, "y": ts})
+        _line = pd.DataFrame({"x": _xline, "y": b_short[0] + b_short[1] * _xline})
+        _scatter = (
+            alt.Chart(_pts)
+            .mark_circle(size=42, color="#1f4e79", opacity=0.55, clip=True)
+            .encode(
+                x=alt.X("x:Q", title="Class size (students per teacher)", scale=alt.Scale(domain=[14.5, 26.5], nice=False)),
+                y=alt.Y("y:Q", title="Test score", scale=alt.Scale(domain=[640, 732], nice=False)),
+            )
         )
-    )
-    _fig.add_trace(
-        go.Surface(
-            x=_csg, y=_png, z=_gz, opacity=0.45, showscale=False,
-            colorscale=[[0, "#9aa5b1"], [1, "#9aa5b1"]],
+        _ols_line = (
+            alt.Chart(_line)
+            .mark_line(color="#1f4e79", size=2.5, clip=True)
+            .encode(x="x:Q", y="y:Q")
         )
-    )
-    _fig.add_trace(
-        go.Scatter3d(
-            x=_csg, y=[_pm, _pm], z=(_b0 + _g * _pm) + _b1 * _csg,
-            mode="lines", line=dict(color="#f59e0b", width=7),
+        _view = alt.layer(_scatter, _ols_line).properties(
+            width=560, height=340, title="One regressor, one flat cloud",
         )
-    )
-    _fig.update_layout(
-        width=360, height=330, margin=dict(l=0, r=0, t=0, b=0),
-        showlegend=False, uirevision="keep",
-        scene=dict(
-            xaxis_title="Class size", yaxis_title="Parental income",
-            zaxis_title="Test score",
-            camera=dict(eye=dict(x=1.7, y=1.5, z=0.7)),
-        ),
-    )
-
-    _sse_line = (
-        alt.Chart(sse_curve)
-        .mark_line(color="#1f4e79", size=2)
-        .encode(
-            x=alt.X("g:Q", title="Coefficient on parental income", scale=alt.Scale(domain=[0.0, 1.0], nice=False)),
-            y=alt.Y("ssr:Q", title="Sum of squared residuals", scale=alt.Scale(domain=[26000, 35000], nice=False), axis=alt.Axis(format="~s")),
-        )
-    )
-    _sse_rule = (
-        alt.Chart(pd.DataFrame({"g": [gamma_hat]}))
-        .mark_rule(color="#9aa5b1", strokeDash=[4, 3])
-        .encode(x="g:Q")
-    )
-    _sse_dot = (
-        alt.Chart(pd.DataFrame({"g": [_g], "ssr": [_ssr]}))
-        .mark_point(color="#f59e0b", size=90, filled=True)
-        .encode(x="g:Q", y="ssr:Q")
-    )
-    _sse_chart = alt.layer(_sse_line, _sse_rule, _sse_dot).properties(width=620, height=140)
-
-    if _g == 0.0:
         _body = (
-            f"The income coefficient is switched off, so this is the single-regressor fit, "
-            f"a class-size slope of {b_short[1]:.2f} with a sum of squared residuals of "
-            f"{_ssr:,.0f}. The plane on the right is flat along the income axis, and the "
-            f"residuals have {_gap:,.0f} left to fall."
-        )
-    elif abs(_g - gamma_hat) <= 0.005:
-        _body = (
-            f"This is the fit OLS chooses on its own. At an income coefficient of "
-            f"{gamma_hat:.2f} the sum of squared residuals bottoms out at {ssr_min:,.0f}, "
-            f"and the class-size slope settles at {_b1:.2f}, matching the two-regressor "
-            f"equation above."
-        )
-    elif _g < gamma_hat:
-        _body = (
-            f"At {_g:.2f} the plane has tilted part of the way up the income axis. The "
-            f"class-size slope has risen to {_b1:.2f} and the sum of squared residuals has "
-            f"fallen to {_ssr:,.0f}, still {_gap:,.0f} short of the minimum. Keep sliding."
+            f"Each dot is one of the 200 districts, and the line is the single-regressor "
+            f"fit with a slope of {b_short[1]:.2f} points per student. Parental income is "
+            f"nowhere in this picture, which is exactly the problem Section 1 described."
         )
     else:
-        _body = (
-            f"Past {gamma_hat:.2f} the tilt overshoots. The sum of squared residuals is "
-            f"rising again, now {_gap:,.0f} above its minimum, and the class-size slope has "
-            f"kept climbing to {_b1:.2f}. OLS stops at the bottom of the curve instead."
+        _shadow_z = b_short[0] + b_short[1] * _xline
+        _cloud_op = 0.7 if _stage == "2. Reveal parental income" else 0.3
+        _fig = go.Figure()
+        _fig.add_trace(
+            go.Scatter3d(
+                x=cs, y=prnt, z=ts, mode="markers",
+                marker=dict(size=3, color="#1f4e79", opacity=_cloud_op),
+            )
         )
+        if _stage == "2. Reveal parental income":
+            _fig.add_trace(
+                go.Scatter3d(
+                    x=cs, y=np.full(len(cs), _floor), z=ts, mode="markers",
+                    marker=dict(size=3, color="#b6c2cf", opacity=0.5),
+                )
+            )
+        _fig.add_trace(
+            go.Scatter3d(
+                x=_xline, y=[_floor, _floor], z=_shadow_z, mode="lines",
+                line=dict(color="#6b7280", width=6),
+            )
+        )
+        _annotations = []
+        if _stage in ("3. Fit the plane", "4. Slice at fixed incomes"):
+            _png = np.array([float(prnt.min()), float(prnt.max())])
+            _gz = (b_multi[0] + b_multi[1] * _xline[None, :]) + b_multi[2] * _png[:, None]
+            _fig.add_trace(
+                go.Surface(
+                    x=_xline, y=_png, z=_gz, opacity=0.45, showscale=False,
+                    colorscale=[[0, "#9aa5b1"], [1, "#9aa5b1"]],
+                )
+            )
+        if _stage == "4. Slice at fixed incomes":
+            _qs = np.percentile(prnt, [25, 50, 75])
+            for _q in _qs:
+                _fig.add_trace(
+                    go.Scatter3d(
+                        x=_xline, y=[float(_q), float(_q)],
+                        z=b_multi[0] + b_multi[1] * _xline + b_multi[2] * float(_q),
+                        mode="lines", line=dict(color="#f59e0b", width=7),
+                    )
+                )
+            _mid = float(_qs[1])
+            _annotations = [
+                dict(
+                    x=25.8, y=_mid,
+                    z=float(b_multi[0] + b_multi[1] * 25.8 + b_multi[2] * _mid) + 8.0,
+                    text=f"controlled slope {b_multi[1]:.2f}",
+                    showarrow=False, font=dict(size=12, color="#b45309"),
+                    xanchor="left",
+                ),
+                dict(
+                    x=15.5, y=_floor,
+                    z=float(b_short[0] + b_short[1] * 15.5) + 8.0,
+                    text=f"uncontrolled slope {b_short[1]:.2f}",
+                    showarrow=False, font=dict(size=12, color="#6b7280"),
+                    xanchor="left",
+                ),
+            ]
+        _fig.update_layout(
+            width=620, height=460, margin=dict(l=0, r=0, t=0, b=0),
+            showlegend=False, uirevision="keep",
+            scene=dict(
+                xaxis=dict(title="Class size", range=[14.5, 26.5]),
+                yaxis=dict(title="Parental income", range=[_floor - 2.0, 39.0]),
+                zaxis=dict(title="Test score", range=[640, 732]),
+                camera=dict(eye=dict(x=1.7, y=1.5, z=0.7)),
+                annotations=_annotations,
+            ),
+        )
+        _view = mo.ui.plotly(_fig)
+        if _stage == "2. Reveal parental income":
+            _body = (
+                "The same 200 districts, with parental income now on its own axis. The "
+                "gray dots on the back wall are the cloud's shadow, cast by collapsing "
+                "the income axis, and the gray line through them is the fit from the "
+                "flat view. The simple regression only ever saw the shadow."
+            )
+        elif _stage == "3. Fit the plane":
+            _body = (
+                f"OLS with two regressors fits a plane. Along the class-size axis it "
+                f"tilts by {b_multi[1]:.2f} points per student with income held fixed, "
+                f"and along the income axis it tilts by {b_multi[2]:.2f} points per "
+                f"thousand dollars. The shadow on the wall still keeps the old slope "
+                f"of {b_short[1]:.2f}."
+            )
+        else:
+            _body = (
+                f"Each orange line slices the plane at one income level, the quartiles "
+                f"of the data, and every slice has the same class-size slope of "
+                f"{b_multi[1]:.2f}. These slices are the controlled comparisons, "
+                f"districts set against districts with the same income. The shadow's "
+                f"slope of {b_short[1]:.2f} is steeper because it mixes rich "
+                f"small-class districts with poor large-class ones. The gap between "
+                f"the two is the omitted variable bias from Section 1."
+            )
     _caption = mo.md(
         '<span style="display:block;margin:0.2rem auto 1rem;max-width:620px;'
         'font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;">'
         + _body + "</span>"
     )
-    mo.vstack(
-        [
-            mo.hstack(
-                [_chart2d, mo.ui.plotly(_fig)],
-                justify="center", align="center", gap=1.0, wrap=True,
-            ),
-            _sse_chart,
-            _caption,
-        ],
-        align="center",
-    )
+    mo.vstack([_view, _caption], align="center")
     return
 
 
@@ -529,18 +520,7 @@ def _(cs, noise, np, pd, prnt, ts):
     _n = len(ts)
     _ones = np.ones(_n)
     b_short, *_ = np.linalg.lstsq(np.column_stack([_ones, cs]), ts, rcond=None)
-    _b_multi, *_ = np.linalg.lstsq(np.column_stack([_ones, cs, prnt]), ts, rcond=None)
-    gamma_hat = float(_b_multi[2])
-    _resid_min = ts - np.column_stack([_ones, cs, prnt]) @ _b_multi
-    ssr_min = float(_resid_min @ _resid_min)
-
-    _gs = np.linspace(0.0, 1.0, 101)
-    _ssrs = []
-    for _g in _gs:
-        _bb, *_ = np.linalg.lstsq(np.column_stack([_ones, cs]), ts - _g * prnt, rcond=None)
-        _r = ts - (_bb[0] + _bb[1] * cs + _g * prnt)
-        _ssrs.append(float(_r @ _r))
-    sse_curve = pd.DataFrame({"g": _gs, "ssr": _ssrs})
+    b_multi, *_ = np.linalg.lstsq(np.column_stack([_ones, cs, prnt]), ts, rcond=None)
 
     _tss = float(np.sum((ts - ts.mean()) ** 2))
     _rows = []
@@ -560,7 +540,7 @@ def _(cs, noise, np, pd, prnt, ts):
             }
         )
     fit_path = pd.DataFrame(_rows)
-    return b_short, fit_path, gamma_hat, sse_curve, ssr_min
+    return b_multi, b_short, fit_path
 
 
 @app.cell(hide_code=True)
