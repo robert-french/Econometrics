@@ -108,7 +108,7 @@ def _(mo):
 
     The second term is the bias, and its sign is the sign of the correlation between $X$ and the omitted part of the error. Two conditions are both needed for the bias to appear. The omitted variable must be correlated with $X$, and it must affect $Y$ so that it carries real weight inside the error. If either fails, the bias term is zero and the estimate stays on target.
 
-    Return to the wage regression from Lectures 5 through 7. Ability sits in the error, and it raises both schooling and earnings, so education and the error are positively correlated. The bias term is then positive, and the estimated return to schooling comes out too high, because schooling gets credit for part of what is really the payoff to ability.
+    Return to the wage regression from Lectures 5 through 7. Ability is left in the error, and it raises both schooling and earnings, so education and the error are positively correlated. The bias term is then positive, and the estimated return to schooling comes out too high, because schooling gets credit for part of what is really the payoff to ability.
 
     A second case is new housing and home prices. Let $Y$ be local home prices and $X$ the number of new units built. Developers build more when interest rates are low, and low rates also raise demand and push prices up, so the omitted interest-rate conditions are positively correlated with building. The estimated effect of new supply on prices is biased upward for the same reason.
 
@@ -137,9 +137,9 @@ def _(mo):
 
     Each slope now carries a *ceteris paribus* meaning, which is Latin for ''other things equal''. The coefficient $\beta_j$ is the change in $Y$ for a one-unit increase in $X_j$ when every other regressor is held fixed.
 
-    The rest of this lecture works with a simulated sample of 200 school districts. For each district we observe the average test score of its students, the class size measured in students per teacher, and the average income of the students' parents in thousands of dollars. Districts with richer parents tend to run smaller classes, so class size and parental income are negatively correlated, exactly the setup of Section 1. Regressing test scores on class size and parental income together, $\beta_1$ is the change in a district's average score for one more student per teacher among districts with the same parental income. The phrase ''among districts with the same parental income'' is what the single-variable slope could not deliver, because there income was free to move along with class size.
+    The rest of this lecture continues the wage example from Lectures 5 through 7, now with a simulated sample of 200 workers. For each worker we observe the hourly wage, the years of education, and the income of the worker's parents while the worker was growing up, measured in thousands of dollars. Ability, the omitted variable of Section 1, still cannot be measured, so it cannot be brought into the regression. Parental income can. It belongs there for the same two reasons ability did. Parents with higher incomes buy more education for their children, and family resources also raise earnings through channels besides schooling, so leaving parental income in the error biases the education slope upward. Regressing wages on education and parental income together, $\beta_1$ is the change in the hourly wage for one more year of education among workers with the same parental income. The phrase ''among workers with the same parental income'' is what the single-variable slope could not deliver, because there family income was free to move along with education.
 
-    Geometry gives the same idea a picture. With one regressor the fitted model is a line through a two-dimensional scatter plot. With two regressors it is a plane floating in three dimensions, one horizontal axis for each regressor and the vertical axis for the outcome. Each slope is the tilt of the plane along its own axis, so holding parental income fixed means walking across the plane parallel to the class-size axis, and the slope of that walk is $\beta_1$. The next section puts the plane on screen and lets you fit it yourself.
+    Geometry gives the same idea a picture. With one regressor the fitted model is a line through a two-dimensional scatter plot. With two regressors it is a plane floating in three dimensions, one horizontal axis for each regressor and the vertical axis for the outcome. Each slope is the tilt of the plane along its own axis, so holding parental income fixed means walking across the plane parallel to the education axis, and the slope of that walk is $\beta_1$. The next section puts the plane on screen and lets you fit it yourself.
     """)
     return
 
@@ -158,45 +158,90 @@ def _(mo):
 
     The *predicted value* for observation $i$ is $\hat{Y}_i = \hat{\beta}_0 + \hat{\beta}_1 X_{1i} + \dots + \hat{\beta}_k X_{ki}$, and the *residual* is the gap between the actual and the predicted outcome, $\hat{u}_i = Y_i - \hat{Y}_i$.
 
-    With one regressor OLS turns two dials, the intercept and the slope. With two regressors it turns three. In the district data, regressing average test scores on class size alone gives
+    With one regressor OLS turns two dials, the intercept and the slope. With two regressors it turns three. In the worker data, regressing hourly wages on years of education alone gives
 
     $$
-    \widehat{TestScore} = 732.9 - 2.31 \, ClassSize.
+    \widehat{Wage} = 7.2 + 1.63 \, Education.
     $$
 
     Adding parental income, measured in thousands of dollars, gives
 
     $$
-    \widehat{TestScore} = 699.0 - 1.10 \, ClassSize + 0.67 \, PrntInc.
+    \widehat{Wage} = 5.2 + 1.22 \, Education + 0.10 \, PrntInc.
     $$
 
-    The class-size coefficient moves from $-2.31$ to $-1.10$, less than half its former size. This is the omitted variable bias of Section 1 being removed. Parental income raises test scores and is lower where classes are larger, so the single-variable slope blamed class size for part of what was really the effect of income. The income coefficient says that among districts with the same class size, each additional thousand dollars of parental income goes with 0.67 more points.
+    The education coefficient falls from $1.63$ to $1.22$, a quarter of the estimated return gone. This is the omitted variable bias of Section 1 being removed. Parental income raises wages and is higher for workers with more schooling, so the single-variable slope credited education with part of what was really the effect of family resources. The income coefficient says that among workers with the same education, each additional thousand dollars of parental income goes with 10 more cents an hour, or one dollar an hour for each additional ten thousand dollars.
 
-    The figure below turns the minimization into a game. The three sliders are the dials, one for each coefficient, and the plane moves as you set them. The bar beside the plane keeps score by measuring the sum of squared residuals your plane leaves, and the dashed marker on the bar is the smallest score any plane can reach. Try to drive the bar down to the marker, then tick the box to swap your plane for the one OLS picks. The flat panel underneath shows what the plane on screen implies for a district with average parental income, drawn against the dashed single-regressor line.
+    The figure below turns the minimization into a game. The three sliders are the dials, one for each coefficient, and the plane moves as you set them. The bar beside the plane keeps score by measuring the sum of squared residuals your plane leaves, and the dashed marker on the bar is the smallest score any plane can reach. Try to drive the bar down to the marker, then tick the box to jump the dials to the values OLS picks. The flat panel underneath shows what the plane on screen implies for a worker with average parental income, drawn against the dashed single-regressor line.
     """)
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
+    get_coefs, set_coefs = mo.state((10.0, 0.0, 0.0))
+    get_ols_box, set_ols_box = mo.state(False)
+    return get_coefs, get_ols_box, set_coefs, set_ols_box
+
+
+@app.cell(hide_code=True)
+def _(get_coefs, get_ols_box, mo, set_coefs, set_ols_box):
+    # The dials and the checkbox are tied through mo.state: ticking the box
+    # jumps the dials to the OLS values, and moving a dial unticks the box.
+    # marimo does not re-run the cell whose own element triggered a state
+    # change, so the sliders and the checkbox must live in separate cells.
+    _b0v, _b1v, _b2v = get_coefs()
+
+    def _move(_i):
+        def _handler(_v):
+            _c = list(get_coefs())
+            _c[_i] = float(_v)
+            set_coefs(tuple(_c))
+            if get_ols_box():
+                set_ols_box(False)
+        return _handler
+
     b0_slider = mo.ui.slider(
-        start=640.0, stop=780.0, step=1.0, value=700.0,
-        label="β₀, the intercept", show_value=True,
+        start=0.0, stop=20.0, step=0.1, value=_b0v,
+        label="β₀, the intercept", show_value=True, on_change=_move(0),
     )
     b1_slider = mo.ui.slider(
-        start=-4.0, stop=1.0, step=0.05, value=0.0,
-        label="β₁, the slope on class size", show_value=True,
+        start=-1.0, stop=4.0, step=0.01, value=_b1v,
+        label="β₁, the slope on years of education", show_value=True,
+        on_change=_move(1),
     )
     b2_slider = mo.ui.slider(
-        start=-0.5, stop=1.5, step=0.05, value=0.0,
+        start=-0.1, stop=0.3, step=0.01, value=_b2v,
         label="β₂, the slope on parental income", show_value=True,
+        on_change=_move(2),
     )
-    ols_box = mo.ui.checkbox(value=False, label="Show the OLS plane instead of yours")
+    return b0_slider, b1_slider, b2_slider
+
+
+@app.cell(hide_code=True)
+def _(get_ols_box, mo, ols_dials, set_coefs, set_ols_box):
+    def _toggle(_v):
+        set_ols_box(bool(_v))
+        if _v:
+            set_coefs(ols_dials)
+
+    ols_box = mo.ui.checkbox(
+        value=get_ols_box(),
+        label="Show the OLS plane instead of yours",
+        on_change=_toggle,
+    )
+    return (ols_box,)
+
+
+@app.cell(hide_code=True)
+def _(b0_slider, b1_slider, b2_slider, mo, ols_box):
     mo.vstack(
         [
             mo.md(
                 "Move the three dials to fit the plane to the cloud. The bar "
-                "keeps score, and lower is better. Drag the 3D view to rotate it."
+                "keeps score, and lower is better. Drag the 3D view to rotate "
+                "it. Ticking the box jumps the dials to the OLS values, and "
+                "moving any dial afterward hands the plane back to you."
             ),
             b0_slider,
             b1_slider,
@@ -204,40 +249,37 @@ def _(mo):
             ols_box,
         ]
     )
-    return b0_slider, b1_slider, b2_slider, ols_box
+    return
 
 
 @app.cell(hide_code=True)
 def _(
     alt,
-    b0_slider,
-    b1_slider,
-    b2_slider,
     b_multi,
     b_short,
-    cs,
+    educ,
+    get_coefs,
+    get_ols_box,
     go,
     mo,
     np,
-    ols_box,
     pd,
     prnt,
     ssr_min,
-    ts,
+    wage,
 ):
-    _b0 = float(b0_slider.value)
-    _b1 = float(b1_slider.value)
-    _b2 = float(b2_slider.value)
-    _resid = ts - (_b0 + _b1 * cs + _b2 * prnt)
+    _b0, _b1, _b2 = get_coefs()
+    _box = get_ols_box()
+    _resid = wage - (_b0 + _b1 * educ + _b2 * prnt)
     _ssr = float(_resid @ _resid)
     _gap = _ssr - ssr_min
     _pm = float(prnt.mean())
-    _xline = np.array([15.0, 26.0])
-    _png = np.array([float(prnt.min()), float(prnt.max())])
+    _xline = np.array([0.0, 21.0])
+    _png = np.array([0.0, 130.0])
 
     # The checkbox swaps the displayed plane rather than overlaying a second
     # one, so the bar and the flat view always describe the plane on screen.
-    if ols_box.value:
+    if _box:
         _gz = (b_multi[0] + b_multi[1] * _xline[None, :]) + b_multi[2] * _png[:, None]
         _line_y = (b_multi[0] + b_multi[2] * _pm) + b_multi[1] * _xline
         _shown_ssr = ssr_min
@@ -249,7 +291,7 @@ def _(
     _fig = go.Figure()
     _fig.add_trace(
         go.Scatter3d(
-            x=cs, y=prnt, z=ts, mode="markers",
+            x=educ, y=prnt, z=wage, mode="markers",
             marker=dict(size=3, color="#1f4e79", opacity=0.5),
         )
     )
@@ -263,14 +305,14 @@ def _(
         width=580, height=470, margin=dict(l=0, r=0, t=0, b=0),
         showlegend=False, uirevision="keep",
         scene=dict(
-            xaxis=dict(title="Class size", range=[14.5, 26.5]),
-            yaxis=dict(title="Parental income", range=[float(prnt.min()) - 2.0, 39.0]),
-            zaxis=dict(title="Test score", range=[615, 765]),
+            xaxis=dict(title="Years of education", range=[0.0, 21.0]),
+            yaxis=dict(title="Parental income", range=[0.0, 130.0]),
+            zaxis=dict(title="Hourly wage", range=[0.0, 60.0]),
             camera=dict(eye=dict(x=1.7, y=1.5, z=0.7)),
         ),
     )
 
-    _cap = 120000.0
+    _cap = 100000.0
     _bar_df = pd.DataFrame(
         {"x": ["SSR"], "value": [min(_shown_ssr, _cap)], "label": [f"{_shown_ssr:,.0f}"]}
     )
@@ -304,15 +346,15 @@ def _(
         width=60, height=430,
     )
 
-    _pts = pd.DataFrame({"x": cs, "y": ts})
+    _pts = pd.DataFrame({"x": educ, "y": wage})
     _line_df = pd.DataFrame({"x": _xline, "y": _line_y})
     _simple_df = pd.DataFrame({"x": _xline, "y": b_short[0] + b_short[1] * _xline})
     _scatter = (
         alt.Chart(_pts)
         .mark_circle(size=42, color="#1f4e79", opacity=0.55, clip=True)
         .encode(
-            x=alt.X("x:Q", title="Class size (students per teacher)", scale=alt.Scale(domain=[14.5, 26.5], nice=False)),
-            y=alt.Y("y:Q", title="Test score", scale=alt.Scale(domain=[640, 732], nice=False)),
+            x=alt.X("x:Q", title="Years of education", scale=alt.Scale(domain=[0.0, 21.0], nice=False)),
+            y=alt.Y("y:Q", title="Hourly wage (USD)", scale=alt.Scale(domain=[0.0, 60.0], nice=False)),
         )
     )
     _simple_line = (
@@ -329,21 +371,22 @@ def _(
         width=560, height=280, title="The flat view at average parental income",
     )
 
-    if ols_box.value:
+    if _box:
         _body = (
             f"The plane on screen is now the OLS fit, {b_multi[0]:.1f} "
-            f"{b_multi[1]:+.2f} ClassSize {b_multi[2]:+.2f} PrntInc, and no other plane "
+            f"{b_multi[1]:+.2f} Education {b_multi[2]:+.2f} PrntInc, and no other plane "
             f"beats its sum of squared residuals of {ssr_min:,.0f}, so the bar sits "
             f"exactly on the dashed marker. In the flat panel its slice at average income "
             f"runs flatter than the dashed single-regressor line, and the paragraph below "
-            f"explains why the two disagree. Untick the box to get your dials back."
+            f"explains why the two disagree. The dials have jumped to the OLS values, and "
+            f"moving any of them hands the plane back to you."
         )
     elif _ssr <= ssr_min * 1.02:
         _body = (
             f"Your plane's score of {_ssr:,.0f} is within two percent of the minimum "
             f"{ssr_min:,.0f}, so you have essentially found the OLS fit. OLS settles on "
             f"{b_multi[0]:.1f}, {b_multi[1]:+.2f}, and {b_multi[2]:+.2f}. Tick the box to "
-            f"compare its plane with yours."
+            f"jump the dials there."
         )
     else:
         _body = (
@@ -374,7 +417,7 @@ def _(
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    Tick the box and the flat panel shows two least squares fits at once, and they disagree. The dashed line is the single-regressor fit from the first equation above. It answers the question ''how do test scores move with class size, letting parental income drift the way it drifts in the data''. Districts with bigger classes have poorer parents on average, so the dashed line stacks part of the income effect on top of the class-size effect and comes out steeper, at $-2.31$ points per student. The plane's slice answers a different question, ''how do test scores move with class size among districts with the same parental income'', and holding income fixed flattens the slope to $-1.10$. The gap of $-1.21$ points per student is the omitted variable bias from Section 1, and the appendix computes it as the income coefficient $0.67$ times the $-1.80$ slope from regressing income on class size. Neither line is a mistake. They answer different questions, and only the plane's slope holds income fixed.
+    Tick the box and the flat panel shows two least squares fits at once, and they disagree. The dashed line is the single-regressor fit from the first equation above. It answers the question ''how do wages move with education, letting parental income drift the way it drifts in the data''. Workers with more education also grew up in richer families, so the dashed line stacks part of the family-income effect on top of the education effect and comes out steeper, at $1.63$ dollars per year of education. The plane's slice answers a different question, ''how do wages move with education among workers with the same parental income'', and holding income fixed flattens the slope to $1.22$. The gap of $0.41$ dollars per year is the omitted variable bias from Section 1, and the appendix computes it as the income coefficient $0.10$ times the $4.1$ slope from regressing parental income on education. Neither line is a mistake. They answer different questions, and only the plane's slope holds parental income fixed.
     """)
     return
 
@@ -399,7 +442,7 @@ def _(mo):
     R^2 = 1 - \frac{\mathrm{SSR}}{\mathrm{TSS}}, \qquad \mathrm{TSS} = \sum_{i=1}^{n}(Y_i - \bar{Y})^2.
     $$
 
-    In the district data the payoff from the second regressor is easy to read. Class size alone gives an $R^2$ of 0.151 and a SER of 13.1 points. Adding parental income lifts the $R^2$ to 0.331 and cuts the SER to 11.7. Those gains are real, because the residuals genuinely shrink when income enters.
+    In the worker data, education alone gives an $R^2$ of 0.441 and a SER of \$6.30 an hour. Adding parental income lifts the $R^2$ to 0.471 and trims the SER to \$6.14. Notice how modest that is. The fit improves only a little even though the education slope fell by a quarter when income entered. A regressor can matter enormously for the causal story while adding little to the fit, because bias and fit are different problems.
 
     In multiple regression, though, the $R^2$ has a flaw. Adding a regressor can never raise the sum of squared residuals, because OLS can always set the new coefficient to zero and do no worse. So the $R^2$ never falls when a regressor is added, even one that explains nothing. Judging a model by its $R^2$ alone would reward piling in useless variables.
 
@@ -411,7 +454,7 @@ def _(mo):
 
     The factor $\frac{n-1}{n-k-1}$ grows with $k$, so a regressor that barely reduces the sum of squared residuals lowers the adjusted $R^2$ rather than raising it. A falling adjusted $R^2$ is the signal that a regressor is not earning its place.
 
-    The demonstration below makes the flaw concrete. Starting from the two-regressor model, the slider adds regressors that are pure noise, columns of random numbers drawn by the computer, one number per district, with no connection to test scores at all. The specification above the figure grows with each added column, and every noise column still nudges the $R^2$ upward. Watch what the adjusted $R^2$ does instead.
+    The demonstration below makes the flaw concrete. Starting from the two-regressor model, the slider adds regressors that are pure noise, columns of random numbers drawn by the computer, one number per worker, with no connection to wages at all. The specification above the figure grows with each added column, and every noise column still nudges the $R^2$ upward. Watch what the adjusted $R^2$ does instead.
     """)
     return
 
@@ -426,9 +469,9 @@ def _(mo):
     mo.vstack(
         [
             mo.md(
-                "Class size and parental income stay in the regression. Each added "
+                "Education and parental income stay in the regression. Each added "
                 "regressor is a fresh column of random numbers, one for each of the "
-                "200 districts."
+                "200 workers."
             ),
             junk_slider,
         ]
@@ -441,18 +484,18 @@ def _(alt, fit_path, junk_slider, mo):
     _k = int(junk_slider.value)
 
     if _k == 0:
-        _spec = r"TestScore = \beta_0 + \beta_1\,ClassSize + \beta_2\,PrntInc + u"
+        _spec = r"Wage = \beta_0 + \beta_1\,Education + \beta_2\,PrntInc + u"
     elif _k <= 3:
         _noise_terms = " + ".join(
             rf"\gamma_{{{_j}}}\,Noise_{{{_j}}}" for _j in range(1, _k + 1)
         )
         _spec = (
-            rf"TestScore = \beta_0 + \beta_1\,ClassSize + \beta_2\,PrntInc "
+            rf"Wage = \beta_0 + \beta_1\,Education + \beta_2\,PrntInc "
             rf"+ {_noise_terms} + u"
         )
     else:
         _spec = (
-            rf"TestScore = \beta_0 + \beta_1\,ClassSize + \beta_2\,PrntInc "
+            rf"Wage = \beta_0 + \beta_1\,Education + \beta_2\,PrntInc "
             rf"+ \gamma_1\,Noise_1 + \cdots + \gamma_{{{_k}}}\,Noise_{{{_k}}} + u"
         )
     _spec_md = mo.md(rf"$$ {_spec} $$")
@@ -467,7 +510,7 @@ def _(alt, fit_path, junk_slider, mo):
         .mark_line(size=2.5)
         .encode(
             x=alt.X("k:Q", title="Noise regressors added", scale=alt.Scale(domain=[0, 30], nice=False)),
-            y=alt.Y("value:Q", title=None, scale=alt.Scale(domain=[0.27, 0.42], nice=False)),
+            y=alt.Y("value:Q", title=None, scale=alt.Scale(domain=[0.41, 0.55], nice=False)),
             color=alt.Color(
                 "measure:N",
                 scale=alt.Scale(domain=["R²", "Adjusted R²"], range=["#1f4e79", "#f59e0b"]),
@@ -496,7 +539,7 @@ def _(alt, fit_path, junk_slider, mo):
     _base = fit_path.iloc[0]
     if _k == 0:
         _body = (
-            rf"With class size and parental income and nothing else, the $R^2$ is "
+            rf"With education and parental income and nothing else, the $R^2$ is "
             rf"{_row['r2']:.3f} and the adjusted $R^2$ is {_row['adj']:.3f}. The two "
             rf"nearly agree because the penalty for two regressors is small."
         )
@@ -506,8 +549,8 @@ def _(alt, fit_path, junk_slider, mo):
             rf"With {_k} {_noun} of pure noise added, the $R^2$ has climbed to "
             rf"{_row['r2']:.3f} while the adjusted $R^2$ has slipped to {_row['adj']:.3f}. "
             rf"The standard error of the regression has crept from {_base['ser']:.2f} up "
-            rf"to {_row['ser']:.2f} points, and the class-size slope still sits near its "
-            rf"two-regressor value (currently {_row['b_cs']:.2f}). The noise explains "
+            rf"to {_row['ser']:.2f} dollars, and the education slope still sits near its "
+            rf"two-regressor value (currently {_row['b_educ']:.2f}). The noise explains "
             rf"nothing, and only the adjusted $R^2$ says so."
         )
     _caption = mo.md(
@@ -562,34 +605,37 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(np):
-    _rng = np.random.default_rng(95)
+    _rng = np.random.default_rng(111)
     _n = 200
-    cs = np.clip(_rng.normal(20.0, 2.3, _n), 15.0, 26.0)
-    prnt = 51.3 - 1.815 * cs + _rng.normal(0.0, 9.0, _n)
-    # Discarded draw (formerly spending per pupil). Removing it would shift the
-    # seed-95 stream and change every estimate quoted in the prose.
-    _rng.normal(0.0, 1.2, _n)
-    _u = _rng.normal(0.0, 12.0, _n)
-    ts = 698.9 - 1.10 * cs + 0.65 * prnt + _u
-    noise = np.random.default_rng(235).normal(0.0, 1.0, (_n, 30))
-    return cs, noise, prnt, ts
+    educ = np.clip(_rng.normal(12.5, 3.5, _n), 2.0, 20.0)
+    prnt = np.clip(20.0 + 4.0 * educ + _rng.normal(0.0, 15.0, _n), 0.0, None)
+    wage = 5.0 + 1.20 * educ + 0.10 * prnt + _rng.normal(0.0, 6.0, _n)
+    noise = np.random.default_rng(546).normal(0.0, 1.0, (_n, 30))
+    return educ, noise, prnt, wage
 
 
 @app.cell(hide_code=True)
-def _(cs, noise, np, pd, prnt, ts):
-    _n = len(ts)
+def _(educ, noise, np, pd, prnt, wage):
+    _n = len(wage)
     _ones = np.ones(_n)
-    b_short, *_ = np.linalg.lstsq(np.column_stack([_ones, cs]), ts, rcond=None)
-    b_multi, *_ = np.linalg.lstsq(np.column_stack([_ones, cs, prnt]), ts, rcond=None)
-    _resid_min = ts - np.column_stack([_ones, cs, prnt]) @ b_multi
+    b_short, *_ = np.linalg.lstsq(np.column_stack([_ones, educ]), wage, rcond=None)
+    b_multi, *_ = np.linalg.lstsq(np.column_stack([_ones, educ, prnt]), wage, rcond=None)
+    _resid_min = wage - np.column_stack([_ones, educ, prnt]) @ b_multi
     ssr_min = float(_resid_min @ _resid_min)
+    # The dial values the checkbox jumps to: the OLS estimates rounded onto
+    # the slider step grids (0.1 for the intercept, 0.01 for the slopes).
+    ols_dials = (
+        round(float(b_multi[0]), 1),
+        round(float(b_multi[1]), 2),
+        round(float(b_multi[2]), 2),
+    )
 
-    _tss = float(np.sum((ts - ts.mean()) ** 2))
+    _tss = float(np.sum((wage - wage.mean()) ** 2))
     _rows = []
     for _k in range(31):
-        _X = np.column_stack([_ones, cs, prnt] + [noise[:, _j] for _j in range(_k)])
-        _b, *_ = np.linalg.lstsq(_X, ts, rcond=None)
-        _res = ts - _X @ _b
+        _X = np.column_stack([_ones, educ, prnt] + [noise[:, _j] for _j in range(_k)])
+        _b, *_ = np.linalg.lstsq(_X, wage, rcond=None)
+        _res = wage - _X @ _b
         _ssr = float(_res @ _res)
         _kk = 2 + _k
         _rows.append(
@@ -598,11 +644,11 @@ def _(cs, noise, np, pd, prnt, ts):
                 "r2": 1.0 - _ssr / _tss,
                 "adj": 1.0 - (_n - 1) / (_n - _kk - 1) * _ssr / _tss,
                 "ser": float(np.sqrt(_ssr / (_n - _kk - 1))),
-                "b_cs": float(_b[1]),
+                "b_educ": float(_b[1]),
             }
         )
     fit_path = pd.DataFrame(_rows)
-    return b_multi, b_short, fit_path, ssr_min
+    return b_multi, b_short, fit_path, ols_dials, ssr_min
 
 
 @app.cell(hide_code=True)
@@ -620,7 +666,7 @@ def _(mo):
 
     The single-variable regression of $Y$ on $X_1$ therefore estimates the combined slope $\beta_1 + \beta_2 \delta_1$, not $\beta_1$ on its own. The bias is $\beta_2 \delta_1$, the effect of the omitted variable times its relationship with the included one.
 
-    In the district data both pieces can be estimated. The income coefficient in the two-regressor fit is $0.67$, and regressing parental income on class size gives an auxiliary slope of $\hat{\delta}_1 = -1.80$, because richer districts run smaller classes. Their product is $0.67 \times (-1.80) \approx -1.21$, which is exactly the gap between the single-variable slope $-2.31$ and the held-income slope $-1.10$.
+    In the worker data both pieces can be estimated. The income coefficient in the two-regressor fit is $0.10$, and regressing parental income on years of education gives an auxiliary slope of $\hat{\delta}_1 = 4.1$, because more educated workers come from richer families. Their product is $0.10 \times 4.1 \approx 0.41$, which is exactly the gap between the single-variable slope $1.63$ and the held-income slope $1.22$.
     """)
     mo.accordion({"## Appendix": _appendix})
     return
