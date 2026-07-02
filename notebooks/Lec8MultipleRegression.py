@@ -172,7 +172,7 @@ def _(mo):
 
     The class-size coefficient moves from $-2.31$ to $-1.10$, less than half its former size. This is the omitted variable bias of Section 1 being removed. Parental income raises test scores and is lower where classes are larger, so the single-variable slope blamed class size for part of what was really the effect of income. The income coefficient says that among districts with the same class size, each additional thousand dollars of parental income goes with 0.67 more points.
 
-    The figure below turns the minimization into a game. The three sliders are the dials, one for each coefficient, and the gray plane moves as you set them. The bar beside the plane keeps score by measuring the sum of squared residuals your plane leaves, and the dashed marker on the bar is the smallest score any plane can reach. Try to drive the bar down to the marker, then tick the box to reveal the plane OLS picks. The flat panel underneath shows what your plane implies for a district with average parental income, drawn against the dashed single-regressor line.
+    The figure below turns the minimization into a game. The three sliders are the dials, one for each coefficient, and the plane moves as you set them. The bar beside the plane keeps score by measuring the sum of squared residuals your plane leaves, and the dashed marker on the bar is the smallest score any plane can reach. Try to drive the bar down to the marker, then tick the box to swap your plane for the one OLS picks. The flat panel underneath shows what the plane on screen implies for a district with average parental income, drawn against the dashed single-regressor line.
     """)
     return
 
@@ -191,7 +191,7 @@ def _(mo):
         start=-0.5, stop=1.5, step=0.05, value=0.0,
         label="β₂, the slope on parental income", show_value=True,
     )
-    ols_box = mo.ui.checkbox(value=False, label="Reveal the plane OLS picks")
+    ols_box = mo.ui.checkbox(value=False, label="Show the OLS plane instead of yours")
     mo.vstack(
         [
             mo.md(
@@ -235,6 +235,17 @@ def _(
     _xline = np.array([15.0, 26.0])
     _png = np.array([float(prnt.min()), float(prnt.max())])
 
+    # The checkbox swaps the displayed plane rather than overlaying a second
+    # one, so the bar and the flat view always describe the plane on screen.
+    if ols_box.value:
+        _gz = (b_multi[0] + b_multi[1] * _xline[None, :]) + b_multi[2] * _png[:, None]
+        _line_y = (b_multi[0] + b_multi[2] * _pm) + b_multi[1] * _xline
+        _shown_ssr = ssr_min
+    else:
+        _gz = (_b0 + _b1 * _xline[None, :]) + _b2 * _png[:, None]
+        _line_y = (_b0 + _b2 * _pm) + _b1 * _xline
+        _shown_ssr = _ssr
+
     _fig = go.Figure()
     _fig.add_trace(
         go.Scatter3d(
@@ -242,23 +253,14 @@ def _(
             marker=dict(size=3, color="#1f4e79", opacity=0.5),
         )
     )
-    _gz_user = (_b0 + _b1 * _xline[None, :]) + _b2 * _png[:, None]
     _fig.add_trace(
         go.Surface(
-            x=_xline, y=_png, z=_gz_user, opacity=0.5, showscale=False,
-            colorscale=[[0, "#9aa5b1"], [1, "#9aa5b1"]],
+            x=_xline, y=_png, z=_gz, opacity=0.5, showscale=False,
+            colorscale=[[0, "#f59e0b"], [1, "#f59e0b"]],
         )
     )
-    if ols_box.value:
-        _gz_ols = (b_multi[0] + b_multi[1] * _xline[None, :]) + b_multi[2] * _png[:, None]
-        _fig.add_trace(
-            go.Surface(
-                x=_xline, y=_png, z=_gz_ols, opacity=0.5, showscale=False,
-                colorscale=[[0, "#f59e0b"], [1, "#f59e0b"]],
-            )
-        )
     _fig.update_layout(
-        width=460, height=420, margin=dict(l=0, r=0, t=0, b=0),
+        width=580, height=470, margin=dict(l=0, r=0, t=0, b=0),
         showlegend=False, uirevision="keep",
         scene=dict(
             xaxis=dict(title="Class size", range=[14.5, 26.5]),
@@ -270,24 +272,24 @@ def _(
 
     _cap = 120000.0
     _bar_df = pd.DataFrame(
-        {"x": ["SSR"], "value": [min(_ssr, _cap)], "label": [f"{_ssr:,.0f}"]}
+        {"x": ["SSR"], "value": [min(_shown_ssr, _cap)], "label": [f"{_shown_ssr:,.0f}"]}
     )
     _bar = (
         alt.Chart(_bar_df)
-        .mark_bar(size=54, color="#1f4e79", opacity=0.85)
+        .mark_bar(size=38, color="#1f4e79", opacity=0.85)
         .encode(
             x=alt.X("x:N", title=None, axis=alt.Axis(labels=False, ticks=False)),
-            y=alt.Y("value:Q", title="Sum of squared residuals",
+            y=alt.Y("value:Q", title="SSR",
                     scale=alt.Scale(domain=[0.0, _cap], nice=False),
                     axis=alt.Axis(format="~s")),
         )
     )
     _bar_txt = (
         alt.Chart(_bar_df)
-        .mark_text(dy=14, color="white", fontSize=11)
+        .mark_text(dy=-6, color="#1f4e79", fontSize=11)
         .encode(x="x:N", y="value:Q", text="label:N")
     )
-    _rule_df = pd.DataFrame({"y": [ssr_min], "t": ["OLS minimum"]})
+    _rule_df = pd.DataFrame({"y": [ssr_min], "t": ["OLS min"]})
     _rule = (
         alt.Chart(_rule_df)
         .mark_rule(color="#f59e0b", strokeDash=[5, 4], size=2)
@@ -295,15 +297,15 @@ def _(
     )
     _rule_txt = (
         alt.Chart(_rule_df)
-        .mark_text(dy=12, color="#b45309", fontSize=10)
+        .mark_text(dy=12, color="#b45309", fontSize=9)
         .encode(y="y:Q", text="t:N")
     )
     _bar_chart = alt.layer(_bar, _bar_txt, _rule, _rule_txt).properties(
-        width=90, height=400,
+        width=60, height=430,
     )
 
     _pts = pd.DataFrame({"x": cs, "y": ts})
-    _user_df = pd.DataFrame({"x": _xline, "y": (_b0 + _b2 * _pm) + _b1 * _xline})
+    _line_df = pd.DataFrame({"x": _xline, "y": _line_y})
     _simple_df = pd.DataFrame({"x": _xline, "y": b_short[0] + b_short[1] * _xline})
     _scatter = (
         alt.Chart(_pts)
@@ -318,47 +320,37 @@ def _(
         .mark_line(color="#6b7280", strokeDash=[6, 4], size=2, clip=True)
         .encode(x="x:Q", y="y:Q")
     )
-    _user_line = (
-        alt.Chart(_user_df)
-        .mark_line(color="#9aa5b1", size=2.5, clip=True)
+    _plane_line = (
+        alt.Chart(_line_df)
+        .mark_line(color="#f59e0b", size=2.5, clip=True)
         .encode(x="x:Q", y="y:Q")
     )
-    _layers = [_scatter, _simple_line, _user_line]
-    if ols_box.value:
-        _ols_df = pd.DataFrame(
-            {"x": _xline, "y": (b_multi[0] + b_multi[2] * _pm) + b_multi[1] * _xline}
-        )
-        _layers.append(
-            alt.Chart(_ols_df)
-            .mark_line(color="#f59e0b", size=2.5, clip=True)
-            .encode(x="x:Q", y="y:Q")
-        )
-    _chart2d = alt.layer(*_layers).properties(
+    _chart2d = alt.layer(_scatter, _simple_line, _plane_line).properties(
         width=560, height=280, title="The flat view at average parental income",
     )
 
     if ols_box.value:
         _body = (
-            f"The orange plane is the OLS fit, {b_multi[0]:.1f} {b_multi[1]:+.2f} ClassSize "
-            f"{b_multi[2]:+.2f} PrntInc, and no other plane beats its sum of squared "
-            f"residuals of {ssr_min:,.0f}. Your gray plane sits {_gap:,.0f} above it. In "
-            f"the flat panel the orange slice at average income runs flatter than the "
-            f"dashed single-regressor line, and the paragraph below explains why the two "
-            f"disagree."
+            f"The plane on screen is now the OLS fit, {b_multi[0]:.1f} "
+            f"{b_multi[1]:+.2f} ClassSize {b_multi[2]:+.2f} PrntInc, and no other plane "
+            f"beats its sum of squared residuals of {ssr_min:,.0f}, so the bar sits "
+            f"exactly on the dashed marker. In the flat panel its slice at average income "
+            f"runs flatter than the dashed single-regressor line, and the paragraph below "
+            f"explains why the two disagree. Untick the box to get your dials back."
         )
     elif _ssr <= ssr_min * 1.02:
         _body = (
             f"Your plane's score of {_ssr:,.0f} is within two percent of the minimum "
             f"{ssr_min:,.0f}, so you have essentially found the OLS fit. OLS settles on "
             f"{b_multi[0]:.1f}, {b_multi[1]:+.2f}, and {b_multi[2]:+.2f}. Tick the box to "
-            f"overlay its plane."
+            f"compare its plane with yours."
         )
     else:
         _body = (
             f"Your plane leaves a sum of squared residuals of {_ssr:,.0f}, which is "
             f"{_gap:,.0f} above the smallest any plane can manage. In the flat panel the "
-            f"dashed single-regressor line stays put while your gray line moves with the "
-            f"dials."
+            f"dashed single-regressor line stays put while the orange line moves with "
+            f"your dials."
         )
     _caption = mo.md(
         '<span style="display:block;margin:0.2rem auto 1rem;max-width:620px;'
@@ -369,7 +361,7 @@ def _(
         [
             mo.hstack(
                 [mo.ui.plotly(_fig), _bar_chart],
-                justify="center", align="center", gap=1.0, wrap=True,
+                justify="center", align="center", gap=0.5,
             ),
             _chart2d,
             _caption,
@@ -382,7 +374,7 @@ def _(
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    Both lines in the flat panel are least squares fits, and they still disagree. The dashed line is the single-regressor fit from the first equation above. It answers the question ''how do test scores move with class size, letting parental income drift the way it drifts in the data''. Districts with bigger classes have poorer parents on average, so the dashed line stacks part of the income effect on top of the class-size effect and comes out steeper, at $-2.31$ points per student. The plane's slice answers a different question, ''how do test scores move with class size among districts with the same parental income'', and holding income fixed flattens the slope to $-1.10$. The gap of $-1.21$ points per student is the omitted variable bias from Section 1, and the appendix computes it as the income coefficient $0.67$ times the $-1.80$ slope from regressing income on class size. Neither line is a mistake. They answer different questions, and only the plane's slope holds income fixed.
+    Tick the box and the flat panel shows two least squares fits at once, and they disagree. The dashed line is the single-regressor fit from the first equation above. It answers the question ''how do test scores move with class size, letting parental income drift the way it drifts in the data''. Districts with bigger classes have poorer parents on average, so the dashed line stacks part of the income effect on top of the class-size effect and comes out steeper, at $-2.31$ points per student. The plane's slice answers a different question, ''how do test scores move with class size among districts with the same parental income'', and holding income fixed flattens the slope to $-1.10$. The gap of $-1.21$ points per student is the omitted variable bias from Section 1, and the appendix computes it as the income coefficient $0.67$ times the $-1.80$ slope from regressing income on class size. Neither line is a mistake. They answer different questions, and only the plane's slope holds income fixed.
     """)
     return
 
@@ -419,7 +411,7 @@ def _(mo):
 
     The factor $\frac{n-1}{n-k-1}$ grows with $k$, so a regressor that barely reduces the sum of squared residuals lowers the adjusted $R^2$ rather than raising it. A falling adjusted $R^2$ is the signal that a regressor is not earning its place.
 
-    The demonstration below makes the flaw concrete. Starting from the two-regressor model, the slider adds regressors that are pure noise, columns of random numbers drawn by the computer, one number per district, with no connection to test scores at all. Every noise column still nudges the $R^2$ upward. Watch what the adjusted $R^2$ does instead.
+    The demonstration below makes the flaw concrete. Starting from the two-regressor model, the slider adds regressors that are pure noise, columns of random numbers drawn by the computer, one number per district, with no connection to test scores at all. The specification above the figure grows with each added column, and every noise column still nudges the $R^2$ upward. Watch what the adjusted $R^2$ does instead.
     """)
     return
 
@@ -447,6 +439,24 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(alt, fit_path, junk_slider, mo):
     _k = int(junk_slider.value)
+
+    if _k == 0:
+        _spec = r"TestScore = \beta_0 + \beta_1\,ClassSize + \beta_2\,PrntInc + u"
+    elif _k <= 3:
+        _noise_terms = " + ".join(
+            rf"\gamma_{{{_j}}}\,Noise_{{{_j}}}" for _j in range(1, _k + 1)
+        )
+        _spec = (
+            rf"TestScore = \beta_0 + \beta_1\,ClassSize + \beta_2\,PrntInc "
+            rf"+ {_noise_terms} + u"
+        )
+    else:
+        _spec = (
+            rf"TestScore = \beta_0 + \beta_1\,ClassSize + \beta_2\,PrntInc "
+            rf"+ \gamma_1\,Noise_1 + \cdots + \gamma_{{{_k}}}\,Noise_{{{_k}}} + u"
+        )
+    _spec_md = mo.md(rf"$$ {_spec} $$")
+
     _shown = fit_path[fit_path["k"] <= _k].melt(
         id_vars="k", value_vars=["r2", "adj"], var_name="measure", value_name="value"
     )
@@ -505,7 +515,7 @@ def _(alt, fit_path, junk_slider, mo):
         'font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;">'
         + _body + "</span>"
     )
-    mo.vstack([_chart, _caption])
+    mo.vstack([_spec_md, _chart, _caption], align="center")
     return
 
 
