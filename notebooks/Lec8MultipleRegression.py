@@ -13,7 +13,6 @@
 import marimo
 
 __generated_with = "0.23.9"
-__preliminary__ = True
 app = marimo.App(
     app_title="Lecture 8: Multiple Regression",
     css_file="marimo-overrides.css",
@@ -104,21 +103,35 @@ def _(mo):
     <a id="sec1"></a>
     ## 1. Omitted variable bias
 
-    The first least squares assumption from Lecture 6 asks a lot. It says the error has a conditional mean of zero given the regressor, $\mathbb{E}[u \mid X] = 0$, so that people with different values of $X$ are alike, on average, in every other way that matters for $Y$. The assumption is demanding because the error is a catch-all. Everything that affects the outcome and is not in the regression lives inside it.
+    ## 1. Omitted variable bias
 
-    Take the running example of the course, the regression of hourly wages on years of education. The error holds ability, ambition, family resources, health, school quality, and plain luck. For the assumption to hold, none of these can move together with education. That is hard to believe. More able students find school easier and stay longer. Children from richer families get more schooling and inherit networks that pay off at work. A variable like ability or family income affects wages and moves with education, so the error is correlated with education, written $\operatorname{cov}(X,u) \neq 0$, and $\mathbb{E}[u \mid X] = 0$ fails.
+    Recall the first least squares assumption from Lecture 6. It says that the error has conditional mean zero once we condition on the independent variable,
 
-    So what does the single-variable regression deliver when the assumption fails? Does the slope land above the true $\beta_1$ or below it, and by how much? There is a formula for that. With a relevant variable left out, the slope estimate converges not to $\beta_1$ but to
+    $$
+    \mathbb{E}[u \mid X] = 0.
+    $$
 
-    $$ \hat{\beta}_1 \overset{p}{\to} \beta_1 + \operatorname{corr}(X,u)\cdot\frac{\sigma_u}{\sigma_X} = \beta_1 + \rho_{Xu}\,\frac{\sigma_u}{\sigma_X}. $$
+    This means that, after we condition on $X$, the remaining determinants of $Y$ are not systematically higher or lower. If the assumption is satisfied, then we can interpret the slope coefficient in the single variable regression, $\beta_1$, causally. The assumption is demanding, however, because the error, given by $u$, contains every determinant of $Y$ that is not captured by $X$. If any of those omitted determinants move systematically with $X$, the assumption fails.
 
-    The second term is the *omitted variable bias*. Its sign is the sign of the correlation between $X$ and the omitted part of the error, and its size grows with the strength of that correlation. Two conditions are both needed for the bias to appear. The omitted variable must be correlated with $X$, and it must affect $Y$ so that it carries real weight inside the error. If either fails, the bias term is zero and the estimate stays on target.
+    Return to the running example of the course, the regression of hourly wages on years of education. If education is the only independent variable, then the error contains all other determinants of wages, including ability, ambition, family resources, health, school quality, and luck. For the first least squares assumption to hold, these omitted determinants cannot be systematically related to education.
 
-    In the wage example both requirements are met, and both correlations are positive. Ability and family resources raise schooling and raise earnings, so $\rho_{Xu} > 0$ and the estimated return to schooling comes out too high. Education gets credit for part of what is really the payoff to ability and to family background.
+    That is hard to believe. More able students may find school easier and stay in school longer. Children from richer families may get more schooling and may also inherit networks that help them in the labor market. Ability and family background both affect wages, and they also associated with education. If they are left out of the regression, the error is correlated with education, so $\operatorname{cov}(X,u) \neq 0 and the condition $\mathbb{E}[u \mid X] = 0$ no longer holds.
 
-    The same logic runs through most of economics. Regress local home prices on the number of new units built and the effect of new supply looks too large, because developers build most when interest rates are low and low rates push prices up on their own. Regress test scores on class size and small classes look more powerful than they are, because districts with smaller classes tend to have richer parents. Whenever a driver of the outcome hides in the error and moves with the regressor, the single-variable slope answers for both.
+    What does the single-variable OLS regression estimate when this assumption fails? Does the estimated regression slope land above the true $\beta_1$ or below it? There is a formula that helps us answer this question. When the error is correlated with $X$, the slope estimate converges not to $\beta_1$, but is
 
-    Omitted variable bias is why a single explanatory variable is rarely enough for a causal claim. The repair is not to abandon regression but to bring the offending variable into it, so that it is held fixed instead of left in the error. The rest of this lecture builds that repair.
+    $$
+    \hat{\beta}_1 \overset{p}{\to} \beta_1 + \underbrace{\operatorname{corr}(X,u)\cdot\frac{\sigma_u}{\sigma_X}}{\text{bias}} = \beta_1 + \underbrace{\rho_{Xu}\frac{\sigma_u}{\sigma_X}}_{\text{bias}}.
+    $$
+
+    The second term is the *omitted variable bias*. Its sign is the sign of the correlation between $X$ and the error term, $u$. Its size grows as that correlation becomes stronger.
+
+    Two conditions are needed for omitted variable bias. First, the omitted variable must be correlated with $X$. Second, the omitted variable must affect $Y$, so that it matters inside the error. If either condition fails, the bias term is zero, and the slope estimate remains centered on the true value.
+
+    In the wage example, both conditions are likely to hold. Ability and family resources raise earnings, so they belong in the error if they are omitted. They are also positively related to education. The error is therefore positively correlated with education, so $\rho_{Xu} > 0$. The estimated return to schooling is *biased upward* because education receives credit for part of the wage difference that is really due to ability and family background. If $\rho_{Xu} < 0$, then $\beta_1$ would be *downward biased*.
+
+    The same logic appears throughout economics. Suppose we regress local home prices on the number of new housing units built. Developers tend to build more when interest rates are low, and low interest rates also raise housing demand and push prices up. If interest-rates are omitted from the regression, they become part of the error. Since low rates are associated with both more building and higher prices, new construction is positively correlated with the error. The estimated effect of new supply on prices is therefore biased upward.
+
+    Omitted variable bias is one reason a regression with a single independent variable is rarely enough to support a causal claim. The solution is not to abandon regression analysis. The solution is to include the omitted variables whenever it is possible to do so. By adding ability, interest rates, family resources, or other relevant factors to the regression, we hold them fixed instead of leaving them in the error. This is what the multiple regression model helps to address.
     """)
     return
 
