@@ -112,7 +112,7 @@ def _(mo):
     \mathbb{E}[Y \mid X = x].
     $$
 
-    Like the expected value $\mathbb{E}[Y]$ from Lecture 2, the conditional expectation is a population object, not a sample statistic. The difference is that $\mathbb{E}[Y]$ averages over the whole population, while $\mathbb{E}[Y \mid X = x]$ averages only over the subpopulation with $X = x$. This is also the population object that regression tries to approximate with a straight line.
+    Like the expected value $\mathbb{E}[Y]$ from Lecture 2, the conditional expectation is a population object, not a sample statistic. The difference is that $\mathbb{E}[Y]$ averages over the whole population, while $\mathbb{E}[Y \mid X = x]$ averages only over the subpopulation with $X = x$.
 
     For discrete random variables, the joint probability tables from Lecture 3 contain everything needed to compute a conditional expectation. Suppose $X$ is a student's class standing, Freshman or Senior, and $Y$ is the student's GPA, rounded to 2.0, 3.0, or 4.0. The table below lists the probability of each combination.
     """)
@@ -507,22 +507,22 @@ def _(mo):
 
     The least squares assumptions do more than justify a causal interpretation of the slope. They also inform us of how the OLS estimator $\hat{\beta}_1$ behaves across repeated samples.
 
-First, $\hat{\beta}_1$ is *unbiased* if its average value across all possible samples equals the true slope,
+    First, $\hat{\beta}_1$ is *unbiased* if its average value across all possible samples equals the true slope,
 
-$$
-\mathbb{E}[\hat{\beta}_1] = \beta_1.
-$$
+    $$
+    \mathbb{E}[\hat{\beta}_1] = \beta_1.
+    $$
 
-Unbiasedness follows from the first least squares assumption, which says that the conditional mean of the error given $X$ is zero. The appendix proves why this is true with algebra. The point is not that any one estimate must equal $\beta_1$. It is that the estimator is right on average, rather than systematically too high or too low.
+    Unbiasedness follows from the first least squares assumption, which says that the conditional mean of the error given $X$ is zero. The appendix proves why this is true with algebra. The point is not that any one estimate must equal $\beta_1$. It is that the estimator is right on average, rather than systematically too high or too low.
 
-Second, $\hat{\beta}_1$ is *consistent* if it converges to the true slope as the sample grows,
+    Second, $\hat{\beta}_1$ is *consistent* if it converges to the true slope as the sample grows,
 
-$$
-\hat{\beta}_1 \overset{p}{\to} \beta_1.
-$$
+    $$
+    \hat{\beta}_1 \overset{p}{\to} \beta_1.
+    $$
 
-Consistency implies that estimates from large samples are more likely to be closer to $\beta_1$. As $n$ rises, the spread of $\hat{\beta}_1$ across repeated samples shrinks, so the estimates cluster closer and closer to the true value. Lecture 7 derives the variance for $\hat{\beta}_1$, and shows how it falls with the sample size.
-""")
+    Consistency implies that estimates from large samples are more likely to be closer to $\beta_1$. As $n$ rises, the spread of $\hat{\beta}_1$ across repeated samples shrinks, so the estimates cluster closer and closer to the true value. Lecture 7 derives the variance for $\hat{\beta}_1$, and shows how it falls with the sample size.
+    """)
     return
 
 

@@ -10,7 +10,7 @@
 
 import marimo
 
-__generated_with = "0.23.6"
+__generated_with = "0.23.9"
 app = marimo.App(
     app_title="Lecture 5: Simple Linear Regression",
     css_file="marimo-overrides.css",
@@ -103,7 +103,7 @@ def _(mo):
 
     Here $Y_i$ is the *dependent variable*, or the outcome we want to explain. In this example, $Y_i$ is worker $i$'s hourly wage. The variable $X_i$ is the *independent variable*, or the variable we use to explain the outcome. Here, $X_i$ is worker $i$'s years of education. $i$ is simply an index that refers to a single worker among $1, \ldots, n$ possible workers.
 
-    The expression $\beta_0 + \beta_1 X$ is the *population regression line*. The *intercept* $\beta_0$ is the value of the population regression line when $X = 0$. The *slope* $\beta_1$ is the change in $Y$ associated with a one-unit increase in $X$. In the wage and education example, $\beta_1$ tells us how much hourly wages change on average when education increases by one year.
+    The expression $\beta_0 + \beta_1 X$ is the *population regression line*. The *intercept* $\beta_0$ is the value of the population regression line when $X = 0$. The *slope* $\beta_1$ describes how $Y$ changes when $X$ increases by one unit, holding the error term fixed. In the wage and education example, $\beta_1$ is the change in hourly wages from one more year of education, holding fixed the other determinants of wages in $u_i$.
 
     The term $u_i$ is the *error term*. It represents the part of worker $i$'s wage that is not explained by education in the population regression model. In other words, it includes all the other factors, besides education, that affect wages.
 
