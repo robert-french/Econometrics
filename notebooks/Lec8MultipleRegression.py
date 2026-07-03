@@ -89,7 +89,11 @@ def _(mo):
     [2. The multiple regression model](#sec2)<br>
     [3. Estimating the model with OLS](#sec3)<br>
     [4. Measures of fit](#sec4)<br>
-    [5. The least squares assumptions with several regressors](#sec5)
+    [5. The least squares assumptions with several regressors](#sec5)<br>
+    &emsp;&emsp;[Least Squares Assumption 1: the conditional mean of u given the regressors is zero](#sec5a)<br>
+    &emsp;&emsp;[Least Squares Assumption 2: the data are i.i.d.](#sec5b)<br>
+    &emsp;&emsp;[Least Squares Assumption 3: large outliers are unlikely](#sec5c)<br>
+    &emsp;&emsp;[Least Squares Assumption 4: no perfect multicollinearity](#sec5d)
     """)
     return
 
@@ -100,19 +104,21 @@ def _(mo):
     <a id="sec1"></a>
     ## 1. Omitted variable bias
 
-    Lecture 7 built standard errors, hypothesis tests, and confidence intervals for the slope of a regression with a single regressor. Every one of those tools rested on the first least squares assumption from Lecture 6, that the error has a conditional mean of zero given $X$. That assumption fails whenever a variable left out of the regression both affects $Y$ and moves together with $X$. The left-out variable is part of the error, so the error is then correlated with $X$, written $\operatorname{cov}(X,u) \neq 0$, and $\mathbb{E}[u\mid X]\neq 0$. The estimate no longer centers on the true slope. This is *omitted variable bias*.
+    The first least squares assumption from Lecture 6 asks a lot. It says the error has a conditional mean of zero given the regressor, $\mathbb{E}[u \mid X] = 0$, so that people with different values of $X$ are alike, on average, in every other way that matters for $Y$. The assumption is demanding because the error is a catch-all. Everything that affects the outcome and is not in the regression lives inside it.
 
-    With such a variable left out, the slope estimate converges not to $\beta_1$ but to
+    Take the running example of the course, the regression of hourly wages on years of education. The error holds ability, ambition, family resources, health, school quality, and plain luck. For the assumption to hold, none of these can move together with education. That is hard to believe. More able students find school easier and stay longer. Children from richer families get more schooling and inherit networks that pay off at work. A variable like ability or family income affects wages and moves with education, so the error is correlated with education, written $\operatorname{cov}(X,u) \neq 0$, and $\mathbb{E}[u \mid X] = 0$ fails.
+
+    So what does the single-variable regression deliver when the assumption fails? Does the slope land above the true $\beta_1$ or below it, and by how much? There is a formula for that. With a relevant variable left out, the slope estimate converges not to $\beta_1$ but to
 
     $$ \hat{\beta}_1 \overset{p}{\to} \beta_1 + \operatorname{corr}(X,u)\cdot\frac{\sigma_u}{\sigma_X} = \beta_1 + \rho_{Xu}\,\frac{\sigma_u}{\sigma_X}. $$
 
-    The second term is the bias, and its sign is the sign of the correlation between $X$ and the omitted part of the error. Two conditions are both needed for the bias to appear. The omitted variable must be correlated with $X$, and it must affect $Y$ so that it carries real weight inside the error. If either fails, the bias term is zero and the estimate stays on target.
+    The second term is the *omitted variable bias*. Its sign is the sign of the correlation between $X$ and the omitted part of the error, and its size grows with the strength of that correlation. Two conditions are both needed for the bias to appear. The omitted variable must be correlated with $X$, and it must affect $Y$ so that it carries real weight inside the error. If either fails, the bias term is zero and the estimate stays on target.
 
-    Return to the wage regression from Lectures 5 through 7. Ability is left in the error, and it raises both schooling and earnings, so education and the error are positively correlated. The bias term is then positive, and the estimated return to schooling comes out too high, because schooling gets credit for part of what is really the payoff to ability.
+    In the wage example both requirements are met, and both correlations are positive. Ability and family resources raise schooling and raise earnings, so $\rho_{Xu} > 0$ and the estimated return to schooling comes out too high. Education gets credit for part of what is really the payoff to ability and to family background.
 
-    A second case is new housing and home prices. Let $Y$ be local home prices and $X$ the number of new units built. Developers build more when interest rates are low, and low rates also raise demand and push prices up, so the omitted interest-rate conditions are positively correlated with building. The estimated effect of new supply on prices is biased upward for the same reason.
+    The same logic runs through most of economics. Regress local home prices on the number of new units built and the effect of new supply looks too large, because developers build most when interest rates are low and low rates push prices up on their own. Regress test scores on class size and small classes look more powerful than they are, because districts with smaller classes tend to have richer parents. Whenever a driver of the outcome hides in the error and moves with the regressor, the single-variable slope answers for both.
 
-    Omitted variable bias is why a single explanatory variable is rarely enough for a causal claim. The repair is not to abandon regression but to bring the offending variable into it, so that ability, or interest rates, is held fixed instead of left in the error. The rest of this lecture builds that repair.
+    Omitted variable bias is why a single explanatory variable is rarely enough for a causal claim. The repair is not to abandon regression but to bring the offending variable into it, so that it is held fixed instead of left in the error. The rest of this lecture builds that repair.
     """)
     return
 
@@ -417,7 +423,7 @@ def _(
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    Tick the box and the flat panel shows two least squares fits at once, and they disagree. The dashed line is the single-regressor fit from the first equation above. It answers the question ''how do wages move with education, letting parental income drift the way it drifts in the data''. Workers with more education also grew up in richer families, so the dashed line stacks part of the family-income effect on top of the education effect and comes out steeper, at $1.63$ dollars per year of education. The plane's slice answers a different question, ''how do wages move with education among workers with the same parental income'', and holding income fixed flattens the slope to $1.22$. The gap of $0.41$ dollars per year is the omitted variable bias from Section 1, and the appendix computes it as the income coefficient $0.10$ times the $4.1$ slope from regressing parental income on education. Neither line is a mistake. They answer different questions, and only the plane's slope holds parental income fixed.
+    Tick the box and the flat panel shows two least squares fits at once, and they disagree. The disagreement is Section 1 playing out on screen. The dashed line is the single-regressor fit from the first equation above, with a slope of $1.63$ dollars per year of education. In that regression parental income sits in the error, and education is correlated with it, because workers with more education grew up in richer families. That is exactly the failure of $\mathbb{E}[u \mid X] = 0$ that Section 1 described, so the dashed slope carries omitted variable bias. The orange slice of the plane holds parental income fixed instead. The correlation that produced the bias is switched off, and the slope falls to $1.22$. The gap of $0.41$ dollars per year is the bias itself, the income coefficient $0.10$ times the $4.1$ slope from regressing parental income on education, just as the formula in Section 1 predicts (the appendix derives the product). Neither line is a mistake. The dashed line answers ''how do wages move with education, letting parental income drift the way it drifts in the data''. The slice answers ''how do wages move with education among workers with the same parental income''. Only the second reading is safe from the omitted variable.
     """)
     return
 
@@ -568,15 +574,27 @@ def _(mo):
     <a id="sec5"></a>
     ## 5. The least squares assumptions with several regressors
 
-    The conditions for reading the OLS slopes as causal effects carry over from Lecture 6, with one addition, so there are four.
+    The conditions for reading the OLS slopes as causal effects carry over from Lecture 6, with one addition, so there are four. The first three are the single-regressor assumptions restated for several regressors, and the fourth is new.
 
-    The first is *mean independence*, that the error has mean zero given every regressor, $\mathbb{E}[u \mid X_1, \dots, X_k] = 0$. This is the assumption the whole lecture has been working to rescue. Each variable moved from the error into the regression is one fewer source of omitted variable bias.
+    <a id="sec5a"></a>
+    ### <span style="color:#0b68cb">Least Squares Assumption 1: the conditional mean of $u$ given the regressors is zero</span>
 
-    The second is that the data $(Y_i, X_{1i}, \dots, X_{ki})$ are *independent and identically distributed* across observations, which holds when the sample is drawn at random, as discussed in Lecture 6.
+    The error must satisfy $\mathbb{E}[u \mid X_1, \dots, X_k] = 0$, the several-regressor version of *mean independence*. This is the assumption the whole lecture has been working to rescue. Each variable moved from the error into the regression is one fewer source of omitted variable bias, and Section 1's formula describes what happens to the slope when a relevant variable stays behind.
 
-    The third is that *large outliers are unlikely*, so that no single observation dominates the estimates.
+    <a id="sec5b"></a>
+    ### <span style="color:#0b68cb">Least Squares Assumption 2: the data are i.i.d.</span>
 
-    The fourth is new to multiple regression. It rules out *perfect multicollinearity*, which arises when one regressor is an exact linear function of the others. Age and date of birth are an example. A person's age is fixed once the date of birth and today's date are set, so the two carry the same information. Asking for the effect of age while holding date of birth fixed has no meaning, because age cannot change with date of birth held constant. When two regressors are perfectly collinear, OLS cannot separate their coefficients and the estimates do not exist. The fix is to drop one of the redundant regressors.
+    The observations $(Y_i, X_{1i}, \dots, X_{ki})$ must be *independent and identically distributed* across $i$, which holds when the sample is drawn at random, as discussed in Lecture 6.
+
+    <a id="sec5c"></a>
+    ### <span style="color:#0b68cb">Least Squares Assumption 3: large outliers are unlikely</span>
+
+    No single observation should be able to dominate the estimates. As in Lecture 6, the practical advice is to plot the data and check extreme values before trusting a regression.
+
+    <a id="sec5d"></a>
+    ### <span style="color:#0b68cb">Least Squares Assumption 4: no perfect multicollinearity</span>
+
+    The new assumption rules out *perfect multicollinearity*, which arises when one regressor is an exact linear function of the others. Age and date of birth are an example. A person's age is fixed once the date of birth and today's date are set, so the two carry the same information. Asking for the effect of age while holding date of birth fixed has no meaning, because age cannot change with date of birth held constant. When two regressors are perfectly collinear, OLS cannot separate their coefficients and the estimates do not exist. The fix is to drop one of the redundant regressors.
 
     Lecture 9 picks up from here, asking which regressors belong in the model, what happens when one regressor is nearly collinear with another, and how the hypothesis tests of Lecture 7 extend to several coefficients at once.
     """)
