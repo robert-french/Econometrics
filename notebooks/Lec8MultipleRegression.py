@@ -101,6 +101,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec1"></a>
+
     ## 1. Omitted variable bias
 
     Recall the first least squares assumption from Lecture 6. It says that the conditional mean of the error term is zero at every value of $X$,
@@ -109,27 +110,21 @@ def _(mo):
     \mathbb{E}[u \mid X] = 0.
     $$
 
-    This means that the omitted determinants of $Y$ do not vary systematically with $X$. If the assumption is satisfied, then we can interpret the slope coefficient in the single variable regression, $\beta_1$, causally. The assumption is difficult to satisfy in practice, however, because the error contains every determinant of $Y$ that is not captured by $X$. If any of those omitted determinants vary systematically with $X$, the assumption fails.
+    This means that the omitted determinants of $Y$ do not vary systematically with $X$. If the assumption holds, then we can interpret the single-variable regression slope, $\hat{\beta}_1$, causally. If omitted determinants of $Y$ are systematically related to $X$, then the error term is correlated with $X$, the assumption fails, and the OLS slope estimator does not isolate the causal effect of $X$ on $Y$.
 
-    Consider this course's example of the regression of hourly wages on years of education. If education is the only independent variable, then the error contains all other determinants of wages, such as ability, ambition, family resources, health, school quality, and luck. For the first least squares assumption to hold, these omitted determinants must not vary systematically with education. If they do, then the conditional mean of the error term is nonzero for at least some values of education, and the estimate of $\beta_1$ does not reflect the causal effect of education on wages.
+    Consider the regression of hourly wages on years of education. If education is the only independent variable, then the error contains all other determinants of wages, such as ability, ambition, family resources, health, school quality, and luck. For the first least squares assumption to hold, these omitted determinants must not vary systematically with education. That is hard to believe, however. More able students may find school easier and stay in school longer. Children from richer families may get more schooling and may also inherit networks that help them in the labor market. If these factors are omitted, the error term is likely to be correlated with education.
 
-    It is hard to believe the assumption holds in the education example. More able students may find school easier and stay in school longer. Children from richer families may get more schooling and may also inherit networks that help them in the labor market. These omitted determinants of wages are therefore likely to vary systematically with education. If they are left out of the regression, the error is correlated with education, so $\operatorname{cov}(X,u) \neq 0$, and the condition $\mathbb{E}[u \mid X] = 0$ no longer holds.
-
-    What does the single-variable OLS regression estimate when this assumption fails? Will the estimated regression slope be above the true $\beta_1$ or below it? There is a formula that helps us answer this question. When the error is correlated with $X$, the slope estimate does not converge to $\beta_1$, but instead
+    When the error is correlated with $X$, the slope estimate does not converge to $\beta_1$. Instead,
 
     $$
-    \hat{\beta}_1 \overset{p}{\to} \beta_1 + \operatorname{corr}(X,u)\cdot\frac{\sigma_u}{\sigma_X} = \beta_1 + \underbrace{\rho_{Xu}\frac{\sigma_u}{\sigma_X}}_{\text{bias}}.
+    \hat{\beta}_1 \overset{p}{\to} \beta_1 + \underbrace{\operatorname{corr}(X,u)\cdot\frac{\sigma_u}{\sigma_X}}_{\text{bias}}.
     $$
 
     The second term is the *omitted variable bias*. Its sign is determined by the sign of the correlation between $X$ and the error term, $u$. Its size grows as that correlation becomes stronger, the variance of $u$ becomes larger, or the variance of $X$ becomes smaller.
 
-    Which omitted variables actually create omitted variable bias? Not every variable left out of a regression is a problem. An omitted variable matters for bias only if two things are true. It must affect $Y$, so that it belongs in the error term, and it must vary systematically with $X$, so that the error term is correlated with the regressor.
+    Not every omitted variable creates omitted variable bias. An omitted variable matters only if it affects $Y$ and varies systematically with $X$. In the wage example, ability and family resources likely satisfy both conditions. They affect wages, so they belong in the error term if omitted. They are also likely to be positively related to education. As a result, education is positively correlated with the error term, so $\rho_{Xu} > 0$. The estimated return to schooling is therefore *biased upward* because education receives credit for part of the wage difference that is really due to ability and family background. If the error were negatively correlated with education instead, so that $\rho_{Xu} < 0$, the estimated return to schooling would be *biased downward*.
 
-    In the wage example, both conditions are likely to hold for the omitted factors, ability and family resources. Ability and family resources affect wages, so they belong in the error term if they are omitted from the regression. They are also likely to be positively related to education. As a result, the error is likely to be positively correlated with education, so $\rho_{Xu} > 0$. The estimated return to schooling is therefore *biased upward* because education receives credit for part of the wage difference that is really due to ability and family background. If the error were negatively correlated with education instead, so that $\rho_{Xu} < 0$, then the estimated return to schooling would be *biased downward*.
-
-    The same logic appears in many economics questions. Suppose we regress product sales on advertising spending. Products with more advertising may sell more, but advertising is not the only reason sales differ across products. Some products are more popular to begin with, and firms may spend more advertising those products. If product popularity is omitted from the regression, it becomes part of the error term. Because popularity raises sales and is positively related to advertising spending, advertising is positively correlated with the error. The estimated effect of advertising on sales is therefore biased upward.
-
-    When omitted determinants of $Y$ vary systematically with $X$, the first causal inference assumption fails. When this happens, we do not need to abandon regression analysis. Instead, we can make the assumption more plausible by including those determinants in the regression whenever possible. By adding ability, family resources, product popularity, or other relevant factors as additional independent variables, we remove them from the error term. The remaining error term is then less likely to vary systematically with the original independent variable. This is why we often move from single-variable regression to multiple regression.
+    When omitted determinants of $Y$ vary systematically with $X$, we do not need to abandon regression analysis. Instead, we can make the first least squares assumption more plausible by including those determinants in the regression whenever possible. By adding ability, family resources, or other relevant factors as additional independent variables, we remove them from the error term. This is why we often consider multiple-variable regression instead of single-variable regression.
     """)
     return
 
@@ -141,7 +136,7 @@ def _(mo):
 
     ## 2. The multiple regression model
 
-    A single-variable regression relates an outcome to one independent variable. A multiple regression model relates the outcome to several independent variables at the same time,
+    A single-variable regression relates an outcome to one independent variable. A multiple-variable regression model relates the outcome to several independent variables at the same time,
 
     $$
     Y_i = \beta_0 + \beta_1 X_{1i} + \beta_2 X_{2i} + \dots + \beta_k X_{ki} + u_i,
@@ -150,7 +145,7 @@ def _(mo):
 
     Each $X_{ji}$ is one of the $k$ independent variables measured for observation $i$. The error term $u_i$ contains the determinants of $Y_i$ that are still left out after those variables have been included.
 
-    The interpretation of the population parameters follows the same logic as in the single-variable model from Lectures 5 and 6. The parameter $\beta_j$ describes how $Y$ changes when $X_j$ increases by one unit, holding the other explanatory variables and the error fixed. For example, in the model
+    The interpretation of the population parameters follows a similar logic to the single-variable model from Lectures 5 and 6. The parameter $\beta_j$ describes how $Y$ changes when $X_j$ increases by one unit, holding the other explanatory variables and the error fixed. For example, in the model
 
     $$
     Y_i = \beta_0 + \beta_1 X_{1i} + \beta_2 X_{2i} + u_i,
@@ -158,7 +153,9 @@ def _(mo):
 
     $\beta_1$ is the change in $Y$ caused by a one-unit increase in $X_1$, holding $X_2$ and $u$ fixed. The parameter $\beta_2$ has the same interpretation for $X_2$, holding $X_1$ and $u$ fixed.
 
-    When we estimate a regression, however, we cannot literally hold $u_i$ fixed because we do not observe it. We can only hold fixed the variables that are included in the regression. This is why adding explanatory variables can help with omitted variable bias, discussed in Section 1. A variable that is included in the regression is no longer part of the error. Instead, it is held fixed when estimating the coefficients on the other included variables.
+    When we estimate a regression, however, we cannot literally hold $u_i$ fixed because we do not observe it. We can only hold fixed the variables that are included in the regression. This is why adding independent variables can help with omitted variable bias. A variable that is included in the regression is no longer part of the error. Instead, it is held fixed when estimating the coefficients on the other included variables.
+
+    ### <span style="color:#0b68cb">Earnings and education example</span>
 
     Return to the single-variable model of earnings and education in Lectures 5 and 6,
 
@@ -166,18 +163,16 @@ def _(mo):
     \text{wage}_i = \beta_0 + \beta_1 \text{education}_i + u_i.
     $$
 
-    In that model, all other determinants of wages are left in the error. Some of those determinants, such as ability and parental income, are likely to be related to both education and wages. Students with higher ability may get more education and earn higher wages. Children from higher-income families may get more education and may also have other advantages in the labor market.
+    In that model, all other determinants of wages are left in the error. Some of those determinants, such as ability and parental income, are likely to be related to both education and wages inducing omitted variable bias.
 
-    Ability is usually difficult to measure, so we cannot simply add it to the regression. Parental income, however, can often be measured. Suppose we include both education and parental income,
+    Ability is usually difficult to measure, so we cannot simply add it to the regression. Parental income, however, can often be measured. Suppose we include both education and parental income as independent variables,
 
     $$
     \text{wage}_i
     = \beta_0 + \beta_1 \text{education}_i+\beta_2 \text{parental income}_i+u_i.
     $$
 
-    In this population model, $\beta_1$ is the effect of one more year of education on hourly wages, holding parental income and the remaining determinants in $u_i$ fixed. When we estimate the model, we cannot hold fixed the remaining determinants in $u_i$, but we can hold parental income fixed because it is now included in the regression. The education coefficient is therefore estimated by comparing workers with the same parental income. Parental income is no longer left in the error to move together with education, potentially reducing omitted variable bias.
-
-    This does not mean that multiple regression automatically solves omitted variable bias. Ability and other omitted determinants may still remain in $u_i$. Multiple regression helps when the added variables remove important sources of omitted variable bias from the error. It cannot fix bias from variables that remain omitted.
+    When we estimate the model with OLS, we cannot hold fixed the determinants that remain in $u_i$, such as ability. But because parental income is now included in the regression, we can hold parental income fixed. The education coefficient is therefore estimated by comparing wages across workers with the same parental income. As a result, the OLS estimate $\hat{\beta}_1$ no longer attributes the effect of parental income to education.
     """)
     return
 
