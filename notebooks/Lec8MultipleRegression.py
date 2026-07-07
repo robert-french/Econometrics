@@ -13,7 +13,6 @@
 import marimo
 
 __generated_with = "0.23.9"
-__preliminary__ = True
 app = marimo.App(
     app_title="Lecture 8: Multiple Regression",
     css_file="marimo-overrides.css",
@@ -373,7 +372,7 @@ def _(
             # canvas, which otherwise sits low in the plot area.
             camera=dict(
                 eye=dict(x=1.7, y=1.5, z=0.7),
-                center=dict(x=0.0, y=0.0, z=-0.15),
+                center=dict(x=0.0, y=0.0, z=-0.3),
             ),
         ),
     )
@@ -406,13 +405,13 @@ def _(
     _rule_txt = (
         alt.Chart(_rule_df)
         .mark_text(
-            align="left", dx=24, color="#d97706", fontSize=11,
+            align="left", dx=36, color="#d97706", fontSize=11,
             fontWeight="bold", text=["OLS", "min"],
         )
         .encode(y="y:Q")
     )
     _bar_chart = alt.layer(_bar, _bar_txt, _rule, _rule_txt).properties(
-        width=60, height=430, padding={"right": 34},
+        width=60, height=430, padding={"right": 46},
     )
 
     _pts = pd.DataFrame({"x": educ, "y": wage})
@@ -442,10 +441,10 @@ def _(
 
     if _box:
         _body = (
-            f"The flat surface on screen is now the OLS fit, {b_multi[0]:.1f} "
+            f"The flat surface is now the OLS fit, {b_multi[0]:.1f} "
             f"{b_multi[1]:+.2f} education {b_multi[2]:+.2f} parental income. No other "
             f"flat surface has a lower sum of squared residuals than {ssr_min:,.0f}, so "
-            f"the bar sits exactly on the dashed marker. In the two-dimensional plot below, "
+            f"the bar sits exactly on the dashed marker. In the two-dimensional plot, "
             f"the education-wage line holding parental income fixed at its average value is "
             f"flatter than the dashed single-regressor line.  "
             f"The sliders have jumped to the OLS values. Moving "
@@ -463,7 +462,7 @@ def _(
         _body = (
             f"The current sum of squared residuals is {_ssr:,.0f}, which is "
             f"{_gap:,.0f} above the smallest value OLS can achieve. In the "
-            f"two-dimensional plot below, the dashed single-regressor line stays fixed, "
+            f"two-dimensional plot, the dashed single-regressor line stays fixed, "
             f"while the education-wage line from the multiple regression model moves as "
             f"you change the coefficient sliders."
         )
