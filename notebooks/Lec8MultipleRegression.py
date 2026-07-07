@@ -13,6 +13,7 @@
 import marimo
 
 __generated_with = "0.23.9"
+__preliminary__ = True
 app = marimo.App(
     app_title="Lecture 8: Multiple Regression",
     css_file="marimo-overrides.css",
@@ -221,13 +222,13 @@ def _(mo):
     We can see what changes when we add another independent variable by returning to the wage example. As is shown in the plots following this discussion, regressing hourly wages on years of education alone in our example data gives
 
     $$
-    \widehat{\text{Wage}} = 7.2 + 1.63 \cdot \text{Education}.
+    \widehat{\text{wage}} = 7.2 + 1.63 \cdot \text{education}.
     $$
 
     Adding parental income, measured in thousands of dollars, gives
 
     $$
-    \widehat{\text{Wage}} = 5.2 + 1.22 \cdot \text{Education} + 0.10 \cdot \text{Parental income}.
+    \widehat{\text{wage}} = 5.2 + 1.22 \cdot \text{education} + 0.10 \cdot \text{parental income}.
     $$
 
     The education coefficient falls from $1.63$ to $1.22$, reducing the estimated return by about one quarter. This is what we would expect if parental income was one source of omitted variable bias in the single-variable regression. Parental income raises wages and is higher, on average, for workers with more schooling. When parental income was omitted, the single-variable slope attributed to education part of the wage difference that was really associated with family resources.
@@ -368,7 +369,12 @@ def _(
             xaxis=dict(title="Years of education", range=[0.0, 21.0]),
             yaxis=dict(title="Parental income", range=[0.0, 130.0]),
             zaxis=dict(title="Hourly wage", range=[0.0, 60.0]),
-            camera=dict(eye=dict(x=1.7, y=1.5, z=0.7)),
+            # A slightly negative center z raises the rendered scene in the
+            # canvas, which otherwise sits low in the plot area.
+            camera=dict(
+                eye=dict(x=1.7, y=1.5, z=0.7),
+                center=dict(x=0.0, y=0.0, z=-0.15),
+            ),
         ),
     )
 
@@ -399,11 +405,14 @@ def _(
     )
     _rule_txt = (
         alt.Chart(_rule_df)
-        .mark_text(dy=12, color="#b45309", fontSize=9)
-        .encode(y="y:Q", text="t:N")
+        .mark_text(
+            align="left", dx=24, color="#d97706", fontSize=11,
+            fontWeight="bold", text=["OLS", "min"],
+        )
+        .encode(y="y:Q")
     )
     _bar_chart = alt.layer(_bar, _bar_txt, _rule, _rule_txt).properties(
-        width=60, height=430,
+        width=60, height=430, padding={"right": 34},
     )
 
     _pts = pd.DataFrame({"x": educ, "y": wage})
@@ -434,7 +443,7 @@ def _(
     if _box:
         _body = (
             f"The flat surface on screen is now the OLS fit, {b_multi[0]:.1f} "
-            f"{b_multi[1]:+.2f} Education {b_multi[2]:+.2f} Parental income. No other "
+            f"{b_multi[1]:+.2f} education {b_multi[2]:+.2f} parental income. No other "
             f"flat surface has a lower sum of squared residuals than {ssr_min:,.0f}, so "
             f"the bar sits exactly on the dashed marker. In the two-dimensional plot below, "
             f"the education-wage line holding parental income fixed at its average value is "
