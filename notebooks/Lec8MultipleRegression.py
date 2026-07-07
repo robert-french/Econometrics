@@ -44,7 +44,6 @@ def _(mo):
                     "#sec2": "2. The multiple regression model",
                     "#sec3": "3. Estimating the model with OLS",
                     "#sec4": "4. Measures of fit",
-                    "#sec5": "5. The least squares assumptions with several regressors",
                 },
                 orientation="vertical",
             ),
@@ -88,12 +87,7 @@ def _(mo):
     [1. Omitted variable bias](#sec1)<br>
     [2. The multiple regression model](#sec2)<br>
     [3. Estimating the model with OLS](#sec3)<br>
-    [4. Measures of fit](#sec4)<br>
-    [5. The least squares assumptions with several regressors](#sec5)<br>
-    &emsp;&emsp;[Least Squares Assumption 1: the conditional mean of u given the regressors is zero](#sec5a)<br>
-    &emsp;&emsp;[Least Squares Assumption 2: the data are i.i.d.](#sec5b)<br>
-    &emsp;&emsp;[Least Squares Assumption 3: large outliers are unlikely](#sec5c)<br>
-    &emsp;&emsp;[Least Squares Assumption 4: no perfect multicollinearity](#sec5d)
+    [4. Measures of fit](#sec4)
     """)
     return
 
@@ -208,7 +202,7 @@ def _(mo):
     Once OLS has chosen these coefficients, the fitted value for observation $i$ is
 
     $$
-    \hat{Y}_i = \hat{\beta}_0 + \hat{\beta}*1 X*{1i} + \dots + \hat{\beta}*k X*{ki},
+    \hat{Y}_i = \hat{\beta}_0 + \hat{\beta}_1 X_{1i} + \dots + \hat{\beta}_k X_{ki},
     $$
 
     and the OLS residual is the gap between the actual and fitted outcome,
@@ -222,13 +216,13 @@ def _(mo):
     We can see what changes when we add another independent variable by returning to the wage example. As is shown in the plots following this discussion, regressing hourly wages on years of education alone in our example data gives
 
     $$
-    \widehat{\text{wage}} = 7.2 + 1.63 \cdot \text{education}.
+    \widehat{\text{wage}} = 6.5 + 1.63 \cdot \text{education}.
     $$
 
     Adding parental income, measured in thousands of dollars, gives
 
     $$
-    \widehat{\text{wage}} = 5.2 + 1.22 \cdot \text{education} + 0.10 \cdot \text{parental income}.
+    \widehat{\text{wage}} = 4.6 + 1.22 \cdot \text{education} + 0.10 \cdot \text{parental income}.
     $$
 
     The education coefficient falls from $1.63$ to $1.22$, reducing the estimated return by about one quarter. This is what we would expect if parental income was one source of omitted variable bias in the single-variable regression. Parental income raises wages and is higher, on average, for workers with more schooling. When parental income was omitted, the single-variable slope attributed to education part of the wage difference that was really associated with family resources.
@@ -238,8 +232,6 @@ def _(mo):
     Just like in the single-variable regression, there is an important distinction between interpreting the population coefficient and interpreting the OLS estimate. In the population model, $\beta_1$ describes the causal effect of education only under the thought experiment of changing education while holding fixed the other determinants of wages in $u_i$. In an OLS regression, however, we do not observe or hold fixed the remaining determinants in $u_i$, such as ability, ambition, health, school quality, or luck. What we can hold fixed are the variables included in the regression. After adding parental income, the education coefficient is estimated by comparing workers with the same parental income. This removes parental income from the error term, but any remaining omitted determinants in $u_i$ could still create omitted variable bias if they vary systematically with education.
 
     The figure below illustrates the OLS minimization problem. The three sliders let you choose the intercept, the education slope, and the parental-income slope. As you move them, the flat surface in the three-dimensional plot moves too. This flat surface is the multiple regression version of a fitted line. For each worker, it gives the wage predicted by that worker’s education and parental income. The goal is to choose the coefficients that make the vertical gaps between the points and the surface as small as possible. The bar beside the plot measures the sum of squared residuals, and the dashed marker shows the smallest value OLS can achieve. Move the sliders to see how different coefficient choices affect the sum of squared residuals, then tick the box to show the coefficients OLS chooses.
-
-    The two-dimensional plot directly underneath shows the education-wage relationship implied by the multiple regression model when parental income is held fixed at its average value. This line differs from the single-variable OLS line because the multiple regression coefficient on education is estimated after accounting for parental income. Notice that the single-variable OLS line is steeper than the coefficient on education in the multiple-variable regression model. Can you explain why the slopes differ using the omitted variable bias formula from Section 1?
     """)
     return
 
@@ -338,22 +330,37 @@ def _(
     _xline = np.array([0.0, 21.0])
     _png = np.array([0.0, 130.0])
 
-    # The checkbox swaps the displayed plane rather than overlaying a second
-    # one, so the bar and the flat view always describe the plane on screen.
+    # The checkbox swaps the displayed surface rather than overlaying a second
+    # one, so the bar and the flat view always describe the surface on screen.
     if _box:
-        _gz = (b_multi[0] + b_multi[1] * _xline[None, :]) + b_multi[2] * _png[:, None]
-        _line_y = (b_multi[0] + b_multi[2] * _pm) + b_multi[1] * _xline
+        _c0, _c1, _c2 = float(b_multi[0]), float(b_multi[1]), float(b_multi[2])
         _shown_ssr = ssr_min
     else:
-        _gz = (_b0 + _b1 * _xline[None, :]) + _b2 * _png[:, None]
-        _line_y = (_b0 + _b2 * _pm) + _b1 * _xline
+        _c0, _c1, _c2 = _b0, _b1, _b2
         _shown_ssr = _ssr
+    _gz = (_c0 + _c1 * _xline[None, :]) + _c2 * _png[:, None]
+    _line_y = (_c0 + _c2 * _pm) + _c1 * _xline
+    _fit_at_pts = _c0 + _c1 * educ + _c2 * prnt
+
+    _seg_x, _seg_y, _seg_z = [], [], []
+    for _xi, _yi, _zi, _fi in zip(educ, prnt, wage, _fit_at_pts):
+        _seg_x += [float(_xi), float(_xi), None]
+        _seg_y += [float(_yi), float(_yi), None]
+        _seg_z += [float(_zi), float(_fi), None]
 
     _fig = go.Figure()
     _fig.add_trace(
         go.Scatter3d(
             x=educ, y=prnt, z=wage, mode="markers",
             marker=dict(size=3, color="#1f4e79", opacity=0.5),
+        )
+    )
+    # Dashed residual sticks from each point down to the displayed surface.
+    _fig.add_trace(
+        go.Scatter3d(
+            x=_seg_x, y=_seg_y, z=_seg_z, mode="lines",
+            line=dict(color="#9aa5b1", width=2, dash="dash"),
+            hoverinfo="skip",
         )
     )
     _fig.add_trace(
@@ -378,7 +385,7 @@ def _(
         ),
     )
 
-    _cap = 100000.0
+    _cap = 60000.0
     _bar_df = pd.DataFrame(
         {"x": ["SSR"], "value": [min(_shown_ssr, _cap)], "label": [f"{_shown_ssr:,.0f}"]}
     )
@@ -442,10 +449,10 @@ def _(
 
     if _box:
         _body = (
-            f"The flat surface is now the OLS fit, {b_multi[0]:.1f} "
-            f"{b_multi[1]:+.2f} education {b_multi[2]:+.2f} parental income. No other "
+            rf"The flat surface is now the OLS fit, {b_multi[0]:.1f} "
+            rf"{b_multi[1]:+.2f} $\cdot$ education {b_multi[2]:+.2f} $\cdot$ parental income. No other "
             f"flat surface has a lower sum of squared residuals than {ssr_min:,.0f}, so "
-            f"the bar sits exactly on the dashed marker. In the two-dimensional plot, "
+            f"the SSR bar sits exactly on the dashed marker. In the two-dimensional plot, "
             f"the education-wage line holding parental income fixed at its average value is "
             f"flatter than the dashed single-regressor line.  "
             f"The sliders have jumped to the OLS values. Moving "
@@ -489,36 +496,45 @@ def _(
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
+    The two-dimensional plot directly above shows the education-wage relationship implied by the multiple regression model when parental income is held fixed at its average value. This line differs from the dashed single-variable OLS line because the multiple regression coefficient on education is estimated after accounting for parental income. Notice that the single-variable OLS line is steeper than the coefficient on education in the multiple-variable regression model. Can you explain why the slopes differ using the omitted variable bias formula from Section 1?
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     <a id="sec4"></a>
+
     ## 4. Measures of fit
 
-    Two numbers summarize how well a multiple regression fits the data. The first is the *standard error of the regression*, the typical size of a residual,
+    The same two measures from the single-variable case summarize how well a multiple-variable regression fits the data. The first is the *standard error of the regression*, which measures the typical size of a residual,
 
     $$
     \mathrm{SER} = \sqrt{\frac{1}{n-k-1}\sum_{i=1}^{n}\hat{u}_i^2} = \sqrt{\frac{\mathrm{SSR}}{n-k-1}},
     $$
 
-    where $\mathrm{SSR} = \sum_{i=1}^{n}\hat{u}_i^2$ is the sum of squared residuals. We divide by $n - k - 1$ rather than $n$ because estimating the intercept and the $k$ slopes uses up $k + 1$ pieces of information from the sample. With a single regressor this is the $n - 2$ from Lecture 5.
+    where $\mathrm{SSR} = \sum_{i=1}^{n}\hat{u}_i^2$ is the sum of squared residuals. We divide by $n-k-1$ rather than $n$ because estimating the intercept and the $k$ slopes uses up $k+1$ pieces of information from the sample.<sup><a id="fnref2" href="#fn2">2</a></sup> With a single regressor, this becomes the $n-2$ denominator from Lecture 5.
 
-    The second is the *$R^2$*, the share of the variation in $Y$ that the model explains,
+    The second is the *$R^2$*, which measures the share of the variation in $Y$ explained by the model,
 
     $$
     R^2 = 1 - \frac{\mathrm{SSR}}{\mathrm{TSS}}, \qquad \mathrm{TSS} = \sum_{i=1}^{n}(Y_i - \bar{Y})^2.
     $$
 
-    In the worker data, education alone gives an $R^2$ of 0.441 and a SER of \$6.30 an hour. Adding parental income lifts the $R^2$ to 0.471 and trims the SER to \$6.14. Notice how modest that is. The fit improves only a little even though the education slope fell by a quarter when income entered. A regressor can matter enormously for the causal story while adding little to the fit, because bias and fit are different problems.
+    In the worker data, education alone gives an $R^2$ of 0.398 and an SER of \$6.61 per hour. Adding parental income raises the $R^2$ to 0.427 and lowers the SER to \$6.47. The improvement in fit is modest, even though the education slope falls by about a quarter when parental income enters the regression. This illustrates an important distinction. A regressor can matter a lot for the causal interpretation of a coefficient while adding little to the model’s overall fit, because bias and fit are different problems.
 
-    In multiple regression, though, the $R^2$ has a flaw. Adding a regressor can never raise the sum of squared residuals, because OLS can always set the new coefficient to zero and do no worse. So the $R^2$ never falls when a regressor is added, even one that explains nothing. Judging a model by its $R^2$ alone would reward piling in useless variables.
+    In multiple regression, however, the $R^2$ has an important flaw. Adding a regressor can never increase the sum of squared residuals, because OLS can always set the new coefficient to zero and do no worse. As a result, the $R^2$ never falls when a regressor is added, even if that regressor explains nothing. Judging a model by its $R^2$ alone therefore rewards adding useless variables.
 
-    The *adjusted $R^2$* fixes this by charging a penalty for each regressor,
+    The *adjusted $R^2$* addresses this problem by penalizing the model for each regressor,
 
     $$
     \bar{R}^2 = 1 - \frac{n-1}{n-k-1}\cdot\frac{\mathrm{SSR}}{\mathrm{TSS}}.
     $$
 
-    The factor $\frac{n-1}{n-k-1}$ grows with $k$, so a regressor that barely reduces the sum of squared residuals lowers the adjusted $R^2$ rather than raising it. A falling adjusted $R^2$ is the signal that a regressor is not earning its place.
+    The factor $\frac{n-1}{n-k-1}$ grows with $k$, so a regressor must reduce the sum of squared residuals enough to offset the penalty. If it does not, the adjusted $R^2$ falls. A falling adjusted $R^2$ indicates that the added regressor has not improved the fit enough to justify the additional complexity.
 
-    The demonstration below makes the flaw concrete. Starting from the two-regressor model, the slider adds regressors that are pure noise, columns of random numbers drawn by the computer, one number per worker, with no connection to wages at all. The specification above the figure grows with each added column, and every noise column still nudges the $R^2$ upward. Watch what the adjusted $R^2$ does instead.
+    The demonstration below makes this flaw concrete. Starting from the two-regressor model, the slider adds independent variables that are pure noise. Each new variable is a set of random numbers drawn by the computer, one number per worker, with no connection to wages. Notice that each new variable of pure noise nudges the $R^2$ upward. Watch what happens to the adjusted $R^2$ instead.
     """)
     return
 
@@ -527,7 +543,7 @@ def _(mo):
 def _(mo):
     junk_slider = mo.ui.slider(
         start=0, stop=30, step=1, value=0,
-        label="Number of pure-noise regressors added",
+        label="Number of pure-noise independent variables added",
         show_value=True,
     )
     mo.vstack(
@@ -535,7 +551,7 @@ def _(mo):
             mo.md(
                 "Education and parental income stay in the regression. Each added "
                 "regressor is a fresh column of random numbers, one for each of the "
-                "200 workers."
+                "133 workers."
             ),
             junk_slider,
         ]
@@ -548,18 +564,18 @@ def _(alt, fit_path, junk_slider, mo):
     _k = int(junk_slider.value)
 
     if _k == 0:
-        _spec = r"Wage = \beta_0 + \beta_1\,Education + \beta_2\,PrntInc + u"
+        _spec = r"\text{wage} = \beta_0 + \beta_1\,\text{education} + \beta_2\,\text{parental income} + u"
     elif _k <= 3:
         _noise_terms = " + ".join(
             rf"\gamma_{{{_j}}}\,Noise_{{{_j}}}" for _j in range(1, _k + 1)
         )
         _spec = (
-            rf"Wage = \beta_0 + \beta_1\,Education + \beta_2\,PrntInc "
+            rf"\text{{wage}} = \beta_0 + \beta_1\,\text{{education}} + \beta_2\,\text{{parental income}} "
             rf"+ {_noise_terms} + u"
         )
     else:
         _spec = (
-            rf"Wage = \beta_0 + \beta_1\,Education + \beta_2\,PrntInc "
+            rf"\text{{wage}} = \beta_0 + \beta_1\,\text{{education}} + \beta_2\,\text{{parental income}} "
             rf"+ \gamma_1\,Noise_1 + \cdots + \gamma_{{{_k}}}\,Noise_{{{_k}}} + u"
         )
     _spec_md = mo.md(rf"$$ {_spec} $$")
@@ -574,7 +590,7 @@ def _(alt, fit_path, junk_slider, mo):
         .mark_line(size=2.5)
         .encode(
             x=alt.X("k:Q", title="Noise regressors added", scale=alt.Scale(domain=[0, 30], nice=False)),
-            y=alt.Y("value:Q", title=None, scale=alt.Scale(domain=[0.41, 0.55], nice=False)),
+            y=alt.Y("value:Q", title=None, scale=alt.Scale(domain=[0.33, 0.53], nice=False)),
             color=alt.Color(
                 "measure:N",
                 scale=alt.Scale(domain=["R²", "Adjusted R²"], range=["#1f4e79", "#f59e0b"]),
@@ -629,32 +645,7 @@ def _(alt, fit_path, junk_slider, mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    <a id="sec5"></a>
-    ## 5. The least squares assumptions with several regressors
-
-    The conditions for reading the OLS slopes as causal effects carry over from Lecture 6, with one addition, so there are four. The first three are the single-regressor assumptions restated for several regressors, and the fourth is new.
-
-    <a id="sec5a"></a>
-    ### <span style="color:#0b68cb">Least Squares Assumption 1: the conditional mean of $u$ given the regressors is zero</span>
-
-    The error must satisfy $\mathbb{E}[u \mid X_1, \dots, X_k] = 0$, the several-regressor version of *mean independence*. This is the assumption the whole lecture has been working to rescue. Each variable moved from the error into the regression is one fewer source of omitted variable bias, and Section 1's formula describes what happens to the slope when a relevant variable stays behind.
-
-    <a id="sec5b"></a>
-    ### <span style="color:#0b68cb">Least Squares Assumption 2: the data are i.i.d.</span>
-
-    The observations $(Y_i, X_{1i}, \dots, X_{ki})$ must be *independent and identically distributed* across $i$, which holds when the sample is drawn at random, as discussed in Lecture 6.
-
-    <a id="sec5c"></a>
-    ### <span style="color:#0b68cb">Least Squares Assumption 3: large outliers are unlikely</span>
-
-    No single observation should be able to dominate the estimates. As in Lecture 6, the practical advice is to plot the data and check extreme values before trusting a regression.
-
-    <a id="sec5d"></a>
-    ### <span style="color:#0b68cb">Least Squares Assumption 4: no perfect multicollinearity</span>
-
-    The new assumption rules out *perfect multicollinearity*, which arises when one regressor is an exact linear function of the others. Age and date of birth are an example. A person's age is fixed once the date of birth and today's date are set, so the two carry the same information. Asking for the effect of age while holding date of birth fixed has no meaning, because age cannot change with date of birth held constant. When two regressors are perfectly collinear, OLS cannot separate their coefficients and the estimates do not exist. The fix is to drop one of the redundant regressors.
-
-    Lecture 9 picks up from here, asking which regressors belong in the model, what happens when one regressor is nearly collinear with another, and how the hypothesis tests of Lecture 7 extend to several coefficients at once.
+    Lecture 9 picks up from here. It begins with the conditions under which the estimated coefficients of a multiple regression can be read as causal effects, and then turns to which regressors belong in the model and to testing hypotheses about the coefficients.
     """)
     return
 
@@ -666,13 +657,12 @@ def _(mo):
             "**Key terms covered:** omitted variable bias, multiple regression model, "
             "population regression function, ceteris paribus, ordinary least squares, "
             "predicted value, residual, standard error of the regression, R-squared, "
-            "adjusted R-squared, mean independence, perfect multicollinearity.\n\n"
+            "adjusted R-squared.\n\n"
             "**Key concepts covered:** why an omitted variable that moves with a regressor "
             "biases its slope, the multiple regression model and the ceteris paribus reading "
             "of each coefficient, OLS as minimizing the sum of squared residuals over all "
-            "the coefficients at once, why the R-squared never falls when a regressor is "
-            "added while the adjusted R-squared can, and the four least squares assumptions "
-            "including no perfect multicollinearity."
+            "the coefficients at once, and why the R-squared never falls when a regressor is "
+            "added while the adjusted R-squared can."
         ),
         kind="info",
     )
@@ -685,18 +675,20 @@ def _(mo):
     ---
 
     <span id="fn1" style="display:block;font-size:0.9rem;">**1.** A reminder from Lectures 2 and 3: $\sigma_X$ and $\sigma_u$ are the standard deviations of $X$ and of the error term $u$, each measuring the typical spread of its variable around its mean, and $\rho_{Xu}$ is the correlation between $X$ and $u$, the covariance rescaled to always lie between $-1$ and $1$. <a href="#fnref1" title="Back to text">&#8617;</a></span>
+
+    <span id="fn2" style="display:block;font-size:0.9rem;">**2.** To see why an adjustment is needed, think about fitting the single-regressor OLS line with only two data points. The line passes through both points exactly, so every residual is zero and the $R^2$ is 1, even though a perfect fit through two points says nothing about how tightly wages cluster around the population line. The fit is perfect only because the two estimated coefficients, the intercept and the slope, used up the two pieces of information in the sample, leaving $n - k - 1 = 0$ pieces for estimating the spread of the errors. Dividing by $n - k - 1$ rather than $n$ accounts for the information the estimated coefficients consume. <a href="#fnref2" title="Back to text">&#8617;</a></span>
     """)
     return
 
 
 @app.cell(hide_code=True)
 def _(np):
-    _rng = np.random.default_rng(111)
-    _n = 200
+    _rng = np.random.default_rng(131)
+    _n = 133
     educ = np.clip(_rng.normal(12.5, 3.5, _n), 2.0, 20.0)
     prnt = np.clip(20.0 + 4.0 * educ + _rng.normal(0.0, 15.0, _n), 0.0, None)
     wage = 5.0 + 1.20 * educ + 0.10 * prnt + _rng.normal(0.0, 6.0, _n)
-    noise = np.random.default_rng(546).normal(0.0, 1.0, (_n, 30))
+    noise = np.random.default_rng(375).normal(0.0, 1.0, (_n, 30))
     return educ, noise, prnt, wage
 
 

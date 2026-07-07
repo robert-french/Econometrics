@@ -40,11 +40,11 @@ def _(mo):
             mo.md("Control Variables and Inference"),
             mo.nav_menu(
                 {
-                    "#sec1": "1. Control variables",
-                    "#sec2": "2. Bad controls",
-                    "#sec3": "3. The variance of a coefficient with several regressors",
-                    "#sec4": "4. Testing a single coefficient",
-                    "#sec5": "5. Testing several coefficients at once",
+                    "#sec1": "1. The least squares assumptions with several regressors",
+                    "#sec2": "2. Control variables",
+                    "#sec3": "3. Bad controls",
+                    "#sec4": "4. The variance of a coefficient with several regressors",
+                    "#sec5": "5. Testing a single coefficient",
                 },
                 orientation="vertical",
             ),
@@ -85,11 +85,15 @@ def _(mo):
     mo.md(r"""
     ## Contents
 
-    [1. Control variables](#sec1)<br>
-    [2. Bad controls](#sec2)<br>
-    [3. The variance of a coefficient with several regressors](#sec3)<br>
-    [4. Testing a single coefficient](#sec4)<br>
-    [5. Testing several coefficients at once](#sec5)
+    [1. The least squares assumptions with several regressors](#sec1)<br>
+    &emsp;&emsp;[Least Squares Assumption 1: the conditional mean of u given the regressors is zero](#sec1a)<br>
+    &emsp;&emsp;[Least Squares Assumption 2: the data are i.i.d.](#sec1b)<br>
+    &emsp;&emsp;[Least Squares Assumption 3: large outliers are unlikely](#sec1c)<br>
+    &emsp;&emsp;[Least Squares Assumption 4: no perfect multicollinearity](#sec1d)<br>
+    [2. Control variables](#sec2)<br>
+    [3. Bad controls](#sec3)<br>
+    [4. The variance of a coefficient with several regressors](#sec4)<br>
+    [5. Testing a single coefficient](#sec5)
     """)
     return
 
@@ -98,7 +102,38 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec1"></a>
-    ## 1. Control variables
+    ## 1. The least squares assumptions with several regressors
+
+    Lecture 8 estimated regressions with several regressors but left a question open. Under what conditions can the estimated slopes be read as causal effects? The conditions carry over from Lecture 6, with one addition, so there are four. The first three are the single-regressor assumptions restated for several regressors, and the fourth is new.
+
+    <a id="sec1a"></a>
+    ### <span style="color:#0b68cb">Least Squares Assumption 1: the conditional mean of $u$ given the regressors is zero</span>
+
+    The error must satisfy $\mathbb{E}[u \mid X_1, \dots, X_k] = 0$, the several-regressor version of *mean independence*. This is the assumption Lecture 8 worked to rescue. Each variable moved from the error into the regression is one fewer source of omitted variable bias, and Lecture 8's omitted variable bias formula describes what happens to the slope when a relevant variable stays behind.
+
+    <a id="sec1b"></a>
+    ### <span style="color:#0b68cb">Least Squares Assumption 2: the data are i.i.d.</span>
+
+    The observations $(Y_i, X_{1i}, \dots, X_{ki})$ must be *independent and identically distributed* across $i$, which holds when the sample is drawn at random, as discussed in Lecture 6.
+
+    <a id="sec1c"></a>
+    ### <span style="color:#0b68cb">Least Squares Assumption 3: large outliers are unlikely</span>
+
+    No single observation should be able to dominate the estimates. As in Lecture 6, the practical advice is to plot the data and check extreme values before trusting a regression.
+
+    <a id="sec1d"></a>
+    ### <span style="color:#0b68cb">Least Squares Assumption 4: no perfect multicollinearity</span>
+
+    The new assumption rules out *perfect multicollinearity*, which arises when one regressor is an exact linear function of the others. Age and date of birth are an example. A person's age is fixed once the date of birth and today's date are set, so the two carry the same information. Asking for the effect of age while holding date of birth fixed has no meaning, because age cannot change with date of birth held constant. When two regressors are perfectly collinear, OLS cannot separate their coefficients and the estimates do not exist. The fix is to drop one of the redundant regressors.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    <a id="sec2"></a>
+    ## 2. Control variables
 
     Lecture 8 added regressors to clear the error of factors that would otherwise bias the slope. Often only one of those regressors is the effect we care about. We split the model into *variables of interest* $X_1, \dots, X_k$, whose causal effects we want, and *control variables* $W_1, \dots, W_r$, which we include only to hold other factors fixed,
 
@@ -106,9 +141,9 @@ def _(mo):
     Y_i = \beta_0 + \beta_1 X_{1i} + \dots + \beta_k X_{ki} + \beta_{k+1} W_{1i} + \dots + \beta_{k+r} W_{ri} + u_i.
     $$
 
-    A *control variable* is a regressor we add not for its own coefficient but to absorb something that would otherwise sit in the error and bias a variable of interest. In the test-score example, class size is the variable of interest and parental income is a control. We have no causal question about income. It is there so that class size is compared across districts with similar family backgrounds.
+    A *control variable* is a regressor we add not for its own coefficient but to absorb something that would otherwise sit in the error and bias a variable of interest. In the wage example from Lecture 8, education is the variable of interest and parental income is a control. We have no causal question about income. It is there so that education is compared across workers with similar family backgrounds.
 
-    Because we do not read the controls causally, they face a weaker requirement than the variables of interest. The first assumption becomes *conditional mean independence*,
+    Because we do not read the controls causally, they face a weaker requirement than the variables of interest. The first least squares assumption from Section 1 becomes *conditional mean independence*,
 
     $$
     \mathbb{E}[u \mid X_1, \dots, X_k, W_1, \dots, W_r] = \mathbb{E}[u \mid W_1, \dots, W_r].
@@ -122,8 +157,8 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    <a id="sec2"></a>
-    ## 2. Bad controls
+    <a id="sec3"></a>
+    ## 3. Bad controls
 
     Not every variable helps when added. A *bad control* is a variable on the causal path from the variable of interest to the outcome, called a *mediator*. Controlling for it blocks part of the very effect we are trying to measure.
     """)
@@ -243,10 +278,10 @@ def _(alt, bg, ctrl_spec, mo, np, occ, pd, school, wage):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    <a id="sec3"></a>
-    ## 3. The variance of a coefficient with several regressors
+    <a id="sec4"></a>
+    ## 4. The variance of a coefficient with several regressors
 
-    Each OLS coefficient is a random variable with its own sampling distribution. Under the assumptions from Lecture 8, every $\hat{\beta}_j$ is approximately normal in large samples, centered on $\beta_j$,
+    Each OLS coefficient is a random variable with its own sampling distribution. Under the assumptions from Section 1, every $\hat{\beta}_j$ is approximately normal in large samples, centered on $\beta_j$,
 
     $$
     \hat{\beta}_j \sim \mathcal{N}\left(\beta_j,\ \sigma^2_{\hat{\beta}_j}\right),
@@ -260,7 +295,7 @@ def _(mo):
 
     where $\rho_{X_1 X_2}$ is the correlation between the two regressors. The first and last factors are familiar from Lecture 7, since a larger sample and more spread in $X_1$ both shrink the variance. The middle factor is new. It is the *variance inflation* from *multicollinearity*, the degree to which the regressors move together.
 
-    When the regressors are uncorrelated, $\rho_{X_1 X_2} = 0$ and the middle factor is one. As they line up, $\rho^2_{X_1 X_2}$ approaches one and the factor grows without bound, so the variance explodes. The reason is that when $X_1$ and $X_2$ move together, the data hold little information about the effect of one while the other is held fixed, because the two are rarely seen apart. This is *imperfect multicollinearity*. The *perfect multicollinearity* ruled out in Lecture 8 is the limit $\rho^2_{X_1 X_2} = 1$, where the variance is infinite and the coefficients cannot be estimated at all.
+    When the regressors are uncorrelated, $\rho_{X_1 X_2} = 0$ and the middle factor is one. As they line up, $\rho^2_{X_1 X_2}$ approaches one and the factor grows without bound, so the variance explodes. The reason is that when $X_1$ and $X_2$ move together, the data hold little information about the effect of one while the other is held fixed, because the two are rarely seen apart. This is *imperfect multicollinearity*. The perfect multicollinearity ruled out in Section 1 is the limit $\rho^2_{X_1 X_2} = 1$, where the variance is infinite and the coefficients cannot be estimated at all.
 
     The plot below shows the correlation between two regressors next to the sampling distribution of $\hat{\beta}_1$. Raise the correlation and watch the estimates spread out.
     """)
@@ -368,8 +403,8 @@ def _(alt, mc_rho, mo, np, pd, stats):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    <a id="sec4"></a>
-    ## 4. Testing a single coefficient
+    <a id="sec5"></a>
+    ## 5. Testing a single coefficient
 
     Because each $\hat{\beta}_j$ is approximately normal, testing one coefficient works exactly as in Lecture 7. To test the null hypothesis that $\beta_j$ equals some value $\beta_{j, H_0}$, we form the *t-statistic*
 
@@ -379,16 +414,46 @@ def _(mo):
 
     which is standard normal under the null in large samples. The two-sided p-value is $2\Phi(-|t|)$, and we reject when it falls below the significance level. The most common null is that the coefficient is zero, meaning the regressor has no effect once the others are held fixed.
 
-    Take the class-size coefficient from Lecture 8, which was $-1.10$ with parental income controlled. Suppose its standard error is $0.43$. The t-statistic for the null of no effect is $t = -1.10 / 0.43 = -2.56$, and the p-value is $2\Phi(-2.56) \approx 0.01$. The estimate is about two and a half standard errors below zero, so we reject the null at the 5% level and conclude that class size matters for test scores once income is held fixed.
+    Take the education coefficient from Lecture 8, which was $1.22$ with parental income controlled. Suppose its standard error is $0.48$. The t-statistic for the null of no effect is $t = 1.22 / 0.48 = 2.54$, and the p-value is $2\Phi(-2.54) \approx 0.01$. The estimate is about two and a half standard errors above zero, so we reject the null at the 5% level and conclude that education matters for wages once parental income is held fixed.
     """)
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""
-    <a id="sec5"></a>
-    ## 5. Testing several coefficients at once
+    ell_rho = mo.ui.slider(
+        start=-0.9, stop=0.9, step=0.1, value=-0.8,
+        label="Correlation between the two coefficient estimates", show_value=True, full_width=True,
+    )
+    return (ell_rho,)
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.callout(
+        mo.md(
+            "**Key terms covered:** mean independence, perfect multicollinearity, control "
+            "variable, variable of interest, conditional mean independence, bad control, "
+            "mediator, multicollinearity, variance inflation, imperfect multicollinearity, "
+            "t-statistic.\n\n"
+            "**Key concepts covered:** the four least squares assumptions for regression with "
+            "several regressors including no perfect multicollinearity, a control variable "
+            "holds confounders fixed and need only satisfy conditional mean independence, a "
+            "bad control is a mediator that blocks part of the causal effect, how correlation "
+            "between regressors inflates a coefficient's variance, and testing one coefficient "
+            "with a t-test."
+        ),
+        kind="info",
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(alt, ell_rho, mo, np, pd, stats):
+    _ftest_md = mo.md(r"""
+    This appendix covers testing several coefficients at once and the origin of the variance-inflation factor from Section 4. You will not be tested on either.
+
+    **Testing several coefficients at once**
 
     Sometimes we want to test a claim about several coefficients together, such as whether two regressors both have zero effect. Running a separate t-test on each is not the same test, because each t-test ignores the other coefficient and the correlation between the two estimates. A *joint hypothesis* needs a single statistic that accounts for both at once.
 
@@ -400,28 +465,9 @@ def _(mo):
 
     where $t_1$ and $t_2$ are the individual t-statistics and $\hat{\rho}_{t_1 t_2}$ is the correlation between the two coefficient estimates. Under the null the F-statistic follows an $F_{q, \infty}$ distribution, where $q$ is the number of restrictions being tested, here two. We reject when $F$ is larger than the critical value, about $3.00$ for two restrictions at the 5% level. For a single restriction the F-statistic is just the square of the t-statistic, $F = t^2$, so the two tests agree. The same idea extends to the *overall regression F-statistic*, which tests that all the slope coefficients are zero at once.
 
-    The plot below shows why the joint test can differ from two separate ones. Move the correlation between the estimates and compare the joint confidence region with the two single-coefficient intervals.
+    The plot below shows why the joint test can differ from two separate ones. Both estimates are 1.5 with a standard error of 1.0, so each t-statistic is 1.5. Change how the estimates are correlated and compare the joint confidence region with the two single-coefficient intervals.
     """)
-    return
 
-
-@app.cell(hide_code=True)
-def _(mo):
-    ell_rho = mo.ui.slider(
-        start=-0.9, stop=0.9, step=0.1, value=-0.8,
-        label="Correlation between the two coefficient estimates", show_value=True, full_width=True,
-    )
-    mo.vstack(
-        [
-            mo.md("Both estimates are 1.5 with a standard error of 1.0, so each t-statistic is 1.5. Change how the estimates are correlated and watch the joint test."),
-            ell_rho,
-        ]
-    )
-    return (ell_rho,)
-
-
-@app.cell(hide_code=True)
-def _(alt, ell_rho, mo, np, pd, stats):
     _r = float(ell_rho.value)
     _b1 = _b2 = 1.5
     _se1 = _se2 = 1.0
@@ -497,33 +543,9 @@ def _(alt, ell_rho, mo, np, pd, stats):
         'font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;">'
         + _body + "</span>"
     )
-    mo.vstack([_chart, _caption])
-    return
 
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.callout(
-        mo.md(
-            "**Key terms covered:** control variable, variable of interest, conditional mean "
-            "independence, bad control, mediator, multicollinearity, variance inflation, "
-            "imperfect multicollinearity, t-statistic, joint hypothesis, F-statistic, overall "
-            "regression F-statistic.\n\n"
-            "**Key concepts covered:** a control variable holds confounders fixed and need only "
-            "satisfy conditional mean independence, a bad control is a mediator that blocks part "
-            "of the causal effect, how correlation between regressors inflates a coefficient's "
-            "variance, testing one coefficient with a t-test, and testing several coefficients at "
-            "once with an F-test."
-        ),
-        kind="info",
-    )
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    _appendix = mo.md(r"""
-    This appendix shows where the variance-inflation factor comes from. You will not be tested on it.
+    _vif_md = mo.md(r"""
+    ---
 
     **The variance of $\hat{\beta}_1$ with two regressors**
 
@@ -539,9 +561,11 @@ def _(mo):
     \operatorname{var}(\hat{\beta}_1) = \frac{1}{1 - \rho^2_{X_1 X_2}}\cdot\frac{\sigma_u^2}{\sum_{i=1}^{n}(X_{1i} - \hat{\mu}_{X_1})^2},
     $$
 
-    which is the formula in Section 3. The factor $1/(1 - \rho^2_{X_1 X_2})$ is the price of the two regressors sharing information.
+    which is the formula in Section 4. The factor $1/(1 - \rho^2_{X_1 X_2})$ is the price of the two regressors sharing information.
     """)
-    mo.accordion({"## Appendix": _appendix})
+    mo.accordion(
+        {"## Appendix": mo.vstack([_ftest_md, ell_rho, _chart, _caption, _vif_md])}
+    )
     return
 
 
