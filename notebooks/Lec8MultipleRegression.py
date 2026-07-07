@@ -13,7 +13,6 @@
 import marimo
 
 __generated_with = "0.23.9"
-__preliminary__ = True
 app = marimo.App(
     app_title="Lecture 8: Multiple Regression",
     css_file="marimo-overrides.css",
@@ -340,27 +339,12 @@ def _(
         _shown_ssr = _ssr
     _gz = (_c0 + _c1 * _xline[None, :]) + _c2 * _png[:, None]
     _line_y = (_c0 + _c2 * _pm) + _c1 * _xline
-    _fit_at_pts = _c0 + _c1 * educ + _c2 * prnt
-
-    _seg_x, _seg_y, _seg_z = [], [], []
-    for _xi, _yi, _zi, _fi in zip(educ, prnt, wage, _fit_at_pts):
-        _seg_x += [float(_xi), float(_xi), None]
-        _seg_y += [float(_yi), float(_yi), None]
-        _seg_z += [float(_zi), float(_fi), None]
 
     _fig = go.Figure()
     _fig.add_trace(
         go.Scatter3d(
             x=educ, y=prnt, z=wage, mode="markers",
             marker=dict(size=3, color="#1f4e79", opacity=0.5),
-        )
-    )
-    # Dashed residual sticks from each point down to the displayed surface.
-    _fig.add_trace(
-        go.Scatter3d(
-            x=_seg_x, y=_seg_y, z=_seg_z, mode="lines",
-            line=dict(color="#9aa5b1", width=2, dash="dash"),
-            hoverinfo="skip",
         )
     )
     _fig.add_trace(
@@ -550,8 +534,8 @@ def _(mo):
         [
             mo.md(
                 "Education and parental income stay in the regression. Each added "
-                "regressor is a fresh column of random numbers, one for each of the "
-                "133 workers."
+                "variable is pure noise, a fresh set of random numbers, one for "
+                "each of the 133 workers."
             ),
             junk_slider,
         ]
@@ -589,7 +573,7 @@ def _(alt, fit_path, junk_slider, mo):
         alt.Chart(_shown)
         .mark_line(size=2.5)
         .encode(
-            x=alt.X("k:Q", title="Noise regressors added", scale=alt.Scale(domain=[0, 30], nice=False)),
+            x=alt.X("k:Q", title="Noise variables added", scale=alt.Scale(domain=[0, 30], nice=False)),
             y=alt.Y("value:Q", title=None, scale=alt.Scale(domain=[0.33, 0.53], nice=False)),
             color=alt.Color(
                 "measure:N",
@@ -624,14 +608,13 @@ def _(alt, fit_path, junk_slider, mo):
             rf"nearly agree because the penalty for two regressors is small."
         )
     else:
-        _noun = "column" if _k == 1 else "columns"
+        _noun = "variable" if _k == 1 else "variables"
         _body = (
-            rf"With {_k} {_noun} of pure noise added, the $R^2$ has climbed to "
+            rf"With {_k} pure-noise {_noun} added, the $R^2$ has climbed to "
             rf"{_row['r2']:.3f} while the adjusted $R^2$ has slipped to {_row['adj']:.3f}. "
             rf"The standard error of the regression has crept from {_base['ser']:.2f} up "
             rf"to {_row['ser']:.2f} dollars, and the education slope still sits near its "
-            rf"two-regressor value (currently {_row['b_educ']:.2f}). The noise explains "
-            rf"nothing, and only the adjusted $R^2$ says so."
+            rf"two-regressor value (currently {_row['b_educ']:.2f})."
         )
     _caption = mo.md(
         '<span style="display:block;margin:0.2rem auto 1rem;max-width:560px;'
@@ -644,25 +627,19 @@ def _(alt, fit_path, junk_slider, mo):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""
-    Lecture 9 picks up from here. It begins with the conditions under which the estimated coefficients of a multiple regression can be read as causal effects, and then turns to which regressors belong in the model and to testing hypotheses about the coefficients.
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
     mo.callout(
         mo.md(
-            "**Key terms covered:** omitted variable bias, multiple regression model, "
-            "population regression function, ceteris paribus, ordinary least squares, "
-            "predicted value, residual, standard error of the regression, R-squared, "
-            "adjusted R-squared.\n\n"
-            "**Key concepts covered:** why an omitted variable that moves with a regressor "
-            "biases its slope, the multiple regression model and the ceteris paribus reading "
-            "of each coefficient, OLS as minimizing the sum of squared residuals over all "
-            "the coefficients at once, and why the R-squared never falls when a regressor is "
-            "added while the adjusted R-squared can."
+            "**Key terms covered:** omitted variable bias, multiple-variable regression "
+            "model, ordinary least squares, fitted value, residual, sum of squared "
+            "residuals, standard error of the regression, R-squared, adjusted R-squared.\n\n"
+            "**Key concepts covered:** why an omitted variable that affects the outcome and "
+            "varies systematically with a regressor biases the OLS slope, reading the "
+            "direction of the bias off the correlation between the regressor and the error, "
+            "holding included variables fixed as the repair for omitted variable bias, OLS "
+            "as choosing all the coefficients at once to minimize the sum of squared "
+            "residuals, why the R-squared never falls when a variable is added while the "
+            "adjusted R-squared can, and why a variable can matter for the causal story "
+            "while barely improving the fit."
         ),
         kind="info",
     )
@@ -676,7 +653,7 @@ def _(mo):
 
     <span id="fn1" style="display:block;font-size:0.9rem;">**1.** A reminder from Lectures 2 and 3: $\sigma_X$ and $\sigma_u$ are the standard deviations of $X$ and of the error term $u$, each measuring the typical spread of its variable around its mean, and $\rho_{Xu}$ is the correlation between $X$ and $u$, the covariance rescaled to always lie between $-1$ and $1$. <a href="#fnref1" title="Back to text">&#8617;</a></span>
 
-    <span id="fn2" style="display:block;font-size:0.9rem;">**2.** To see why an adjustment is needed, think about fitting the single-regressor OLS line with only two data points. The line passes through both points exactly, so every residual is zero and the $R^2$ is 1, even though a perfect fit through two points says nothing about how tightly wages cluster around the population line. The fit is perfect only because the two estimated coefficients, the intercept and the slope, used up the two pieces of information in the sample, leaving $n - k - 1 = 0$ pieces for estimating the spread of the errors. Dividing by $n - k - 1$ rather than $n$ accounts for the information the estimated coefficients consume. <a href="#fnref2" title="Back to text">&#8617;</a></span>
+    <span id="fn2" style="display:block;font-size:0.9rem;">**2.** To see why an adjustment is needed, think about fitting the single-regressor OLS line with only two data points. The line passes through both points exactly, so every residual is zero and the $R^2$ is 1, even though a perfect fit through two points says nothing about how tightly wages cluster around the population line. The fit is perfect only because the two estimated coefficients, the intercept and the slope, used up the two pieces of information in the sample, leaving $n - k - 1 = 0$ pieces for estimating the spread of the errors. Dividing by $n - k - 1$ rather than $n$ accounts for the information the estimated coefficients use up. <a href="#fnref2" title="Back to text">&#8617;</a></span>
     """)
     return
 
