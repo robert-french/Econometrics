@@ -181,31 +181,64 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec3"></a>
+
     ## 3. Estimating the model with OLS
 
-    The estimator is the one from Lecture 5 with more dials to turn. *Ordinary least squares* picks the intercept and slopes $\hat{\beta}_0, \hat{\beta}_1, \dots, \hat{\beta}_k$ that minimize the sum of squared residuals,
+    The multiple regression model contains more unknown parameters than the single-variable model. Instead of estimating only an intercept and one slope, we now estimate an intercept and one slope for each independent variable,
+
+    $$
+    Y_i = \beta_0 + \beta_1 X_{1i} + \dots + \beta_k X_{ki} + u_i.
+    $$
+
+    If we knew the values of $\beta_0, \beta_1, \dots, \beta_k$, we would know the population regression function, and thus the causal impact of each $X_{j}$ on $Y$. In practice, we only have a sample. We therefore use the sample to estimate these unknown parameters.
+
+    The basic idea is the same as in the single-variable case. Ordinary least squares chooses the coefficients that make the model's predictions come as close as possible to the observed outcomes. The only difference is that the predicted value now depends on several independent variables instead of one. For any candidate values $b_0, b_1, \dots, b_k$, the predicted value of $Y$ for observation $i$ is $b_0 + b_1 X_{1i} + \dots + b_k X_{ki}$, so the residual is
+
+    $$
+    Y_i - b_0 - b_1 X_{1i} - \dots - b_k X_{ki}.
+    $$
+
+    A set of coefficients fits the sample well when these residuals are small. As before, some residuals are positive and some are negative, so we square them before adding them up. Ordinary least squares chooses the intercept and slopes $\hat{\beta}_0, \hat{\beta}_1, \dots, \hat{\beta}_k$ that minimize the sum of squared residuals,
 
     $$
     \min_{b_0, b_1, \dots, b_k} \sum_{i=1}^{n} \left( Y_i - b_0 - b_1 X_{1i} - \dots - b_k X_{ki} \right)^2.
     $$
 
-    The *predicted value* for observation $i$ is $\hat{Y}_i = \hat{\beta}_0 + \hat{\beta}_1 X_{1i} + \dots + \hat{\beta}_k X_{ki}$, and the *residual* is the gap between the actual and the predicted outcome, $\hat{u}_i = Y_i - \hat{Y}_i$.
-
-    With one regressor OLS turns two dials, the intercept and the slope. With two regressors it turns three. In the worker data, regressing hourly wages on years of education alone gives
+    Once OLS has chosen these coefficients, the fitted value for observation $i$ is
 
     $$
-    \widehat{Wage} = 7.2 + 1.63 \, Education.
+    \hat{Y}_i = \hat{\beta}_0 + \hat{\beta}*1 X*{1i} + \dots + \hat{\beta}*k X*{ki},
+    $$
+
+    and the OLS residual is the gap between the actual and fitted outcome,
+
+    $$
+    \hat{u}_i = Y_i - \hat{Y}_i.
+    $$
+
+    ### <span style="color:#0b68cb">Earnings and education example continued</span>
+
+    We can see what changes when we add another independent variable by returning to the wage example. As is shown in the plots following this discussion, regressing hourly wages on years of education alone in our example data gives
+
+    $$
+    \widehat{\text{Wage}} = 7.2 + 1.63 \cdot \text{Education}.
     $$
 
     Adding parental income, measured in thousands of dollars, gives
 
     $$
-    \widehat{Wage} = 5.2 + 1.22 \, Education + 0.10 \, PrntInc.
+    \widehat{\text{Wage}} = 5.2 + 1.22 \cdot \text{Education} + 0.10 \cdot \text{Parental income}.
     $$
 
-    The education coefficient falls from $1.63$ to $1.22$, a quarter of the estimated return gone. This is the omitted variable bias of Section 1 being removed. Parental income raises wages and is higher for workers with more schooling, so the single-variable slope credited education with part of what was really the effect of family resources. The income coefficient says that among workers with the same education, each additional thousand dollars of parental income goes with 10 more cents an hour, or one dollar an hour for each additional ten thousand dollars.
+    The education coefficient falls from $1.63$ to $1.22$, reducing the estimated return by about one quarter. This is what we would expect if parental income was one source of omitted variable bias in the single-variable regression. Parental income raises wages and is higher, on average, for workers with more schooling. When parental income was omitted, the single-variable slope attributed to education part of the wage difference that was really associated with family resources.
 
-    The figure below turns the minimization into a game. The three sliders are the dials, one for each coefficient, and the plane moves as you set them. The bar beside the plane keeps score by measuring the sum of squared residuals your plane leaves, and the dashed marker on the bar is the smallest score any plane can reach. Try to drive the bar down to the marker, then tick the box to jump the dials to the values OLS picks. The flat panel underneath shows what the plane on screen implies for a worker with average parental income, drawn against the dashed single-regressor line.
+    The parental income coefficient says that, among workers with the same education, each additional thousand dollars of parental income is associated with 10 cents more in hourly wages on average. Equivalently, an additional ten thousand dollars of parental income is associated with one dollar more per hour on average.
+
+    Just like in the single-variable regression, there is an important distinction between interpreting the population coefficient and interpreting the OLS estimate. In the population model, $\beta_1$ describes the causal effect of education only under the thought experiment of changing education while holding fixed the other determinants of wages in $u_i$. In an OLS regression, however, we do not observe or hold fixed the remaining determinants in $u_i$, such as ability, ambition, health, school quality, or luck. What we can hold fixed are the variables included in the regression. After adding parental income, the education coefficient is estimated by comparing workers with the same parental income. This removes parental income from the error term, but any remaining omitted determinants in $u_i$ could still create omitted variable bias if they vary systematically with education.
+
+    The figure below illustrates the OLS minimization problem. The three sliders let you choose the intercept, the education slope, and the parental-income slope. As you move them, the flat surface in the three-dimensional plot moves too. This flat surface is the multiple regression version of a fitted line. For each worker, it gives the wage predicted by that worker’s education and parental income. The goal is to choose the coefficients that make the vertical gaps between the points and the surface as small as possible. The bar beside the plot measures the sum of squared residuals, and the dashed marker shows the smallest value OLS can achieve. Move the sliders to see how different coefficient choices affect the sum of squared residuals, then tick the box to show the coefficients OLS chooses.
+
+    The two-dimensional plot directly underneath shows the education-wage relationship implied by the multiple regression model when parental income is held fixed at its average value. This line differs from the single-variable OLS line because the multiple regression coefficient on education is estimated after accounting for parental income. Notice that the single-variable OLS line is steeper than the coefficient on education in the multiple-variable regression model. Can you explain why the slopes differ using the omitted variable bias formula from Section 1?
     """)
     return
 
@@ -260,7 +293,7 @@ def _(get_ols_box, mo, ols_dials, set_coefs, set_ols_box):
 
     ols_box = mo.ui.checkbox(
         value=get_ols_box(),
-        label="Show the OLS plane instead of yours",
+        label="Show the OLS surface instead of yours",
         on_change=_toggle,
     )
     return (ols_box,)
@@ -270,12 +303,6 @@ def _(get_ols_box, mo, ols_dials, set_coefs, set_ols_box):
 def _(b0_slider, b1_slider, b2_slider, mo, ols_box):
     mo.vstack(
         [
-            mo.md(
-                "Move the three dials to fit the plane to the cloud. The bar "
-                "keeps score, and lower is better. Drag the 3D view to rotate "
-                "it. Ticking the box jumps the dials to the OLS values, and "
-                "moving any dial afterward hands the plane back to you."
-            ),
             b0_slider,
             b1_slider,
             b2_slider,
@@ -401,32 +428,35 @@ def _(
         .encode(x="x:Q", y="y:Q")
     )
     _chart2d = alt.layer(_scatter, _simple_line, _plane_line).properties(
-        width=560, height=280, title="The flat view at average parental income",
+        width=560, height=280, title="Education-Wage Relationship Holding Parental Income Fixed",
     )
 
     if _box:
         _body = (
-            f"The plane on screen is now the OLS fit, {b_multi[0]:.1f} "
-            f"{b_multi[1]:+.2f} Education {b_multi[2]:+.2f} PrntInc, and no other plane "
-            f"beats its sum of squared residuals of {ssr_min:,.0f}, so the bar sits "
-            f"exactly on the dashed marker. In the flat panel its slice at average income "
-            f"runs flatter than the dashed single-regressor line, and the paragraph below "
-            f"explains why the two disagree. The dials have jumped to the OLS values, and "
-            f"moving any of them hands the plane back to you."
+            f"The flat surface on screen is now the OLS fit, {b_multi[0]:.1f} "
+            f"{b_multi[1]:+.2f} Education {b_multi[2]:+.2f} Parental income. No other "
+            f"flat surface has a lower sum of squared residuals than {ssr_min:,.0f}, so "
+            f"the bar sits exactly on the dashed marker. In the two-dimensional plot below, "
+            f"the education-wage line holding parental income fixed at its average value is "
+            f"flatter than the dashed single-regressor line.  "
+            f"The sliders have jumped to the OLS values. Moving "
+            f"any slider lets you choose the coefficients again."
         )
     elif _ssr <= ssr_min * 1.02:
         _body = (
-            f"Your plane's score of {_ssr:,.0f} is within two percent of the minimum "
-            f"{ssr_min:,.0f}, so you have essentially found the OLS fit. OLS settles on "
-            f"{b_multi[0]:.1f}, {b_multi[1]:+.2f}, and {b_multi[2]:+.2f}. Tick the box to "
-            f"jump the dials there."
+            f"The current sum of squared residuals is {_ssr:,.0f}, which is within two "
+            f"percent of the minimum value, {ssr_min:,.0f}. You have therefore come very "
+            f"close to the OLS fit. OLS chooses coefficients of {b_multi[0]:.1f}, "
+            f"{b_multi[1]:+.2f}, and {b_multi[2]:+.2f}. Tick the box to move the sliders "
+            f"to those OLS values."
         )
     else:
         _body = (
-            f"Your plane leaves a sum of squared residuals of {_ssr:,.0f}, which is "
-            f"{_gap:,.0f} above the smallest any plane can manage. In the flat panel the "
-            f"dashed single-regressor line stays put while the orange line moves with "
-            f"your dials."
+            f"The current sum of squared residuals is {_ssr:,.0f}, which is "
+            f"{_gap:,.0f} above the smallest value OLS can achieve. In the "
+            f"two-dimensional plot below, the dashed single-regressor line stays fixed, "
+            f"while the education-wage line from the multiple regression model moves as "
+            f"you change the coefficient sliders."
         )
     _caption = mo.md(
         '<span style="display:block;margin:0.2rem auto 1rem;max-width:620px;'
@@ -444,14 +474,6 @@ def _(
         ],
         align="center",
     )
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    Tick the box and the flat panel shows two least squares fits at once, and they disagree. The disagreement is Section 1 playing out on screen. The dashed line is the single-regressor fit from the first equation above, with a slope of $1.63$ dollars per year of education. In that regression parental income sits in the error, and education is correlated with it, because workers with more education grew up in richer families. That is exactly the failure of $\mathbb{E}[u \mid X] = 0$ that Section 1 described, so the dashed slope carries omitted variable bias. The orange slice of the plane holds parental income fixed instead. The correlation that produced the bias is switched off, and the slope falls to $1.22$. The gap of $0.41$ dollars per year is the bias itself, the income coefficient $0.10$ times the $4.1$ slope from regressing parental income on education, just as the formula in Section 1 predicts (the appendix derives the product). Neither line is a mistake. The dashed line answers ''how do wages move with education, letting parental income drift the way it drifts in the data''. The slice answers ''how do wages move with education among workers with the same parental income''. Only the second reading is safe from the omitted variable.
-    """)
     return
 
 
