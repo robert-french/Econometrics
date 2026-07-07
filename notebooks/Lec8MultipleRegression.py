@@ -13,6 +13,7 @@
 import marimo
 
 __generated_with = "0.23.9"
+__preliminary__ = True
 app = marimo.App(
     app_title="Lecture 8: Multiple Regression",
     css_file="marimo-overrides.css",
@@ -117,10 +118,10 @@ def _(mo):
     When the error is correlated with $X$, the slope estimate does not converge to $\beta_1$. Instead,
 
     $$
-    \hat{\beta}_1 \overset{p}{\to} \beta_1 + \underbrace{\operatorname{corr}(X,u)\cdot\frac{\sigma_u}{\sigma_X}}_{\text{bias}}.
+    \hat{\beta}_1 \overset{p}{\to} \beta_1 + \underbrace{\rho_{Xu}\cdot\frac{\sigma_u}{\sigma_X}}_{\text{bias}}.
     $$
 
-    The second term is the *omitted variable bias*. Its sign is determined by the sign of the correlation between $X$ and the error term, $u$. Its size grows as that correlation becomes stronger, the variance of $u$ becomes larger, or the variance of $X$ becomes smaller.
+    The second term is the *omitted variable bias*.<sup><a id="fnref1" href="#fn1">1</a></sup> Its sign is determined by the sign of the correlation between $X$ and the error term, $u$. Its size grows as that correlation becomes stronger, the variance of $u$ becomes larger, or the variance of $X$ becomes smaller.
 
     Not every omitted variable creates omitted variable bias. An omitted variable matters only if it affects $Y$ and varies systematically with $X$. In the wage example, ability and family resources likely satisfy both conditions. They affect wages, so they belong in the error term if omitted. They are also likely to be positively related to education. As a result, education is positively correlated with the error term, so $\rho_{Xu} > 0$. The estimated return to schooling is therefore *biased upward* because education receives credit for part of the wage difference that is really due to ability and family background. If the error were negatively correlated with education instead, so that $\rho_{Xu} < 0$, the estimated return to schooling would be *biased downward*.
 
@@ -675,6 +676,16 @@ def _(mo):
         ),
         kind="info",
     )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ---
+
+    <span id="fn1" style="display:block;font-size:0.9rem;">**1.** A reminder from Lectures 2 and 3: $\sigma_X$ and $\sigma_u$ are the standard deviations of $X$ and of the error term $u$, each measuring the typical spread of its variable around its mean, and $\rho_{Xu}$ is the correlation between $X$ and $u$, the covariance rescaled to always lie between $-1$ and $1$. <a href="#fnref1" title="Back to text">&#8617;</a></span>
+    """)
     return
 
 
