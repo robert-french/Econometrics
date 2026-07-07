@@ -40,7 +40,7 @@ def _(mo):
             mo.nav_menu(
                 {
                     "#sec1": "1. Omitted variable bias",
-                    "#sec2": "2. The multiple regression model",
+                    "#sec2": "2. The multiple-variable regression model",
                     "#sec3": "3. Estimating the model with OLS",
                     "#sec4": "4. Measures of fit",
                 },
@@ -84,7 +84,7 @@ def _(mo):
     ## Contents
 
     [1. Omitted variable bias](#sec1)<br>
-    [2. The multiple regression model](#sec2)<br>
+    [2. The multiple-variable regression model](#sec2)<br>
     [3. Estimating the model with OLS](#sec3)<br>
     [4. Measures of fit](#sec4)
     """)
@@ -128,7 +128,7 @@ def _(mo):
     mo.md(r"""
     <a id="sec2"></a>
 
-    ## 2. The multiple regression model
+    ## 2. The multiple-variable regression model
 
     A single-variable regression relates an outcome to one independent variable. A multiple-variable regression model relates the outcome to several independent variables at the same time,
 
@@ -178,7 +178,7 @@ def _(mo):
 
     ## 3. Estimating the model with OLS
 
-    The multiple regression model contains more unknown parameters than the single-variable model. Instead of estimating only an intercept and one slope, we now estimate an intercept and one slope for each independent variable,
+    The multiple-variable regression model contains more unknown parameters than the single-variable model. Instead of estimating only an intercept and one slope, we now estimate an intercept and one slope for each independent variable,
 
     $$
     Y_i = \beta_0 + \beta_1 X_{1i} + \dots + \beta_k X_{ki} + u_i.
@@ -192,7 +192,7 @@ def _(mo):
     Y_i - b_0 - b_1 X_{1i} - \dots - b_k X_{ki}.
     $$
 
-    A set of coefficients fits the sample well when these residuals are small. As before, some residuals are positive and some are negative, so we square them before adding them up. Ordinary least squares chooses the intercept and slopes $\hat{\beta}_0, \hat{\beta}_1, \dots, \hat{\beta}_k$ that minimize the sum of squared residuals,
+    A set of coefficients fits the sample well when these residuals are small. As before, some residuals are positive and some are negative, so we square them before adding them up. Ordinary least squares chooses the intercept and slopes $\hat{\beta}_0, \hat{\beta}_1, \dots, \hat{\beta}_k$ that minimize the sum of squared residuals (SSR),
 
     $$
     \min_{b_0, b_1, \dots, b_k} \sum_{i=1}^{n} \left( Y_i - b_0 - b_1 X_{1i} - \dots - b_k X_{ki} \right)^2.
@@ -230,7 +230,7 @@ def _(mo):
 
     Just like in the single-variable regression, there is an important distinction between interpreting the population coefficient and interpreting the OLS estimate. In the population model, $\beta_1$ describes the causal effect of education only under the thought experiment of changing education while holding fixed the other determinants of wages in $u_i$. In an OLS regression, however, we do not observe or hold fixed the remaining determinants in $u_i$, such as ability, ambition, health, school quality, or luck. What we can hold fixed are the variables included in the regression. After adding parental income, the education coefficient is estimated by comparing workers with the same parental income. This removes parental income from the error term, but any remaining omitted determinants in $u_i$ could still create omitted variable bias if they vary systematically with education.
 
-    The figure below illustrates the OLS minimization problem. The three sliders let you choose the intercept, the education slope, and the parental-income slope. As you move them, the flat surface in the three-dimensional plot moves too. This flat surface is the multiple regression version of a fitted line. For each worker, it gives the wage predicted by that worker’s education and parental income. The goal is to choose the coefficients that make the vertical gaps between the points and the surface as small as possible. The bar beside the plot measures the sum of squared residuals, and the dashed marker shows the smallest value OLS can achieve. Move the sliders to see how different coefficient choices affect the sum of squared residuals, then tick the box to show the coefficients OLS chooses.
+    The figure below illustrates the OLS minimization problem. The three sliders let you choose the intercept, the education slope, and the parental-income slope. As you move them, the flat surface in the three-dimensional plot moves too. This flat surface is the multiple-variable regression version of a fitted line. For each worker, it gives the wage predicted by that worker’s education and parental income. The goal is to choose the coefficients that make the vertical gaps between the points and the surface as small as possible. The bar beside the plot measures the sum of squared residuals, and the dashed marker shows the smallest value OLS can achieve. Move the sliders to see how different coefficient choices affect the sum of squared residuals, then tick the box to show the coefficients OLS chooses.
     """)
     return
 
@@ -455,7 +455,7 @@ def _(
             f"The current sum of squared residuals is {_ssr:,.0f}, which is "
             f"{_gap:,.0f} above the smallest value OLS can achieve. In the "
             f"two-dimensional plot, the dashed single-regressor line stays fixed, "
-            f"while the education-wage line from the multiple regression model moves as "
+            f"while the education-wage line from the multiple-variable regression model moves as "
             f"you change the coefficient sliders."
         )
     _caption = mo.md(
@@ -480,7 +480,7 @@ def _(
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    The two-dimensional plot directly above shows the education-wage relationship implied by the multiple regression model when parental income is held fixed at its average value. This line differs from the dashed single-variable OLS line because the multiple regression coefficient on education is estimated after accounting for parental income. Notice that the single-variable OLS line is steeper than the coefficient on education in the multiple-variable regression model. Can you explain why the slopes differ using the omitted variable bias formula from Section 1?
+    The two-dimensional plot directly above shows the education-wage relationship implied by the multiple-variable regression model when parental income is held fixed at its average value. This line differs from the dashed single-variable OLS line because the multiple-variable regression coefficient on education is estimated after accounting for parental income. Notice that the single-variable OLS line is steeper than the coefficient on education in the multiple-variable regression model. Can you explain why the slopes differ using the omitted variable bias formula from Section 1?
     """)
     return
 
@@ -709,19 +709,41 @@ def _(educ, noise, np, pd, prnt, wage):
 @app.cell(hide_code=True)
 def _(mo):
     _appendix = mo.md(r"""
-    This appendix shows where the omitted variable bias formula comes from. You will not be tested on it.
+    This appendix shows how to work out, in advance, the direction in which a slope will move when a second independent variable joins the regression. You will not be tested on it.
 
-    **Omitted variable bias as a product of two regressions**
+    **The sign of the change in the slope**
 
-    Suppose the model with both regressors is $Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + u$, but we leave out $X_2$ and regress $Y$ on $X_1$ alone. Write the auxiliary regression of the omitted regressor on the included one as $X_2 = \delta_0 + \delta_1 X_1 + v$, where $\delta_1$ measures how the two move together. Substituting for $X_2$ gives
+    In Section 3 the education slope moved from $1.63$ in the single-variable regression to $1.22$ once parental income was added. We can derive the direction of that change in advance. Compare the two fitted regressions,
 
     $$
-    Y = (\beta_0 + \beta_2 \delta_0) + (\beta_1 + \beta_2 \delta_1) X_1 + (\beta_2 v + u).
+    \widehat{Y} = \hat{\beta}_0^{\text{single}} + \hat{\beta}_1^{\text{single}} X_1
+    \qquad \text{and} \qquad
+    \widehat{Y} = \hat{\beta}_0 + \hat{\beta}_1 X_1 + \hat{\beta}_2 X_2,
     $$
 
-    The single-variable regression of $Y$ on $X_1$ therefore estimates the combined slope $\beta_1 + \beta_2 \delta_1$, not $\beta_1$ on its own. The bias is $\beta_2 \delta_1$, the effect of the omitted variable times its relationship with the included one.
+    where the superscript marks the single-variable estimates. Now run one more regression, this time of the added variable on the original one,
 
-    In the worker data both pieces can be estimated. The income coefficient in the two-regressor fit is $0.10$, and regressing parental income on years of education gives an auxiliary slope of $\hat{\delta}_1 = 4.1$, because more educated workers come from richer families. Their product is $0.10 \times 4.1 \approx 0.41$, which is exactly the gap between the single-variable slope $1.63$ and the held-income slope $1.22$.
+    $$
+    \widehat{X}_2 = \hat{\delta}_0 + \hat{\delta}_1 X_1,
+    $$
+
+    so that $\hat{\delta}_1$ measures how strongly the added variable moves with the original one in the sample. The three regressions are linked by an exact identity,
+
+    $$
+    \hat{\beta}_1^{\text{single}} = \hat{\beta}_1 + \hat{\beta}_2\,\hat{\delta}_1.
+    $$
+
+    The single-variable slope equals the multiple-variable slope plus the product of two quantities, the coefficient on the added variable and the slope from regressing the added variable on the original one. Adding $X_2$ therefore changes the slope on $X_1$ by $\hat{\beta}_2\,\hat{\delta}_1$. The sign follows from the two pieces. If $\hat{\beta}_2$ and $\hat{\delta}_1$ share a sign, the product is positive and adding $X_2$ pulls the slope down. If they have opposite signs, adding $X_2$ pushes the slope up. If either is zero, the slope does not move at all.
+
+    In the worker data both pieces are positive. The parental-income coefficient is $\hat{\beta}_2 = 0.10$, and regressing parental income on years of education gives $\hat{\delta}_1 = 4.1$, because more educated workers come from richer families. Their product is $0.10 \times 4.1 \approx 0.41$, exactly the drop from $1.63$ to $1.22$.
+
+    Where does the identity come from? Take the fitted two-variable regression and substitute for $X_2$ using the third regression, $X_2 = \hat{\delta}_0 + \hat{\delta}_1 X_1 + \hat{v}$, where $\hat{v}$ is its residual,
+
+    $$
+    Y = (\hat{\beta}_0 + \hat{\beta}_2 \hat{\delta}_0) + (\hat{\beta}_1 + \hat{\beta}_2 \hat{\delta}_1) X_1 + (\hat{\beta}_2 \hat{v} + \hat{u}).
+    $$
+
+    Both $\hat{v}$ and $\hat{u}$ are OLS residuals that do not move with $X_1$ in the sample, so regressing $Y$ on $X_1$ alone recovers the combined slope $\hat{\beta}_1 + \hat{\beta}_2\,\hat{\delta}_1$, which is the identity.
     """)
     mo.accordion({"## Appendix": _appendix})
     return
