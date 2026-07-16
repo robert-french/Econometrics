@@ -86,10 +86,6 @@ def _(mo):
     ## Contents
 
     [1. The least squares assumptions with several regressors](#sec1)<br>
-    &emsp;&emsp;[Least Squares Assumption 1: the conditional mean of u given the regressors is zero](#sec1a)<br>
-    &emsp;&emsp;[Least Squares Assumption 2: the data are i.i.d.](#sec1b)<br>
-    &emsp;&emsp;[Least Squares Assumption 3: large outliers are unlikely](#sec1c)<br>
-    &emsp;&emsp;[Least Squares Assumption 4: no perfect multicollinearity](#sec1d)<br>
     [2. Control variables](#sec2)<br>
     [3. Bad controls](#sec3)<br>
     [4. The variance of a coefficient with several regressors](#sec4)<br>
@@ -160,20 +156,37 @@ def _(mo):
     <a id="sec3"></a>
     ## 3. Bad controls
 
-    Not every variable helps when added. A *bad control* is a variable on the causal path from the variable of interest to the outcome, called a *mediator*. Controlling for it blocks part of the very effect we are trying to measure.
+    Adding a control does not always help. A *bad control* is a regressor that sits on the causal path from the variable of interest to the outcome, a variable that the variable of interest affects and that in turn affects the outcome. Such a variable is called a *mediator*, because the effect passes through it. Holding a mediator fixed blocks part of the very effect we are trying to measure.
     """)
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.mermaid(
-        """
-        graph LR
-            X[Schooling] -->|mediated path| W[Occupation]
-            W --> Y[Wage]
-            X -->|direct path| Y
-        """
+    mo.md(
+        r"""
+    <div style="max-width:560px;margin:1.25rem auto;">
+    <svg viewBox="0 0 560 240" width="100%" font-family="system-ui, sans-serif" role="img" aria-label="Schooling raises wages directly and through occupation, which is a bad control">
+      <defs>
+        <marker id="bcarrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#64748b"></path>
+        </marker>
+      </defs>
+      <rect x="210" y="20" width="140" height="52" rx="9" fill="#fbe9e7" stroke="#c0392b" stroke-width="2"></rect>
+      <text x="280" y="50" text-anchor="middle" font-size="15" font-weight="600" fill="#c0392b">Occupation</text>
+      <text x="280" y="92" text-anchor="middle" font-size="12.5" font-style="italic" fill="#c0392b">bad control (mediator)</text>
+      <rect x="20" y="150" width="140" height="52" rx="9" fill="#e8f0f9" stroke="#1f4e79" stroke-width="2"></rect>
+      <text x="90" y="182" text-anchor="middle" font-size="15" font-weight="600" fill="#1f4e79">Schooling</text>
+      <rect x="400" y="150" width="140" height="52" rx="9" fill="#e8f0f9" stroke="#1f4e79" stroke-width="2"></rect>
+      <text x="470" y="182" text-anchor="middle" font-size="15" font-weight="600" fill="#1f4e79">Wage</text>
+      <line x1="150" y1="150" x2="214" y2="70" stroke="#64748b" stroke-width="2" marker-end="url(#bcarrow)"></line>
+      <line x1="346" y1="70" x2="410" y2="150" stroke="#64748b" stroke-width="2" marker-end="url(#bcarrow)"></line>
+      <text x="280" y="128" text-anchor="middle" font-size="12.5" fill="#64748b">mediated effect</text>
+      <line x1="160" y1="176" x2="398" y2="176" stroke="#64748b" stroke-width="2" marker-end="url(#bcarrow)"></line>
+      <text x="280" y="196" text-anchor="middle" font-size="12.5" fill="#64748b">direct effect</text>
+    </svg>
+    </div>
+    """
     )
     return
 
@@ -181,97 +194,10 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    Take the return to schooling, with $Y$ a worker's wage and $X$ years of schooling. Occupation is a mediator. More schooling leads to higher-paying occupations, and the occupation then pays more, so part of schooling's effect on wages runs through occupation. Holding occupation fixed strips out that channel and leaves only the part of the return that does not work through the job a person holds, which understates the total effect of schooling. Hours worked, a test taken after schooling, and where a person settles as an adult are bad controls for the same reason, because schooling shapes each of them.
+    The diagram traces the return to schooling, with $Y$ a worker's wage and $X$ years of schooling. Occupation is the mediator. More schooling moves people into higher-paying occupations, and those occupations pay more, so part of schooling's effect on wages runs through occupation. Holding occupation fixed strips out that channel and leaves only the direct effect, the part of the return that does not run through the job a person holds, which understates schooling's total effect. Hours worked, a test taken after leaving school, and where a person settles as an adult are bad controls for the same reason, because schooling shapes each of them.
 
-    The fix is to leave mediators out. A good control sits before the variable of interest, like family background, which shapes schooling rather than resulting from it. The plot below estimates the return to schooling under different choices of control, so you can watch a good control correct the estimate and a bad control break it.
+    A good control does the opposite. It comes before the variable of interest rather than after it. Family background shapes how much schooling a person gets and does not result from that schooling, so holding it fixed removes a source of bias without blocking any of schooling's effect. The rule is to control for what comes before the variable of interest and to leave out what comes after.
     """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(np):
-    _rng = np.random.default_rng(62)
-    _n = 300
-    bg = _rng.normal(0.0, 1.0, _n)
-    school = 13.0 + 1.5 * bg + _rng.normal(0.0, 1.5, _n)
-    occ = 0.4 * school + _rng.normal(0.0, 1.0, _n)
-    wage = 5.0 + 0.8 * school + 1.0 * occ + 1.2 * bg + _rng.normal(0.0, 2.0, _n)
-    return bg, occ, school, wage
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    ctrl_spec = mo.ui.radio(
-        options=[
-            "Schooling only",
-            "Add family background (a confounder)",
-            "Add occupation as well (a mediator)",
-        ],
-        value="Schooling only",
-        label="Which controls to include",
-    )
-    mo.vstack(
-        [
-            mo.md("Choose which controls to add to the wage regression and watch the estimated return to schooling against its true value of 1.20."),
-            ctrl_spec,
-        ]
-    )
-    return (ctrl_spec,)
-
-
-@app.cell(hide_code=True)
-def _(alt, bg, ctrl_spec, mo, np, occ, pd, school, wage):
-    def _slope(cols):
-        _Xm = np.column_stack([np.ones(len(wage))] + cols)
-        _beta, *_ = np.linalg.lstsq(_Xm, wage, rcond=None)
-        return float(_beta[1])
-
-    _spec = ctrl_spec.value
-    if _spec == "Schooling only":
-        _b = _slope([school])
-        _msg = (
-            f"With no controls the estimate is about {_b:.2f}, above the true return of 1.20. "
-            f"Family background is left in the error, and it raises both schooling and wages, "
-            f"so the estimate is biased upward."
-        )
-    elif _spec.startswith("Add family"):
-        _b = _slope([school, bg])
-        _msg = (
-            f"Family background is a confounder, a common cause of schooling and wages. Holding "
-            f"it fixed removes the bias and brings the estimate to about {_b:.2f}, close to the "
-            f"true return of 1.20. This is a good control."
-        )
-    else:
-        _b = _slope([school, bg, occ])
-        _msg = (
-            f"Occupation is a mediator on the path from schooling to wages. Holding it fixed "
-            f"strips out the part of the return that runs through occupation, pulling the "
-            f"estimate down to about {_b:.2f}, below the true return. This is a bad control."
-        )
-
-    _xdom = [0.0, 1.8]
-    _bar = (
-        alt.Chart(pd.DataFrame({"spec": ["estimate"], "b": [_b]}))
-        .mark_bar(color="#1f4e79", size=46, clip=True)
-        .encode(
-            x=alt.X("b:Q", scale=alt.Scale(domain=_xdom, nice=False), title="Estimated return to schooling (wage per year)"),
-            y=alt.Y("spec:N", title=None, axis=None),
-        )
-    )
-    _rule = (
-        alt.Chart(pd.DataFrame({"v": [1.20]}))
-        .mark_rule(color="orange", strokeDash=[6, 4], size=2)
-        .encode(x="v:Q")
-    )
-    _chart = (_bar + _rule).properties(
-        width=520, height=110, title="Return to schooling under the chosen controls (orange line = true 1.20)"
-    )
-    _caption = mo.md(
-        '<span style="display:block;margin:0.2rem auto 1rem;max-width:520px;'
-        'font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;">'
-        + _msg + "</span>"
-    )
-    mo.vstack([_chart, _caption])
     return
 
 
