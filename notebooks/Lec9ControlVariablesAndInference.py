@@ -13,7 +13,6 @@
 import marimo
 
 __generated_with = "0.23.9"
-__preliminary__ = True
 app = marimo.App(
     app_title="Lecture 9: Control Variables and Inference",
     css_file="marimo-overrides.css",
@@ -40,11 +39,11 @@ def _(mo):
             mo.md("Control Variables and Inference"),
             mo.nav_menu(
                 {
-                    "#sec1": "1. The least squares assumptions with several regressors",
+                    "#sec1": "1. The least squares assumptions with multiple independent variables",
                     "#sec2": "2. Control variables",
                     "#sec3": "3. Bad controls",
-                    "#sec4": "4. The variance of a coefficient with several regressors",
-                    "#sec5": "5. Testing a single coefficient",
+                    "#sec4": "4. The variance of a coefficient with multiple independent variables",
+                    "#sec5": "5. Hypothesis testing a single coefficient",
                 },
                 orientation="vertical",
             ),
@@ -85,11 +84,11 @@ def _(mo):
     mo.md(r"""
     ## Contents
 
-    [1. The least squares assumptions with several regressors](#sec1)<br>
+    [1. The least squares assumptions with multiple independent variables](#sec1)<br>
     [2. Control variables](#sec2)<br>
     [3. Bad controls](#sec3)<br>
-    [4. The variance of a coefficient with several regressors](#sec4)<br>
-    [5. Testing a single coefficient](#sec5)
+    [4. The variance of a coefficient with multiple independent variables](#sec4)<br>
+    [5. Hypothesis testing a single coefficient](#sec5)
     """)
     return
 
@@ -98,29 +97,62 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec1"></a>
-    ## 1. The least squares assumptions with several regressors
 
-    Lecture 8 estimated regressions with several regressors but left a question open. Under what conditions can the estimated slopes be read as causal effects? The conditions carry over from Lecture 6, with one addition, so there are four. The first three are the single-regressor assumptions restated for several regressors, and the fourth is new.
+    ## 1. The least squares assumptions with multiple independent variables
+
+    In Lecture 8, we estimated regressions with multiple independent variables. As in the single-variable case, we can interpret the OLS estimates as causal effects only under certain assumptions. We adapt the three assumptions from the single-variable case to the multiple-variable case and add a fourth assumption.
 
     <a id="sec1a"></a>
-    ### <span style="color:#0b68cb">Least Squares Assumption 1: the conditional mean of $u$ given the regressors is zero</span>
 
-    The error must satisfy $\mathbb{E}[u \mid X_1, \dots, X_k] = 0$, the several-regressor version of *mean independence*. This is the assumption Lecture 8 worked to rescue. Each variable moved from the error into the regression is one fewer source of omitted variable bias, and Lecture 8's omitted variable bias formula describes what happens to the slope when a relevant variable stays behind.
+    ### <span style="color:#0b68cb">Least Squares Assumption 1: the conditional mean of $u$ given the independent variables is zero</span>
+
+    The first least squares assumption requires
+
+    $$
+    \mathbb{E}[u \mid X_1, \dots, X_k] = 0,
+    $$
+
+    the multiple-variable version of conditional *mean independence*. This means that the average value of the error term must be zero at every combination of the independent variables. Once we hold all the independent variables fixed, the remaining determinants of $Y$ contained in $u$ cannot be systematically higher or lower for particular values of any independent variable.
+
+    Consider a wage regression that includes education and parental income as independent variables. The assumption requires workers with different levels of education but the same parental income to have, on average, the same ability, health, luck, and other determinants of wages contained in $u$. It also requires workers with different levels of parental income but the same education to have, on average, the same remaining determinants of wages. More generally, the variables left in the error term cannot vary systematically with either independent variable after we hold the other fixed.
+
+    Adding relevant independent variables can make this assumption more plausible because we move potential sources of omitted variable bias out of the error term and into the regression. However, the assumption must now hold for every independent variable we include. We can interpret the coefficient on a particular independent variable causally only if the remaining error term does not vary systematically with that variable after we hold the other independent variables fixed.
 
     <a id="sec1b"></a>
+
     ### <span style="color:#0b68cb">Least Squares Assumption 2: the data are i.i.d.</span>
 
-    The observations $(Y_i, X_{1i}, \dots, X_{ki})$ must be *independent and identically distributed* across $i$, which holds when the sample is drawn at random, as discussed in Lecture 6.
+    We require the observations
+
+    $$
+    (Y_i, X_{1i}, \dots, X_{ki}), \qquad i=1,\dots,n,
+    $$
+
+    to be *independent and identically distributed*. In practice, this means that we treat the sample as a collection of random draws from the same population. The “identically distributed” part means that we draw each observation in the same way from the same population. The “independent” part means that knowing one observation does not provide information about another.
+
+    The multiple-variable case does not require the independent variables within an observation to be independent of one another. Education and parental income, for example, may be related. Instead, the assumption requires the observations to be independent across individuals. Knowing one worker’s wage, education, and parental income should not provide information about another worker’s wage, education, or parental income.
 
     <a id="sec1c"></a>
+
     ### <span style="color:#0b68cb">Least Squares Assumption 3: large outliers are unlikely</span>
 
-    No single observation should be able to dominate the estimates. As in Lecture 6, the practical advice is to plot the data and check extreme values before trusting a regression.
+    An outlier is an observation whose value of $Y$, one or more of the independent variables, or both lies far from the rest of the data. The third assumption states that large outliers are unlikely. It rules out distributions that produce values so extreme that a handful of observations can dominate the sample and the OLS estimates.
+
+    As in the single-variable case, we should plot the data and inspect extreme values before trusting the regression results. With multiple independent variables, we may need to examine each variable separately.
 
     <a id="sec1d"></a>
+
     ### <span style="color:#0b68cb">Least Squares Assumption 4: no perfect multicollinearity</span>
 
-    The new assumption rules out *perfect multicollinearity*, which arises when one regressor is an exact linear function of the others. Age and date of birth are an example. A person's age is fixed once the date of birth and today's date are set, so the two carry the same information. Asking for the effect of age while holding date of birth fixed has no meaning, because age cannot change with date of birth held constant. When two regressors are perfectly collinear, OLS cannot separate their coefficients and the estimates do not exist. The fix is to drop one of the redundant regressors.
+    The fourth assumption rules out *perfect multicollinearity*, which occurs when one independent variable is an exact linear function of the others. A linear function multiplies the other independent variables by constants, adds the results, and may include a constant term. For example, perfect multicollinearity exists if
+
+    $$
+    X_3 = a + b_1X_1 + b_2X_2
+    $$
+
+    for every observation. In this case, knowing $X_1$ and $X_2$ tells us the exact value of $X_3$, so $X_3$ contains no separate variation.
+
+    Age and date of birth provide a simple example. Once we fix today’s date, knowing a person’s date of birth tells us the person’s age. We therefore cannot ask how age affects an outcome while holding date of birth fixed. OLS cannot estimate separate coefficients on perfectly collinear independent variables, so we must drop one of the redundant variables.
     """)
     return
 
@@ -131,21 +163,27 @@ def _(mo):
     <a id="sec2"></a>
     ## 2. Control variables
 
-    Lecture 8 added regressors to clear the error of factors that would otherwise bias the slope. Often only one of those regressors is the effect we care about. We split the model into *variables of interest* $X_1, \dots, X_k$, whose causal effects we want, and *control variables* $W_1, \dots, W_r$, which we include only to hold other factors fixed,
+    In many multiple-variable regressions, we care about interpreting some coefficients causally but not others. We can therefore divide the independent variables into *variables of interest*, whose causal effects we want to estimate, and *control variables*, which we include to hold other factors fixed.
+
+    More generally, let $X_1, \dots, X_k$ denote the variables of interest and $W_1, \dots, W_r$ the control variables,
 
     $$
     Y_i = \beta_0 + \beta_1 X_{1i} + \dots + \beta_k X_{ki} + \beta_{k+1} W_{1i} + \dots + \beta_{k+r} W_{ri} + u_i.
     $$
 
-    A *control variable* is a regressor we add not for its own coefficient but to absorb something that would otherwise sit in the error and bias a variable of interest. In the wage example from Lecture 8, education is the variable of interest and parental income is a control. We have no causal question about income. It is there so that education is compared across workers with similar family backgrounds.
+    In this regression model, the coefficients $\beta_1, \dots, \beta_k$ are the causal effects we want to estimate. The control variables allow us to compare observations with the same values of $W_1, \dots, W_r$ but different values of $X_1, \dots, X_k$. We do not necessarily want to interpret the coefficients on the control variables causally.
 
-    Because we do not read the controls causally, they face a weaker requirement than the variables of interest. The first least squares assumption from Section 1 becomes *conditional mean independence*,
+    In our wage example from Lecture 8, we can treat education as the variable of interest and parental income as a control variable. We include parental income so that we compare workers with different levels of education but similar family backgrounds. We do not want to use the regression to estimate the causal effect of parental income on wages, however.
+
+    Because we seek a causal interpretation only for the variables of interest, we can relax the first least squares assumption from Section 1. Rather than requiring the average value of the error term to equal zero at every combination of the variables of interest and control variables, we require
 
     $$
     \mathbb{E}[u \mid X_1, \dots, X_k, W_1, \dots, W_r] = \mathbb{E}[u \mid W_1, \dots, W_r].
     $$
 
-    Once the controls are held fixed, the error has nothing more to do with the variables of interest, though it may still move with the controls. So a control can be correlated with the error and need not have a causal meaning of its own. It only has to soak up the part of the error that would otherwise be linked to $X$.
+    This amended assumption is also called conditional mean independence. It says that once we hold the control variables fixed, the average value of the error term cannot vary systematically with the variables of interest. The error may still vary with the controls, making this condition easier to satisfy than the first least squares assumption from Section 1.
+
+    In the wage example, workers from different family backgrounds may differ in ability, health, luck, and other determinants of wages contained in $u$. The assumption allows these factors to differ across levels of parental income. It requires only that workers with different levels of education but the same parental income have, on average, the same remaining determinants of wages.
     """)
     return
 
@@ -156,15 +194,14 @@ def _(mo):
     <a id="sec3"></a>
     ## 3. Bad controls
 
-    Adding a control does not always help. A *bad control* is a regressor that sits on the causal path from the variable of interest to the outcome, a variable that the variable of interest affects and that in turn affects the outcome. Such a variable is called a *mediator*, because the effect passes through it. Holding a mediator fixed blocks part of the very effect we are trying to measure.
+    Adding a control variable does not always make the estimated coefficient on the variable of interest a better estimate of its causal effect. A *bad control* is an independent variable that lies on the causal path from the variable of interest to the outcome. The variable of interest affects this control, which then affects the outcome. Because the control mediates part of the causal effect, holding it fixed blocks part of the causal effect we want to estimate.
     """)
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     <div style="max-width:560px;margin:1.25rem auto;">
     <svg viewBox="0 0 560 240" width="100%" font-family="system-ui, sans-serif" role="img" aria-label="Schooling raises wages directly and through occupation, which is a bad control">
       <defs>
@@ -174,29 +211,29 @@ def _(mo):
       </defs>
       <rect x="210" y="20" width="140" height="52" rx="9" fill="#fbe9e7" stroke="#c0392b" stroke-width="2"></rect>
       <text x="280" y="50" text-anchor="middle" font-size="15" font-weight="600" fill="#c0392b">Occupation</text>
-      <text x="280" y="92" text-anchor="middle" font-size="12.5" font-style="italic" fill="#c0392b">bad control (mediator)</text>
+      <text x="280" y="92" text-anchor="middle" font-size="12.5" font-style="italic" fill="#c0392b">bad control</text>
       <rect x="20" y="150" width="140" height="52" rx="9" fill="#e8f0f9" stroke="#1f4e79" stroke-width="2"></rect>
       <text x="90" y="182" text-anchor="middle" font-size="15" font-weight="600" fill="#1f4e79">Schooling</text>
       <rect x="400" y="150" width="140" height="52" rx="9" fill="#e8f0f9" stroke="#1f4e79" stroke-width="2"></rect>
       <text x="470" y="182" text-anchor="middle" font-size="15" font-weight="600" fill="#1f4e79">Wage</text>
       <line x1="150" y1="150" x2="214" y2="70" stroke="#64748b" stroke-width="2" marker-end="url(#bcarrow)"></line>
       <line x1="346" y1="70" x2="410" y2="150" stroke="#64748b" stroke-width="2" marker-end="url(#bcarrow)"></line>
-      <text x="280" y="128" text-anchor="middle" font-size="12.5" fill="#64748b">mediated effect</text>
       <line x1="160" y1="176" x2="398" y2="176" stroke="#64748b" stroke-width="2" marker-end="url(#bcarrow)"></line>
       <text x="280" y="196" text-anchor="middle" font-size="12.5" fill="#64748b">direct effect</text>
     </svg>
     </div>
-    """
-    )
+    """)
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    The diagram traces the return to schooling, with $Y$ a worker's wage and $X$ years of schooling. Occupation is the mediator. More schooling moves people into higher-paying occupations, and those occupations pay more, so part of schooling's effect on wages runs through occupation. Holding occupation fixed strips out that channel and leaves only the direct effect, the part of the return that does not run through the job a person holds, which understates schooling's total effect. Hours worked, a test taken after leaving school, and where a person settles as an adult are bad controls for the same reason, because schooling shapes each of them.
+    The diagram illustrates the return to schooling, where $Y$ is a worker's wage and $X$ is years of schooling. More schooling can move workers into higher-paying occupations, which in turn raise their wages. Occupation therefore lies on the causal path from schooling to wages. Holding occupation fixed excludes this pathway from the estimated effect, so the coefficient captures only the part of schooling's effect that does not operate through occupation. The resulting coefficient therefore understates the total effect of schooling on wages.
 
-    A good control does the opposite. It comes before the variable of interest rather than after it. Family background shapes how much schooling a person gets and does not result from that schooling, so holding it fixed removes a source of bias without blocking any of schooling's effect. The rule is to control for what comes before the variable of interest and to leave out what comes after.
+    Hours worked, a test score taken after schooling is measured, and where a person settles as an adult may be bad controls for the same reason. Schooling may affect each of these variables, which may then affect wages.
+
+    A good control instead captures a factor determined before the variable of interest. Family background affects how much schooling a person receives but is not impacted by schooling itself. Holding family background fixed can therefore remove a source of bias without blocking part of schooling's effect. As a general rule, we should control for relevant factors determined before the variable of interest and avoid controlling for variables it may affect.
     """)
     return
 
@@ -207,23 +244,29 @@ def _(mo):
     <a id="sec4"></a>
     ## 4. The variance of a coefficient with several regressors
 
-    Each OLS coefficient is a random variable with its own sampling distribution. Under the assumptions from Section 1, every $\hat{\beta}_j$ is approximately normal in large samples, centered on $\beta_j$,
+    In Lecture 7, we showed that the variance of an OLS coefficient estimate in a single-variable regression depends on the sample size, the variation in the independent variable, and the variation in the error term. These same factors matter in a multiple-variable regression, but the variance of a coefficient estimate now also depends on how closely the independent variables are related to one another.
+
+    Across repeated random samples, each OLS coefficient has its own sampling distribution. Under the assumptions from Section 1, every $\hat{\beta}_j$ is approximately normally distributed in large samples and centered on the population coefficient $\beta_j$,
 
     $$
-    \hat{\beta}_j \sim \mathcal{N}\left(\beta_j,\ \sigma^2_{\hat{\beta}_j}\right),
+    \hat{\beta}j \sim \mathcal{N}\left(\beta_j,\ \sigma^2{\hat{\beta}_j}\right).
     $$
 
-    so the t-tests and confidence intervals from Lecture 7 carry over to each coefficient. What is new is how the other regressors affect the variance. With two regressors $X_1$ and $X_2$ and homoskedastic errors,
+    The t-tests and confidence intervals from Lecture 7 therefore carry over to each coefficient. A smaller variance produces a smaller standard error and a more precise estimate.
+
+    The general formula for the variance of a coefficient in a multiple-variable regression $\sigma^2{\hat{\beta}_j}$ is complicated. A revealing special case is a regression with two independent variables, $X_1$ and $X_2$, and homoskedastic errors. In this case,
 
     $$
     \sigma^2_{\hat{\beta}_1} = \frac{1}{n}\cdot\frac{1}{1 - \rho^2_{X_1 X_2}}\cdot\frac{\sigma_u^2}{\sigma_{X_1}^2},
     $$
 
-    where $\rho_{X_1 X_2}$ is the correlation between the two regressors. The first and last factors are familiar from Lecture 7, since a larger sample and more spread in $X_1$ both shrink the variance. The middle factor is new. It is the *variance inflation* from *multicollinearity*, the degree to which the regressors move together.
+    where $\rho_{X_1X_2}$ is the correlation between $X_1$ and $X_2$. As in the single-variable case, a larger sample and greater variation in $X_1$ reduce the variance, while greater variation in the error term increases it. The middle factor is new, however. It captures the *variance inflation* caused by how much the independent variables move together.
 
-    When the regressors are uncorrelated, $\rho_{X_1 X_2} = 0$ and the middle factor is one. As they line up, $\rho^2_{X_1 X_2}$ approaches one and the factor grows without bound, so the variance explodes. The reason is that when $X_1$ and $X_2$ move together, the data hold little information about the effect of one while the other is held fixed, because the two are rarely seen apart. This is *imperfect multicollinearity*. The perfect multicollinearity ruled out in Section 1 is the limit $\rho^2_{X_1 X_2} = 1$, where the variance is infinite and the coefficients cannot be estimated at all.
+    When $X_1$ and $X_2$ are uncorrelated, $\rho_{X_1X_2}=0$ and the variance-inflation factor equals one. As their correlation approaches either one or negative one, $\rho^2_{X_1X_2}$ approaches one and the variance increases. OLS estimates the effect of $X_1$ while holding $X_2$ fixed. When the two variables move closely together, the sample will therefore contain little variation in $X_1$ among observations with similar values of $X_2$, making it difficult to distinguish their separate effects.
 
-    The plot below shows the correlation between two regressors next to the sampling distribution of $\hat{\beta}_1$. Raise the correlation and watch the estimates spread out.
+    This situation is called *imperfect multicollinearity*. It reduces the precision of the coefficient estimates but does not prevent OLS from estimating them. Perfect multicollinearity occurs when $\rho^2_{X_1X_2}=1$. The denominator then equals zero, and OLS cannot estimate separate coefficients on the two independent variables.
+
+    The plot below shows the correlation between two independent variables alongside the sampling distribution of $\hat{\beta}_1$. As the correlation increases in magnitude, the sampling distribution becomes more dispersed.
     """)
     return
 
@@ -232,7 +275,7 @@ def _(mo):
 def _(mo):
     mc_rho = mo.ui.slider(
         start=0.0, stop=0.95, step=0.05, value=0.0,
-        label="Correlation between the two regressors", show_value=True, full_width=True,
+        label="Correlation between the two regressors", show_value=True, full_width=False,
     )
     mo.vstack(
         [
@@ -302,7 +345,7 @@ def _(alt, mc_rho, mo, np, pd, stats):
 
     if _rho == 0.0:
         _body = (
-            f"The regressors are uncorrelated, so the variance-inflation factor "
+            f"The independent variables are uncorrelated, so the variance-inflation factor "
             f"$1/(1-\\rho^2)$ is 1.00 and there is no inflation. The standard error of "
             f"$\\hat{{\\beta}}_1$ is at its smallest, {_se:.3f}, and the orange line marks the "
             f"true slope of 1.2. Raise the correlation to watch the estimates spread out."
@@ -311,8 +354,8 @@ def _(alt, mc_rho, mo, np, pd, stats):
         _body = (
             f"At a correlation of {_rho:.2f}, the variance-inflation factor is "
             f"$1/(1-\\rho^2) = {_vif:.2f}$, so the standard error of $\\hat{{\\beta}}_1$ is {_se:.3f}, "
-            f"up from {_se0:.3f} when the regressors are uncorrelated (the grey dashed bell). The "
-            f"orange line marks the true slope of 1.2. As the regressors line up, the estimates "
+            f"up from {_se0:.3f} when the independent variables are uncorrelated (the grey dashed bell). The "
+            f"orange line marks the true slope of 1.2. As the independent variables line up, the estimates "
             f"spread out and the slope is pinned down less precisely."
         )
     _caption = mo.md(
@@ -338,9 +381,9 @@ def _(mo):
     t = \frac{\hat{\beta}_j - \beta_{j, H_0}}{\hat{\sigma}_{\hat{\beta}_j}},
     $$
 
-    which is standard normal under the null in large samples. The two-sided p-value is $2\Phi(-|t|)$, and we reject when it falls below the significance level. The most common null is that the coefficient is zero, meaning the regressor has no effect once the others are held fixed.
+    which is standard normal under the null in large samples. The two-sided p-value is $2\Phi(-|t|)$, and we reject when it falls below the significance level. The most common null hypothesis is that the coefficient is zero, meaning the independent variable being tested has no effect once the others are held fixed.
 
-    Take the education coefficient from Lecture 8, which was $1.22$ with parental income controlled. Suppose its standard error is $0.48$. The t-statistic for the null of no effect is $t = 1.22 / 0.48 = 2.54$, and the p-value is $2\Phi(-2.54) \approx 0.01$. The estimate is about two and a half standard errors above zero, so we reject the null at the 5% level and conclude that education matters for wages once parental income is held fixed.
+    Take the education coefficient from Lecture 8, which was $1.22$ with parental income controlled. Suppose its standard error is $0.48$. The t-statistic for the null of no effect is $t = 1.22 / 0.48 = 2.54$, and the p-value is $2\Phi(-2.54) \approx 0.01$, so we reject the null hypothesis at the 5% level and conclude that education matters for wages once parental income is held fixed.
     """)
     return
 
@@ -349,7 +392,7 @@ def _(mo):
 def _(mo):
     ell_rho = mo.ui.slider(
         start=-0.9, stop=0.9, step=0.1, value=-0.8,
-        label="Correlation between the two coefficient estimates", show_value=True, full_width=True,
+        label="Correlation between the two coefficient estimates", show_value=True, full_width=False,
     )
     return (ell_rho,)
 
@@ -377,21 +420,30 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(alt, ell_rho, mo, np, pd, stats):
     _ftest_md = mo.md(r"""
-    This appendix covers testing several coefficients at once and the origin of the variance-inflation factor from Section 4. You will not be tested on either.
+    This appendix explains how to test hypotheses involving several coefficients at once. You will not be tested on this material.
 
     **Testing several coefficients at once**
 
-    Sometimes we want to test a claim about several coefficients together, such as whether two regressors both have zero effect. Running a separate t-test on each is not the same test, because each t-test ignores the other coefficient and the correlation between the two estimates. A *joint hypothesis* needs a single statistic that accounts for both at once.
+    Sometimes we want to test a hypothesis involving several coefficients, such as whether two independent variables both have no effect,
 
-    That statistic is the *F-statistic*. For the null that two coefficients are both zero, it is
+    $$
+    H_0:\beta_1=0 \quad \text{and} \quad \beta_2=0.
+    $$
 
+    Separate t-tests do not test this joint hypothesis. Each tests one restriction at a time, whereas a joint test must determine whether the restrictions hold simultaneously and account for the correlation between the coefficient estimates.
+
+    We use an *F-statistic* to test a joint hypothesis. For the null hypothesis above,
     $$
     F = \frac{1}{2}\left(\frac{t_1^2 + t_2^2 - 2\hat{\rho}_{t_1 t_2}\, t_1 t_2}{1 - \hat{\rho}^2_{t_1 t_2}}\right),
     $$
 
-    where $t_1$ and $t_2$ are the individual t-statistics and $\hat{\rho}_{t_1 t_2}$ is the correlation between the two coefficient estimates. Under the null the F-statistic follows an $F_{q, \infty}$ distribution, where $q$ is the number of restrictions being tested, here two. We reject when $F$ is larger than the critical value, about $3.00$ for two restrictions at the 5% level. For a single restriction the F-statistic is just the square of the t-statistic, $F = t^2$, so the two tests agree. The same idea extends to the *overall regression F-statistic*, which tests that all the slope coefficients are zero at once.
+    where $t_1$ and $t_2$ are the individual t-statistics and $\hat{\rho}_{t_1t_2}$ is the estimated correlation between them. The statistic combines the evidence against both restrictions while accounting for the relationship between the two estimates.
 
-    The plot below shows why the joint test can differ from two separate ones. Both estimates are 1.5 with a standard error of 1.0, so each t-statistic is 1.5. Change how the estimates are correlated and compare the joint confidence region with the two single-coefficient intervals.
+    In large samples, the F-statistic follows an $F_{q,\infty}$ distribution under the null hypothesis, where $q$ is the number of restrictions. Here, $q=2$. We introduced the $F$ distribution in the Appendix of Lecture 2. We reject the null hypothesis when the F-statistic exceeds the relevant critical value, which is approximately $3.00$ at the 5 percent level for two restrictions.
+
+    With a single restriction, the F-statistic equals the square of the corresponding t-statistic, $F = t^2$, so the F-test and t-test produce the same conclusion. The same principle gives us the overall regression F-statistic, which tests the joint null hypothesis that all slope coefficients equal zero.
+
+    The plot below illustrates why a joint test can produce a different conclusion from separate t-tests. Both coefficient estimates equal 1.5 and have standard errors of 1.0, so both t-statistics equal 1.5. Change the correlation between the estimates and compare the resulting joint confidence region with the two individual confidence intervals. The joint confidence region contains the combinations of values for $\beta_1$ and $\beta_2$ for which the corresponding joint null hypothesis is not rejected at the chosen significance level.
     """)
 
     _r = float(ell_rho.value)
@@ -470,27 +522,8 @@ def _(alt, ell_rho, mo, np, pd, stats):
         + _body + "</span>"
     )
 
-    _vif_md = mo.md(r"""
-    ---
-
-    **The variance of $\hat{\beta}_1$ with two regressors**
-
-    Regress $X_1$ on $X_2$ and write the residual as $\tilde{X}_1 = X_1 - \hat{\gamma}_0 - \hat{\gamma}_1 X_2$, the part of $X_1$ that the other regressor does not explain. The OLS coefficient on $X_1$ in the two-regressor model equals the slope from regressing $Y$ on this residual alone, so
-
-    $$
-    \operatorname{var}(\hat{\beta}_1) = \frac{\sigma_u^2}{\sum_{i=1}^{n}\tilde{X}_{1i}^2}.
-    $$
-
-    The denominator is the leftover variation in $X_1$ after removing what $X_2$ explains. The regression of $X_1$ on $X_2$ has an $R^2$ equal to $\rho^2_{X_1 X_2}$, so the leftover variation is the fraction $1 - \rho^2_{X_1 X_2}$ of the total, $\sum_{i=1}^{n}\tilde{X}_{1i}^2 = (1 - \rho^2_{X_1 X_2})\sum_{i=1}^{n}(X_{1i} - \hat{\mu}_{X_1})^2$. Substituting gives
-
-    $$
-    \operatorname{var}(\hat{\beta}_1) = \frac{1}{1 - \rho^2_{X_1 X_2}}\cdot\frac{\sigma_u^2}{\sum_{i=1}^{n}(X_{1i} - \hat{\mu}_{X_1})^2},
-    $$
-
-    which is the formula in Section 4. The factor $1/(1 - \rho^2_{X_1 X_2})$ is the price of the two regressors sharing information.
-    """)
     mo.accordion(
-        {"## Appendix": mo.vstack([_ftest_md, ell_rho, _chart, _caption, _vif_md])}
+        {"## Appendix": mo.vstack([_ftest_md, ell_rho, _chart, _caption])}
     )
     return
 
