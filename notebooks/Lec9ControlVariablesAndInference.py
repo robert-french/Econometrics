@@ -58,7 +58,7 @@ def _(mo):
     mo.hstack(
         [
             mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec8MultipleRegression.html" target="_self">← Lecture 8</a>'),
-            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec10NonlinearRegressionPolynomials.html" target="_self">Lecture 10 →</a>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec10ReadingRegressionTables.html" target="_self">Lecture 10 →</a>'),
         ],
         justify="space-between", align="center",
     )
@@ -541,7 +541,7 @@ def _(mo):
     mo.hstack(
         [
             mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec8MultipleRegression.html" target="_self">← Lecture 8</a>'),
-            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec10NonlinearRegressionPolynomials.html" target="_self">Lecture 10 →</a>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec10ReadingRegressionTables.html" target="_self">Lecture 10 →</a>'),
         ],
         justify="space-between", align="center",
     )
