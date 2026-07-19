@@ -150,9 +150,9 @@ def _(mo):
     X_3 = a + b_1X_1 + b_2X_2
     $$
 
-    for every observation. In this case, knowing $X_1$ and $X_2$ tells us the exact value of $X_3$, so $X_3$ contains no separate information.
+    for every observation. In this case, knowing $X_1$ and $X_2$ tells us the exact value of $X_3$. The regression therefore cannot distinguish the relationship between $Y$ and $X_3$ from its relationships with $X_1$ and $X_2$.
 
-    Age and date of birth is a simple example. Once we fix today’s date, knowing a person’s date of birth tells us the person’s age. We therefore cannot ask how age affects an outcome while holding date of birth fixed. OLS cannot estimate separate coefficients on perfectly collinear independent variables, so we must drop one of the redundant variables.
+    Age and date of birth is a simple example. Once we fix today’s date, knowing a person’s date of birth tells us the person’s age. We therefore cannot ask how age affects an outcome while holding date of birth fixed. OLS cannot estimate separate coefficients on perfectly collinear independent variables, so we must drop either age or date of birth from the regression.
     """)
     return
 
@@ -163,7 +163,7 @@ def _(mo):
     <a id="sec2"></a>
     ## 2. Control variables
 
-    In many multiple-variable regressions, we care about interpreting some coefficients causally but not others. We can therefore divide the independent variables into *variables of interest*, whose causal effects we want to estimate, and *control variables*, whose causal effects we are not interested in.
+    In many multiple-variable regressions, we care about interpreting some coefficients causally but not others. We can therefore divide the independent variables into *variables of interest*, whose causal effects we want to estimate, and *control variables*, whose causal effects we do not care about.
 
     Let $X_1, \dots, X_k$ denote the variables of interest and $W_1, \dots, W_r$ the control variables,
 
