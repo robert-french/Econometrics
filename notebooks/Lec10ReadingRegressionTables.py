@@ -13,6 +13,7 @@
 import marimo
 
 __generated_with = "0.23.9"
+__preliminary__ = True
 app = marimo.App(
     app_title="Lecture 10: Reading Regression Tables",
     css_file="marimo-overrides.css",
@@ -97,17 +98,15 @@ def _(mo):
 
     A *regression table* reports several regressions side by side so their results can be compared in one place. Each column is one regression with its own set of independent variables, and each row is one variable. Reading down a column describes a single regression. Reading across a row shows how the coefficient on that variable changes as other variables are added.
 
-    The table below is built from simulated data on 1,200 workers, generated so that the true effects are known and the estimates can be checked against them. The dependent variable is the hourly wage in dollars. We built the data so that one more year of education raises the wage by \$1.20 per hour, one more year of experience by \$0.15, and each standard deviation of parental income by \$2.50, and so that women earn \$2.00 per hour less than men with the same characteristics. Column (1) regresses the wage on education alone, and each later column adds one more independent variable, until column (4) includes all four.
+    The table below reports four regressions estimated on the same 1,200 workers. The dependent variable is the hourly wage in dollars, and the independent variables are years of education, years of work experience, parental income measured in standard deviations from its mean, and an indicator equal to one for women. Column (1) regresses the wage on education alone, and each later column adds one more independent variable, until column (4) includes all four. Hovering over any row shows what that coefficient or statistic means.
     """)
     return
 
 
 @app.cell(hide_code=True)
 def _(mo, np):
-    # Simulated wage data for 1,200 workers. The coefficients are known by
-    # construction (true return to a year of education is $1.20/hour), so the
-    # estimates in the table can be compared against the truth. Education is
-    # correlated with parental income, which is the source of the omitted
+    # Wage data for 1,200 workers used to build the regression table. Education
+    # is correlated with parental income, which is the source of the omitted
     # variable bias discussed in Section 2.
     _rng = np.random.default_rng(42)
     _n = 1200
@@ -158,6 +157,19 @@ def _(mo, np):
 
 @app.cell(hide_code=True)
 def _(fits, mo, var_order):
+    # Each row carries a `title` attribute, so hovering it shows a native
+    # tooltip with the definition of that coefficient or statistic.
+    _tips = {
+        "Education (years)": "Estimated change in the hourly wage for one more year of education, holding the other variables in the column fixed.",
+        "Experience (years)": "Estimated change in the hourly wage for one more year of work experience, holding the other variables fixed.",
+        "Parental income (SD)": "Estimated change in the hourly wage for a one standard deviation rise in parental income, holding the other variables fixed.",
+        "Female": "Estimated wage gap for women relative to men with the same values of the other variables.",
+        "Constant": "The predicted hourly wage when every independent variable in the column equals zero.",
+        "Observations": "The number of workers used to estimate the regression.",
+        "R²": "The share of the variation in wages the regression explains, from 0 to 1.",
+        "Adjusted R²": "The R-squared with a penalty for each independent variable, so a variable that does not help lowers it.",
+    }
+
     def _stars(_t):
         _a = abs(_t)
         return "***" if _a > 2.576 else "**" if _a > 1.96 else "*" if _a > 1.645 else ""
@@ -172,48 +184,52 @@ def _(fits, mo, var_order):
     _ncols = len(fits)
     _pad = "padding:3px 15px;text-align:center;"
 
-    def _coef_cell(_m, _name, _border=""):
+    def _coef_cell(_m, _name):
         if _name not in _m:
-            return f"<td style='{_pad}{_border}'></td>"
+            return f"<td style='{_pad}'></td>"
         _b, _se = _m[_name]
         _inner = (
             f"{_b:.3f}{_stars(_b / _se)}"
             f"<br><span style='color:#6b7280;'>({_se:.3f})</span>"
         )
-        return f"<td style='{_pad}{_border}'>{_inner}</td>"
+        return f"<td style='{_pad}'>{_inner}</td>"
+
+    def _row(_label, _cells_html, _border=""):
+        _lab = f"<td style='padding:3px 15px;text-align:left;{_border}'>{_label}</td>"
+        return (
+            f"<tr title='{_tips.get(_label, '')}' style='cursor:help;'>"
+            f"{_lab}{_cells_html}</tr>"
+        )
 
     _rows = []
     for _name in var_order + ["Constant"]:
-        _label = f"<td style='padding:3px 15px;text-align:left;'>{_name}</td>"
         _cells = "".join(_coef_cell(_m, _name) for _m in _maps)
-        _rows.append(f"<tr>{_label}{_cells}</tr>")
+        _rows.append(_row(_name, _cells))
 
     _top = "border-top:1px solid rgba(120,120,120,0.6);"
 
-    def _stat_row(_label, _values, _border=""):
-        _lab = f"<td style='padding:3px 15px;text-align:left;{_border}'>{_label}</td>"
-        _cells = "".join(
-            f"<td style='{_pad}{_border}'>{_v}</td>" for _v in _values
-        )
-        return f"<tr>{_lab}{_cells}</tr>"
+    def _stat_cells(_values, _border=""):
+        return "".join(f"<td style='{_pad}{_border}'>{_v}</td>" for _v in _values)
 
     _rows.append(
-        _stat_row("Observations", [f"{_f['n']:,}" for _f in fits], _border=_top)
+        _row("Observations", _stat_cells([f"{_f['n']:,}" for _f in fits], _top), _border=_top)
     )
-    _rows.append(_stat_row("R²", [f"{_f['r2']:.3f}" for _f in fits]))
-    _rows.append(
-        _stat_row("Adjusted R²", [f"{_f['ar2']:.3f}" for _f in fits])
-    )
+    _rows.append(_row("R²", _stat_cells([f"{_f['r2']:.3f}" for _f in fits])))
+    _rows.append(_row("Adjusted R²", _stat_cells([f"{_f['ar2']:.3f}" for _f in fits])))
 
     _rule = "2px solid rgba(120,120,120,0.9)"
     _colhdr = "".join(
         f"<th style='{_pad}font-weight:600;'>({_i})</th>"
         for _i in range(1, _ncols + 1)
     )
+    # display:inline-table + width:auto shrinks the table to its content, and
+    # text-align:center on the wrapper centers it, so the top and bottom rules
+    # span only the table rather than the whole page.
     _table = (
-        "<div style='overflow-x:auto;'>"
-        f"<table style='border-collapse:collapse;margin:1rem auto;font-size:0.9rem;"
-        f"line-height:1.25;border-top:{_rule};border-bottom:{_rule};min-width:560px;'>"
+        "<div style='overflow-x:auto;text-align:center;'>"
+        f"<table style='display:inline-table;width:auto;border-collapse:collapse;"
+        f"margin:1rem auto;font-size:0.9rem;line-height:1.25;text-align:left;"
+        f"border-top:{_rule};border-bottom:{_rule};'>"
         "<thead>"
         f"<tr><td></td><td colspan='{_ncols}' style='text-align:center;"
         "padding:5px 0 3px;font-weight:600;'>Dependent variable: hourly wage (dollars)</td></tr>"
@@ -230,7 +246,7 @@ def _(fits, mo, var_order):
         "font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;'>"
         "Standard errors in parentheses. "
         "One star marks significance at the 10% level, two at the 5% level, "
-        "and three at the 1% level."
+        "and three at the 1% level. Hover over a row for its definition."
         "</span>"
     )
     mo.vstack([mo.md(_table), _note])
@@ -251,61 +267,20 @@ def _(mo):
     <a id="sec2"></a>
     ## 2. Why the coefficients change across columns
 
-    Read across the education row. In column (1) the coefficient on education is \$2.00 per hour for each additional year, but we built the data so the true return is \$1.20. The estimate is too large by \$0.80 because education is the only variable in the regression. Parental income is left in the error term, and it is correlated with education, since higher-income families tend to have children with more schooling, while it also raises wages on its own. This is *omitted variable bias* from Lecture 8. The bias is positive because parental income moves in the same direction with both education and the wage, so the education coefficient absorbs part of parental income's effect and overstates the return.
+    Read across the education row. The coefficient is \$2.00 per hour for each additional year in column (1), and when parental income enters in column (3) it drops to \$1.14. That change is *omitted variable bias*, the effect from Lecture 8. With education the only independent variable, parental income sits in the error term, and it is correlated with education, since higher-income families tend to have children with more schooling, while it also raises wages on its own. Lecture 8 showed that omitting such a variable pulls the slope estimate away from the effect it is meant to measure,
 
-    Column (2) adds experience, and the education coefficient does not move, holding at \$2.00. Experience is uncorrelated with education, so leaving it out never biased the education coefficient, and adding it changes nothing for education. A variable shifts another coefficient only when the two variables are correlated.
+    $$
+    \hat{\beta}_1 \overset{p}{\to} \beta_1 + \underbrace{\rho_{Xu}\cdot\frac{\sigma_u}{\sigma_X}}_{\text{bias}},
+    $$
 
-    Column (3) adds parental income, and the education coefficient falls to \$1.14, close to the true \$1.20. Holding parental income fixed compares workers with similar family backgrounds, which strips out the bias. Parental income is a *confounder*, a variable correlated with a regressor of interest that also affects the outcome, and controlling for it is the reason to prefer multiple regression over a simple regression when the confounder is available.
+    where $\rho_{Xu}$ is the correlation between education and the error term, $\sigma_u$ is the standard deviation of the error, and $\sigma_X$ is the standard deviation of education. Here the omitted parental income raises wages and moves in the same direction as education, so $\rho_{Xu}$ is positive, the bias is positive, and column (1) overstates the return to education.
 
-    Column (4) adds an indicator for female workers. The education coefficient barely moves, from \$1.14 to \$1.16, because sex is roughly uncorrelated with education in these data. Women are estimated to earn \$1.94 per hour less than men with the same education, experience, and family background, a large and precisely estimated gap that still leaves the education coefficient alone.
+    Column (2) adds experience, and the education coefficient does not move, holding at \$2.00. Experience is uncorrelated with education, so it was never part of education's bias term, and adding it changes nothing for education. A variable shifts another coefficient only when the two variables are correlated.
 
-    The plot below tracks the education coefficient across the four columns, with the vertical bars showing a 95% confidence interval and the orange line marking the true return of \$1.20.
+    Column (3) adds parental income itself, and the education coefficient falls to \$1.14. Holding parental income fixed compares workers with similar family backgrounds, which removes the bias term from the education slope. Parental income is a *confounder*, a variable correlated with a regressor of interest that also affects the outcome, and controlling for it is the reason to prefer multiple regression over a simple regression.
+
+    Column (4) adds an indicator for female workers, and the education coefficient barely moves, from \$1.14 to \$1.16, because sex is close to uncorrelated with education here. Women are estimated to earn \$1.94 per hour less than men with the same education, experience, and family background, a large gap that still leaves the education coefficient alone.
     """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(alt, fits, mo, pd):
-    _labels = [f"({_i})" for _i in range(1, len(fits) + 1)]
-    _b = [float(_f["b"][1]) for _f in fits]
-    _se = [float(_f["se"][1]) for _f in fits]
-    _df = pd.DataFrame(
-        {
-            "spec": _labels,
-            "b": _b,
-            "lo": [_bi - 1.96 * _si for _bi, _si in zip(_b, _se)],
-            "hi": [_bi + 1.96 * _si for _bi, _si in zip(_b, _se)],
-        }
-    )
-
-    _xsc = alt.X("spec:N", title="Column", sort=_labels)
-    _ysc = alt.Scale(domain=[0.6, 2.4], nice=False)
-    _bars = (
-        alt.Chart(_df)
-        .mark_rule(color="#1f4e79", size=2)
-        .encode(x=_xsc, y=alt.Y("lo:Q", scale=_ysc, title="Coefficient on education (dollars per year)"), y2="hi:Q")
-    )
-    _pts = (
-        alt.Chart(_df)
-        .mark_point(color="#1f4e79", size=90, filled=True)
-        .encode(x=_xsc, y=alt.Y("b:Q", scale=_ysc))
-    )
-    _truth = (
-        alt.Chart(pd.DataFrame({"v": [1.20]}))
-        .mark_rule(color="orange", strokeDash=[6, 4], size=2)
-        .encode(y="v:Q")
-    )
-    _chart = (_truth + _bars + _pts).properties(width=460, height=300)
-
-    _caption = mo.md(
-        "<span style='display:block;margin:0.4rem auto 1rem;max-width:520px;"
-        "font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;'>"
-        "In columns (1) and (2) the confidence interval sits well above the true "
-        "\\$1.20, because parental income is omitted and the estimate is biased "
-        "upward. Once parental income enters in columns (3) and (4), the interval "
-        "drops and now covers the truth.</span>"
-    )
-    mo.vstack([mo.hstack([_chart], justify="center"), _caption])
     return
 
 
@@ -315,15 +290,15 @@ def _(mo):
     <a id="sec3"></a>
     ## 3. Reading fit and significance
 
-    The standard error below each coefficient measures its sampling uncertainty. Dividing a coefficient by its standard error gives the *t-statistic*, and a coefficient more than about 1.96 standard errors from zero is *statistically significant* at the 5% level, meaning a true value of zero would rarely produce an estimate this far from zero. The asterisks encode this, with one star for significance at the 10% level, two at the 5% level, and three at the 1% level. Every coefficient in the table carries three stars, so each is far from zero relative to its standard error. The education coefficient in column (4), for instance, has a t-statistic of about \$1.16 / \$0.08, or roughly 15.
+    The standard error below each coefficient measures its sampling uncertainty, and two summaries from Lecture 4 come straight from it. The *t-statistic* is the coefficient divided by its standard error, and a coefficient more than about 1.96 standard errors from zero is *statistically significant* at the 5% level. A 95% *confidence interval* is the coefficient plus or minus about 1.96 standard errors, the range of values the data leave plausible, and a coefficient is significant at the 5% level exactly when its interval excludes zero. The stars report significance directly, one for the 10% level, two for the 5% level, and three for the 1% level, and every coefficient in the table carries three. The education coefficient in column (4), for instance, is \$1.16 with a standard error of \$0.08, so its t-statistic is near 15 and its 95% interval runs from about \$1.01 to \$1.31, nowhere near zero.
 
-    Statistical significance is not the same as importance. A coefficient can be statistically significant but too small to matter in practice, or economically large but estimated too imprecisely to be sure of. The experience coefficient of \$0.16 per year is highly significant, yet a year of experience adds far less to the wage than a year of education. Reading a table means checking both whether a coefficient is distinguishable from zero and whether its size matters in the units of the problem.
+    The confidence interval also shows how much the controls matter. For education it runs from about \$1.86 to \$2.14 in column (1) and from about \$1.01 to \$1.31 in column (4), two ranges that do not overlap, so the controls move the estimate well beyond sampling noise. Significance is still not the same as importance. The experience coefficient of \$0.16 per year is highly significant, yet a year of experience adds far less to the wage than a year of education, so a table must be read for the size of an effect as well as its significance.
 
-    The standard errors themselves shift across columns. The standard error on education is 0.072 in column (1) and 0.070 in column (2). Adding experience explains more of the variation in wages, which shrinks the estimated spread of the error term and tightens every coefficient a little. From column (2) to column (3) the education standard error rises to 0.078, because parental income is correlated with education, so once it is included the data hold less independent variation in education and its coefficient is pinned down less precisely. This is *multicollinearity*, the price of including variables that move together.
+    The standard errors themselves shift across columns. The education standard error falls from 0.072 in column (1) to 0.070 in column (2), because experience explains more of the variation in wages and tightens every coefficient. From column (2) to column (3) it rises to 0.078, because parental income is correlated with education, so the data hold less independent variation in education once it is included. This is *multicollinearity*, the loss of precision from including variables that move together, covered in Lecture 9.
 
-    The last two rows summarize how well the regression fits. The *R-squared* is the share of the variation in wages the regression explains, and it rises in every column, from 0.392 to 0.581, because adding a variable can never lower the explained share. That makes R-squared useless for deciding whether a variable belongs, since it rewards adding variables whether or not they matter. The *adjusted R-squared* corrects for this by charging a penalty for each variable added. It also rises here, from 0.391 to 0.580, which says every variable added enough explanatory power to outweigh its penalty. Had we instead added a variable unrelated to wages, the R-squared would still have ticked up while the adjusted R-squared fell.
+    The last two rows summarize fit. The *R-squared*, introduced in Lecture 5, is the share of the variation in wages the regression explains, and it rises in every column, from 0.392 to 0.581, because adding a variable can never lower the explained share. That makes it useless for deciding whether a variable belongs. The *adjusted R-squared* from Lecture 8 charges a penalty for each variable added. It also rises here, from 0.391 to 0.580, so every variable earned its place. Had we instead added a variable unrelated to wages, the R-squared would still have edged up while the adjusted R-squared fell.
 
-    A high R-squared does not mean the coefficients can be read as causal. Column (1) explains 39% of the variation in wages yet reports an education effect nearly double the truth, while column (3) explains more and reports a credible one. Fit measures how closely the regression tracks the data. Whether a coefficient recovers a causal effect depends on the omitted variable bias from Section 2, not on the R-squared.
+    A high R-squared does not make a coefficient causal. Column (1) explains 39% of the variation in wages, yet its education coefficient is biased upward by the omission of parental income, while column (3) explains more and controls for that confounder. Fit measures how closely the regression tracks the data. Whether a coefficient recovers a causal effect depends on the omitted variable bias from Section 2, not on the R-squared.
     """)
     return
 
@@ -333,14 +308,16 @@ def _(mo):
     mo.callout(
         mo.md(
             "**Key terms covered:** regression table, standard error, statistical "
-            "significance, significance level, t-statistic, omitted variable bias, "
-            "confounder, multicollinearity, R-squared, adjusted R-squared.\n\n"
+            "significance, significance level, t-statistic, confidence interval, "
+            "omitted variable bias, confounder, multicollinearity, R-squared, "
+            "adjusted R-squared.\n\n"
             "**Key concepts covered:** reading a regression table column by column and "
             "row by row, a coefficient changes when an added variable is correlated "
             "with it and also explains the outcome (omitted variable bias from a "
             "confounder), adding a correlated variable inflates a coefficient's "
             "standard error through multicollinearity, statistical significance versus "
-            "economic importance, R-squared always rises with more variables while "
+            "economic importance, a coefficient is significant when its confidence "
+            "interval excludes zero, R-squared always rises with more variables while "
             "adjusted R-squared penalizes them, and a high R-squared does not make a "
             "coefficient causal."
         ),
