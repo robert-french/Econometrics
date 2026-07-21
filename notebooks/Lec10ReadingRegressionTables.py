@@ -12,8 +12,7 @@
 
 import marimo
 
-__generated_with = "0.23.9"
-__preliminary__ = True
+__generated_with = "0.23.14"
 app = marimo.App(
     app_title="Lecture 10: Reading Regression Tables",
     css_file="marimo-overrides.css",
@@ -28,7 +27,7 @@ def _():
     import altair as alt
     from scipy import stats
 
-    return alt, mo, np, pd, stats
+    return mo, np
 
 
 @app.cell(hide_code=True)
@@ -40,9 +39,9 @@ def _(mo):
             mo.md("Reading Regression Tables"),
             mo.nav_menu(
                 {
-                    "#sec1": "1. The anatomy of a regression table",
-                    "#sec2": "2. Why the coefficients change across columns",
-                    "#sec3": "3. Reading fit and significance",
+                    "#sec1": "1. Regression table",
+                    "#sec2": "2. Why coefficients change across columns",
+                    "#sec3": "3. Statistical significance",
                 },
                 orientation="vertical",
             ),
@@ -83,9 +82,9 @@ def _(mo):
     mo.md(r"""
     ## Contents
 
-    [1. The anatomy of a regression table](#sec1)<br>
-    [2. Why the coefficients change across columns](#sec2)<br>
-    [3. Reading fit and significance](#sec3)
+    [1. Regression tables](#sec1)<br>
+    [2. Why coefficients change across columns](#sec2)<br>
+    [3. Statistical significance](#sec3)
     """)
     return
 
@@ -94,17 +93,17 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec1"></a>
-    ## 1. The anatomy of a regression table
+    ## 1. Regression tables
 
-    A *regression table* reports several regressions side by side so their results can be compared in one place. Each column is one regression with its own set of independent variables, and each row is one variable. Reading down a column describes a single regression. Reading across a row shows how the coefficient on that variable changes as other variables are added.
+    A *regression table* reports several regressions side by side, making it easy to compare their results. Each column presents one regression with the same dependent variable but a different set of independent variables. Each row corresponds to one independent variable. Reading down a column describes a single regression, while reading across a row shows how the coefficient on a variable changes as other variables are added.
 
-    The table below reports four regressions estimated on the same 1,200 workers. The dependent variable is the hourly wage in dollars, and the independent variables are years of education, years of work experience, parental income measured in standard deviations from its mean, and an indicator equal to one for women. Column (1) regresses the wage on education alone, and each later column adds one more independent variable, until column (4) includes all four. Hovering over any row shows what that coefficient or statistic means.
+    The table below reports four regressions estimated using the same sample of 1,200 workers. The dependent variable is hourly wage in dollars. The independent variables are years of education, years of work experience, parental income measured in standard deviations from its mean, and an indicator equal to one if the worker is a woman. Column (1) regresses hourly wage on education alone. Each subsequent column adds one independent variable, so column (4) includes all four.
     """)
     return
 
 
 @app.cell(hide_code=True)
-def _(mo, np):
+def _(np):
     # Wage data for 1,200 workers used to build the regression table. Education
     # is correlated with parental income, which is the source of the omitted
     # variable bias discussed in Section 2.
@@ -160,14 +159,14 @@ def _(fits, mo, var_order):
     # Each row carries a `title` attribute, so hovering it shows a native
     # tooltip with the definition of that coefficient or statistic.
     _tips = {
-        "Education (years)": "Estimated change in the hourly wage for one more year of education, holding the other variables in the column fixed.",
-        "Experience (years)": "Estimated change in the hourly wage for one more year of work experience, holding the other variables fixed.",
-        "Parental income (SD)": "Estimated change in the hourly wage for a one standard deviation rise in parental income, holding the other variables fixed.",
-        "Female": "Estimated wage gap for women relative to men with the same values of the other variables.",
+        "Education (years)": "Estimated change in the hourly wage for workers with one more year of education, holding the other independent variables in the column fixed.",
+        "Experience (years)": "Estimated change in the hourly wage for workers with one more year of work experience, holding the other independent variables in the column fixed.",
+        "Parental income (SD)": "Estimated change in the hourly wage for workers with a one standard deviation rise in parental income, holding the other independent variables in the column fixed.",
+        "Female": "Estimated wage gap for women relative to men with the same values of the other independent variables in the column.",
         "Constant": "The predicted hourly wage when every independent variable in the column equals zero.",
         "Observations": "The number of workers used to estimate the regression.",
-        "R²": "The share of the variation in wages the regression explains, from 0 to 1.",
-        "Adjusted R²": "The R-squared with a penalty for each independent variable, so a variable that does not help lowers it.",
+        "R²": "The share of the variation in wages the independent variables explain. The R² ranges from 0 to 1.",
+        "Adjusted R²": "The R-squared with a penalty for each independent variable, so a variable that does not help explain the variation in wages lowers it.",
     }
 
     def _stars(_t):
@@ -245,8 +244,8 @@ def _(fits, mo, var_order):
         "<span style='display:block;margin:0.2rem auto 1rem;max-width:560px;"
         "font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;'>"
         "Standard errors in parentheses. "
-        "One star marks significance at the 10% level, two at the 5% level, "
-        "and three at the 1% level. Hover over a row for its definition."
+        "One star marks statistical significance at the 10% level, two at the 5% level, "
+        "and three at the 1% level. Hover your mouse over a row for its definition."
         "</span>"
     )
     mo.vstack([mo.md(_table), _note])
@@ -256,7 +255,7 @@ def _(fits, mo, var_order):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    Each coefficient cell holds two numbers. The top number is the estimated coefficient, the change in the predicted wage for a one-unit increase in that variable, holding the other variables in that column fixed. The number in parentheses below it is the *standard error*, which measures how much the coefficient would move from one random sample to the next. The asterisks flag *statistical significance*, covered in Section 3. The last three rows report the number of observations, the *R-squared*, and the *adjusted R-squared*, three summaries of the regression as a whole that Section 3 also explains.
+    Each coefficient cell contains two numbers. The top number is the estimated coefficient for that independent variable, $\hat\beta_j$. It gives the change in predicted hourly wage associated with a one-unit increase in that variable, holding the other independent variables included in the column fixed. The number in parentheses below it is the standard error. Recall that the standard error is the square root of the estimated sample variance of $\hat\beta_j$ and measures how much $\hat\beta_j$ would typically vary across random samples from the same population. The asterisks indicate *statistical significance*, which we discuss in Section 3. The final three rows report the number of observations, the R-squared, and the adjusted R-squared for each regression.
     """)
     return
 
@@ -265,21 +264,15 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec2"></a>
-    ## 2. Why the coefficients change across columns
+    ## 2. Why coefficients change across columns
 
-    Read across the education row. The coefficient is \$2.00 per hour for each additional year in column (1), and when parental income enters in column (3) it drops to \$1.14. That change is *omitted variable bias*, the effect from Lecture 8. With education the only independent variable, parental income sits in the error term, and it is correlated with education, since higher-income families tend to have children with more schooling, while it also raises wages on its own. Lecture 8 showed that omitting such a variable pulls the slope estimate away from the effect it is meant to measure,
+    Let's begin by reading across the education row. In column (1), each additional year of education is associated with a roughly $2.00 increase in hourly wages.
 
-    $$
-    \hat{\beta}_1 \overset{p}{\to} \beta_1 + \underbrace{\rho_{Xu}\cdot\frac{\sigma_u}{\sigma_X}}_{\text{bias}},
-    $$
+    Column (2) adds work experience to the regression. The education coefficient remains roughly $2.00, which tells us that controlling for experience does not meaningfully change the estimated relationship between education and wages. Because experience is associated with wages, this suggests that experience is uncorrelated with education in the sample. Omitting experience therefore produces little or no omitted variable bias in the education coefficient. Experience nevertheless matters for wages; holding education fixed, each additional year of experience is associated with a $0.16 increase in hourly wages.
 
-    where $\rho_{Xu}$ is the correlation between education and the error term, $\sigma_u$ is the standard deviation of the error, and $\sigma_X$ is the standard deviation of education. Here the omitted parental income raises wages and moves in the same direction as education, so $\rho_{Xu}$ is positive, the bias is positive, and column (1) overstates the return to education.
+    Column (3) adds parental income, and the education coefficient falls from $2.00 to $1.14. This change reflects *omitted variable bias*, which we studied in Lecture 8. Before parental income was included in the regression, it was part of the error term. Parental income is likely positively correlated with education in this sample because children from higher-income families tend to complete more schooling. Parental income may also affect wages independently of education through factors such as access to internships and financial support during job searches. Columns (1) and (2) therefore attribute some of the wage differences associated with parental income to education, creating upward bias in the education coefficient. Holding parental income fixed in column (3) compares workers from similar family backgrounds and removes this particular source of bias, although other omitted factors may remain in the error term.
 
-    Column (2) adds experience, and the education coefficient does not move, holding at \$2.00. Experience is uncorrelated with education, so it was never part of education's bias term, and adding it changes nothing for education. A variable shifts another coefficient only when the two variables are correlated.
-
-    Column (3) adds parental income itself, and the education coefficient falls to \$1.14. Holding parental income fixed compares workers with similar family backgrounds, which removes the bias term from the education slope. Parental income is a *confounder*, a variable correlated with a regressor of interest that also affects the outcome, and controlling for it is the reason to prefer multiple regression over a simple regression.
-
-    Column (4) adds an indicator for female workers, and the education coefficient barely moves, from \$1.14 to \$1.16, because sex is close to uncorrelated with education here. Women are estimated to earn \$1.94 per hour less than men with the same education, experience, and family background, a large gap that still leaves the education coefficient alone.
+    Column (4) adds an indicator for female workers. The education coefficient changes only slightly, from $1.14 to $1.16, indicating that sex is nearly uncorrelated with education in this sample. Holding education, experience, and parental income fixed, women are estimated to earn $1.94 less per hour than men. Adding the indicator variable reveals this wage difference but has little effect on the estimated return to education.
     """)
     return
 
@@ -288,17 +281,23 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec3"></a>
-    ## 3. Reading fit and significance
+    ## 3. Statistical significance
 
-    The standard error below each coefficient measures its sampling uncertainty, and two summaries from Lecture 4 come straight from it. The *t-statistic* is the coefficient divided by its standard error, and a coefficient more than about 1.96 standard errors from zero is *statistically significant* at the 5% level. A 95% *confidence interval* is the coefficient plus or minus about 1.96 standard errors, the range of values the data leave plausible, and a coefficient is significant at the 5% level exactly when its interval excludes zero. The stars report significance directly, one for the 10% level, two for the 5% level, and three for the 1% level, and every coefficient in the table carries three. The education coefficient in column (4), for instance, is \$1.16 with a standard error of \$0.08, so its t-statistic is near 15 and its 95% interval runs from about \$1.01 to \$1.31, nowhere near zero.
+    The asterisks beside each coefficient indicate its *statistical significance*. Recall that we test the null hypothesis that the corresponding population coefficient equals zero using the t-statistic
 
-    The confidence interval also shows how much the controls matter. For education it runs from about \$1.86 to \$2.14 in column (1) and from about \$1.01 to \$1.31 in column (4), two ranges that do not overlap, so the controls move the estimate well beyond sampling noise. Significance is still not the same as importance. The experience coefficient of \$0.16 per year is highly significant, yet a year of experience adds far less to the wage than a year of education, so a table must be read for the size of an effect as well as its significance.
+    $$
+    t = \frac{\hat{\beta}_j - 0}{\hat{\sigma}_{\hat{\beta}_j}}.
+    $$
 
-    The standard errors themselves shift across columns. The education standard error falls from 0.072 in column (1) to 0.070 in column (2), because experience explains more of the variation in wages and tightens every coefficient. From column (2) to column (3) it rises to 0.078, because parental income is correlated with education, so the data hold less independent variation in education once it is included. This is *multicollinearity*, the loss of precision from including variables that move together, covered in Lecture 9.
+    We choose a significance level, denoted by $\alpha$, before conducting the test. The significance level is the probability of rejecting the null hypothesis when it is actually true. Thus, setting $\alpha=0.05$ means accepting a 5% probability of such an error across repeated samples from the same population.
 
-    The last two rows summarize fit. The *R-squared*, introduced in Lecture 5, is the share of the variation in wages the regression explains, and it rises in every column, from 0.392 to 0.581, because adding a variable can never lower the explained share. That makes it useless for deciding whether a variable belongs. The *adjusted R-squared* from Lecture 8 charges a penalty for each variable added. It also rises here, from 0.391 to 0.580, so every variable earned its place. Had we instead added a variable unrelated to wages, the R-squared would still have edged up while the adjusted R-squared fell.
+    A coefficient is statistically significant at the 10% level when its p-value is below 0.10, at the 5% level when its p-value is below 0.05, and at the 1% level when its p-value is below 0.01. Smaller significance levels require stronger evidence against the null hypothesis. A coefficient significant at the 1% level is therefore also significant at the 5% and 10% levels. Regression tables commonly summarize these results with one asterisk for the 10% level, two for the 5% level, and three for the 1% level of statistical significance.
 
-    A high R-squared does not make a coefficient causal. Column (1) explains 39% of the variation in wages, yet its education coefficient is biased upward by the omission of parental income, while column (3) explains more and controls for that confounder. Fit measures how closely the regression tracks the data. Whether a coefficient recovers a causal effect depends on the omitted variable bias from Section 2, not on the R-squared.
+    For example, the education coefficient in column (4) is $1.16 with a standard error of $0.08. Its t-statistic is about 15, so its p-value is well below 0.01 and it receives three asterisks. We therefore reject the null hypothesis that the population education coefficient is zero at the 1% significance level. Indeed, every coefficient estimate in this table is statistically significant at the 1% level.
+
+    Statistical significance does not tell us whether an effect is large or important. The experience coefficient is precisely estimated and highly statistically significant, but an additional year of experience is associated with only a $0.16 increase in hourly wages, compared with $1.16 for an additional year of education. You must therefore be careful to inspect a regression table  for both the size and the statistical significance of each coefficient.
+
+    The final rows report the number of observations, the $R^2$, and the adjusted $R^2$. Both the $R^2$ and the adjusted $R^2$ rise as variables are added, indicating that the later regressions explain more of the variation in wages. Remember, however, that a better fit does not make a coefficient causal. A causal interpretation still depends on whether relevant unobserved variables remain in the error term.
     """)
     return
 
@@ -307,18 +306,15 @@ def _(mo):
 def _(mo):
     mo.callout(
         mo.md(
-            "**Key terms covered:** regression table, standard error, statistical "
-            "significance, significance level, t-statistic, confidence interval, "
-            "omitted variable bias, confounder, multicollinearity, R-squared, "
+            "**Key terms covered:** regression table, statistical "
+            "significance, significance level, t-statistic, "
+            "omitted variable bias, R-squared, "
             "adjusted R-squared.\n\n"
             "**Key concepts covered:** reading a regression table column by column and "
             "row by row, a coefficient changes when an added variable is correlated "
-            "with it and also explains the outcome (omitted variable bias from a "
-            "confounder), adding a correlated variable inflates a coefficient's "
-            "standard error through multicollinearity, statistical significance versus "
-            "economic importance, a coefficient is significant when its confidence "
-            "interval excludes zero, R-squared always rises with more variables while "
-            "adjusted R-squared penalizes them, and a high R-squared does not make a "
+            "with it and also explains the outcome, "
+            "statistical significance versus "
+            "economic importance, and a high R-squared does not make a "
             "coefficient causal."
         ),
         kind="info",
