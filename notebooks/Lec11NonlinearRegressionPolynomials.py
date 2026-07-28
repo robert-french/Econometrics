@@ -12,8 +12,7 @@
 
 import marimo
 
-__generated_with = "0.23.9"
-__preliminary__ = True
+__generated_with = "0.23.14"
 app = marimo.App(
     app_title="Lecture 11: Nonlinear Regression, Polynomials",
     css_file="marimo-overrides.css",
@@ -40,7 +39,7 @@ def _(mo):
             mo.nav_menu(
                 {
                     "#sec1": "1. Modeling a nonlinear relationship",
-                    "#sec2": "2. Estimating and reading the quadratic model",
+                    "#sec2": "2. Interpreting the quadratic model",
                     "#sec3": "3. The effect of experience depends on its level",
                     "#sec4": "4. Testing whether the relationship is nonlinear",
                     "#sec5": "5. Higher-order polynomials and overfitting",
@@ -85,7 +84,7 @@ def _(mo):
     ## Contents
 
     [1. Modeling a nonlinear relationship](#sec1)<br>
-    [2. Estimating and reading the quadratic model](#sec2)<br>
+    [2. Interpreting the quadratic model](#sec2)<br>
     [3. The effect of experience depends on its level](#sec3)<br>
     [4. Testing whether the relationship is nonlinear](#sec4)<br>
     [5. Higher-order polynomials and overfitting](#sec5)
@@ -99,15 +98,17 @@ def _(mo):
     <a id="sec1"></a>
     ## 1. Modeling a nonlinear relationship
 
-    Wages do not rise with work experience at a steady rate. A worker gains a lot in the first years on the job, and the gains taper off later, so the relationship between the wage and experience bends. A straight line adds the same amount to the predicted wage for every extra year, so it cannot follow that bend. It is forced to compromise, running above the data at the ends and below it in the middle.
+    Wages do not increase with work experience at a constant rate. A worker's wage typically rises quickly early in their career and more slowly later on, so the relationship between wages and experience is curved rather than linear. The linear regressions we have considered so far would assume that every additional year of experience is associated with the same change in predicted wages. They therefore cannot capture this curvature and often predict wages that are too high at low and high levels of experience and too low at moderate levels of experience.
 
-    We can still fit a curve with OLS by building a second independent variable from the first. Alongside experience we include experience squared, and estimate
+    To capture relationships like this, we use a *nonlinear regression*, which allows the fitted relationship between an independent variable and the dependent variable to curve rather than restricting it to a straight line. Some nonlinear regressions can still be estimated using OLS by constructing additional independent variables from an existing independent variable. For example, in addition to experience, we can include experience squared as an independent variable and estimate
 
     $$
-    \text{Wage} = \beta_0 + \beta_1\,\text{Exper} + \beta_2\,\text{Exper}^2 + u.
+    \text{Wage} = \beta_0 + \beta_1,\text{Exper} + \beta_2,\text{Exper}^2 + u.
     $$
 
-    This is a *quadratic regression*, a regression whose fitted line is a parabola rather than a straight line. It is still linear in the coefficients $\beta_0$, $\beta_1$, and $\beta_2$, so OLS estimates it exactly like the multiple regressions of Lectures 8 and 9, treating experience and experience squared as two separate independent variables. The slider below fits a *polynomial* of the degree you choose, a sum of powers of experience up to that degree, and reports how well it fits. Degree one is the straight line, and degree two is the quadratic above.
+    This is a *quadratic regression*, one type of nonlinear regression. Its fitted relationship is a curve rather than a straight line. Although the relationship is nonlinear in experience, the regression remains linear in the coefficients $\beta_0$, $\beta_1$, and $\beta_2$. We can therefore estimate it using OLS just like the multiple regressions from Lectures 8 and 9, treating experience and experience squared as two separate independent variables.
+
+    The slider below fits a *polynomial regression* of the degree you choose. A polynomial is a sum of powers of experience up to the selected degree. A polynomial of degree one produces a straight line, a polynomial of degree two produces the quadratic relationship above, and higher-degree polynomials produce more flexible curves. The slider also reports how well each polynomial fits the data. Polynomial regressions of degree two or higher are one type of nonlinear regressions. Lectures 12 and 13 will introduce other types.
     """)
     return
 
@@ -134,7 +135,7 @@ def _(mo):
     )
     mo.vstack(
         [
-            mo.md("Set the degree of the polynomial fitted to the wage data and watch the fit and the two fit measures change."),
+            mo.md("Adjust the polynomial’s degree and observe how the fitted wage curve and both $R$-squared measures change."),
             poly_degree,
         ]
     )
@@ -194,22 +195,28 @@ def _(alt, exper, mo, n_workers, np, pd, poly_degree, wage):
 
     if _deg == 1:
         _msg = (
-            f"A straight line misses the bend, running above the data at the ends and "
-            f"below it in the middle. Its R-squared is {_r2:.3f} and its adjusted "
-            f"R-squared is {_ar2:.3f}. Raise the degree to 2 to let the fit curve."
+            f"The degree-one polynomial produces a straight line. It predicts wages that "
+            f"are too high at low and high levels of experience and too low at moderate "
+            f"levels. Its R-squared is {_r2:.3f} and its adjusted R-squared is {_ar2:.3f}. "
+            f"Raise the degree to 2 to allow the fitted relationship to curve."
         )
     elif _deg == 2:
         _msg = (
-            f"The quadratic follows the rise and the flattening, with R-squared {_r2:.3f} "
-            f"and adjusted R-squared {_ar2:.3f}, both well above the straight line. Raise "
-            f"the degree further to see what more flexibility does."
+            f"The quadratic regression captures the rise and later flattening of "
+            f"wages with experience. Its R-squared is {_r2:.3f} and its adjusted R-squared is {_ar2:.3f}, "
+            f"both higher than the corresponding values for the straight line. Raise the "
+            f"degree further to see how additional flexibility affects the fitted curve "
+            f"and the two measures of fit."
         )
     else:
         _msg = (
-            f"At degree {_deg} the curve wiggles to chase individual points. The R-squared "
-            f"has crept up to {_r2:.3f}, because another term can never worsen the fit, but "
-            f"the adjusted R-squared has fallen to {_ar2:.3f}. The extra terms are fitting "
-            f"noise, not signal."
+            f"At degree {_deg}, the fitted curve begins to bend toward individual "
+            f"observations. Its R-squared has risen to {_r2:.3f} because adding terms can "
+            f"never lower the R-squared. Its adjusted R-squared, however, has fallen to "
+            f"{_ar2:.3f}, indicating that the additional terms do not improve the fit "
+            f"enough to justify the added complexity. This pattern suggests that the "
+            f"additional terms are beginning to fit noise in the data rather than the underlying "
+            f"relationship."
         )
     _caption = mo.md(
         "<span style='display:block;margin:0.2rem auto 1rem;max-width:560px;"
@@ -224,19 +231,19 @@ def _(alt, exper, mo, n_workers, np, pd, poly_degree, wage):
 def _(mo):
     mo.md(r"""
     <a id="sec2"></a>
-    ## 2. Estimating and reading the quadratic model
+    ## 2. Interpreting the quadratic model
 
-    The degree-two fit gives $\hat{\beta}_0 = 7.7$, $\hat{\beta}_1 = 1.18$, and $\hat{\beta}_2 = -0.019$, with experience in years and the wage in dollars per hour. The negative coefficient on experience squared is what bends the fitted line back down as experience grows. Its R-squared is 0.76, up from 0.59 for the straight line, so the curve tracks the data more closely.
+    The degree-two polynomial regression estimated in Section 1 yields $\hat{\beta}_0 = 7.7$, $\hat{\beta}_1 = 1.18$, and $\hat{\beta}_2 = -0.019$, with experience measured in years and wages measured in dollars per hour (set the polynomial slider to 2 to see the fitted curve). The negative coefficient on experience squared causes the fitted curve to flatten and eventually turn downward as experience increases. The quadratic regression has an R-squared of 0.76, compared with 0.59 for the straight-line regression, so it fits the observed data more closely.
 
-    The three coefficients no longer have separate simple meanings. In a straight-line regression $\hat{\beta}_1$ is the slope, the change in the predicted wage for one more year of experience. That is no longer true here, because experience appears in two terms at once. A one-year rise in experience changes both $\text{Exper}$ and $\text{Exper}^2$, so $\hat{\beta}_1$ and $\hat{\beta}_2$ move the prediction together. To read the effect of experience we have to work from the fitted curve, which is what Section 3 does.
+    The intercept retains its usual interpretation, but the two coefficients on experience cannot be interpreted separately as changes in the predicted wage. In a straight-line regression, $\hat{\beta}_1$ is the regression slope and gives the change in the predicted wage associated with one additional year of experience. In a quadratic regression, a one-year increase in experience changes both $\text{Exper}$ and $\text{Exper}^2$. The change in the predicted wage therefore depends on $\hat{\beta}_1$, $\hat{\beta}_2$, and the worker’s current level of experience. Section 3 shows how to calculate and interpret changes in predicted wages from the fitted curve.
 
-    Bending the fitted line changes its shape, not what is required to read it causally. A quadratic is still a multiple regression, so the least squares assumptions from Lectures 6 and 9 carry over word for word. The first of them is the one that does the work, requiring that the error have mean zero at every combination of the independent variables,
+    Allowing the fitted relationship to curve does not change the assumptions required for a causal interpretation. A quadratic regression is still estimated as a multiple regression, so the least-squares assumptions from Lectures 6 and 9 continue to apply. The first OLS assumption concerns the unobserved determinants of wages collected in the error term. For the fitted relationship to have a causal interpretation, these omitted determinants cannot vary systematically with the independent variables in ways that raise or lower wages. Formally, the error must have mean zero for every possible combination of experience and experience squared,
 
     $$
     \mathbb{E}[u \mid \text{Exper}, \text{Exper}^2] = 0.
     $$
 
-    Since both independent variables are built from experience, this amounts to requiring that nothing left in the error term vary systematically with experience or with any power of it. Suppose workers who stay in the labour force longest are also the more able ones, and that ability raises the wage at any level of experience. Ability then sits in the error and moves with experience, the assumption fails, and the fitted curve is biased in exactly the way Lecture 8 described for a straight line. A more flexible functional form buys a better description of the shape of the relationship. It does nothing about omitted variable bias.
+    Because $\text{Exper}^2$ is determined entirely by $\text{Exper}$, conditioning on both variables is equivalent to conditioning on experience alone. In the current context, workers with different levels of experience cannot systematically differ in unobserved characteristics that also affect their wages.
     """)
     return
 
@@ -247,13 +254,17 @@ def _(mo):
     <a id="sec3"></a>
     ## 3. The effect of experience depends on its level
 
-    To find the effect of experience at a given level, compare the predicted wage before and after the change. For a rise from $\text{Exper}$ to $\text{Exper} + \Delta$, the predicted change is
+    To determine how the predicted wage changes from a given starting point, compare the fitted wage before and after an increase in experience. Suppose experience rises from $\text{Exper}$ to $\text{Exper}+\Delta$. The predicted change in wages is
 
     $$
-    \Delta\hat{\text{Wage}} = \left(\hat{\beta}_1(\text{Exper}+\Delta) + \hat{\beta}_2(\text{Exper}+\Delta)^2\right) - \left(\hat{\beta}_1\text{Exper} + \hat{\beta}_2\text{Exper}^2\right).
+    \Delta\widehat{\text{Wage}} = \left[ \hat{\beta}_1(\text{Exper}+\Delta) + \hat{\beta}_2(\text{Exper}+\Delta)^2 \right] - \left[ \hat{\beta}_1\text{Exper} + \hat{\beta}_2\text{Exper}^2 \right].
     $$
 
-    Dividing by $\Delta$ gives the average slope of the curve over that stretch, the extra wage per extra year. Unlike a straight line, this slope depends on where you start. The explorer below lets you set both the starting level of experience and the size of $\Delta$. Early in a career a given rise adds a large amount to the wage. Near the top of the curve it adds almost nothing, and past the peak the predicted wage falls. Widening $\Delta$ averages the slope over a longer stretch, so a span that crosses the peak mixes the rising and falling parts together.
+    The intercept does not appear because it is the same in both predictions and therefore cancels. Dividing the predicted change by $\Delta$ gives the average slope of the fitted curve over this interval, $\frac{\Delta\widehat{\text{Wage}}}{\Delta}$.
+
+    This slope gives the average change in the predicted hourly wage associated with each additional year of experience over the interval. Unlike the constant slope of a straight-line regression, it depends on both the starting level of experience and the size of $\Delta$.
+
+    The interactive plot below lets you choose both values. Early in a career, an increase of a given size raises the predicted wage substantially. Near the peak of the curve, the same increase changes the predicted wage very little. Beyond the peak, it lowers the predicted wage. Increasing $\Delta$ averages the slope over a longer interval.
     """)
     return
 
