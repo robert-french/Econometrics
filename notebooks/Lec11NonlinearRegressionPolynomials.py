@@ -477,16 +477,21 @@ def _(mo):
 def _(mo):
     mo.callout(
         mo.md(
-            "**Key terms covered:** quadratic regression, polynomial, polynomial of "
-            "degree r, overfitting, adjusted R-squared.\n\n"
-            "**Key concepts covered:** modeling a nonlinear relationship by adding powers "
-            "of an independent variable and estimating with OLS, why the coefficients of a "
-            "quadratic no longer read as a single slope, computing the effect of a change "
-            "in X as a difference in predicted values so the slope depends on the level of "
-            "X, why a flexible functional form still needs the least squares assumptions "
-            "and does not cure omitted variable bias, testing for nonlinearity with the "
-            "hypothesis that the squared term is zero, and how higher-degree polynomials "
-            "overfit while the adjusted R-squared, not the R-squared, signals when to stop."
+            "**Key terms covered:** nonlinear regression, polynomial regression, "
+            "quadratic regression, polynomial of degree r, overfitting, adjusted "
+            "R-squared.\n\n"
+            "**Key concepts covered:** modeling a curved relationship by including powers "
+            "of an independent variable, why a polynomial regression remains linear in its "
+            "coefficients and can be estimated by OLS as a multiple regression, why the "
+            "coefficients on experience and experience squared cannot be interpreted "
+            "separately as changes in the predicted wage, computing the effect of an "
+            "increase in experience as the difference between two predicted wages so that "
+            "it depends on the starting level of experience and the size of the increase, "
+            "why allowing the fitted relationship to curve does not change the assumptions "
+            "required for a causal interpretation, testing whether the relationship is "
+            "nonlinear with a t-test on the coefficient of the squared term, and why "
+            "adding terms can never lower the R-squared while the adjusted R-squared "
+            "penalizes each added term and signals overfitting."
         ),
         kind="info",
     )
