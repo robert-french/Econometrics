@@ -399,10 +399,11 @@ def _(alt, exper, mo, np, pd, secant_delta, secant_start, wage):
     )
 
     # Near the peak the two predicted wages almost coincide and the vertical
-    # brace degenerates, so it is omitted; the caption carries the number.
-    _layers = [_cloud, _peak_rule, _guides, _xbrace, _xlab, _curve, _secant, _ends]
+    # brace degenerates, so only the brace is omitted; the label sits above the
+    # upper guide line and stays legible at any spacing, so it always shows.
+    _layers = [_cloud, _peak_rule, _guides, _xbrace, _xlab, _curve, _secant, _ends, _ylab]
     if abs(_y1 - _y0) >= 1.0:
-        _layers += [_ybrace, _ylab]
+        _layers += [_ybrace]
     _chart = alt.layer(*_layers).properties(width=560, height=340)
 
     if _slope > 0.35:
