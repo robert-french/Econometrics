@@ -297,7 +297,6 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(alt, exper, mo, np, pd, secant_delta, secant_start, wage):
     _quad = np.polyfit(exper, wage, 2)  # [b2, b1, b0], highest power first
-    _peak = -_quad[1] / (2.0 * _quad[0])
 
     def _yhat(_x):
         return float(np.polyval(_quad, _x))
@@ -332,12 +331,6 @@ def _(alt, exper, mo, np, pd, secant_delta, secant_start, wage):
         .mark_point(color="#1f4e79", size=90, filled=True, clip=True)
         .encode(x="exper:Q", y="wage:Q")
     )
-    _peak_rule = (
-        alt.Chart(pd.DataFrame({"v": [_peak]}))
-        .mark_rule(color="#9aa5b1", strokeDash=[4, 3], size=1.5)
-        .encode(x="v:Q")
-    )
-
     # Dashed guides from the secant endpoints across to the vertical axis and
     # down to the horizontal axis, stopping at the braces.
     _guides = (
@@ -401,7 +394,7 @@ def _(alt, exper, mo, np, pd, secant_delta, secant_start, wage):
     # Near the peak the two predicted wages almost coincide and the vertical
     # brace degenerates, so only the brace is omitted; the label sits above the
     # upper guide line and stays legible at any spacing, so it always shows.
-    _layers = [_cloud, _peak_rule, _guides, _xbrace, _xlab, _curve, _secant, _ends, _ylab]
+    _layers = [_cloud, _guides, _xbrace, _xlab, _curve, _secant, _ends, _ylab]
     if abs(_y1 - _y0) >= 1.0:
         _layers += [_ybrace]
     _chart = alt.layer(*_layers).properties(width=560, height=340)
@@ -422,7 +415,7 @@ def _(alt, exper, mo, np, pd, secant_delta, secant_start, wage):
     _caption = mo.md(
         "<span style='display:block;margin:0.2rem auto 1rem;max-width:560px;"
         "font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;'>"
-        + _msg + " The grey dashed line marks the peak.</span>"
+        + _msg + "</span>"
     )
     mo.vstack([_chart, _caption])
     return
