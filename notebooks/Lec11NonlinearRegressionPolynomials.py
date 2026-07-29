@@ -7,6 +7,7 @@
 #     "altair",
 #     "scipy",
 #     "pyarrow",
+#     "wigglystuff>=0.5.20",
 # ]
 # ///
 
@@ -25,8 +26,9 @@ def _():
     import numpy as np
     import pandas as pd
     import altair as alt
+    from wigglystuff import TangleLatex
 
-    return alt, mo, np, pd
+    return TangleLatex, alt, mo, np, pd
 
 
 @app.cell(hide_code=True)
@@ -107,7 +109,7 @@ def _(mo):
     \text{Wage} = \beta_0 + \beta_1\text{Exper} + \beta_2\text{Exper}^2 + u.
     $$
 
-    A regression that includes powers of an independent variable is called a *polynomial regression*. The equation above is a *quadratic regression* because the highest power of experience is two; it is a special type of polynomial regression.\footnote{Quadratic regressions are therefore polynomial regressions, and polynomial regressions of degree two or higher are nonlinear regressions. Not all nonlinear regressions are polynomial regressions, however, and not all polynomial regressions are quadratic regressions.}
+    A regression that includes powers of an independent variable is called a *polynomial regression*. The equation above is a *quadratic regression* because the highest power of experience is two; it is a special type of polynomial regression.<sup><a id="fnref1" href="#fn1">1</a></sup>
 
     Although the quadratic regression is nonlinear in experience, it remains linear in the coefficients $\beta_0$, $\beta_1$, and $\beta_2$. We can therefore estimate it using OLS just like the multiple regressions from Lectures 8 and 9, treating experience and experience squared as two separate independent variables.
 
@@ -258,52 +260,71 @@ def _(mo):
     ## 3. The effect of experience depends on its level
 
     To determine how the predicted wage changes from a given starting point, compare the fitted wage before and after an increase in experience. Suppose experience rises from $\text{Exper}$ to $\text{Exper}+\Delta$. The predicted change in wages is
-
-    $$
-    \Delta\widehat{\text{Wage}} = \left[ \hat{\beta}_1(\text{Exper}+\Delta) + \hat{\beta}_2(\text{Exper}+\Delta)^2 \right] - \left[ \hat{\beta}_1\text{Exper} + \hat{\beta}_2\text{Exper}^2 \right].
-    $$
-
-    The intercept does not appear because it is the same in both predictions and therefore cancels. Dividing the predicted change by $\Delta$ gives the average slope of the fitted curve over this interval, $\frac{\Delta\widehat{\text{Wage}}}{\Delta}$.
-
-    This slope gives the average change in the predicted hourly wage associated with each additional year of experience over the interval. Unlike the constant slope of a straight-line regression, it depends on both the starting level of experience and the size of $\Delta$.
-
-    The interactive plot below lets you choose both values. Early in a career, an increase of a given size raises the predicted wage substantially. Near the peak of the curve, the same increase changes the predicted wage very little. Beyond the peak, it lowers the predicted wage. Increasing $\Delta$ averages the slope over a longer interval.
     """)
     return
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    # Ranges are chosen so the end of the span, start + delta, never exceeds the
-    # 40 years covered by the data, which keeps the two sliders independent.
-    secant_start = mo.ui.slider(
-        start=1, stop=30, step=1, value=8,
-        label="Starting experience (years)", show_value=True, full_width=False,
+def _(TangleLatex, mo):
+    # Draggable numbers inside the formula replace the two former sliders. The
+    # ranges keep the end of the span, exper + delta, within the 40 years
+    # covered by the data.
+    secant_formula = mo.ui.anywidget(
+        TangleLatex(
+            latex=(
+                r"\Delta\widehat{\text{Wage}} = "
+                r"\left[ \hat{\beta}_1(\tangle{exper}+\tangle{delta}) "
+                r"+ \hat{\beta}_2(\tangle{exper}+\tangle{delta})^2 \right] "
+                r"- \left[ \hat{\beta}_1 \cdot \tangle{exper} "
+                r"+ \hat{\beta}_2 \cdot \tangle{exper}^2 \right]."
+            ),
+            parameters={
+                "exper": {
+                    "value": 8, "min_value": 1, "max_value": 30, "step": 1,
+                    "digits": 0, "display": "symbol", "symbol": r"\text{Exper}",
+                    "label": "Starting experience (years)",
+                    "color": {"light": "#1f4e79", "dark": "#75a7ff"},
+                },
+                "delta": {
+                    "value": 5, "min_value": 1, "max_value": 10, "step": 1,
+                    "digits": 0, "display": "symbol", "symbol": r"\Delta",
+                    "label": "Increase in experience, Δ (years)",
+                    "color": {"light": "#b45309", "dark": "#fbbf24"},
+                },
+            },
+            display_mode=True,
+            editor="popover",
+            reveal_all_on_drag=True,
+            theme="auto",
+        )
     )
-    secant_delta = mo.ui.slider(
-        start=1, stop=10, step=1, value=5,
-        label="Size of the increase, Δ (years)", show_value=True, full_width=False,
-    )
-    mo.vstack(
-        [
-            mo.md("Set where the increase in experience starts and how large it is, then read the slope of the curve over that stretch."),
-            secant_start,
-            secant_delta,
-        ]
-    )
-    return secant_delta, secant_start
+    secant_formula
+    return (secant_formula,)
 
 
 @app.cell(hide_code=True)
-def _(alt, exper, mo, np, pd, secant_delta, secant_start, wage):
+def _(mo):
+    mo.md(r"""
+    The intercept does not appear because it is the same in both predictions and therefore cancels. Dividing the predicted change by $\Delta$ gives the average slope of the fitted curve over this interval, $\frac{\Delta\widehat{\text{Wage}}}{\Delta}$.
+
+    This slope gives the average change in the predicted hourly wage associated with each additional year of experience over the interval. Unlike the constant slope of a straight-line regression, it depends on both the starting level of experience and the size of $\Delta$.
+
+    The formula above is interactive: the colored $\text{Exper}$ and $\Delta$ are draggable. Drag either one sideways to reveal the numbers behind the symbols and change their values, or click one and type a value. The plot below redraws the stretch of the curve you chose. The brace along the horizontal axis marks the increase $\Delta$, and the brace along the vertical axis marks the resulting change in the predicted wage. Early in a career, an increase of a given size raises the predicted wage substantially. Near the peak of the curve, the same increase changes the predicted wage very little. Beyond the peak, it lowers the predicted wage. Increasing $\Delta$ averages the slope over a longer interval.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(alt, exper, mo, np, pd, secant_formula, wage):
     _quad = np.polyfit(exper, wage, 2)  # [b2, b1, b0], highest power first
     _peak = -_quad[1] / (2.0 * _quad[0])
 
     def _yhat(_x):
         return float(np.polyval(_quad, _x))
 
-    _x0 = float(secant_start.value)
-    _delta = float(secant_delta.value)
+    # Clamp typed values to the ranges declared on the formula widget.
+    _x0 = min(max(float(secant_formula.values["exper"]), 1.0), 30.0)
+    _delta = min(max(float(secant_formula.values["delta"]), 1.0), 10.0)
     _x1 = _x0 + _delta
     _y0, _y1 = _yhat(_x0), _yhat(_x1)
     _slope = (_y1 - _y0) / _delta
@@ -337,7 +358,71 @@ def _(alt, exper, mo, np, pd, secant_delta, secant_start, wage):
         .mark_rule(color="#9aa5b1", strokeDash=[4, 3], size=1.5)
         .encode(x="v:Q")
     )
-    _chart = (_cloud + _peak_rule + _curve + _secant + _ends).properties(width=560, height=340)
+
+    # Dashed guides from the secant endpoints across to the vertical axis and
+    # down to the horizontal axis, stopping at the braces.
+    _guides = (
+        alt.Chart(pd.DataFrame({
+            "exper": [_x0, 1.4, _x1, 1.4, _x0, _x0, _x1, _x1],
+            "wage": [_y0, _y0, _y1, _y1, _y0, 1.2, _y1, 1.2],
+            "seg": ["h0", "h0", "h1", "h1", "v0", "v0", "v1", "v1"],
+        }))
+        .mark_line(color="#9aa5b1", strokeDash=[3, 3], size=1, clip=True)
+        .encode(x="exper:Q", y="wage:Q", detail="seg:N")
+    )
+
+    def _brace_df(_a, _b, _base, _depth, _vertical):
+        # Curly brace spanning [_a, _b] as a polyline: back edge at _base on
+        # the other axis, cusp reaching _depth further out at the midpoint.
+        _lo, _hi = min(_a, _b), max(_a, _b)
+        _s = np.linspace(_lo, _hi, 120)
+        _half = _s[:60]
+        _sharp = 300.0 / (_hi - _lo)
+        _ph = (1.0 / (1.0 + np.exp(-_sharp * (_half - _half[0])))
+               + 1.0 / (1.0 + np.exp(-_sharp * (_half - _half[-1]))))
+        _prof = np.concatenate([_ph, _ph[::-1]])
+        _prof = (_prof - _prof.min()) / (_prof.max() - _prof.min())
+        _off = _base + _depth * _prof
+        _ordr = np.arange(_s.size)
+        if _vertical:
+            return pd.DataFrame({"exper": _off, "wage": _s, "o": _ordr})
+        return pd.DataFrame({"exper": _s, "wage": _off, "o": _ordr})
+
+    # The order channel is essential: without it Altair sorts line vertices by
+    # x, which scrambles the vertical brace into a zigzag.
+    _xbrace = (
+        alt.Chart(_brace_df(_x0, _x1, 1.2, 1.1, False))
+        .mark_line(color="#b45309", size=1.5, clip=True)
+        .encode(x="exper:Q", y="wage:Q", order=alt.Order("o:Q"))
+    )
+    _xlab = (
+        alt.Chart(pd.DataFrame({
+            "exper": [(_x0 + _x1) / 2.0], "wage": [2.7],
+            "t": [f"Δ = {_delta:.0f}"],
+        }))
+        .mark_text(color="#b45309", fontSize=13, baseline="bottom")
+        .encode(x="exper:Q", y="wage:Q", text="t:N")
+    )
+    _ybrace = (
+        alt.Chart(_brace_df(_y0, _y1, 1.4, 0.9, True))
+        .mark_line(color="#1f4e79", size=1.5, clip=True)
+        .encode(x="exper:Q", y="wage:Q", order=alt.Order("o:Q"))
+    )
+    _ylab = (
+        alt.Chart(pd.DataFrame({
+            "exper": [2.9], "wage": [(_y0 + _y1) / 2.0],
+            "t": [f"ΔWage ≈ {'−' if _y1 < _y0 else ''}${abs(_y1 - _y0):.2f}"],
+        }))
+        .mark_text(color="#1f4e79", fontSize=13, align="left")
+        .encode(x="exper:Q", y="wage:Q", text="t:N")
+    )
+
+    # Near the peak the two predicted wages almost coincide and the vertical
+    # brace degenerates, so it is omitted; the caption carries the number.
+    _layers = [_cloud, _peak_rule, _guides, _xbrace, _xlab, _curve, _secant, _ends]
+    if abs(_y1 - _y0) >= 1.0:
+        _layers += [_ybrace, _ylab]
+    _chart = alt.layer(*_layers).properties(width=560, height=340)
 
     if _slope > 0.35:
         _tail = "a large raise, because the curve is steep early in a career."
@@ -367,7 +452,7 @@ def _(mo):
     <a id="sec4"></a>
     ## 4. Testing whether the relationship is nonlinear
 
-    Polynomial regressions allow us to model nonlinear relationships. Even when the population relationship is linear, however, sampling variation can produce nonzero coefficient estimates on squared and higher-order independent variables. We therefore test whether the population coefficients on all such terms are zero.\footnote{When a polynomial includes more than one higher-order term, we must test whether their coefficients are jointly zero. The appendix on joint hypothesis tests explains how to conduct this test using an F-statistic.} If they are, the terms drop out and the model becomes linear.
+    Polynomial regressions allow us to model nonlinear relationships. Even when the population relationship is linear, however, sampling variation can produce nonzero coefficient estimates on squared and higher-order independent variables. We therefore test whether the population coefficients on all such terms are zero.<sup><a id="fnref2" href="#fn2">2</a></sup> If they are, the terms drop out and the model becomes linear.
 
     The quadratic wage model contains only one higher-order independent variable, experience squared. We therefore test $H_0: \beta_2 = 0$ against $H_1: \beta_2 \neq 0$ using the same t-test as in Lectures 4 and 9. In the wage data, $\hat{\beta}_2 = -0.019$ with a standard error of about $0.0023$, so
 
@@ -423,6 +508,18 @@ def _(mo):
         ),
         kind="info",
     )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ---
+
+    <span id="fn1" style="display:block;font-size:0.9rem;">**1.** Quadratic regressions are therefore polynomial regressions, and polynomial regressions of degree two or higher are nonlinear regressions. Not all nonlinear regressions are polynomial regressions, however, and not all polynomial regressions are quadratic regressions. <a href="#fnref1" title="Back to text">&#8617;</a></span>
+
+    <span id="fn2" style="display:block;font-size:0.9rem;">**2.** When a polynomial includes more than one higher-order term, we must test whether their coefficients are jointly zero. The Appendix of Lecture 9 explains how to conduct this test using an $F$-statistic. <a href="#fnref2" title="Back to text">&#8617;</a></span>
+    """)
     return
 
 
