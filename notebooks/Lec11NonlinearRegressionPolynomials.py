@@ -96,19 +96,22 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec1"></a>
+
     ## 1. Modeling a nonlinear relationship
 
-    Wages do not increase with work experience at a constant rate. A worker's wage typically rises quickly early in their career and more slowly later on, so the relationship between wages and experience is curved rather than linear. The linear regressions we have considered so far would assume that every additional year of experience is associated with the same change in predicted wages. They therefore cannot capture this curvature and often predict wages that are too high at low and high levels of experience and too low at moderate levels of experience.
+    The regressions we have considered so far assume that the relationship between each independent variable and the dependent variable is linear. In a linear relationship, a one-unit increase in an independent variable is associated with the same change in the dependent variable, holding the other independent variables fixed. Many economic relationships do not follow this pattern, however. A worker's wage, for example, typically rises quickly early in their career and more slowly later on. The relationship between wages and experience is therefore curved rather than linear. A linear regression cannot capture this curvature and often predicts wages that are too high at low and high levels of experience and too low at moderate levels of experience.
 
-    To capture relationships like this, we use a *nonlinear regression*, which allows the fitted relationship between an independent variable and the dependent variable to curve rather than restricting it to a straight line. Some nonlinear regressions can still be estimated using OLS by constructing additional independent variables from an existing independent variable. For example, in addition to experience, we can include experience squared as an independent variable and estimate
+    To capture relationships like this, we use a *nonlinear regression*, which allows the fitted relationship between an independent variable and the dependent variable to curve. One way to create this curvature is to include powers of an existing independent variable. For example, we can include both experience and experience squared as independent variables in a regression:
 
     $$
-    \text{Wage} = \beta_0 + \beta_1,\text{Exper} + \beta_2,\text{Exper}^2 + u.
+    \text{Wage} = \beta_0 + \beta_1\text{Exper} + \beta_2\text{Exper}^2 + u.
     $$
 
-    This is a *quadratic regression*, one type of nonlinear regression. Its fitted relationship is a curve rather than a straight line. Although the relationship is nonlinear in experience, the regression remains linear in the coefficients $\beta_0$, $\beta_1$, and $\beta_2$. We can therefore estimate it using OLS just like the multiple regressions from Lectures 8 and 9, treating experience and experience squared as two separate independent variables.
+    A regression that includes powers of an independent variable is called a *polynomial regression*. The equation above is a *quadratic regression* because the highest power of experience is two; it is a special type of polynomial regression.\footnote{Quadratic regressions are therefore polynomial regressions, and polynomial regressions of degree two or higher are nonlinear regressions. Not all nonlinear regressions are polynomial regressions, however, and not all polynomial regressions are quadratic regressions.}
 
-    The slider below fits a *polynomial regression* of the degree you choose. A polynomial is a sum of powers of experience up to the selected degree. A polynomial of degree one produces a straight line, a polynomial of degree two produces the quadratic relationship above, and higher-degree polynomials produce more flexible curves. The slider also reports how well each polynomial fits the data. Polynomial regressions of degree two or higher are one type of nonlinear regressions. Lectures 12 and 13 will introduce other types.
+    Although the quadratic regression is nonlinear in experience, it remains linear in the coefficients $\beta_0$, $\beta_1$, and $\beta_2$. We can therefore estimate it using OLS just like the multiple regressions from Lectures 8 and 9, treating experience and experience squared as two separate independent variables.
+
+    The slider below fits a polynomial regression of the degree you choose. A polynomial of degree one produces a straight line, a polynomial of degree two produces the quadratic relationship above, and higher-degree polynomials produce more flexible curves. The slider also reports how well each polynomial fits the data. Lectures 12 and 13 will introduce other types of nonlinear regressions.
     """)
     return
 
@@ -364,9 +367,20 @@ def _(mo):
     <a id="sec4"></a>
     ## 4. Testing whether the relationship is nonlinear
 
-    If $\beta_2 = 0$, the squared term drops out and the model is a straight line. So the question of whether the relationship curves is the hypothesis test $H_0: \beta_2 = 0$ against $H_1: \beta_2 \neq 0$, run exactly as in Lectures 4 and 9. Divide the estimate by its standard error to form the t-statistic, then compare the p-value with the significance level.
+    Polynomial regressions allow us to model nonlinear relationships. Even when the population relationship is linear, however, sampling variation can produce nonzero coefficient estimates on squared and higher-order independent variables. We therefore test whether the population coefficients on all such terms are zero.\footnote{When a polynomial includes more than one higher-order term, we must test whether their coefficients are jointly zero. The appendix on joint hypothesis tests explains how to conduct this test using an F-statistic.} If they are, the terms drop out and the model becomes linear.
 
-    In the wage data, $\hat{\beta}_2 = -0.019$ with a standard error of about $0.0023$, so the t-statistic is near $-8$ and the p-value is far below 0.01. We reject the straight line and conclude that experience enters the wage nonlinearly. The adjusted R-squared points the same way, rising from 0.590 for the line to 0.757 for the quadratic.
+    The quadratic wage model contains only one higher-order independent variable, experience squared. We therefore test $H_0: \beta_2 = 0$ against $H_1: \beta_2 \neq 0$ using the same t-test as in Lectures 4 and 9. In the wage data, $\hat{\beta}_2 = -0.019$ with a standard error of about $0.0023$, so
+
+    $$
+    t
+    =
+    \frac{\hat{\beta}_2 - 0}{\operatorname{SE}(\hat{\beta}_2)}
+    =
+    \frac{-0.019 - 0}{0.0023}
+    \approx -8.3.
+    $$
+
+    The corresponding p-value is far below 0.01, so we reject the null hypothesis and find strong evidence that the relationship between wages and experience is nonlinear. The negative estimate means that the curve bends downward, so wage gains diminish as experience rises. The adjusted R-squared also increases from 0.590 for the line to 0.757 for the quadratic, indicating that the quadratic fits the data substantially better.
     """)
     return
 
@@ -377,15 +391,17 @@ def _(mo):
     <a id="sec5"></a>
     ## 5. Higher-order polynomials and overfitting
 
-    The same idea extends to a *polynomial of degree $r$*, which adds experience cubed, to the fourth power, and so on up to the $r$-th power,
+    The quadratic model we have focussed on extends naturally to a *polynomial of degree $r$*, which includes powers of experience through the $r$-th power and takes the form
 
     $$
     \text{Wage} = \beta_0 + \beta_1\text{Exper} + \beta_2\text{Exper}^2 + \dots + \beta_r\text{Exper}^r + u.
     $$
 
-    A higher degree makes the curve more flexible, so it can bend in more places. Flexibility has a cost. Raise the degree on the slider in Section 1 above two and the curve begins to wiggle, chasing individual points instead of the overall shape. This is *overfitting*, fitting the noise in one sample rather than the pattern that would repeat in new data. The two fit measures split apart as it happens. The R-squared keeps inching up, from 0.762 at the quadratic to 0.779 at degree twenty, because adding a term can never worsen the in-sample fit. The *adjusted R-squared*, which charges for each added term, peaks at the quadratic at 0.757 and falls away to 0.724 by degree twenty. The extra nineteen terms buy a better fit to this sample and a worse description of the pattern behind it.
+    Raising the degree gives the curve more flexibility by allowing it to bend in more places. That flexibility can become a problem, however. As you raise the degree above two on the slider in Section 1, the curve begins to wiggle around individual observations rather than capture the overall pattern. This is *overfitting*, which occurs when a model captures randomness in the current sample rather than a pattern likely to reappear in new samples.
 
-    A few rules of thumb help choose the degree. One is to add terms until the highest one is no longer statistically significant. Another is to watch the adjusted R-squared and stop when it stops rising. A third is to let the economics of the problem set the degree. For the wage profile, the quadratic is enough.
+    The R-squared and adjusted R-squared illustrate this tradeoff. In the Section 1 plot, the R-squared rises from 0.762 for the quadratic to 0.779 for a degree-twenty polynomial because adding terms can never worsen the in-sample fit. The *adjusted R-squared*, which penalizes each added term, instead peaks at 0.757 for the quadratic model and falls to 0.724 by degree twenty. The additional eighteen terms do not appear to improve the model.
+
+    A few rules of thumb can help you decide how many degrees to include in your model. One is to increase the degree until the highest-order term is no longer statistically significant. Another is to choose the degree with the highest adjusted R-squared. Most importantly, the degree should be consistent with the economics of the problem. For our wage example, the quadratic model captures rapid wage growth early in a career followed by slower growth later on without adding unnecessary complexity.
     """)
     return
 
