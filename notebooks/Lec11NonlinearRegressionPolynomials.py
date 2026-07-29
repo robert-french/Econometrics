@@ -278,11 +278,11 @@ def _(mo):
     # 40 years covered by the data, which keeps the two sliders independent.
     secant_start = mo.ui.slider(
         start=1, stop=30, step=1, value=8,
-        label="Starting experience (years)", show_value=True, full_width=False,
+        label="Starting experience, Exper", show_value=True, full_width=False,
     )
     secant_delta = mo.ui.slider(
         start=1, stop=10, step=1, value=5,
-        label="Size of the increase, Δ (years)", show_value=True, full_width=False,
+        label="Size of the increase, Δ", show_value=True, full_width=False,
     )
     mo.vstack(
         [
