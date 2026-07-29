@@ -7,7 +7,6 @@
 #     "altair",
 #     "scipy",
 #     "pyarrow",
-#     "wigglystuff>=0.5.20",
 # ]
 # ///
 
@@ -26,9 +25,8 @@ def _():
     import numpy as np
     import pandas as pd
     import altair as alt
-    from wigglystuff import TangleLatex
 
-    return TangleLatex, alt, mo, np, pd
+    return alt, mo, np, pd
 
 
 @app.cell(hide_code=True)
@@ -260,71 +258,52 @@ def _(mo):
     ## 3. The effect of experience depends on its level
 
     To determine how the predicted wage changes from a given starting point, compare the fitted wage before and after an increase in experience. Suppose experience rises from $\text{Exper}$ to $\text{Exper}+\Delta$. The predicted change in wages is
-    """)
-    return
 
+    $$
+    \Delta\widehat{\text{Wage}} = \left[ \hat{\beta}_1(\text{Exper}+\Delta) + \hat{\beta}_2(\text{Exper}+\Delta)^2 \right] - \left[ \hat{\beta}_1\text{Exper} + \hat{\beta}_2\text{Exper}^2 \right].
+    $$
 
-@app.cell(hide_code=True)
-def _(TangleLatex, mo):
-    # Draggable numbers inside the formula replace the two former sliders. The
-    # ranges keep the end of the span, exper + delta, within the 40 years
-    # covered by the data.
-    secant_formula = mo.ui.anywidget(
-        TangleLatex(
-            latex=(
-                r"\Delta\widehat{\text{Wage}} = "
-                r"\left[ \hat{\beta}_1(\tangle{exper}+\tangle{delta}) "
-                r"+ \hat{\beta}_2(\tangle{exper}+\tangle{delta})^2 \right] "
-                r"- \left[ \hat{\beta}_1 \cdot \tangle{exper} "
-                r"+ \hat{\beta}_2 \cdot \tangle{exper}^2 \right]."
-            ),
-            parameters={
-                "exper": {
-                    "value": 8, "min_value": 1, "max_value": 30, "step": 1,
-                    "digits": 0, "display": "symbol", "symbol": r"\text{Exper}",
-                    "label": "Starting experience (years)",
-                    "color": {"light": "#1f4e79", "dark": "#75a7ff"},
-                },
-                "delta": {
-                    "value": 5, "min_value": 1, "max_value": 10, "step": 1,
-                    "digits": 0, "display": "symbol", "symbol": r"\Delta",
-                    "label": "Increase in experience, Δ (years)",
-                    "color": {"light": "#b45309", "dark": "#fbbf24"},
-                },
-            },
-            display_mode=True,
-            editor="popover",
-            reveal_all_on_drag=True,
-            theme="auto",
-        )
-    )
-    secant_formula
-    return (secant_formula,)
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
     The intercept does not appear because it is the same in both predictions and therefore cancels. Dividing the predicted change by $\Delta$ gives the average slope of the fitted curve over this interval, $\frac{\Delta\widehat{\text{Wage}}}{\Delta}$.
 
     This slope gives the average change in the predicted hourly wage associated with each additional year of experience over the interval. Unlike the constant slope of a straight-line regression, it depends on both the starting level of experience and the size of $\Delta$.
 
-    The formula above is interactive: the colored $\text{Exper}$ and $\Delta$ are draggable. Drag either one sideways to reveal the numbers behind the symbols and change their values, or click one and type a value. The plot below redraws the stretch of the curve you chose. The brace along the horizontal axis marks the increase $\Delta$, and the brace along the vertical axis marks the resulting change in the predicted wage. Early in a career, an increase of a given size raises the predicted wage substantially. Near the peak of the curve, the same increase changes the predicted wage very little. Beyond the peak, it lowers the predicted wage. Increasing $\Delta$ averages the slope over a longer interval.
+    The interactive plot below lets you choose both values. Early in a career, an increase of a given size raises the predicted wage substantially. Near the peak of the curve, the same increase changes the predicted wage very little. Beyond the peak, it lowers the predicted wage. Increasing $\Delta$ averages the slope over a longer interval. The brace along the horizontal axis marks the increase $\Delta$, and the brace along the vertical axis marks the resulting change in the predicted wage.
     """)
     return
 
 
 @app.cell(hide_code=True)
-def _(alt, exper, mo, np, pd, secant_formula, wage):
+def _(mo):
+    # Ranges are chosen so the end of the span, start + delta, never exceeds the
+    # 40 years covered by the data, which keeps the two sliders independent.
+    secant_start = mo.ui.slider(
+        start=1, stop=30, step=1, value=8,
+        label="Starting experience (years)", show_value=True, full_width=False,
+    )
+    secant_delta = mo.ui.slider(
+        start=1, stop=10, step=1, value=5,
+        label="Size of the increase, Δ (years)", show_value=True, full_width=False,
+    )
+    mo.vstack(
+        [
+            mo.md("Set where the increase in experience starts and how large it is, then read the slope of the curve over that stretch."),
+            secant_start,
+            secant_delta,
+        ]
+    )
+    return secant_delta, secant_start
+
+
+@app.cell(hide_code=True)
+def _(alt, exper, mo, np, pd, secant_delta, secant_start, wage):
     _quad = np.polyfit(exper, wage, 2)  # [b2, b1, b0], highest power first
     _peak = -_quad[1] / (2.0 * _quad[0])
 
     def _yhat(_x):
         return float(np.polyval(_quad, _x))
 
-    # Clamp typed values to the ranges declared on the formula widget.
-    _x0 = min(max(float(secant_formula.values["exper"]), 1.0), 30.0)
-    _delta = min(max(float(secant_formula.values["delta"]), 1.0), 10.0)
+    _x0 = float(secant_start.value)
+    _delta = float(secant_delta.value)
     _x1 = _x0 + _delta
     _y0, _y1 = _yhat(_x0), _yhat(_x1)
     _slope = (_y1 - _y0) / _delta
@@ -408,12 +387,14 @@ def _(alt, exper, mo, np, pd, secant_formula, wage):
         .mark_line(color="#1f4e79", size=1.5, clip=True)
         .encode(x="exper:Q", y="wage:Q", order=alt.Order("o:Q"))
     )
+    # The label sits above the upper guide line rather than inside the braced
+    # span, which is too short to hold it when the wage change is small.
     _ylab = (
         alt.Chart(pd.DataFrame({
-            "exper": [2.9], "wage": [(_y0 + _y1) / 2.0],
+            "exper": [1.6], "wage": [max(_y0, _y1) + 0.8],
             "t": [f"ΔWage ≈ {'−' if _y1 < _y0 else ''}${abs(_y1 - _y0):.2f}"],
         }))
-        .mark_text(color="#1f4e79", fontSize=13, align="left")
+        .mark_text(color="#1f4e79", fontSize=13, align="left", baseline="bottom")
         .encode(x="exper:Q", y="wage:Q", text="t:N")
     )
 
@@ -516,9 +497,9 @@ def _(mo):
     mo.md(r"""
     ---
 
-    <span id="fn1" style="display:block;font-size:0.9rem;">**1.** Quadratic regressions are therefore polynomial regressions, and polynomial regressions of degree two or higher are nonlinear regressions. Not all nonlinear regressions are polynomial regressions, however, and not all polynomial regressions are quadratic regressions. <a href="#fnref1" title="Back to text">&#8617;</a></span>
+    <span id="fn1" style="display:block;font-size:0.9rem;">**1.** Quadratic regressions are therefore polynomial regressions, and polynomial regressions of degree two or higher are nonlinear regressions! Not all nonlinear regressions are polynomial regressions, however, and not all polynomial regressions are quadratic regressions. <a href="#fnref1" title="Back to text">&#8617;</a></span>
 
-    <span id="fn2" style="display:block;font-size:0.9rem;">**2.** When a polynomial includes more than one higher-order term, we must test whether their coefficients are jointly zero. The Appendix of Lecture 9 explains how to conduct this test using an $F$-statistic. <a href="#fnref2" title="Back to text">&#8617;</a></span>
+    <span id="fn2" style="display:block;font-size:0.9rem;">**2.** When a polynomial includes more than one higher-order term, we must test whether their coefficients are jointly zero (i.e., $\beta_2 = \beta_3 = \dots = \beta_r = 0$). The Appendix of Lecture 9 explains how to conduct this test using an $F$-statistic. <a href="#fnref2" title="Back to text">&#8617;</a></span>
     """)
     return
 
