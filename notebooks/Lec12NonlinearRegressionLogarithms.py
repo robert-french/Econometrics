@@ -75,14 +75,6 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""
-    Lecture 11 modeled a curved relationship by adding powers of an independent variable. This lecture introduces a second type of nonlinear regression, the *logarithmic regression*, which instead transforms variables with the logarithm function and reads its coefficients as percent changes. We begin with the logarithm function itself, then turn to the regressions that use it.
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
     # Same-page (#fragment) links must stay plain markdown links with no inline
     # style and no styled wrapper. marimo re-renders fragment links as React
     # navigation components, and any inline style string on the link (or on a
@@ -104,6 +96,8 @@ def _(mo):
     mo.md(r"""
     <a id="sec1"></a>
     ## 1. What is a logarithm
+
+    Lecture 11 modeled a curved relationship by adding powers of an independent variable. This lecture introduces a second type of nonlinear regression, the *logarithmic regression*, which instead transforms variables with the logarithm function and reads its coefficients as percent changes. The place to start is with the function itself.
 
     The *exponential function* raises the constant $e = 2.718\dots$ to a power, written $e^X$ or $\exp(X)$. The *natural logarithm* is its inverse, the power to which $e$ must be raised to produce $X$, written $\ln(X)$, so that $\ln(e^X) = X$. Because $e$ raised to any power is positive, $\ln(X)$ is defined only for $X > 0$. Experience is measured from one year upward in this lecture, so its logarithm is always defined.
 
@@ -156,7 +150,7 @@ def _(alt, mo, np, pd):
         "the logarithm is defined only for positive X but takes every value. "
         "Reflecting either curve across the dashed 45-degree line produces the other.</span>"
     )
-    mo.vstack([_chart, _caption])
+    mo.vstack([_chart, _caption], align="center")
     return
 
 
@@ -177,6 +171,8 @@ def _(mo):
     When comparing percent changes, keep the units straight. A *percent* change is a relative change, while a difference between two percent changes is measured in *percentage points*. Going from a 10 percent rise to a 12 percent rise is an increase of 2 percentage points, not 2 percent. The caption below uses percentage points to report how far the change in the logarithm is from the percent change it approximates.
 
     A few properties follow from the definition and are worth keeping at hand. $\ln(1/X) = -\ln(X)$, $\ln(aX) = \ln(a) + \ln(X)$, and $\ln(X^a) = a\ln(X)$. The last of these is what makes an elasticity fall out of a log-log regression later in the lecture.
+
+    The first property makes changes in logarithms symmetric in a way percent changes are not. Doubling a variable raises its logarithm by $\ln(2) \approx 0.693$, and halving it lowers the logarithm by exactly the same amount, since $\ln(X/2) - \ln(X) = -\ln(2)$. In percent terms, however, a doubling is a rise of 100 percent while a halving is a fall of only 50 percent. Differences in logarithms, sometimes called *log points*, therefore treat a change and its exact reversal symmetrically. Set the slider below to $+100$ and then $-50$ and compare the two braces on the vertical axis.
 
     In the plot, the brace along the horizontal axis marks the change in experience, and the brace along the vertical axis marks the resulting change in its logarithm.
     """)
@@ -326,7 +322,7 @@ def _(alt, base_exper, mo, np, pct_change, pd):
         "font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;'>"
         + _msg + "</span>"
     )
-    mo.vstack([_chart, _caption])
+    mo.vstack([_chart, _caption], align="center")
     return
 
 
@@ -458,7 +454,7 @@ def _(alt, exper, mo, np, pd, spec, wage):
         "font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;'>"
         + _msg + "</span>"
     )
-    mo.vstack([_chart, _caption])
+    mo.vstack([_chart, _caption], align="center")
     return
 
 
@@ -486,8 +482,8 @@ def _(mo):
     mo.callout(
         mo.md(
             "**Key terms covered:** exponential function, natural logarithm, percent, "
-            "percentage point, linear-log model, log-linear model, log-log model, "
-            "elasticity.\n\n"
+            "percentage point, log point, linear-log model, log-linear model, log-log "
+            "model, elasticity.\n\n"
             "**Key concepts covered:** the natural logarithm as the inverse of the "
             "exponential, defined only for positive values and with slope 1/X, why a change "
             "in a logarithm approximates a percent change divided by 100 and where the "
