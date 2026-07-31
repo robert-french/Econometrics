@@ -12,8 +12,7 @@
 
 import marimo
 
-__generated_with = "0.23.9"
-__preliminary__ = True
+__generated_with = "0.23.14"
 app = marimo.App(
     app_title="Lecture 12: Nonlinear Regression, Logarithms",
     css_file="marimo-overrides.css",
@@ -97,13 +96,19 @@ def _(mo):
     <a id="sec1"></a>
     ## 1. What is a logarithm
 
-    Lecture 11 modeled a curved relationship by adding powers of an independent variable. This lecture introduces a second type of nonlinear regression, the *logarithmic regression*, which instead transforms variables with the logarithm function and reads its coefficients as percent changes. The place to start is with the function itself.
+    Lecture 11 modeled nonlinear relationships by adding powers of an independent variable. This lecture introduces another approach. A *logarithmic regression* transforms one or more variables using the logarithm function, often allowing us to interpret coefficients in terms of percentage changes. To understand logarithmic regressions, we must first understand the logarithmic function. And to understand the logarithmic function, we must first understand the exponential function!
 
-    The *exponential function* raises the constant $e = 2.718\dots$ to a power, written $e^X$ or $\exp(X)$. The *natural logarithm* is its inverse, the power to which $e$ must be raised to produce $X$, written $\ln(X)$, so that $\ln(e^X) = X$. Because $e$ raised to any power is positive, $\ln(X)$ is defined only for $X > 0$. Experience is measured from one year upward in this lecture, so its logarithm is always defined.
+    The *exponential function* raises the constant $e = 2.718\dots$ to a power, written $y = e^X$ or $y = \exp(X)$. The *natural logarithm* is its inverse. It is the function that gives the power to which $e$ must be raised to produce $X$. We write it as $\ln(X)$, so that
 
-    The natural logarithm rises quickly at first and then more slowly. Its slope at a point $X$ is $1/X$, so the curve is steep near zero and flattens as $X$ grows. That shape is what lets a logarithm turn a bending relationship into a straight-line one, and it is why the slope of a fitted log curve falls as $X$ rises.
+    $$
+    \ln(e^X)=X.
+    $$
 
-    The plot below draws the two functions together. Because they are inverses, each is the mirror image of the other across the dashed 45-degree line.
+    Because $e$ raised to any power is positive, $\ln(X)$ is defined only when $X>0$.
+
+    The natural logarithm rises quickly at first and then more slowly. Its slope at $X$ is $1/X$, so the curve is steep near zero and gradually flattens as $X$ grows. This shape allows a logarithm to turn some nonlinear relationships into linear ones. It also means that the absolute slope of a fitted curve that is linear in $\ln(X)$ approaches zero as $X$ rises. These properties will become clearer in Section 3.
+
+    The plot below shows the exponential and logarithm functions together. Because the functions are inverses, their curves are mirror images across the dashed 45-degree line.
     """)
     return
 
