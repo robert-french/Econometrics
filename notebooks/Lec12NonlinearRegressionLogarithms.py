@@ -96,9 +96,9 @@ def _(mo):
     <a id="sec1"></a>
     ## 1. What is a logarithm
 
-    Lecture 11 modeled nonlinear relationships by adding powers of an independent variable. This lecture introduces another approach. A *logarithmic regression* transforms one or more variables using the logarithm function, often allowing us to interpret coefficients in terms of percentage changes. To understand logarithmic regressions, we must first understand the logarithmic function. And to understand the logarithmic function, we must first understand the exponential function!
+    In Lecture 11, we modeled nonlinear relationships by adding powers of an independent variable. In this lecture, we introduce another approach. A *logarithmic regression* transforms one or more variables using the logarithm function, often allowing us to interpret coefficients in terms of percentage changes. To understand logarithmic regressions, we must first understand the logarithmic function. And to understand the logarithmic function, we must first understand the exponential function!
 
-    The *exponential function* raises the constant $e = 2.718\dots$ to a power, written $y = e^X$ or $y = \exp(X)$. The *natural logarithm* is its inverse. It is the function that gives the power to which $e$ must be raised to produce $X$. We write it as $\ln(X)$, so that
+    The *exponential function* raises the constant $e \approx 2.71828$ to a power, written $y = e^X$ or $y = \exp(X)$. The *natural logarithm* is its inverse. It is the function that gives the power to which $e$ must be raised to produce $y$. We write it as $\ln(X)$, so that
 
     $$
     \ln(e^X)=X.
@@ -151,9 +151,9 @@ def _(alt, mo, np, pd):
         "<span style='display:block;margin:0.2rem auto 1rem;max-width:520px;"
         "font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;'>"
         "The exponential function (blue) and the natural logarithm (orange). "
-        "The exponential is defined for every value of X but is always positive; "
-        "the logarithm is defined only for positive X but takes every value. "
-        "Reflecting either curve across the dashed 45-degree line produces the other.</span>"
+        "The exponential function is defined for every value of X but is always positive; "
+        "the logarithm function is defined only for positive values of X but takes every value. "
+        "Because the functions are inverses of each other, reflecting either curve across the dashed 45-degree line produces the other.</span>"
     )
     mo.vstack([_chart, _caption], align="center")
     return
@@ -163,23 +163,30 @@ def _(alt, mo, np, pd):
 def _(mo):
     mo.md(r"""
     <a id="sec2"></a>
+
     ## 2. Logarithms and percent changes
 
-    Logarithms appear so often in economics because a change in the logarithm of a variable is approximately its percent change divided by 100. For a small change $\Delta X$,
+    Logarithms appear often in economics because a change in the logarithm of a variable is approximately its proportional change, or its percent change divided by 100. For a small change $\Delta X$,
 
     $$
-    \ln(X + \Delta X) - \ln(X) \approx \frac{\Delta X}{X},
+    \ln(X+\Delta X)-\ln(X)\approx\frac{\Delta X}{X}.
     $$
 
-    the fractional change in $X$. A rise from 10 to 10.1 years of experience is a change of $0.1 / 10 = 0.01$, or one percent, and the change in $\ln(\text{experience})$ is almost exactly $0.01$. The approximation is close for small changes and drifts apart for large ones, as the plot below shows.
+    For example, an increase in experience from 10 to 10.1 years is a proportional change of $0.1/10=0.01$, or 1 percent. The corresponding log change is $\ln(10.1)-\ln(10)\approx0.00995$, which is very close to $0.01$. This approximation is close for small changes but becomes less accurate for large changes.<sup><a id="fnref1" href="#fn1">1</a></sup>
 
-    When comparing percent changes, keep the units straight. A *percent* change is a relative change, while a difference between two percent changes is measured in *percentage points*. Going from a 10 percent rise to a 12 percent rise is an increase of 2 percentage points, not 2 percent. The caption below uses percentage points to report how far the change in the logarithm is from the percent change it approximates.
+    Logarithms also obey several useful rules,
 
-    A few properties follow from the definition and are worth keeping at hand. $\ln(1/X) = -\ln(X)$, $\ln(aX) = \ln(a) + \ln(X)$, and $\ln(X^a) = a\ln(X)$. The last of these is what makes an elasticity fall out of a log-log regression later in the lecture.
+    $$
+    \begin{aligned}
+    \ln(X^a) &=a\ln(X), \\
+    \ln(1/X) &=-\ln(X), \\
+    \ln(aX) &=\ln(a)+\ln(X).
+    \end{aligned}
+    $$
 
-    The first property makes changes in logarithms symmetric in a way percent changes are not. Doubling a variable raises its logarithm by $\ln(2) \approx 0.693$, and halving it lowers the logarithm by exactly the same amount, since $\ln(X/2) - \ln(X) = -\ln(2)$. In percent terms, however, a doubling is a rise of 100 percent while a halving is a fall of only 50 percent. Differences in logarithms, sometimes called *log points*, therefore treat a change and its exact reversal symmetrically. Set the slider below to $+100$ and then $-50$ and compare the two braces on the vertical axis.
+    The first rule is useful because it turns exponents into multipliers. We will use this rule in Section 4. The second and third rules explain why log changes are symmetric in a way that percent changes are not. Doubling a variable changes its logarithm by $\ln(2X)-\ln(X)=\ln(2)\approx0.693$, while reversing that change lowers its logarithm by $\ln(X)-\ln(2X)=-\ln(2)$. The two log changes therefore have equal magnitudes and opposite signs. In percentage terms, however, increasing $X$ to $2X$ is a 100 percent increase, while returning from $2X$ to $X$ is a 50 percent decrease because the decrease is measured relative to $2X$. Log changes, sometimes called *log points*, therefore treat a multiplicative change and its reversal symmetrically.
 
-    In the plot, the brace along the horizontal axis marks the change in experience, and the brace along the vertical axis marks the resulting change in its logarithm.
+    The plot below lets you see these ideas in practice. Choose a starting level of experience and a percent change. The horizontal brace marks the change in experience, while the vertical brace marks the resulting change in its logarithm. Beneath the plot, the caption compares the percent change with its log approximation and reports the difference between them. Try a small percent change to see how closely they match, then compare $+100$ with $-50$ to see that the log changes are equal in magnitude and opposite in sign.
     """)
     return
 
@@ -199,7 +206,6 @@ def _(mo):
     )
     mo.vstack(
         [
-            mo.md("Choose where experience starts and the percent change applied to it, then compare the resulting change in the logarithm with the percent change itself."),
             base_exper,
             pct_change,
         ]
@@ -314,8 +320,8 @@ def _(alt, base_exper, mo, np, pct_change, pd):
         _msg = (
             f"{'Raising' if _p > 0 else 'Lowering'} experience by {abs(pct_change.value):.0f}% "
             f"takes it from {_x0:.0f} to {_x1:.1f} years. The natural log changes by "
-            f"{_log_change:+.3f}, which is {100.0 * _log_change:+.1f}% once multiplied by 100, "
-            f"next to the actual {pct_change.value:+.0f}% change. The two are within "
+            f"{_log_change:+.3f}, which is {100.0 * _log_change:+.1f}% once multiplied by 100. "
+            f"The two are within "
             f"{abs(_gap):.1f} percentage points here"
         )
         _msg += (
@@ -499,6 +505,16 @@ def _(mo):
         ),
         kind="info",
     )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ---
+
+    <span id="fn1" style="display:block;font-size:0.9rem;">**1.** Remember from algebra that a *percent change* measures a change relative to the starting value, while the difference between two percent changes is measured in *percentage points*. An increase from 10 percent to 12 percent is an increase of 2 percentage points, not 2 percent. <a href="#fnref1" title="Back to text">&#8617;</a></span>
+    """)
     return
 
 
