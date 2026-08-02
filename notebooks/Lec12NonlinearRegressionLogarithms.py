@@ -340,36 +340,27 @@ def _(alt, base_exper, mo, np, pct_change, pd):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    <a id="sec3"></a>
-    ## 3. Three regression models with logarithms
+    <a id="sec4"></a>
 
-    Why run a regression on logarithms at all? Two reasons come up again and again. First, many economic relationships are curved in exactly the way the logarithm is: earnings, firm sales, and country GDP all tend to grow quickly from a low base and then more slowly, so a regression on logged variables can fit them with a straight line in the transformed units. Second, effects stated in percent terms often travel better than effects stated in units. A \$1 raise means something very different to a minimum-wage worker and a chief executive, but a 5 percent raise is comparable across the two. Because a change in a logarithm is approximately a percent change divided by 100, putting a variable in logarithms lets its coefficient be read in percent terms.
+    ## 4. When to use logarithms
 
-    Putting a variable in logarithms changes how its coefficient is read. Three combinations come up, depending on whether the logarithm is applied to the independent variable, the dependent variable, or both. Each is estimated by OLS exactly as before, on the transformed variable. We fit all three to the same wage and experience data, and the switcher below draws each fitted relationship back in the original units so the shapes can be compared.
+    Sections 2 and 3 showed that logarithms let us describe relationships in percentage terms and can turn some nonlinear relationships into approximately linear ones. These ideas suggest three common situations in which logarithms are useful.
 
-    ### <span style="color:#0b68cb">Linear-log</span>
-
-    $$
-    \text{Wage} = \beta_0 + \beta_1\ln(\text{Exper}) + u
-    $$
-
-    Only the independent variable is in logarithms. A 1 percent rise in experience is associated with a change in the wage of $0.01\,\beta_1$ dollars. The fitted curve rises quickly at low experience and flattens, because the logarithm does. This form suits a dependent variable measured in natural units whose response to the independent variable shows diminishing returns.
-
-    ### <span style="color:#0b68cb">Log-linear</span>
+    **The underlying economic model is multiplicative.** Some economic models multiply variables instead of add them together. Logarithms are useful because they turn products into sums and powers into multipliers. A Cobb-Douglas production function is a common example,
 
     $$
-    \ln(\text{Wage}) = \beta_0 + \beta_1\text{Exper} + u
+    Y=A,X_1^{\beta_1}X_2^{\beta_2}
+    \quad\Longrightarrow\quad
+    \ln(Y)=\ln(A)+\beta_1\ln(X_1)+\beta_2\ln(X_2).
     $$
 
-    Only the dependent variable is in logarithms. A one-year rise in experience is associated with a $100\,\beta_1$ percent change in the wage. Because that percent change is the same at every level of experience, the wage in dollars bends upward as experience grows, the way a bank balance does under a fixed interest rate.
+    The transformed equation is linear in the coefficients and so can be estimated by OLS.
 
-    ### <span style="color:#0b68cb">Log-log</span>
+    **Percent changes are the natural unit.** If percentage growth is more meaningful than a change in levels, logging a variable lets us interpret its coefficient in percentage terms, as in the log-linear and log-log models from Section 3.
 
-    $$
-    \ln(\text{Wage}) = \beta_0 + \beta_1\ln(\text{Exper}) + u
-    $$
+    **The variable ranges over very different sizes.** Firm sales can range from those of a corner shop to those of a national chain. Taking logarithms emphasizes proportional differences and compresses unusually large values, reducing their influence on the regression.
 
-    Both variables are in logarithms. A 1 percent rise in experience is associated with a $\beta_1$ percent change in the wage. This $\beta_1$ is the *elasticity* of the wage with respect to experience, the percent change in one variable associated with a one percent change in the other. Elasticities are free of units on both sides, which is why economists report so many results in this form.
+    Logarithms cannot always be used however. Because $\ln(X)$ is defined only when $X>0$, variables that can equal zero or become negative, such as profits, cannot be logged directly. Comparing models using the R-squared also requires care. A regression of $\ln(\text{Wage})$ and a regression of $\text{Wage}$ explain variation on different scales, so their R-squared values are not comparable. Always use the economics of the problem to decide whether the relationship should be expressed in levels or percentages, then inspect the fitted curves in their original units, as in Section 3.
     """)
     return
 
@@ -397,7 +388,6 @@ def _(mo):
     )
     mo.vstack(
         [
-            mo.md("Choose a functional form and see the fitted relationship drawn through the wage and experience data, with the interpretation of its slope."),
             spec,
         ]
     )
@@ -413,37 +403,41 @@ def _(alt, exper, mo, np, pd, spec, wage):
 
     _grid = np.linspace(1.0, 40.0, 250)
     _name = spec.value
+
     if _name == "Linear":
         _b0, _b1 = _fit(exper, wage)
         _pred = _b0 + _b1 * _grid
         _msg = (
-            f"Wage = {_b0:.1f} + {_b1:.2f}·experience. One more year adds \\${_b1:.2f} to the "
-            f"predicted wage at every level. The straight line misses the curvature, sitting "
-            f"above the data early and below it late."
+            f"Wage = {_b0:.1f} + {_b1:.2f}·experience. One more year of experience is associated "
+            f"with a \\${_b1:.2f} higher wage at every level of experience. The resulting straight "
+            f"line misses the flattening in the data."
         )
+
     elif _name == "Linear-log":
         _b0, _b1 = _fit(np.log(exper), wage)
         _pred = _b0 + _b1 * np.log(_grid)
         _msg = (
-            f"Wage = {_b0:.1f} + {_b1:.1f}·ln(experience). A 1% rise in experience is associated "
-            f"with about \\${_b1 / 100.0:.2f} more per hour. The curve is concave, flattening as "
-            f"experience grows."
+            f"Wage = {_b0:.1f} + {_b1:.1f}·ln(experience). A 1% increase in experience is associated "
+            f"with about a \\${_b1 / 100.0:.2f} higher wage. The fitted curve rises quickly early "
+            f"in a career and flattens later."
         )
+
     elif _name == "Log-linear":
         _b0, _b1 = _fit(exper, np.log(wage))
         _pred = np.exp(_b0 + _b1 * _grid)
         _msg = (
-            f"ln(wage) = {_b0:.2f} + {_b1:.4f}·experience. One more year is associated with about "
-            f"{100.0 * _b1:.1f}% higher wage. Back in dollars the curve bends upward, which "
-            f"overshoots at high experience here."
+            f"ln(wage) = {_b0:.2f} + {_b1:.4f}·experience. One more year of experience is associated "
+            f"with about a {100.0 * _b1:.1f}% higher wage. Because the same percentage corresponds "
+            f"to more dollars at higher wages, the fitted curve bends upward."
         )
+
     else:
         _b0, _b1 = _fit(np.log(exper), np.log(wage))
         _pred = np.exp(_b0 + _b1 * np.log(_grid))
         _msg = (
-            f"ln(wage) = {_b0:.2f} + {_b1:.2f}·ln(experience). Here {_b1:.2f} is the elasticity, so "
-            f"a 1% rise in experience is associated with about {_b1:.2f}% higher wage. The curve is "
-            f"concave and tracks the data."
+            f"ln(wage) = {_b0:.2f} + {_b1:.2f}·ln(experience). The elasticity is {_b1:.2f}, so a 1% "
+            f"increase in experience is associated with about a {_b1:.2f}% higher wage. The fitted "
+            f"curve rises and flattens, closely following the data."
         )
 
     _xsc = alt.Scale(domain=[0.0, 42.0], nice=False)
@@ -513,7 +507,7 @@ def _(mo):
     mo.md(r"""
     ---
 
-    <span id="fn1" style="display:block;font-size:0.9rem;">**1.** Remember from algebra that a *percent change* measures a change relative to the starting value, while the difference between two percent changes is measured in *percentage points*. An increase from 10 percent to 12 percent is an increase of 2 percentage points, not 2 percent. <a href="#fnref1" title="Back to text">&#8617;</a></span>
+    <span id="fn1" style="display:block;font-size:0.9rem;">**1.** Remember from statistics that a *percent change* measures a change relative to the starting value, while the difference between two percent changes is measured in *percentage points*. An increase from 10 percent to 12 percent is an increase of 2 percentage points, not 2 percent. <a href="#fnref1" title="Back to text">&#8617;</a></span>
     """)
     return
 
