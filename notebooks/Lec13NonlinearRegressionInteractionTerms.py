@@ -14,7 +14,7 @@ import marimo
 
 __generated_with = "0.23.14"
 app = marimo.App(
-    app_title="Lecture 13: Binary Variables and Interaction Terms",
+    app_title="Lecture 13: Nonlinear Regression, Interaction Terms",
     css_file="marimo-overrides.css",
 )
 
@@ -37,7 +37,7 @@ def _(mo):
         [
             mo.md('<a href="https://robert-french.github.io/Econometrics/" target="_self" style="display: block; margin-bottom: 1.5em;">Course home</a>'),
             mo.md("# [Lecture 13](#top)"),
-            mo.md("Binary Variables and Interaction Terms"),
+            mo.md("Nonlinear Regression: Interaction Terms"),
             mo.nav_menu(
                 {
                     "#sec1": "1. Interacting two binary variables",
@@ -68,7 +68,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="top"></a>
-    # Lecture 13: Binary Variables and Interaction Terms
+    # Lecture 13: Nonlinear Regression, Interaction Terms
     """)
     return
 
