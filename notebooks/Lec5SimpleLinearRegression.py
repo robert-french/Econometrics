@@ -284,7 +284,9 @@ def _(mo):
     <a id="sec3"></a>
     ## 3. Interpreting the slope
 
-    Let's now consider how to interpret the the fitted line, $\hat{Y}_i = \hat{\beta}_0 + \hat{\beta}_1 X_i$.
+    Let's now consider how to interpret the fitted line, $\hat{Y}_i = \hat{\beta}_0 + \hat{\beta}_1 X_i$.
+
+    ### <span style="color:#0b68cb">When X is continuous</span>
 
     When $X$ is continuous, the slope $\hat{\beta}_1$ is the expected, or average, change in $Y$ associated with a one-unit increase in $X$. The units of the slope are the same as the units of $Y$. For example, if $Y$ were measured in dollars, then we should interpret $\hat{\beta}_1$ in dollar terms. In our wage and education example, the least-squares line is approximately
 
@@ -293,6 +295,8 @@ def _(mo):
     $$
 
     This means that each additional year of schooling is associated with a wage that is about $1.25 higher per hour on average. The intercept is the predicted wage when $X = 0$. Here, that value is about $7.30 per hour. Since zero years of schooling lies far outside the range of the data, this intercept is an extrapolation rather than a description of workers we actually observe.
+
+    ### <span style="color:#0b68cb">When X is binary</span>
 
     When $X$ is binary, meaning it only takes the values 0 and 1, the slope has an especially simple interpretation. The intercept $\hat{\beta}_0$ is the predicted value of $Y$ for observations with $X = 0$. The value $\hat{\beta}_0 + \hat{\beta}_1$ is the predicted value of $Y$ for observations with $X = 1$. And the estimate of $\hat{\beta}_1$ is therefore the difference in average $Y$ between the two groups.
 

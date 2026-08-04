@@ -40,10 +40,9 @@ def _(mo):
             mo.md("Binary Variables and Interaction Terms"),
             mo.nav_menu(
                 {
-                    "#sec1": "1. Regression with a binary variable",
-                    "#sec2": "2. Interacting two binary variables",
-                    "#sec3": "3. Interacting a binary and a continuous variable",
-                    "#sec4": "4. Interacting two continuous variables",
+                    "#sec1": "1. Interacting two binary variables",
+                    "#sec2": "2. Interacting a binary and a continuous variable",
+                    "#sec3": "3. Interacting two continuous variables",
                 },
                 orientation="vertical",
             ),
@@ -84,29 +83,9 @@ def _(mo):
     mo.md(r"""
     ## Contents
 
-    [1. Regression with a binary variable](#sec1)<br>
-    [2. Interacting two binary variables](#sec2)<br>
-    [3. Interacting a binary and a continuous variable](#sec3)<br>
-    [4. Interacting two continuous variables](#sec4)
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    <a id="sec1"></a>
-    ## 1. Regression with a binary variable
-
-    A *binary variable*, also called an *indicator variable*, takes only the values 0 and 1. Consider a regression of $Y$ on a single binary variable $X$,
-
-    $$
-    Y = \beta_0 + \beta_1 X + u.
-    $$
-
-    Because $X$ takes only two values, the fitted equation only makes two distinct predictions. The intercept $\hat{\beta}_0$ is the predicted value of $Y$ for the group with $X = 0$. The sum $\hat{\beta}_0 + \hat{\beta}_1$ is the predicted value for the group with $X = 1$. The slope $\hat{\beta}_1$ is therefore the difference in average $Y$ between the two groups, measured in the units of $Y$. We saw one example in Lecture 5, where $X$ equaled 1 for female workers and a regression of hourly wages on the indicator gave $\hat{\beta}_0 = 26$ and $\hat{\beta}_1 = -4$. The two predictions were \$26 and \$22 per hour, so the fitted wage gap was \$4 per hour.
-
-    Lectures 11 and 12 followed a survey of 300 workers that recorded each worker's hourly wage and years of work experience. The survey also recorded two facts we have not used yet, whether the worker holds a STEM job (science, technology, engineering, or mathematics) and whether the worker finished a college degree. Both are binary variables, equal to 1 for a worker with a STEM job or a degree and 0 otherwise.
+    [1. Interacting two binary variables](#sec1)<br>
+    [2. Interacting a binary and a continuous variable](#sec2)<br>
+    [3. Interacting two continuous variables](#sec3)
     """)
     return
 
@@ -117,7 +96,7 @@ def _(np):
     # (same seed, and experience is the first draw in the same order, so the
     # experience values are the same workers), now extended with two binary
     # indicators. The wage equation is linear in levels so the straight-line
-    # pictures in Section 3 match the truth. Fixed seed for reproducibility.
+    # pictures in Section 2 match the truth. Fixed seed for reproducibility.
     _rng = np.random.default_rng(1)
     n_workers = 300
     exper = _rng.uniform(1.0, 40.0, n_workers)
@@ -132,34 +111,14 @@ def _(np):
 
 
 @app.cell(hide_code=True)
-def _(mo, np, stem, wage):
-    # Live one-regressor illustration for Section 1: wage on the STEM indicator.
-    _X = np.column_stack([np.ones(len(wage)), stem])
-    _b, *_ = np.linalg.lstsq(_X, wage, rcond=None)
-    _b0, _b1 = float(_b[0]), float(_b[1])
-    _n1 = int(stem.sum())
-    _n0 = len(wage) - _n1
-    mo.md(
-        rf"In our survey, regressing the hourly wage on the STEM indicator gives"
-        "\n\n"
-        rf"$$\widehat{{\text{{Wage}}}} = {_b0:.2f} + {_b1:.2f}\,\text{{STEM}}.$$"
-        "\n\n"
-        rf"The {_n0} workers outside STEM jobs earn \${_b0:.2f} per hour on average. "
-        rf"The {_n1} STEM workers earn \${_b0:.2f} + \${_b1:.2f} = \${_b0 + _b1:.2f} on average. "
-        rf"The coefficient on STEM is exactly the \${_b1:.2f} difference between the two group averages. "
-        "As always, this is a description of averages, not a causal effect; STEM workers may differ from other workers in many ways, such as experience and education, that also matter for pay."
-    )
-    return
-
-
-@app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""
-    <a id="sec2"></a>
+    _intro = mo.md(r"""
+    <a id="sec1"></a>
+    ## 1. Interacting two binary variables
 
-    ## 2. Interacting two binary variables
+    A *binary variable*, also called an *indicator variable*, takes only the values 0 and 1. Lecture 5 showed how to read a regression of $Y$ on one binary variable. The intercept $\hat{\beta}_0$ is the average of $Y$ in the group with $X = 0$, the sum $\hat{\beta}_0 + \hat{\beta}_1$ is the average in the group with $X = 1$, and the slope $\hat{\beta}_1$ is the difference between the two group averages.
 
-    Does a college degree pay off more in STEM jobs than in other jobs? To answer, the regression must let the payoff to a degree differ by job type. We do this by multiplying the two indicators together and including the product as its own regressor. The product is called an *interaction term*, and the regression becomes
+    This lecture asks what a regression can say when two binary variables work together. Our running survey of 300 workers from Lectures 11 and 12 recorded two indicators we have not used yet, whether the worker holds a STEM job (science, technology, engineering, or mathematics) and whether the worker finished a college degree. Does a college degree pay off more in STEM jobs than in other jobs? To answer, the regression must let the payoff to a degree differ by job type. We do this by multiplying the two indicators together and including the product as its own regressor. The product is called an *interaction term*, and the regression becomes
 
     $$
     Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \beta_3 \underbrace{(X_1 \times X_2)}_{\text{interaction}} + u,
@@ -168,14 +127,23 @@ def _(mo):
     where $X_1$ indicates a college degree and $X_2$ indicates a STEM job. The interaction term equals 1 only for workers who have both a degree and a STEM job.
 
     The two indicators split the workers into four groups, and the four coefficients combine to give a predicted wage for each group.
-
-    | | Non-STEM ($X_2 = 0$) | STEM ($X_2 = 1$) |
-    |---|---|---|
-    | **No degree** ($X_1 = 0$) | $\hat{\beta}_0$ | $\hat{\beta}_0 + \hat{\beta}_2$ |
-    | **College degree** ($X_1 = 1$) | $\hat{\beta}_0 + \hat{\beta}_1$ | $\hat{\beta}_0 + \hat{\beta}_1 + \hat{\beta}_2 + \hat{\beta}_3$ |
-
-    The first three cells follow the logic of Section 1. Workers with neither trait are predicted to earn $\hat{\beta}_0$, and each indicator on its own adds its coefficient. The interaction coefficient $\hat{\beta}_3$ appears only in the bottom-right cell, where both indicators equal 1. It measures how much more (or less) the two traits pay together than the sum of what they pay separately.
     """)
+    _table_title = mo.md(
+        '<span style="display:block;text-align:center;font-size:0.9rem;'
+        'font-weight:600;margin:0.6rem 0 0.1rem;">'
+        "Predicted wage for each combination of the two indicators</span>"
+    )
+    _table = mo.md(
+        "| | Non-STEM ($X_2 = 0$) | STEM ($X_2 = 1$) |\n"
+        "|---|---|---|\n"
+        r"| **No degree** ($X_1 = 0$) | $\hat{\beta}_0$ | $\hat{\beta}_0 + \hat{\beta}_2$ |"
+        "\n"
+        r"| **College degree** ($X_1 = 1$) | $\hat{\beta}_0 + \hat{\beta}_1$ | $\hat{\beta}_0 + \hat{\beta}_1 + \hat{\beta}_2 + \hat{\beta}_3$ |"
+    )
+    _after = mo.md(r"""
+    The first three cells follow the single-variable logic from Lecture 5. Workers with neither trait are predicted to earn $\hat{\beta}_0$, and each indicator on its own adds its coefficient. The interaction coefficient $\hat{\beta}_3$ appears only in the bottom-right cell, where both indicators equal 1. It measures how much more (or less) the two traits pay together than the sum of what they pay separately.
+    """)
+    mo.vstack([_intro, mo.vstack([_table_title, _table], align="center"), _after])
     return
 
 
@@ -191,30 +159,38 @@ def _(college, mo, np, stem, wage):
     _c10 = _b0 + _b1
     _c01 = _b0 + _b2
     _c11 = _b0 + _b1 + _b2 + _b3
-    mo.md(
+    _p1 = mo.md(
         rf"Fitting this regression on the survey gives"
         "\n\n"
         rf"$$\widehat{{\text{{Wage}}}} = {_b0:.2f} + {_b1:.2f}\,\text{{College}} + {_b2:.2f}\,\text{{STEM}} + {_b3:.2f}\,(\text{{College}} \times \text{{STEM}}),$$"
         "\n\n"
         rf"and filling in the table produces the four predicted wages below. Each prediction equals the average wage of that group exactly. A regression with one coefficient per group, called a *saturated regression*, can always match every group average."
-        "\n\n"
+    )
+    _table_title = mo.md(
+        '<span style="display:block;text-align:center;font-size:0.9rem;'
+        'font-weight:600;margin:0.6rem 0 0.1rem;">'
+        "Predicted hourly wage by degree and job type</span>"
+    )
+    _table = mo.md(
         "| | Non-STEM | STEM |\n"
         "|---|---|---|\n"
         rf"| **No degree** | \${_c00:.2f} | \${_c01:.2f} |"
         "\n"
         rf"| **College degree** | \${_c10:.2f} | \${_c11:.2f} |"
-        "\n\n"
+    )
+    _p2 = mo.md(
         rf"The interaction coefficient answers the opening question. Among workers without a degree, STEM jobs pay \${_c01:.2f} − \${_c00:.2f} = \${_c01 - _c00:.2f} more per hour. Among college graduates, STEM jobs pay \${_c11:.2f} − \${_c10:.2f} = \${_c11 - _c10:.2f} more. The difference between those two premiums, \${_b3:.2f}, is $\hat{{\beta}}_3$. A college degree is associated with a larger payoff in STEM jobs than elsewhere, by about \${_b3:.2f} per hour."
     )
+    mo.vstack([_p1, mo.vstack([_table_title, _table], align="center"), _p2])
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    <a id="sec3"></a>
+    <a id="sec2"></a>
 
-    ## 3. Interacting a binary and a continuous variable
+    ## 2. Interacting a binary and a continuous variable
 
     A binary variable can also interact with a continuous one. Work experience is continuous, and an extra year of it may be worth more in a STEM job than elsewhere. Writing $D$ for the STEM indicator and $X$ for years of experience, three specifications appear in applied work. They differ in whether the two groups get their own intercept, their own slope, or both.
 
@@ -409,126 +385,32 @@ def _(alt, exper, int_shift, mo, n_workers, np, pd, slope_shift, stem, wage):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    <a id="sec4"></a>
+    <a id="sec3"></a>
 
-    ## 4. Interacting two continuous variables
+    ## 3. Interacting two continuous variables
 
-    Interaction terms are not limited to indicators. Suppose $Y$ is log earnings, $X_1$ is years of work experience, and $X_2$ is years of schooling, both continuous. Interacting them gives
+    Interaction terms are not limited to indicators. Years of schooling is continuous, and an extra year of experience may be worth more to workers with more schooling. Writing $X_1$ for years of experience and $X_2$ for years of schooling, the regression is
 
     $$
     Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \beta_3 (X_1 \times X_2) + u.
     $$
 
-    What is the effect on $Y$ of one more year of experience, holding schooling fixed? Write out the predicted $Y$ at $X_1 + 1$ and subtract the predicted $Y$ at $X_1$,
-
-    $$
-    \begin{aligned}
-    \Delta Y &= \big[\beta_0 + \beta_1 (X_1 + 1) + \beta_2 X_2 + \beta_3 (X_1 + 1) X_2\big] \\
-    &\quad - \big[\beta_0 + \beta_1 X_1 + \beta_2 X_2 + \beta_3 X_1 X_2\big] \\
-    &= \beta_1 + \beta_3 X_2,
-    \end{aligned}
-    $$
-
-    so
+    Experience appears in two terms, $\beta_1 X_1$ and $\beta_3 (X_1 \times X_2)$, so one more year of it changes the predicted wage by
 
     $$
     \frac{\Delta Y}{\Delta X_1} = \beta_1 + \beta_3 X_2.
     $$
 
-    The effect of a year of experience is no longer a single number. It depends on the worker's schooling, and if $\beta_3 > 0$ each additional year of schooling raises the return to experience by $\beta_3$.
+    The return to experience is no longer a single number. It depends on the worker's schooling, and when $\beta_3 > 0$, each extra year of schooling makes a year of experience worth $\beta_3$ more.
 
-    Lecture 12's log-linear model reported that one more year of experience was associated with about a 3.4 percent higher wage, one number for every worker. An interaction turns that single number into a range. Suppose a study of earnings estimates
+    Suppose a study of hourly wages estimates
 
     $$
-    \ln(\text{Earnings}) = 1.60 + 0.010\,X_1 + 0.08\,X_2 + 0.002\,(X_1 \times X_2).
+    \widehat{\text{Wage}} = 5.00 + 0.20\,X_1 + 0.90\,X_2 + 0.02\,(X_1 \times X_2).
     $$
 
-    Because the dependent variable is in logarithms, $\Delta Y/\Delta X_1 = 0.010 + 0.002\,X_2$ is an approximate proportional change, so multiplying by 100 gives the percent change in earnings from one more year of experience. Move the slider to trace out how the return varies with schooling.
+    For a worker with 10 years of schooling, one more year of experience is associated with a wage that is $0.20 + 0.02 \times 10 = 0.40$ dollars higher. For a worker with 16 years of schooling, the same year of experience is worth $0.20 + 0.02 \times 16 = 0.52$ dollars. The interaction coefficient says the two investments reinforce each other; every extra year of schooling makes a year of experience worth 2 cents more per hour.
     """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    school = mo.ui.slider(
-        start=8, stop=18, step=1, value=12,
-        label="Years of schooling", show_value=True, full_width=False,
-    )
-    mo.vstack(
-        [
-            school,
-        ]
-    )
-    return (school,)
-
-
-@app.cell(hide_code=True)
-def _(alt, mo, np, pd, school):
-    # Presented coefficients ("a study of earnings"), chosen so the return to
-    # experience at 12 years of schooling is exactly 0.034, the log-linear
-    # headline from Lecture 12. Closed-form, no data, no rng.
-    _b0, _b1, _b2, _b3 = 1.60, 0.010, 0.08, 0.002
-    _s = float(school.value)
-    _me = _b1 + _b3 * _s
-
-    _gx = np.linspace(0.0, 40.0, 2)
-    _xsc = alt.Scale(domain=[0.0, 45.0], nice=False)
-    _ysc = alt.Scale(domain=[2.0, 5.1], nice=False)
-
-    def _line_df(_sch):
-        return pd.DataFrame({
-            "exper": _gx,
-            "lnearn": _b0 + _b2 * _sch + (_b1 + _b3 * _sch) * _gx,
-        })
-
-    _ghosts = alt.Chart(
-        pd.concat([_line_df(8.0).assign(s="8"), _line_df(18.0).assign(s="18")])
-    ).mark_line(color="#9aa5b1", strokeDash=[4, 3], size=1.5, clip=True).encode(
-        x=alt.X("exper:Q", scale=_xsc, title="Work experience (years)"),
-        y=alt.Y("lnearn:Q", scale=_ysc, title="ln(earnings)"),
-        detail="s:N",
-    )
-    _ghost_labels = alt.Chart(pd.DataFrame({
-        "exper": [40.6, 40.6],
-        "lnearn": [
-            _b0 + _b2 * 8.0 + (_b1 + _b3 * 8.0) * 40.0,
-            _b0 + _b2 * 18.0 + (_b1 + _b3 * 18.0) * 40.0,
-        ],
-        "t": ["8 years", "18 years"],
-    })).mark_text(color="#9aa5b1", fontSize=12, align="left", baseline="middle").encode(
-        x="exper:Q", y="lnearn:Q", text="t:N"
-    )
-    _line = alt.Chart(_line_df(_s)).mark_line(color="#1f4e79", size=3, clip=True).encode(
-        x="exper:Q", y="lnearn:Q"
-    )
-    _chart = (_ghosts + _ghost_labels + _line).properties(width=560, height=320)
-
-    _msg = (
-        rf"For a worker with {school.value} years of schooling, the return to a year of "
-        rf"experience is 0.010 + 0.002 × {school.value} = {_me:.3f}, or about "
-        rf"{100.0 * _me:.1f}% higher earnings. "
-    )
-    if school.value == 12:
-        _msg += (
-            "That matches the single 3.4% figure from Lecture 12, which is the return "
-            "for a worker with exactly 12 years of schooling."
-        )
-    elif school.value < 12:
-        _msg += (
-            rf"That is below the 3.4% a worker with 12 years of schooling receives; with "
-            rf"less schooling, experience is fitted to pay off less."
-        )
-    else:
-        _msg += (
-            rf"That is above the 3.4% a worker with 12 years of schooling receives; with "
-            rf"more schooling, experience is fitted to pay off more."
-        )
-    _caption = mo.md(
-        "<span style='display:block;margin:0.2rem auto 1rem;max-width:560px;"
-        "font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;'>"
-        + _msg + "</span>"
-    )
-    mo.vstack([_chart, _caption], align="center")
     return
 
 
