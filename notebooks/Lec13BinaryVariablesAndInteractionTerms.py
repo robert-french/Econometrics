@@ -128,22 +128,39 @@ def _(mo):
 
     The two indicators split the workers into four groups, and the four coefficients combine to give a predicted wage for each group.
     """)
-    _table_title = mo.md(
-        '<span style="display:block;text-align:center;font-size:0.9rem;'
-        'font-weight:600;margin:0.6rem 0 0.1rem;">'
-        "Predicted wage for each combination of the two indicators</span>"
-    )
+    # Markdown "|" tables render as a full-width, left-aligned <table>, so the
+    # table is built as raw HTML instead: display:inline-table + width:auto
+    # shrinks it to its content and text-align:center on the wrapper centers it
+    # (the Lec10 regression-table idiom). Raw HTML blocks skip KaTeX, so the
+    # coefficient symbols use Unicode (β̂₀) rather than $\hat{\beta}_0$.
+    _pad = "padding:4px 18px;text-align:center;"
+    _left = "padding:4px 18px;text-align:left;font-weight:600;"
+    _thin = "border-bottom:1px solid rgba(120,120,120,0.6);"
+    _rule = "2px solid rgba(120,120,120,0.9)"
     _table = mo.md(
-        "| | Non-STEM ($X_2 = 0$) | STEM ($X_2 = 1$) |\n"
-        "|---|---|---|\n"
-        r"| **No degree** ($X_1 = 0$) | $\hat{\beta}_0$ | $\hat{\beta}_0 + \hat{\beta}_2$ |"
-        "\n"
-        r"| **College degree** ($X_1 = 1$) | $\hat{\beta}_0 + \hat{\beta}_1$ | $\hat{\beta}_0 + \hat{\beta}_1 + \hat{\beta}_2 + \hat{\beta}_3$ |"
+        "<div style='overflow-x:auto;text-align:center;'>"
+        "<span style='display:block;text-align:center;font-size:0.9rem;"
+        "font-weight:600;margin:0.6rem 0 0.3rem;'>"
+        "Predicted wage for each combination of the two indicators</span>"
+        "<table style='display:inline-table;width:auto;border-collapse:collapse;"
+        "margin:0 auto 0.6rem;font-size:0.92rem;line-height:1.4;"
+        f"border-top:{_rule};border-bottom:{_rule};'>"
+        f"<thead><tr><th style='{_pad}{_thin}'></th>"
+        f"<th style='{_pad}{_thin}font-weight:600;'>Non-STEM (<em>X</em>₂ = 0)</th>"
+        f"<th style='{_pad}{_thin}font-weight:600;'>STEM (<em>X</em>₂ = 1)</th></tr></thead>"
+        "<tbody>"
+        f"<tr><td style='{_left}'>No degree (<em>X</em>₁ = 0)</td>"
+        f"<td style='{_pad}'><em>β̂</em>₀</td>"
+        f"<td style='{_pad}'><em>β̂</em>₀ + <em>β̂</em>₂</td></tr>"
+        f"<tr><td style='{_left}'>College degree (<em>X</em>₁ = 1)</td>"
+        f"<td style='{_pad}'><em>β̂</em>₀ + <em>β̂</em>₁</td>"
+        f"<td style='{_pad}'><em>β̂</em>₀ + <em>β̂</em>₁ + <em>β̂</em>₂ + <em>β̂</em>₃</td></tr>"
+        "</tbody></table></div>"
     )
     _after = mo.md(r"""
     The first three cells follow the single-variable logic from Lecture 5. Workers with neither trait are predicted to earn $\hat{\beta}_0$, and each indicator on its own adds its coefficient. The interaction coefficient $\hat{\beta}_3$ appears only in the bottom-right cell, where both indicators equal 1. It measures how much more (or less) the two traits pay together than the sum of what they pay separately.
     """)
-    mo.vstack([_intro, mo.vstack([_table_title, _table], align="center"), _after])
+    mo.vstack([_intro, _table, _after])
     return
 
 
@@ -166,22 +183,37 @@ def _(college, mo, np, stem, wage):
         "\n\n"
         rf"and filling in the table produces the four predicted wages below. Each prediction equals the average wage of that group exactly. A regression with one coefficient per group, called a *saturated regression*, can always match every group average."
     )
-    _table_title = mo.md(
-        '<span style="display:block;text-align:center;font-size:0.9rem;'
-        'font-weight:600;margin:0.6rem 0 0.1rem;">'
-        "Predicted hourly wage by degree and job type</span>"
-    )
+    # Raw HTML table, centered via the Lec10 inline-table idiom (see the
+    # symbolic table above). Inside a raw HTML block KaTeX never runs, so the
+    # dollar signs are written bare rather than escaped.
+    _pad = "padding:4px 18px;text-align:center;"
+    _left = "padding:4px 18px;text-align:left;font-weight:600;"
+    _thin = "border-bottom:1px solid rgba(120,120,120,0.6);"
+    _rule = "2px solid rgba(120,120,120,0.9)"
     _table = mo.md(
-        "| | Non-STEM | STEM |\n"
-        "|---|---|---|\n"
-        rf"| **No degree** | \${_c00:.2f} | \${_c01:.2f} |"
-        "\n"
-        rf"| **College degree** | \${_c10:.2f} | \${_c11:.2f} |"
+        "<div style='overflow-x:auto;text-align:center;'>"
+        "<span style='display:block;text-align:center;font-size:0.9rem;"
+        "font-weight:600;margin:0.6rem 0 0.3rem;'>"
+        "Predicted hourly wage by degree and job type</span>"
+        "<table style='display:inline-table;width:auto;border-collapse:collapse;"
+        "margin:0 auto 0.6rem;font-size:0.92rem;line-height:1.4;"
+        f"border-top:{_rule};border-bottom:{_rule};'>"
+        f"<thead><tr><th style='{_pad}{_thin}'></th>"
+        f"<th style='{_pad}{_thin}font-weight:600;'>Non-STEM</th>"
+        f"<th style='{_pad}{_thin}font-weight:600;'>STEM</th></tr></thead>"
+        "<tbody>"
+        f"<tr><td style='{_left}'>No degree</td>"
+        f"<td style='{_pad}'>${_c00:.2f}</td>"
+        f"<td style='{_pad}'>${_c01:.2f}</td></tr>"
+        f"<tr><td style='{_left}'>College degree</td>"
+        f"<td style='{_pad}'>${_c10:.2f}</td>"
+        f"<td style='{_pad}'>${_c11:.2f}</td></tr>"
+        "</tbody></table></div>"
     )
     _p2 = mo.md(
         rf"The interaction coefficient answers the opening question. Among workers without a degree, STEM jobs pay \${_c01:.2f} − \${_c00:.2f} = \${_c01 - _c00:.2f} more per hour. Among college graduates, STEM jobs pay \${_c11:.2f} − \${_c10:.2f} = \${_c11 - _c10:.2f} more. The difference between those two premiums, \${_b3:.2f}, is $\hat{{\beta}}_3$. A college degree is associated with a larger payoff in STEM jobs than elsewhere, by about \${_b3:.2f} per hour."
     )
-    mo.vstack([_p1, mo.vstack([_table_title, _table], align="center"), _p2])
+    mo.vstack([_p1, _table, _p2])
     return
 
 
