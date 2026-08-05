@@ -309,30 +309,39 @@ def _(alt, exper, int_shift, mo, n_workers, np, pd, slope_shift, stem, wage):
     _gx = np.array([0.0, 40.0])
     # β labels sit at mid-chart, the non-STEM label below its line and the
     # STEM label above its line; the STEM line is fitted above the non-STEM
-    # line throughout, so the offsets cannot collide. Hats: SVG text cannot
-    # render KaTeX and the Unicode combining circumflex draws tiny and badly
-    # anchored, so each label is monospace with a second text layer placing a
-    # full-size caret in the column above every β. Non-breaking spaces keep
-    # the caret string the same rendered width as the label (SVG collapses
-    # regular spaces, which would break the center alignment).
+    # line throughout, so the offsets cannot collide. Hats: chart text cannot
+    # render KaTeX, the Unicode combining circumflex draws tiny and badly
+    # anchored, and a whole-string caret overlay drifts because subscript
+    # digits fall back to a different font than the rest of the label. So each
+    # label is hand-typeset one character at a time: every character is its
+    # own centered text mark at a cursor position advanced by estimated glyph
+    # widths, and each β also emits a caret mark at the SAME x, 7px up. The
+    # width estimates only affect letter spacing; the hats sit exactly over
+    # the betas in any font by construction.
     _lx = 30.0
+    _upx = 45.0 / 560.0  # data units per pixel, x (domain / chart width)
+    _upy = 45.0 / 340.0  # data units per pixel, y (domain / chart height)
+    _wid = {"β": 7.2, "+": 7.6, "(": 4.3, ")": 4.3, "X": 8.7, " ": 3.6}
 
-    def _hat_line(_s):
-        return "".join("^" if _c == "β" else "\u00a0" for _c in _s)
+    def _label_rows(_x, _y, _text):
+        _rows = []
+        _wids = [5.2 if _c in "₀₁₂₃" else _wid.get(_c, 7.0) for _c in _text]
+        _cur = -sum(_wids) / 2.0
+        for _c, _w in zip(_text, _wids):
+            _cx = _x + (_cur + _w / 2.0) * _upx
+            if _c != " ":
+                _rows.append({"exper": _cx, "wage": _y, "t": _c})
+            if _c == "β":
+                _rows.append({"exper": _cx, "wage": _y + 7.0 * _upy, "t": "^"})
+            _cur += _w
+        return pd.DataFrame(_rows)
 
     def _line_label(_x, _y, _text, _color):
-        _df = pd.DataFrame({"exper": [_x], "wage": [_y]})
-        _main = (
-            alt.Chart(_df.assign(t=_text))
-            .mark_text(color=_color, fontSize=13, font="monospace", align="center", clip=True)
+        return [
+            alt.Chart(_label_rows(_x, _y, _text))
+            .mark_text(color=_color, fontSize=13, align="center", baseline="middle", clip=True)
             .encode(x="exper:Q", y="wage:Q", text="t:N")
-        )
-        _hats = (
-            alt.Chart(_df.assign(t=_hat_line(_text)))
-            .mark_text(color=_color, fontSize=13, font="monospace", align="center", dy=-7, clip=True)
-            .encode(x="exper:Q", y="wage:Q", text="t:N")
-        )
-        return [_main, _hats]
+        ]
 
     _layers = [_pts]
     if _use_d or _use_xd:
