@@ -265,26 +265,26 @@ def _(alt, exper, int_shift, mo, n_workers, np, pd, slope_shift, stem, wage):
     # matches the deck's (a)/(b)/(c) frames.
     if not _use_d and not _use_xd:
         _model_eq = r"$$\text{Wage} = \beta_0 + \beta_1\,\text{Experience} + u$$"
-        _lab0 = "β̂₀ + β̂₁X"
+        _lab0 = "β₀ + β₁X"
         _lab1 = None
     elif _use_d and not _use_xd:
         _model_eq = r"$$\text{Wage} = \beta_0 + \beta_1\,\text{STEM} + \beta_2\,\text{Experience} + u$$"
-        _lab0 = "β̂₀ + β̂₂X"
-        _lab1 = "(β̂₀ + β̂₁) + β̂₂X"
+        _lab0 = "β₀ + β₂X"
+        _lab1 = "(β₀ + β₁) + β₂X"
     elif _use_d and _use_xd:
         _model_eq = (
             r"$$\text{Wage} = \beta_0 + \beta_1\,\text{Experience} + \beta_2\,\text{STEM}"
             r" + \beta_3\,(\text{Experience} \times \text{STEM}) + u$$"
         )
-        _lab0 = "β̂₀ + β̂₁X"
-        _lab1 = "(β̂₀ + β̂₂) + (β̂₁ + β̂₃)X"
+        _lab0 = "β₀ + β₁X"
+        _lab1 = "(β₀ + β₂) + (β₁ + β₃)X"
     else:
         _model_eq = (
             r"$$\text{Wage} = \beta_0 + \beta_1\,\text{Experience}"
             r" + \beta_2\,(\text{Experience} \times \text{STEM}) + u$$"
         )
-        _lab0 = "β̂₀ + β̂₁X"
-        _lab1 = "β̂₀ + (β̂₁ + β̂₂)X"
+        _lab0 = "β₀ + β₁X"
+        _lab1 = "β₀ + (β₁ + β₂)X"
     _model = mo.md(_model_eq)
 
     _xsc = alt.Scale(domain=[0.0, 45.0], nice=False)
@@ -309,8 +309,31 @@ def _(alt, exper, int_shift, mo, n_workers, np, pd, slope_shift, stem, wage):
     _gx = np.array([0.0, 40.0])
     # β labels sit at mid-chart, the non-STEM label below its line and the
     # STEM label above its line; the STEM line is fitted above the non-STEM
-    # line throughout, so the offsets cannot collide.
+    # line throughout, so the offsets cannot collide. Hats: SVG text cannot
+    # render KaTeX and the Unicode combining circumflex draws tiny and badly
+    # anchored, so each label is monospace with a second text layer placing a
+    # full-size caret in the column above every β. Non-breaking spaces keep
+    # the caret string the same rendered width as the label (SVG collapses
+    # regular spaces, which would break the center alignment).
     _lx = 30.0
+
+    def _hat_line(_s):
+        return "".join("^" if _c == "β" else "\u00a0" for _c in _s)
+
+    def _line_label(_x, _y, _text, _color):
+        _df = pd.DataFrame({"exper": [_x], "wage": [_y]})
+        _main = (
+            alt.Chart(_df.assign(t=_text))
+            .mark_text(color=_color, fontSize=13, font="monospace", align="center", clip=True)
+            .encode(x="exper:Q", y="wage:Q", text="t:N")
+        )
+        _hats = (
+            alt.Chart(_df.assign(t=_hat_line(_text)))
+            .mark_text(color=_color, fontSize=13, font="monospace", align="center", dy=-7, clip=True)
+            .encode(x="exper:Q", y="wage:Q", text="t:N")
+        )
+        return [_main, _hats]
+
     _layers = [_pts]
     if _use_d or _use_xd:
         _layers.append(
@@ -323,20 +346,8 @@ def _(alt, exper, int_shift, mo, n_workers, np, pd, slope_shift, stem, wage):
             .mark_line(color="orange", size=3, clip=True)
             .encode(x="exper:Q", y="wage:Q")
         )
-        _layers.append(
-            alt.Chart(pd.DataFrame({
-                "exper": [_lx], "wage": [_i0 + _s0 * _lx - 2.6], "t": [_lab0],
-            }))
-            .mark_text(color="#1f4e79", fontSize=13, align="center", clip=True)
-            .encode(x="exper:Q", y="wage:Q", text="t:N")
-        )
-        _layers.append(
-            alt.Chart(pd.DataFrame({
-                "exper": [_lx], "wage": [_i1 + _s1 * _lx + 2.6], "t": [_lab1],
-            }))
-            .mark_text(color="#b45309", fontSize=13, align="center", clip=True)
-            .encode(x="exper:Q", y="wage:Q", text="t:N")
-        )
+        _layers.extend(_line_label(_lx, _i0 + _s0 * _lx - 2.9, _lab0, "#1f4e79"))
+        _layers.extend(_line_label(_lx, _i1 + _s1 * _lx + 2.6, _lab1, "#b45309"))
     else:
         # Pooled model: one line for everyone, drawn in a neutral dark gray so
         # it does not read as either group's line.
@@ -345,13 +356,7 @@ def _(alt, exper, int_shift, mo, n_workers, np, pd, slope_shift, stem, wage):
             .mark_line(color="#374151", size=3, clip=True)
             .encode(x="exper:Q", y="wage:Q")
         )
-        _layers.append(
-            alt.Chart(pd.DataFrame({
-                "exper": [_lx], "wage": [_i0 + _s0 * _lx + 2.6], "t": [_lab0],
-            }))
-            .mark_text(color="#374151", fontSize=13, align="center", clip=True)
-            .encode(x="exper:Q", y="wage:Q", text="t:N")
-        )
+        _layers.extend(_line_label(_lx, _i0 + _s0 * _lx + 2.6, _lab0, "#374151"))
 
     def _brace_df(_a, _b_, _base, _depth):
         # Vertical curly brace spanning wages [_a, _b_] at x = _base: back edge
