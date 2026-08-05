@@ -259,41 +259,32 @@ def _(alt, exper, int_shift, mo, n_workers, np, pd, slope_shift, stem, wage):
     _i1, _s1 = _b0 + _bd, _bx + _bxd
     _gap40 = (_i1 + 40.0 * _s1) - (_i0 + 40.0 * _s0)
 
-    # The model being fit, shown above the chart with its estimated
-    # coefficients and rebuilt on every checkbox change. Coefficient
-    # numbering matches the deck's (a)/(b)/(c) frames.
+    # The model being fit, shown above the chart, and the per-line β labels
+    # drawn on the plot. The labels give each line's intercept and slope as
+    # the coefficient sums implied by setting STEM to 0 or 1; numbering
+    # matches the deck's (a)/(b)/(c) frames.
     if not _use_d and not _use_xd:
-        _model_eq = (
-            r"$$\begin{aligned}"
-            r"\text{Wage} &= \beta_0 + \beta_1\,\text{Experience} + u \\"
-            rf"\widehat{{\text{{Wage}}}} &= {_b0:.2f} + {_bx:.2f}\,\text{{Experience}}"
-            r"\end{aligned}$$"
-        )
+        _model_eq = r"$$\text{Wage} = \beta_0 + \beta_1\,\text{Experience} + u$$"
+        _lab0 = "β₀ + β₁X"
+        _lab1 = None
     elif _use_d and not _use_xd:
-        _model_eq = (
-            r"$$\begin{aligned}"
-            r"\text{Wage} &= \beta_0 + \beta_1\,\text{STEM} + \beta_2\,\text{Experience} + u \\"
-            rf"\widehat{{\text{{Wage}}}} &= {_b0:.2f} + {_bd:.2f}\,\text{{STEM}} + {_bx:.2f}\,\text{{Experience}}"
-            r"\end{aligned}$$"
-        )
+        _model_eq = r"$$\text{Wage} = \beta_0 + \beta_1\,\text{STEM} + \beta_2\,\text{Experience} + u$$"
+        _lab0 = "β₀ + β₂X"
+        _lab1 = "(β₀ + β₁) + β₂X"
     elif _use_d and _use_xd:
         _model_eq = (
-            r"$$\begin{aligned}"
-            r"\text{Wage} &= \beta_0 + \beta_1\,\text{Experience} + \beta_2\,\text{STEM}"
-            r" + \beta_3\,(\text{Experience} \times \text{STEM}) + u \\"
-            rf"\widehat{{\text{{Wage}}}} &= {_b0:.2f} + {_bx:.2f}\,\text{{Experience}} + {_bd:.2f}\,\text{{STEM}}"
-            rf" + {_bxd:.2f}\,(\text{{Experience}} \times \text{{STEM}})"
-            r"\end{aligned}$$"
+            r"$$\text{Wage} = \beta_0 + \beta_1\,\text{Experience} + \beta_2\,\text{STEM}"
+            r" + \beta_3\,(\text{Experience} \times \text{STEM}) + u$$"
         )
+        _lab0 = "β₀ + β₁X"
+        _lab1 = "(β₀ + β₂) + (β₁ + β₃)X"
     else:
         _model_eq = (
-            r"$$\begin{aligned}"
-            r"\text{Wage} &= \beta_0 + \beta_1\,\text{Experience}"
-            r" + \beta_2\,(\text{Experience} \times \text{STEM}) + u \\"
-            rf"\widehat{{\text{{Wage}}}} &= {_b0:.2f} + {_bx:.2f}\,\text{{Experience}}"
-            rf" + {_bxd:.2f}\,(\text{{Experience}} \times \text{{STEM}})"
-            r"\end{aligned}$$"
+            r"$$\text{Wage} = \beta_0 + \beta_1\,\text{Experience}"
+            r" + \beta_2\,(\text{Experience} \times \text{STEM}) + u$$"
         )
+        _lab0 = "β₀ + β₁X"
+        _lab1 = "β₀ + (β₁ + β₂)X"
     _model = mo.md(_model_eq)
 
     _xsc = alt.Scale(domain=[0.0, 45.0], nice=False)
@@ -316,6 +307,10 @@ def _(alt, exper, int_shift, mo, n_workers, np, pd, slope_shift, stem, wage):
     )
 
     _gx = np.array([0.0, 40.0])
+    # β labels sit at mid-chart, the non-STEM label below its line and the
+    # STEM label above its line; the STEM line is fitted above the non-STEM
+    # line throughout, so the offsets cannot collide.
+    _lx = 30.0
     _layers = [_pts]
     if _use_d or _use_xd:
         _layers.append(
@@ -328,6 +323,20 @@ def _(alt, exper, int_shift, mo, n_workers, np, pd, slope_shift, stem, wage):
             .mark_line(color="orange", size=3, clip=True)
             .encode(x="exper:Q", y="wage:Q")
         )
+        _layers.append(
+            alt.Chart(pd.DataFrame({
+                "exper": [_lx], "wage": [_i0 + _s0 * _lx - 2.6], "t": [_lab0],
+            }))
+            .mark_text(color="#1f4e79", fontSize=13, fontStyle="italic", align="center", clip=True)
+            .encode(x="exper:Q", y="wage:Q", text="t:N")
+        )
+        _layers.append(
+            alt.Chart(pd.DataFrame({
+                "exper": [_lx], "wage": [_i1 + _s1 * _lx + 2.6], "t": [_lab1],
+            }))
+            .mark_text(color="#b45309", fontSize=13, fontStyle="italic", align="center", clip=True)
+            .encode(x="exper:Q", y="wage:Q", text="t:N")
+        )
     else:
         # Pooled model: one line for everyone, drawn in a neutral dark gray so
         # it does not read as either group's line.
@@ -335,6 +344,13 @@ def _(alt, exper, int_shift, mo, n_workers, np, pd, slope_shift, stem, wage):
             alt.Chart(pd.DataFrame({"exper": _gx, "wage": _i0 + _s0 * _gx}))
             .mark_line(color="#374151", size=3, clip=True)
             .encode(x="exper:Q", y="wage:Q")
+        )
+        _layers.append(
+            alt.Chart(pd.DataFrame({
+                "exper": [_lx], "wage": [_i0 + _s0 * _lx + 2.6], "t": [_lab0],
+            }))
+            .mark_text(color="#374151", fontSize=13, fontStyle="italic", align="center", clip=True)
+            .encode(x="exper:Q", y="wage:Q", text="t:N")
         )
 
     def _brace_df(_a, _b_, _base, _depth):
