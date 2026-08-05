@@ -265,26 +265,26 @@ def _(alt, exper, int_shift, mo, n_workers, np, pd, slope_shift, stem, wage):
     # matches the deck's (a)/(b)/(c) frames.
     if not _use_d and not _use_xd:
         _model_eq = r"$$\text{Wage} = \beta_0 + \beta_1\,\text{Experience} + u$$"
-        _lab0 = "β₀ + β₁X"
+        _lab0 = "β̂₀ + β̂₁X"
         _lab1 = None
     elif _use_d and not _use_xd:
         _model_eq = r"$$\text{Wage} = \beta_0 + \beta_1\,\text{STEM} + \beta_2\,\text{Experience} + u$$"
-        _lab0 = "β₀ + β₂X"
-        _lab1 = "(β₀ + β₁) + β₂X"
+        _lab0 = "β̂₀ + β̂₂X"
+        _lab1 = "(β̂₀ + β̂₁) + β̂₂X"
     elif _use_d and _use_xd:
         _model_eq = (
             r"$$\text{Wage} = \beta_0 + \beta_1\,\text{Experience} + \beta_2\,\text{STEM}"
             r" + \beta_3\,(\text{Experience} \times \text{STEM}) + u$$"
         )
-        _lab0 = "β₀ + β₁X"
-        _lab1 = "(β₀ + β₂) + (β₁ + β₃)X"
+        _lab0 = "β̂₀ + β̂₁X"
+        _lab1 = "(β̂₀ + β̂₂) + (β̂₁ + β̂₃)X"
     else:
         _model_eq = (
             r"$$\text{Wage} = \beta_0 + \beta_1\,\text{Experience}"
             r" + \beta_2\,(\text{Experience} \times \text{STEM}) + u$$"
         )
-        _lab0 = "β₀ + β₁X"
-        _lab1 = "β₀ + (β₁ + β₂)X"
+        _lab0 = "β̂₀ + β̂₁X"
+        _lab1 = "β̂₀ + (β̂₁ + β̂₂)X"
     _model = mo.md(_model_eq)
 
     _xsc = alt.Scale(domain=[0.0, 45.0], nice=False)
@@ -327,14 +327,14 @@ def _(alt, exper, int_shift, mo, n_workers, np, pd, slope_shift, stem, wage):
             alt.Chart(pd.DataFrame({
                 "exper": [_lx], "wage": [_i0 + _s0 * _lx - 2.6], "t": [_lab0],
             }))
-            .mark_text(color="#1f4e79", fontSize=13, fontStyle="italic", align="center", clip=True)
+            .mark_text(color="#1f4e79", fontSize=13, align="center", clip=True)
             .encode(x="exper:Q", y="wage:Q", text="t:N")
         )
         _layers.append(
             alt.Chart(pd.DataFrame({
                 "exper": [_lx], "wage": [_i1 + _s1 * _lx + 2.6], "t": [_lab1],
             }))
-            .mark_text(color="#b45309", fontSize=13, fontStyle="italic", align="center", clip=True)
+            .mark_text(color="#b45309", fontSize=13, align="center", clip=True)
             .encode(x="exper:Q", y="wage:Q", text="t:N")
         )
     else:
@@ -349,7 +349,7 @@ def _(alt, exper, int_shift, mo, n_workers, np, pd, slope_shift, stem, wage):
             alt.Chart(pd.DataFrame({
                 "exper": [_lx], "wage": [_i0 + _s0 * _lx + 2.6], "t": [_lab0],
             }))
-            .mark_text(color="#374151", fontSize=13, fontStyle="italic", align="center", clip=True)
+            .mark_text(color="#374151", fontSize=13, align="center", clip=True)
             .encode(x="exper:Q", y="wage:Q", text="t:N")
         )
 
