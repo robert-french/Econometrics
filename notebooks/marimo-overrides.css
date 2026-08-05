@@ -43,14 +43,19 @@ h2 {
 }
 
 /* Center markdown pipe tables and shrink them to their content width.
-   Marimo's prose styling stretches <table> to full width and left-aligns
-   it; the course tables (Lec2 distribution tables, Lec13 interaction cell
-   means) read better centered under their titles. Lec10's hand-built HTML
-   regression tables are unaffected: they render as inline-table, which
-   ignores auto side margins and centers via its text-align wrapper. */
-.prose table,
+   Marimo's own stylesheet sets `.markdown table { display:block }` (for
+   horizontal scrolling of wide tables), which turns the table into a
+   full-width block whose rows hug the left edge — auto margins then do
+   nothing. Restoring display:table lets width:auto shrink the table to
+   its content so the auto margins can center it (Lec2 distribution
+   tables, Lec13 interaction cell means). Trade-off: a table wider than
+   the page will clip instead of scroll; no course table is that wide.
+   Lec10's hand-built HTML regression tables are unaffected — they render
+   as inline-table and center via their text-align wrapper. */
 .markdown table {
+    display: table !important;
     width: auto !important;
+    max-width: 100%;
     margin-left: auto !important;
     margin-right: auto !important;
 }

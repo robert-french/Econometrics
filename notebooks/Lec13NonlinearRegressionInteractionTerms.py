@@ -131,7 +131,7 @@ def _(mo):
     <span style="display:block;text-align:center;font-size:0.9rem;font-weight:600;margin:0.4rem 0 0;">Predicted wage for each combination of the two indicators</span>
 
     | | Non-STEM ($X_2 = 0$) | STEM ($X_2 = 1$) |
-    |---|---|---|
+    |:---|:---:|:---:|
     | **No degree** ($X_1 = 0$) | $\hat{\beta}_0$ | $\hat{\beta}_0 + \hat{\beta}_2$ |
     | **College degree** ($X_1 = 1$) | $\hat{\beta}_0 + \hat{\beta}_1$ | $\hat{\beta}_0 + \hat{\beta}_1 + \hat{\beta}_2 + \hat{\beta}_3$ |
 
@@ -168,7 +168,7 @@ def _(college, mo, np, stem, wage):
         "Predicted hourly wage by degree and job type</span>"
         "\n\n"
         "| | Non-STEM | STEM |\n"
-        "|---|---|---|\n"
+        "|:---|:---:|:---:|\n"
         rf"| **No degree** | \${_c00:.2f} | \${_c01:.2f} |"
         "\n"
         rf"| **College degree** | \${_c10:.2f} | \${_c11:.2f} |"
@@ -259,21 +259,40 @@ def _(alt, exper, int_shift, mo, n_workers, np, pd, slope_shift, stem, wage):
     _i1, _s1 = _b0 + _bd, _bx + _bxd
     _gap40 = (_i1 + 40.0 * _s1) - (_i0 + 40.0 * _s0)
 
-    # The model being fit, shown above the chart and rebuilt on every checkbox
-    # change. Coefficient numbering matches the deck's (a)/(b)/(c) frames.
+    # The model being fit, shown above the chart with its estimated
+    # coefficients and rebuilt on every checkbox change. Coefficient
+    # numbering matches the deck's (a)/(b)/(c) frames.
     if not _use_d and not _use_xd:
-        _model_eq = r"$$\text{Wage} = \beta_0 + \beta_1\,\text{Experience} + u$$"
+        _model_eq = (
+            r"$$\begin{aligned}"
+            r"\text{Wage} &= \beta_0 + \beta_1\,\text{Experience} + u \\"
+            rf"\widehat{{\text{{Wage}}}} &= {_b0:.2f} + {_bx:.2f}\,\text{{Experience}}"
+            r"\end{aligned}$$"
+        )
     elif _use_d and not _use_xd:
-        _model_eq = r"$$\text{Wage} = \beta_0 + \beta_1\,\text{STEM} + \beta_2\,\text{Experience} + u$$"
+        _model_eq = (
+            r"$$\begin{aligned}"
+            r"\text{Wage} &= \beta_0 + \beta_1\,\text{STEM} + \beta_2\,\text{Experience} + u \\"
+            rf"\widehat{{\text{{Wage}}}} &= {_b0:.2f} + {_bd:.2f}\,\text{{STEM}} + {_bx:.2f}\,\text{{Experience}}"
+            r"\end{aligned}$$"
+        )
     elif _use_d and _use_xd:
         _model_eq = (
-            r"$$\text{Wage} = \beta_0 + \beta_1\,\text{Experience} + \beta_2\,\text{STEM}"
-            r" + \beta_3\,(\text{Experience} \times \text{STEM}) + u$$"
+            r"$$\begin{aligned}"
+            r"\text{Wage} &= \beta_0 + \beta_1\,\text{Experience} + \beta_2\,\text{STEM}"
+            r" + \beta_3\,(\text{Experience} \times \text{STEM}) + u \\"
+            rf"\widehat{{\text{{Wage}}}} &= {_b0:.2f} + {_bx:.2f}\,\text{{Experience}} + {_bd:.2f}\,\text{{STEM}}"
+            rf" + {_bxd:.2f}\,(\text{{Experience}} \times \text{{STEM}})"
+            r"\end{aligned}$$"
         )
     else:
         _model_eq = (
-            r"$$\text{Wage} = \beta_0 + \beta_1\,\text{Experience}"
-            r" + \beta_2\,(\text{Experience} \times \text{STEM}) + u$$"
+            r"$$\begin{aligned}"
+            r"\text{Wage} &= \beta_0 + \beta_1\,\text{Experience}"
+            r" + \beta_2\,(\text{Experience} \times \text{STEM}) + u \\"
+            rf"\widehat{{\text{{Wage}}}} &= {_b0:.2f} + {_bx:.2f}\,\text{{Experience}}"
+            rf" + {_bxd:.2f}\,(\text{{Experience}} \times \text{{STEM}})"
+            r"\end{aligned}$$"
         )
     _model = mo.md(_model_eq)
 
