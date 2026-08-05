@@ -42,6 +42,19 @@ h2 {
     margin-bottom: 0.5em !important;
 }
 
+/* Center markdown pipe tables and shrink them to their content width.
+   Marimo's prose styling stretches <table> to full width and left-aligns
+   it; the course tables (Lec2 distribution tables, Lec13 interaction cell
+   means) read better centered under their titles. Lec10's hand-built HTML
+   regression tables are unaffected: they render as inline-table, which
+   ignores auto side margins and centers via its text-align wrapper. */
+.prose table,
+.markdown table {
+    width: auto !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
 /* Tighter paragraph and equation spacing inside marimo accordions
    (used for the Lec2 bonus-material appendix). Default <p> margins are
    ~1em top + 1em bottom, which leaves the long appendix airy; this
