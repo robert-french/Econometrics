@@ -259,13 +259,7 @@ def _(mo):
     Y = (\beta_0+\beta_2)+(\beta_1+\beta_3)X.
     $$
 
-    The STEM intercept differs from the non-STEM intercept by $\beta_2$, *and* the STEM slope differs from the non-STEM slope by $\beta_3$. The fitted wage difference between the two groups therefore depends on experience:
-
-    $$
-    \beta_2+\beta_3X.
-    $$
-
-    A positive $\beta_3$ means that the wage difference between STEM and non-STEM workers becomes larger as experience increases. A negative $\beta_3$ means that it becomes smaller.
+    The STEM intercept differs from the non-STEM intercept by $\beta_2$, *and* the STEM slope differs from the non-STEM slope by $\beta_3$. The fitted wage difference between the two groups therefore depends on experience, $\beta_2+\beta_3X$. A positive $\beta_3$ means that the wage difference between STEM and non-STEM workers becomes larger as experience increases. A negative $\beta_3$ means that it becomes smaller.
 
     The chart below estimates each of these regressions using our survey data. The first checkbox adds the $D$ term, an *intercept shift* that allows the STEM and non-STEM lines to have different intercepts. The second adds the $X \times D$ term, a *slope shift* that allows their slopes to differ.
     """)
@@ -275,10 +269,10 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     int_shift = mo.ui.checkbox(
-        value=False, label="Include $D$ as a main effect in the regression"
+        value=False, label="Include the STEM indicator as a main effect in the regression"
     )
     slope_shift = mo.ui.checkbox(
-        value=False, label="Interact $D$ with $X$ in the regression"
+        value=False, label="Interact the STEM indicator with Experience in the regression"
     )
     mo.vstack(
         [
@@ -491,7 +485,7 @@ def _(alt, exper, int_shift, mo, n_workers, np, pd, slope_shift, stem, wage):
             rf"It consists of the \${_bd:.2f} intercept difference plus "
             rf"40 × \${_bxd:.2f} = \${40.0 * _bxd:.2f} from the difference in slopes."
         )
-    
+
     _caption = mo.md(
         "<span style='display:block;margin:0.2rem auto 1rem;max-width:560px;"
         "font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;'>"
@@ -514,18 +508,14 @@ def _(mo):
     Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \beta_3(X_1 \times X_2) + u.
     $$
 
-    Experience appears in two terms, $\beta_1X_1$ and $\beta_3(X_1 \times X_2)$. Holding schooling fixed, one additional year of experience therefore changes the predicted wage by
-
-    $$
-    \beta_1+\beta_3X_2.
-    $$
+    Experience appears in two terms, $\beta_1X_1$ and $\beta_3(X_1 \times X_2)$. Holding schooling fixed, one additional year of experience therefore changes the predicted wage by $\beta_1+\beta_3X_2$.
 
     The wage difference associated with an additional year of experience is no longer a single number. It depends on the worker’s years of schooling. The coefficient $\beta_3$ tells us how much the relationship between wages and experience changes with each additional year of schooling. When $\beta_3>0$, the wage difference associated with an additional year of experience is larger for workers with more schooling. When $\beta_3<0$, it is smaller.
 
     Suppose a study of hourly wages estimates
 
     $$
-    5.00+0.20X_1+0.90X_2+0.02(X_1 \times X_2).
+    \widehat{\text{Wage}} = 5.00+0.20X_1+0.90X_2+0.02(X_1 \times X_2).
     $$
 
     For a worker with 10 years of schooling, one additional year of experience is associated with a predicted hourly wage that is $0.20+0.02(10)=0.40$ dollars higher. For a worker with 16 years of schooling, one additional year of experience is associated with a predicted hourly wage that is $0.20+0.02(16)=0.52$ dollars higher.
