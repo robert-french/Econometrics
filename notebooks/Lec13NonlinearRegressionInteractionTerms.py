@@ -18,8 +18,6 @@ app = marimo.App(
     css_file="marimo-overrides.css",
 )
 
-__preliminary__ = True
-
 
 @app.cell(hide_code=True)
 def _():
@@ -116,17 +114,19 @@ def _(mo):
     <a id="sec1"></a>
     ## 1. Interacting two binary variables
 
-    A *binary variable*, also called an *indicator variable*, takes only the values 0 and 1. Lecture 5 showed how to read a regression of $Y$ on one binary variable. The intercept $\hat{\beta}_0$ is the average of $Y$ in the group with $X = 0$, the sum $\hat{\beta}_0 + \hat{\beta}_1$ is the average in the group with $X = 1$, and the slope $\hat{\beta}_1$ is the difference between the two group averages.
+    A *binary variable*, also called an *indicator variable*, takes only the values 0 and 1. Lecture 5 showed how to interpret a regression of $Y$ on a single binary variable. Recall that the intercept $\hat{\beta}_0$ is the estimated mean of $Y$ for the group with $X=0$, while $\hat{\beta}_0+\hat{\beta}_1$ is the estimated mean for the group with $X=1$. The slope $\hat{\beta}_1$ is therefore the difference between the two estimated means.
 
-    This lecture asks what a regression can say when two binary variables work together. Our running survey of 300 workers from Lectures 11 and 12 recorded two indicators we have not used yet, whether the worker holds a STEM job (science, technology, engineering, or mathematics) and whether the worker finished a college degree. Does a college degree pay off more in STEM jobs than in other jobs? To answer, the regression must let the payoff to a degree differ by job type. We do this by multiplying the two indicators together and including the product as its own regressor. The product is called an *interaction term*, and the regression becomes
+    This lecture considers regressions with two binary variables. Our survey of 300 workers from Lectures 11 and 12 recorded two indicator variables that we have not yet used. The first indicates whether a worker holds a job in science, technology, engineering, or mathematics (STEM). The second indicates whether the worker has completed a college degree. We can use these variables to ask whether the payoff to a college degree is larger in STEM jobs than in non-STEM jobs.
+
+    To answer this question, the regression must allow the payoff to a college degree to differ by job type. We do this by multiplying the two indicators and including their product as an additional regressor. This product is called an *interaction term*. The regression becomes
 
     $$
     Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \beta_3 \underbrace{(X_1 \times X_2)}_{\text{interaction}} + u,
     $$
 
-    where $X_1$ indicates a college degree and $X_2$ indicates a STEM job. The interaction term equals 1 only for workers who have both a degree and a STEM job.
+    where $X_1$ indicates that a worker has a college degree and $X_2$ indicates that a worker holds a STEM job. Because both variables are binary, the interaction term equals 1 only for workers who have both a college degree and a STEM job. It equals 0 for everyone else.
 
-    The two indicators split the workers into four groups, and the four coefficients combine to give a predicted wage for each group.
+    The two indicators divide workers into four groups. The coefficients combine differently to give the predicted wage for each group.
 
     <span style="display:block;text-align:center;font-size:0.9rem;font-weight:600;margin:0.4rem 0 0;">Predicted wage for each combination of the two indicators</span>
 
@@ -135,7 +135,9 @@ def _(mo):
     | **No degree** ($X_1 = 0$) | $\hat{\beta}_0$ | $\hat{\beta}_0 + \hat{\beta}_2$ |
     | **College degree** ($X_1 = 1$) | $\hat{\beta}_0 + \hat{\beta}_1$ | $\hat{\beta}_0 + \hat{\beta}_1 + \hat{\beta}_2 + \hat{\beta}_3$ |
 
-    The first three cells follow the single-variable logic from Lecture 5. Workers with neither trait are predicted to earn $\hat{\beta}_0$, and each indicator on its own adds its coefficient. The interaction coefficient $\hat{\beta}_3$ appears only in the bottom-right cell, where both indicators equal 1. It measures how much more (or less) the two traits pay together than the sum of what they pay separately.
+    The first three cells follow the single-variable logic from Lecture 5. Workers with neither characteristic have a predicted wage of $\hat{\beta}_0$. Among non-STEM workers, having a college degree adds $\hat{\beta}_1$ to their predicted wage. Among workers without a college degree, holding a STEM job adds $\hat{\beta}_2$ to their predicted wage.
+
+    The interaction coefficient $\hat{\beta}_3$ appears only in the bottom-right cell, where both indicators equal 1. It captures the additional association between having both characteristics and wages, beyond the sum of their separate associations. A positive $\hat{\beta}_3$ means that the estimated payoff to a college degree is larger in STEM jobs than in non-STEM jobs. A negative $\hat{\beta}_3$ means that it is smaller.
     """)
     return
 
@@ -153,11 +155,12 @@ def _(college, mo, np, stem, wage):
     _c01 = _b0 + _b2
     _c11 = _b0 + _b1 + _b2 + _b3
     _p1 = (
-        rf"Fitting this regression on the survey gives"
+        rf"Fitting the regression to the survey data gives"
         "\n\n"
         rf"$$\widehat{{\text{{Wage}}}} = {_b0:.2f} + {_b1:.2f}\,\text{{College}} + {_b2:.2f}\,\text{{STEM}} + {_b3:.2f}\,(\text{{College}} \times \text{{STEM}}),$$"
         "\n\n"
-        rf"and filling in the table produces the four predicted wages below. Each prediction equals the average wage of that group exactly. A regression with one coefficient per group, called a *saturated regression*, can always match every group average."
+        rf"Substituting each combination of the two indicators gives the four predicted wages below. "
+        rf"Each predicted wage exactly equals the average wage of the corresponding group.<sup><a id='fnref1' href='#fn1'>1</a></sup>"
     )
     # Markdown pipe table, centered course-wide by the `.prose table` rule in
     # marimo-overrides.css. Pipe tables run through the normal markdown
@@ -173,8 +176,15 @@ def _(college, mo, np, stem, wage):
         "\n"
         rf"| **College degree** | \${_c10:.2f} | \${_c11:.2f} |"
     )
+
     _p2 = (
-        rf"The interaction coefficient answers the opening question. Among workers without a degree, STEM jobs pay \${_c01 - _c00:.2f} more per hour on average (\${_c01:.2f} versus \${_c00:.2f}). Among college graduates, the STEM premium is \${_c11 - _c10:.2f} (\${_c11:.2f} versus \${_c10:.2f}). The difference between those two premiums, \${_b3:.2f}, is $\hat{{\beta}}_3$. A college degree is associated with a larger payoff in STEM jobs than elsewhere, by about \${_b3:.2f} per hour."
+        rf"Among workers without a college degree, the estimated STEM premium is "
+        rf"\${_c01 - _c00:.2f} per hour, the difference between \${_c01:.2f} and \${_c00:.2f}. "
+        rf"Among college graduates, the estimated STEM premium is "
+        rf"\${_c11 - _c10:.2f} per hour, the difference between \${_c11:.2f} and \${_c10:.2f}. "
+        rf"The difference between these two STEM premiums is \${_b3:.2f}, which equals "
+        rf"$\hat{{\beta}}_3$. A college degree is therefore associated with an additional "
+        rf"\${_b3:.2f} per hour in STEM jobs relative to non-STEM jobs. "
     )
     mo.md(_p1 + "\n\n" + _table + "\n\n" + _p2)
     return
@@ -503,6 +513,16 @@ def _(mo):
         ),
         kind="info",
     )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ---
+
+    <span id="fn1" style="display:block;font-size:0.9rem;">**1.** With four coefficients for four groups, this is a *saturated regression*. It is flexible enough to reproduce every group average exactly. <a href="#fnref1" title="Back to text">&#8617;</a></span>
+    """)
     return
 
 
