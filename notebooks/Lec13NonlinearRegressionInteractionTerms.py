@@ -197,7 +197,7 @@ def _(mo):
 
     ## 2. Interacting a binary and a continuous variable
 
-    A binary variable can also interact with a continuous one. Work experience is continuous, and an extra year of it may be worth more in a STEM job than elsewhere. Writing $D$ for the STEM indicator and $X$ for years of experience, three specifications appear in applied work. They differ in whether the two groups get their own intercept, their own slope, or both.
+    A binary variable can also interact with a continuous variable. Work experience is continuous, and the wage difference associated with an additional year of experience may be larger in STEM jobs than in non-STEM jobs. Let $D = 1$ indicate a STEM job and $D = 0$ indicate a non-STEM job, and let $X$ denote years of experience. There are three main ways we can incorporate the STEM indicator into the regression of wages on work experience.
 
     ### <span style="color:#0b68cb">(a) Different intercepts, same slope</span>
 
@@ -205,27 +205,69 @@ def _(mo):
     Y = \beta_0 + \beta_1 D + \beta_2 X + u
     $$
 
-    The $D$ term shifts the whole line up or down for STEM workers. Their line sits $\beta_1$ above the non-STEM line at every level of experience, and the two lines are parallel.
-
-    ### <span style="color:#0b68cb">(b) Different intercepts and different slopes</span>
+    For non-STEM workers, setting $D=0$ gives the line
 
     $$
-    Y = \beta_0 + \beta_1 X + \beta_2 D + \beta_3 (X \times D) + u
+    Y = \beta_0 + \beta_2 X.
     $$
 
-    Non-STEM workers follow the line $\beta_0 + \beta_1 X$. For STEM workers the intercept becomes $\beta_0 + \beta_2$ and the slope becomes $\beta_1 + \beta_3$, so both the starting wage and the return to a year of experience can differ between the groups.
-
-    ### <span style="color:#0b68cb">(c) Same intercept, different slopes</span>
+    For STEM workers, setting $D=1$ gives
 
     $$
-    Y = \beta_0 + \beta_1 X + \beta_2 (X \times D) + u
+    Y = (\beta_0+\beta_1) + \beta_2 X.
     $$
 
-    Both groups start from the same intercept $\beta_0$, and only the slopes differ. The gap between the lines is zero at $X = 0$ and grows by $\beta_2$ with each year of experience.
+    The STEM indicator $D$ shifts the entire STEM line up or down by $\beta_1$. The two groups have different regression intercepts but the same slope, so their fitted regression lines are parallel. At every level of experience, the fitted wage difference between STEM and non-STEM workers is $\beta_1$.
 
-    Before moving on, try to sketch the three pictures. Each specification draws two straight lines, and the question is where the lines start and whether they spread apart.
+    ### <span style="color:#0b68cb">(b) Same intercept, different slopes</span>
 
-    The chart below fits these specifications to our survey, and the model being fit is displayed above the chart. The first checkbox adds the $D$ term, an *intercept shift* that lets the STEM line start at a different level. The second adds the $X \times D$ term, a *slope shift* that lets the STEM line rise at a different rate. The boxes start unticked, so the fitted model pools all 300 workers onto one line. Turning on only the intercept shift gives specification (a), only the slope shift gives (c), and both give (b). The brace marks the fitted wage gap between the two lines at 40 years of experience.
+    $$
+    Y = \beta_0 + \beta_1 X + \beta_2(X \times D) + u
+    $$
+
+    For non-STEM workers, setting $D=0$ gives
+
+    $$
+    Y = \beta_0+\beta_1X,
+    $$
+
+    while for STEM workers, setting $D=1$ gives
+
+    $$
+    Y = \beta_0+(\beta_1+\beta_2)X.
+    $$
+
+    Both groups have the same intercept $\beta_0$, but their slopes differ by $\beta_2$. The fitted wage difference is zero when $X=0$ and equals $\beta_2X$ at any other level of experience. It therefore changes by $\beta_2$ with each additional year of experience.
+
+    This specification imposes the restriction that STEM and non-STEM workers have the same fitted wage when experience equals zero. In most applications, researchers include both the indicator and the interaction, as in specification (c) below, unless there is a substantive reason to impose this restriction. More generally, an interaction term is usually included together with the variables from which it is constructed.
+
+    ### <span style="color:#0b68cb">(c) Different intercepts and different slopes</span>
+
+    $$
+    Y = \beta_0 + \beta_1 X + \beta_2 D + \beta_3(X \times D) + u
+    $$
+
+    For non-STEM workers, setting $D=0$ gives
+
+    $$
+    Y = \beta_0+\beta_1X.
+    $$
+
+    For STEM workers, setting $D=1$ gives
+
+    $$
+    Y = (\beta_0+\beta_2)+(\beta_1+\beta_3)X.
+    $$
+
+    The STEM intercept differs from the non-STEM intercept by $\beta_2$, *and* the STEM slope differs from the non-STEM slope by $\beta_3$. The fitted wage difference between the two groups therefore depends on experience:
+
+    $$
+    \beta_2+\beta_3X.
+    $$
+
+    A positive $\beta_3$ means that the wage difference between STEM and non-STEM workers becomes larger as experience increases. A negative $\beta_3$ means that it becomes smaller.
+
+    The chart below estimates each of these regressions using our survey data. The first checkbox adds the $D$ term, an *intercept shift* that allows the STEM and non-STEM lines to have different intercepts. The second adds the $X \times D$ term, a *slope shift* that allows their slopes to differ.
     """)
     return
 
@@ -233,10 +275,10 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     int_shift = mo.ui.checkbox(
-        value=False, label="Intercept shift: include the STEM term"
+        value=False, label="Include $D$ as a main effect in the regression"
     )
     slope_shift = mo.ui.checkbox(
-        value=False, label="Slope shift: include the Experience × STEM term"
+        value=False, label="Interact $D$ with $X$ in the regression"
     )
     mo.vstack(
         [
@@ -272,7 +314,7 @@ def _(alt, exper, int_shift, mo, n_workers, np, pd, slope_shift, stem, wage):
     # The model being fit, shown above the chart, and the per-line β labels
     # drawn on the plot. The labels give each line's intercept and slope as
     # the coefficient sums implied by setting STEM to 0 or 1; numbering
-    # matches the deck's (a)/(b)/(c) frames.
+    # matches Section 2's (a)/(b)/(c) ordering.
     if not _use_d and not _use_xd:
         _model_eq = r"$$\text{Wage} = \beta_0 + \beta_1\,\text{Experience} + u$$"
         _lab0 = "β₀ + β₁X"
@@ -416,35 +458,40 @@ def _(alt, exper, int_shift, mo, n_workers, np, pd, slope_shift, stem, wage):
 
     if not _use_d and not _use_xd:
         _msg = (
-            rf"With both boxes off, every worker shares one fitted line, "
-            rf"Wage = {_b0:.2f} + {_bx:.2f}·Experience. The model makes identical "
-            "predictions for STEM and non-STEM workers at every experience level."
+            rf"With both boxes unchecked, all workers share the same fitted line, "
+            rf"Wage = {_b0:.2f} + {_bx:.2f}·Experience. The model therefore predicts "
+            rf"the same wage for STEM and non-STEM workers at every level of experience."
         )
+
     elif _use_d and not _use_xd:
         _msg = (
-            rf"Specification (a), different intercepts with a common slope. The fitted "
-            rf"lines are Wage = {_i0:.2f} + {_s0:.2f}·Experience for non-STEM workers and "
-            rf"Wage = {_i1:.2f} + {_s1:.2f}·Experience for STEM workers. The STEM line "
-            rf"sits \${_bd:.2f} higher at every experience level, so the braced gap "
-            "would be the same anywhere along the lines."
+            rf"Specification (a) allows different intercepts but imposes a common slope. "
+            rf"The fitted line is Wage = {_i0:.2f} + {_s0:.2f}·Experience for non-STEM workers "
+            rf"and Wage = {_i1:.2f} + {_s1:.2f}·Experience for STEM workers. The STEM line "
+            rf"sits \${_bd:.2f} above the non-STEM line at every level of experience, so the "
+            rf"predicted wage difference is constant."
         )
-    elif _use_d and _use_xd:
+
+    elif not _use_d and _use_xd:
         _msg = (
-            rf"Specification (b), different intercepts and different slopes. The fitted "
-            rf"lines are Wage = {_i0:.2f} + {_s0:.2f}·Experience for non-STEM workers and "
-            rf"Wage = {_i1:.2f} + {_s1:.2f}·Experience for STEM workers. At 40 years the "
-            rf"gap is \${_gap40:.2f}, made of \${_bd:.2f} from the intercept shift plus "
-            rf"40 × \${_bxd:.2f} = \${40.0 * _bxd:.2f} from the slope difference."
+            rf"Specification (b) imposes a common intercept but allows different slopes. "
+            rf"Both fitted lines begin at \${_b0:.2f}. The fitted slope is \${_s0:.2f} per "
+            rf"year of experience for non-STEM workers and \${_s1:.2f} for STEM workers. "
+            rf"Because this specification forces the lines to have the same intercept even "
+            rf"though specification (c) estimates a higher intercept for STEM workers, it "
+            rf"compensates by fitting a steeper STEM slope than specification (c)."
         )
+
     else:
         _msg = (
-            rf"Specification (c), a shared intercept with different slopes. Both lines "
-            rf"start at \${_b0:.2f}, and a year of experience is fitted to add "
-            rf"\${_s0:.2f} outside STEM but \${_s1:.2f} in STEM. The data would prefer "
-            "the STEM line to start higher too, so forcing a shared intercept pushes "
-            "the fitted STEM slope above its value in specification (b) to make up "
-            "the difference."
+            rf"Specification (c) allows both the intercepts and the slopes to differ. "
+            rf"The fitted line is Wage = {_i0:.2f} + {_s0:.2f}·Experience for non-STEM workers "
+            rf"and Wage = {_i1:.2f} + {_s1:.2f}·Experience for STEM workers. At 40 years of "
+            rf"experience, the predicted STEM–non-STEM wage difference is \${_gap40:.2f}. "
+            rf"It consists of the \${_bd:.2f} intercept difference plus "
+            rf"40 × \${_bxd:.2f} = \${40.0 * _bxd:.2f} from the difference in slopes."
         )
+    
     _caption = mo.md(
         "<span style='display:block;margin:0.2rem auto 1rem;max-width:560px;"
         "font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;'>"
@@ -461,35 +508,29 @@ def _(mo):
 
     ## 3. Interacting two continuous variables
 
-    Interaction terms are not limited to indicators. Years of schooling is continuous, and an extra year of experience may be worth more to workers with more schooling. Writing $X_1$ for years of experience and $X_2$ for years of schooling, the regression is
+    Interaction terms are not limited to binary variables. Years of schooling and years of experience are both continuous, and the wage difference associated with an additional year of experience may depend on how much schooling a worker has. Let $X_1$ denote years of experience and let $X_2$ denote years of schooling. We can interact these variables in a regression,
 
     $$
-    Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \beta_3 (X_1 \times X_2) + u.
+    Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \beta_3(X_1 \times X_2) + u.
     $$
 
-    Experience appears in two terms, $\beta_1 X_1$ and $\beta_3 (X_1 \times X_2)$, so one more year of it changes the predicted wage by
+    Experience appears in two terms, $\beta_1X_1$ and $\beta_3(X_1 \times X_2)$. Holding schooling fixed, one additional year of experience therefore changes the predicted wage by
 
     $$
-    \frac{\Delta Y}{\Delta X_1} = \beta_1 + \beta_3 X_2.
+    \beta_1+\beta_3X_2.
     $$
 
-    The return to experience is no longer a single number. It depends on the worker's schooling, and when $\beta_3 > 0$, each extra year of schooling makes a year of experience worth $\beta_3$ more.
+    The wage difference associated with an additional year of experience is no longer a single number. It depends on the worker’s years of schooling. The coefficient $\beta_3$ tells us how much the relationship between wages and experience changes with each additional year of schooling. When $\beta_3>0$, the wage difference associated with an additional year of experience is larger for workers with more schooling. When $\beta_3<0$, it is smaller.
 
     Suppose a study of hourly wages estimates
 
     $$
-    \widehat{\text{Wage}} = 5.00 + 0.20\,X_1 + 0.90\,X_2 + 0.02\,(X_1 \times X_2).
+    5.00+0.20X_1+0.90X_2+0.02(X_1 \times X_2).
     $$
 
-    For a worker with 10 years of schooling, one more year of experience is associated with a wage that is $0.20 + 0.02 \times 10 = 0.40$ dollars higher. For a worker with 16 years of schooling, the same year of experience is worth $0.20 + 0.02 \times 16 = 0.52$ dollars. The interaction coefficient says the two investments reinforce each other; every extra year of schooling makes a year of experience worth 2 cents more per hour.
-    """)
-    return
+    For a worker with 10 years of schooling, one additional year of experience is associated with a predicted hourly wage that is $0.20+0.02(10)=0.40$ dollars higher. For a worker with 16 years of schooling, one additional year of experience is associated with a predicted hourly wage that is $0.20+0.02(16)=0.52$ dollars higher.
 
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    This lecture completes our nonlinear toolkit. Polynomials let a single variable's effect change with its own level, logarithms move a relationship into percent terms, and interactions let one variable's effect depend on another variable. All three are still estimated by ordinary least squares, because each model stays linear in the coefficients. Lecture 14 turns from building regression models to judging them, asking when a regression estimated on one sample gives a trustworthy answer, and for whom.
+    The interaction coefficient of $0.02$ means that each additional year of schooling increases the experience slope by 2 cents per hour. Equivalently, each additional year of experience increases the schooling slope by 2 cents per hour. Schooling and experience are therefore associated with wages in a complementary way. The wage difference associated with either variable is larger at higher values of the other. Like in the binary case, this only describes the fitted relationship between schooling, experience, and wages; it does not by itself show that schooling or experience causes wages to rise.
     """)
     return
 
@@ -502,14 +543,18 @@ def _(mo):
             "term, saturated regression, intercept shift, slope shift.\n\n"
             "**Key concepts covered:** reading a binary regressor's coefficients as two "
             "group averages and their difference, how two interacted indicators produce "
-            "four predicted values built from sums of coefficients, why a saturated "
-            "regression matches every group average exactly, the interaction coefficient "
-            "as the additional premium the two traits pay together, the three "
-            "binary-by-continuous specifications (different intercepts, different "
-            "slopes, or both) and how each reshapes the two fitted lines, why forcing a "
-            "shared intercept distorts the fitted slopes, and the effect of one "
-            "continuous variable depending on the level of another through "
-            "ΔY/ΔX₁ = β₁ + β₃X₂."
+            "four predicted wages built from sums of coefficients, the interaction "
+            "coefficient as the additional wage difference associated with having both "
+            "characteristics and how its sign is read, why a saturated regression "
+            "reproduces every group average exactly, the three ways to include a binary "
+            "indicator in a regression with a continuous variable (different intercepts, "
+            "different slopes, or both) and the pair of fitted lines each produces, why "
+            "an interaction term is usually included together with the variables from "
+            "which it is constructed, how imposing a common intercept forces the fitted "
+            "slope difference to absorb the intercept difference, how the interaction of "
+            "two continuous variables makes the slope on one variable, β₁ + β₃X₂, depend "
+            "on the level of the other, and that interaction coefficients describe "
+            "fitted associations, not causal effects."
         ),
         kind="info",
     )
