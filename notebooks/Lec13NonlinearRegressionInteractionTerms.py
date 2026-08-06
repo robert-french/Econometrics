@@ -114,7 +114,7 @@ def _(mo):
     <a id="sec1"></a>
     ## 1. Interacting two binary variables
 
-    A *binary variable*, also called an *indicator variable*, takes only the values 0 and 1. Lecture 5 showed how to interpret a regression of $Y$ on a single binary variable. Recall that the intercept $\hat{\beta}_0$ is the estimated mean of $Y$ for the group with $X=0$, while $\hat{\beta}_0+\hat{\beta}_1$ is the estimated mean for the group with $X=1$. The slope $\hat{\beta}_1$ is therefore the difference between the two estimated means.
+    A *binary variable*, also called an *indicator variable*, takes only the values 0 and 1. Lecture 5 showed how to interpret a regression of $Y$ on a single binary variable. Recall that the intercept $\hat{\beta}_0$ is the estimated mean of $Y$ for the observations with $X=0$, while $\hat{\beta}_0+\hat{\beta}_1$ is the estimated mean for the observations with $X=1$. The slope $\hat{\beta}_1$ is therefore the difference between the two estimated means.
 
     This lecture considers regressions with two binary variables. Our survey of 300 workers from Lectures 11 and 12 recorded two indicator variables that we have not yet used. The first indicates whether a worker holds a job in science, technology, engineering, or mathematics (STEM). The second indicates whether the worker has completed a college degree. We can use these variables to ask whether the payoff to a college degree is larger in STEM jobs than in non-STEM jobs.
 
@@ -199,7 +199,7 @@ def _(mo):
 
     A binary variable can also interact with a continuous variable. Work experience is continuous, and the wage difference associated with an additional year of experience may be larger in STEM jobs than in non-STEM jobs. Let $D = 1$ indicate a STEM job and $D = 0$ indicate a non-STEM job, and let $X$ denote years of experience. There are three main ways we can incorporate the STEM indicator into the regression of wages on work experience.
 
-    ### <span style="color:#0b68cb">(a) Different intercepts, same slope</span>
+    ### <span style="color:#0b68cb">(a) Different intercepts, same slope:</span>
 
     $$
     Y = \beta_0 + \beta_1 D + \beta_2 X + u
@@ -217,9 +217,9 @@ def _(mo):
     Y = (\beta_0+\beta_1) + \beta_2 X.
     $$
 
-    The STEM indicator $D$ shifts the entire STEM line up or down by $\beta_1$. The two groups have different regression intercepts but the same slope, so their fitted regression lines are parallel. At every level of experience, the fitted wage difference between STEM and non-STEM workers is $\beta_1$.
+    The STEM indicator $D$ shifts the entire STEM line up or down by $\beta_1$. The two groups have different regression intercepts but the same slope, so their fitted regression lines are parallel. At every level of experience, the predicted wage difference between STEM and non-STEM workers is $\beta_1$.
 
-    ### <span style="color:#0b68cb">(b) Same intercept, different slopes</span>
+    ### <span style="color:#0b68cb">(b) Same intercept, different slopes:</span>
 
     $$
     Y = \beta_0 + \beta_1 X + \beta_2(X \times D) + u
@@ -237,11 +237,11 @@ def _(mo):
     Y = \beta_0+(\beta_1+\beta_2)X.
     $$
 
-    Both groups have the same intercept $\beta_0$, but their slopes differ by $\beta_2$. The fitted wage difference is zero when $X=0$ and equals $\beta_2X$ at any other level of experience. It therefore changes by $\beta_2$ with each additional year of experience.
+    Both groups have the same intercept $\beta_0$, but their slopes differ by $\beta_2$. The predicted wage difference is zero when $X=0$ and equals $\beta_2X$ at any other level of experience. It therefore changes by $\beta_2$ with each additional year of experience.
 
-    This specification imposes the restriction that STEM and non-STEM workers have the same fitted wage when experience equals zero. In most applications, researchers include both the indicator and the interaction, as in specification (c) below, unless there is a substantive reason to impose this restriction. More generally, an interaction term is usually included together with the variables from which it is constructed.
+    This specification imposes the restriction that STEM and non-STEM workers have the same predicted wage when experience equals zero. In most applications, researchers include both the indicator and the interaction, as in specification (c) below, unless there is a substantive reason to impose this restriction. More generally, an interaction term is usually included together with the variables from which it is constructed.
 
-    ### <span style="color:#0b68cb">(c) Different intercepts and different slopes</span>
+    ### <span style="color:#0b68cb">(c) Different intercepts and different slopes:</span>
 
     $$
     Y = \beta_0 + \beta_1 X + \beta_2 D + \beta_3(X \times D) + u
@@ -259,7 +259,7 @@ def _(mo):
     Y = (\beta_0+\beta_2)+(\beta_1+\beta_3)X.
     $$
 
-    The STEM intercept differs from the non-STEM intercept by $\beta_2$, *and* the STEM slope differs from the non-STEM slope by $\beta_3$. The fitted wage difference between the two groups therefore depends on experience, $\beta_2+\beta_3X$. A positive $\beta_3$ means that the wage difference between STEM and non-STEM workers becomes larger as experience increases. A negative $\beta_3$ means that it becomes smaller.
+    The STEM intercept differs from the non-STEM intercept by $\beta_2$, *and* the STEM slope differs from the non-STEM slope by $\beta_3$. The predicted wage difference between the two groups therefore depends on experience, $\beta_2+\beta_3X$. A positive $\beta_3$ means that the wage difference between STEM and non-STEM workers becomes larger as experience increases. A negative $\beta_3$ means that it becomes smaller.
 
     The chart below estimates each of these regressions using our survey data. The first checkbox adds the $D$ term, an *intercept shift* that allows the STEM and non-STEM lines to have different intercepts. The second adds the $X \times D$ term, a *slope shift* that allows their slopes to differ.
     """)
@@ -520,7 +520,7 @@ def _(mo):
 
     For a worker with 10 years of schooling, one additional year of experience is associated with a predicted hourly wage that is $0.20+0.02(10)=0.40$ dollars higher. For a worker with 16 years of schooling, one additional year of experience is associated with a predicted hourly wage that is $0.20+0.02(16)=0.52$ dollars higher.
 
-    The interaction coefficient of $0.02$ means that each additional year of schooling increases the experience slope by 2 cents per hour. Equivalently, each additional year of experience increases the schooling slope by 2 cents per hour. Schooling and experience are therefore associated with wages in a complementary way. The wage difference associated with either variable is larger at higher values of the other. Like in the binary case, this only describes the fitted relationship between schooling, experience, and wages; it does not by itself show that schooling or experience causes wages to rise.
+    The interaction coefficient of $0.02$ means that each additional year of schooling increases the experience slope by 2 cents per hour. Equivalently, each additional year of experience increases the schooling slope by 2 cents per hour. Schooling and experience are therefore associated with wages in a complementary way. The wage difference associated with either variable is larger at higher values of the other. Like in the binary case, this only describes the fitted relationship between schooling, experience, and wages; it does not by itself show that schooling or experience causes wages to rise. To make a causal statement about the relationship between wages, experience, and education, we still must assume the first least squares assumption in Lecture 9 holds.
     """)
     return
 

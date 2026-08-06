@@ -97,17 +97,9 @@ def _(mo):
     <a id="sec1"></a>
     ## 1. What makes a study valid
 
-    Lectures 5 through 13 built a complete regression toolkit. We can now fit lines and curves, add control variables, and attach standard errors and hypothesis tests to any coefficient. This lecture steps back and asks when the numbers that toolkit produces should be believed, and for whom.
+    We say a study is *valid* if it is useful for answering the question it set out to answer. Validity has two parts, and they can fail independently. *Internal validity* asks whether the study correctly estimates the causal effect of $X$ on $Y$ within the population studied: in the language of Lecture 6, whether $\hat{\beta}_1$ is an unbiased and consistent estimator of the true causal value $\beta_1$. *External validity* asks whether the findings generalize to other populations and settings. It is about how far the estimate travels rather than about bias, and a study can be useful for prediction even when its $\hat{\beta}_1$ is not an unbiased estimate of a causal effect.
 
-    We say a study is *valid* if it is useful for answering the question it set out to answer. Validity has two parts, and the two parts can fail independently.
-
-    *Internal validity* asks whether the study correctly estimates the causal effect of $X$ on $Y$ within the population studied. It is a question about causality. In the language of Lecture 6, it asks whether $\hat{\beta}_1$ is an unbiased and consistent estimator of the true causal value $\beta_1$.
-
-    *External validity* asks whether we can generalize the findings to other populations and settings. It is typically a question about how far the estimate travels rather than about bias, and a study can be externally useful for prediction even when its $\hat{\beta}_1$ is not an unbiased estimate of a causal effect.
-
-    Our survey of workers from Lectures 11 through 13 makes the distinction concrete. Internal validity asks whether the estimated return to experience measures what an additional year of experience causes wages to be among workers like those surveyed. External validity asks whether that estimate tells us anything about workers in a different industry, country, or decade.
-
-    Section 2 works through the five ways internal validity fails. Sections 3 and 4 turn to external validity, first for causal questions and then for prediction.
+    Our survey of workers from Lectures 11 through 13 makes the distinction concrete. Internal validity asks whether the estimated return to experience measures what an additional year of experience causes wages to be among workers like those surveyed. External validity asks whether that estimate tells us anything about workers in a different industry, country, or decade. Section 2 works through the five ways internal validity fails; Sections 3 and 4 turn to external validity, first for causal questions and then for prediction.
     """)
     return
 
@@ -126,19 +118,7 @@ def _(mo):
     4. Bias due to sample selection
     5. Simultaneous causality bias
 
-    The list is worth committing to memory. When you read an empirical study, these five items are the checklist to run through before believing a causal claim. Each threat, in its own way, breaks the first causal-inference assumption from Lecture 6,
-
-    $$
-    \mathbb{E}[u \mid X_1, \dots, X_k] = 0,
-    $$
-
-    or, when the regression includes control variables $W_1, \dots, W_r$, the conditional mean independence version from Lecture 9,
-
-    $$
-    \mathbb{E}[u \mid X_1, \dots, X_k, W_1, \dots, W_r] = \mathbb{E}[u \mid W_1, \dots, W_r].
-    $$
-
-    When either version fails, the error term contains something that moves with the independent variables, and $\hat{\beta}_1$ no longer centers on the causal effect. The rest of this section takes the five threats one at a time.
+    Each threat, in its own way, breaks the first causal-inference assumption from Lecture 6, $\mathbb{E}[u \mid X_1, \dots, X_k] = 0$ (or, with control variables, its conditional mean independence version from Lecture 9), so $\hat{\beta}_1$ no longer centers on the causal effect. We take the five threats one at a time.
 
     ### <span style="color:#0b68cb">Threat 1: Omitted variable bias</span>
 
@@ -154,55 +134,41 @@ def _(mo):
 
     ### <span style="color:#0b68cb">Threat 2: Misspecification of the functional form</span>
 
-    *Functional form* is the shape you assume for the relationship between variables. Functional form *misspecification* arises when you assume the wrong shape. The most common version is assuming a linear relationship between $Y$ and $X$ when the true relationship curves.
+    *Functional form* is the shape you assume for the relationship between variables. Functional-form *misspecification* arises when you assume the wrong shape. A common example is assuming a linear relationship when the true relationship curves.
 
-    Suppose the true relationship between $X$ and $Y$ is quadratic,
+    Suppose the true relationship is quadratic,
 
     $$
-    Y = \alpha_0 + \alpha_1 X + \alpha_2 X^2 + \varepsilon, \quad \text{where } X > 0,
+    Y = \alpha_0 + \alpha_1 X + \alpha_2 X^2 + \varepsilon,
+    \qquad
+    \mathbb{E}[\varepsilon \mid X] = 0,
     $$
 
-    but you instead estimate
+    but you instead specify the linear regression
 
     $$
     Y = \beta_0 + \beta_1 X + u.
     $$
 
-    The error term of the estimated regression then contains everything the straight line leaves out: $u = \alpha_2 X^2 + \varepsilon$. Because $X^2$ moves with $X$, we get $\text{cov}(X, u) = \text{cov}(X, \alpha_2 X^2 + \varepsilon) \neq 0$, which implies $\mathbb{E}[u \mid X] \neq 0$. Assuming the wrong shape therefore violates the first causal-inference assumption in exactly the same way an omitted variable does. The omitted variable here is $X^2$ itself.
+    A straight line cannot capture the quadratic relationship at every value of $X$. The error term therefore varies systematically with $X$, so
 
-    We saw this failure in pictures in Lecture 11. The straight line fit to the curved wage and experience data predicted wages that were too high at low and high levels of experience and too low in the middle.
+    $$
+    \mathbb{E}[u \mid X] \neq 0.
+    $$
 
-    **Solution.** Use a specification flexible enough to match the shape of the relationship. Polynomials (Lecture 11), logarithms (Lecture 12), and interaction terms (Lecture 13) are the toolkit for exactly this problem.
+    Functional-form misspecification therefore violates the zero-conditional-mean assumption. It is similar to omitted-variable bias because the linear model leaves out the relevant term $X^2$.
+
+    We saw this failure in Lecture 11. A straight line fit to the curved relationship between wages and experience predicted wages that were too high at low and high levels of experience and too low in the middle.
+
+    **Solution.** Choose a specification flexible enough to capture the relationship. Polynomials, logarithms, and interaction terms provide common ways to do so.
 
     ### <span style="color:#0b68cb">Threat 3: Bias due to measurement error</span>
 
     *Measurement error in $X$* occurs when the true value of $X$ is measured imprecisely. Data can be entered incorrectly into a database, and self-reports of income, hours worked, or years of experience are often inaccurate. We denote the imprecisely measured value of $X$ as $\widetilde{X}$.
 
-    When we use $\widetilde{X}$ in place of $X$, the true population regression $Y = \beta_0 + \beta_1 X + u$ becomes
+    When we use $\widetilde{X}$ in place of $X$, the gap between the true value and the reported value becomes part of the regression's error term. If that gap is related to $\widetilde{X}$, the first causal-inference assumption fails and $\hat{\beta}_1$ is inconsistent.
 
-    $$
-    \begin{aligned}
-    Y &= \beta_0 + \beta_1 X + u \\
-      &= \beta_0 + \beta_1 \widetilde{X} + \beta_1(X - \widetilde{X}) + u \\
-      &= \beta_0 + \beta_1 \widetilde{X} + w,
-    \end{aligned}
-    $$
-
-    where $w = \beta_1(X - \widetilde{X}) + u$. The regression we can actually run uses $\widetilde{X}$, so its error term is $w$, and $w$ contains the measurement gap $X - \widetilde{X}$. If $\text{cov}(\widetilde{X}, w) \neq 0$, then $\mathbb{E}[w \mid \widetilde{X}] \neq 0$ and $\hat{\beta}_1$ is inconsistent.
-
-    The most important special case has a name. *Classical measurement error* means $\widetilde{X}$ equals $X$ plus a purely random component $\nu$, so $\widetilde{X} = X + \nu$ with $\mathbb{E}[\nu \mid X, u] = 0$. The reporting error is unrelated to the truth, like a worker misremembering their years of experience with no particular tilt up or down. Even this best case biases the slope. In large samples,
-
-    $$
-    \hat{\beta}_1 \overset{p}{\to} \frac{\text{cov}(\widetilde{X}, Y)}{\text{var}(\widetilde{X})} = \frac{\text{cov}(X + \nu,\ \beta_1 X + u)}{\text{var}(X + \nu)} = \frac{\text{cov}(X, Y)}{\text{var}(X) + \text{var}(\nu)}.
-    $$
-
-    The numerator is unchanged, because purely random noise does not covary with $Y$. The denominator grows by $\text{var}(\nu)$. Because
-
-    $$
-    \left| \frac{\text{cov}(X, Y)}{\text{var}(X) + \text{var}(\nu)} \right| \leq \left| \frac{\text{cov}(X, Y)}{\text{var}(X)} \right|,
-    $$
-
-    we must have $|\hat{\beta}_1| < |\beta_1|$: the estimated slope is always dragged toward zero. This is called *attenuation bias*, and it is a common problem in observational studies. Note what it rules out: random noise in $X$ does not average away. It systematically flattens the estimated relationship.
+    The most important special case has a name. *Classical measurement error* means $\widetilde{X}$ equals $X$ plus a purely random component $\nu$, so $\widetilde{X} = X + \nu$. The reporting error is unrelated to the truth, like a worker misremembering their years of experience with no particular tilt up or down. Even this best case biases the slope. The noise adds variation to the regressor without adding any relationship with $Y$, and in large samples the estimated slope shrinks by the factor $\text{var}(X) / (\text{var}(X) + \text{var}(\nu))$, so that $|\hat{\beta}_1| < |\beta_1|$: the estimated slope is always dragged toward zero. This is called *attenuation bias*, and it is a common problem in observational studies. Note what it rules out: random noise in $X$ does not average away. It systematically flattens the estimated relationship. The appendix works through the algebra behind the shrinkage factor.
 
     The chart below re-creates this result with a simulated survey of 100 workers whose wages follow the true relationship $\text{Wage} = 12 + 0.30 \cdot \text{Exper} + u$. The navy points plot each worker at their true experience. The slider adds random reporting error to experience, as if the workers misremember how long they have worked, and the orange points plot the same workers at their reported experience $\widetilde{X} = X + \nu$. Watch what the noise does to the orange fitted line.
     """)
@@ -315,8 +281,8 @@ def _(alt, me_base, me_exper, me_noise, me_wage, mo, np, pd):
             rf"The same workers, the same wages. Only the recorded experience values have "
             rf"changed: the orange points are the navy points pushed sideways by the "
             rf"reporting error. The fit on true experience still has slope \${_b1c:.2f}, "
-            rf"but the fit on reported experience has slope \${_b1n:.2f}. The attenuation "
-            rf"formula predicts this: var(X)/(var(X) + var(ν)) = "
+            rf"but the fit on reported experience has slope \${_b1n:.2f}. The shrinkage "
+            rf"factor predicts this: var(X)/(var(X) + var(ν)) = "
             rf"{_varx:.0f}/({_varx:.0f} + {_sig**2:.0f}) = {_factor:.2f}, and "
             rf"{_factor:.2f} × \${_b1c:.2f} = \${_factor * _b1c:.2f}. The noise spreads "
             rf"the points horizontally without changing their wages, so the cloud gets "
@@ -346,6 +312,176 @@ def _(mo):
 
     If the missing data depend on both $X$ and $Y$, the bias can go in either direction.
 
+    The chart below lets you watch each rule act on the same data. It shows a large simulated survey of 400 workers whose wages follow the true relationship $\text{Wage} = 12 + 0.30 \cdot \text{Exper} + u$, together with the fitted OLS line and its 95 percent confidence band. Choose a rule for which data go missing: the excluded workers fade to gray, the full-sample line stays behind for comparison, and a new line and band are fit to the workers who remain.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(np):
+    # Simulated survey for the sample-selection demo: 400 workers, wages linear
+    # in experience with slope 0.30. The uniform draw sel_mar is fixed at data
+    # time so the "missing at random" rule always drops the same workers.
+    # Fixed seed for reproducibility.
+    _rng = np.random.default_rng(118)
+    sel_n = 400
+    sel_exper = _rng.uniform(1.0, 40.0, sel_n)
+    sel_wage = 12.0 + 0.30 * sel_exper + _rng.normal(0.0, 3.0, sel_n)
+    sel_mar = _rng.random(sel_n)
+    return sel_exper, sel_mar, sel_n, sel_wage
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    sel_rule = mo.ui.radio(
+        options=[
+            "Keep the full sample",
+            "Data missing at random",
+            "Data missing based on X",
+            "Data missing based on Y",
+        ],
+        value="Keep the full sample",
+        label="Which data go missing?",
+    )
+    sel_rule
+    return (sel_rule,)
+
+
+@app.cell(hide_code=True)
+def _(alt, mo, np, pd, sel_exper, sel_mar, sel_n, sel_rule, sel_wage):
+    _rule = sel_rule.value
+
+    # The three missing-data rules, each dropping about half the sample. The
+    # X rule drops long-career workers; the Y rule drops the high-wage half.
+    if _rule == "Data missing at random":
+        _keep = sel_mar < 0.5
+    elif _rule == "Data missing based on X":
+        _keep = sel_exper <= 20.5
+    elif _rule == "Data missing based on Y":
+        _keep = sel_wage <= np.median(sel_wage)
+    else:
+        _keep = np.ones(sel_n, dtype=bool)
+
+    def _fit(_x, _y):
+        # OLS slope and intercept with the slope's standard error, the R
+        # squared, and the pieces needed for the confidence band of the line.
+        _b1, _b0 = np.polyfit(_x, _y, 1)
+        _res = _y - (_b0 + _b1 * _x)
+        _m = len(_x)
+        _sig2 = float((_res**2).sum() / (_m - 2))
+        _sxx = float(((_x - _x.mean()) ** 2).sum())
+        _se1 = float(np.sqrt(_sig2 / _sxx))
+        _r2 = 1.0 - float((_res**2).sum()) / float(((_y - _y.mean()) ** 2).sum())
+        return float(_b0), float(_b1), _se1, _r2, _sig2, _sxx, float(_x.mean()), _m
+
+    _f = _fit(sel_exper, sel_wage)
+    _k = _fit(sel_exper[_keep], sel_wage[_keep])
+
+    def _band_df(_b0, _b1, _sig2, _sxx, _xbar, _m):
+        # Pointwise 95 percent confidence band for the regression line.
+        _g = np.linspace(1.0, 40.0, 120)
+        _se = np.sqrt(_sig2 * (1.0 / _m + (_g - _xbar) ** 2 / _sxx))
+        _yhat = _b0 + _b1 * _g
+        return pd.DataFrame({
+            "exper": _g,
+            "lo": _yhat - 1.96 * _se,
+            "hi": _yhat + 1.96 * _se,
+            "wage": _yhat,
+        })
+
+    _xsc = alt.Scale(domain=[0.0, 42.0], nice=False)
+    _ysc = alt.Scale(domain=[4.0, 34.0], nice=False)
+    _active = _band_df(_k[0], _k[1], _k[4], _k[5], _k[6], _k[7])
+
+    _status = np.where(_keep, "Included in the regression",
+                       "Excluded by the missing-data rule")
+    _layers = [
+        alt.Chart(pd.DataFrame({
+            "exper": sel_exper, "wage": sel_wage, "status": _status,
+        }))
+        .mark_circle(size=18, opacity=0.4, clip=True)
+        .encode(
+            x=alt.X("exper:Q", scale=_xsc, title="Work experience (years)"),
+            y=alt.Y("wage:Q", scale=_ysc, title="Hourly wage (dollars)"),
+            color=alt.Color(
+                "status:N",
+                scale=alt.Scale(
+                    domain=["Included in the regression",
+                            "Excluded by the missing-data rule"],
+                    range=["#1f4e79", "#c3ccd6"],
+                ),
+                legend=alt.Legend(title=None, orient="top"),
+            ),
+        )
+    ]
+    _layers.append(
+        alt.Chart(_active)
+        .mark_area(color="#1f4e79", opacity=0.18, clip=True)
+        .encode(x=alt.X("exper:Q", scale=_xsc),
+                y=alt.Y("lo:Q", scale=_ysc), y2="hi:Q")
+    )
+    if _rule != "Keep the full sample":
+        # The full-sample line stays behind, fainter, for comparison.
+        _gx = np.linspace(1.0, 40.0, 2)
+        _layers.append(
+            alt.Chart(pd.DataFrame({"exper": _gx, "wage": _f[0] + _f[1] * _gx}))
+            .mark_line(color="#9aa5b1", size=2, strokeDash=[6, 4], clip=True)
+            .encode(x=alt.X("exper:Q", scale=_xsc), y=alt.Y("wage:Q", scale=_ysc))
+        )
+    _layers.append(
+        alt.Chart(_active)
+        .mark_line(color="#1f4e79", size=3, clip=True)
+        .encode(x=alt.X("exper:Q", scale=_xsc), y=alt.Y("wage:Q", scale=_ysc))
+    )
+    _chart = alt.layer(*_layers).properties(width=560, height=340)
+
+    if _rule == "Keep the full sample":
+        _msg = (
+            rf"All 400 workers are in the sample. The fitted line has slope "
+            rf"\${_f[1]:.2f} per year of experience (standard error {_f[2]:.3f}), close "
+            rf"to the true \$0.30, with an R-squared of {_f[3]:.2f}. Choose a "
+            rf"missing-data rule above to drop about half the sample."
+        )
+    elif _rule == "Data missing at random":
+        _msg = (
+            rf"About half the surveys are lost for reasons unrelated to the workers, "
+            rf"leaving {_k[7]} of 400. The slope barely moves, from \${_f[1]:.2f} to "
+            rf"\${_k[1]:.2f}, but its standard error rises from {_f[2]:.3f} to "
+            rf"{_k[2]:.3f} and the confidence band widens. The estimate is still "
+            rf"unbiased; it is just measured less precisely."
+        )
+    elif _rule == "Data missing based on X":
+        _msg = (
+            rf"Long-career workers stop answering the survey: everyone with more than "
+            rf"about 20 years of experience is missing, leaving {_k[7]} of 400. The "
+            rf"slope is still \${_k[1]:.2f}, against \${_f[1]:.2f} in the full sample, "
+            rf"but the standard error jumps from {_f[2]:.3f} to {_k[2]:.3f} and the "
+            rf"R-squared falls from {_f[3]:.2f} to {_k[3]:.2f}. With less variation in "
+            rf"experience, the regression explains less variation in wages, and the "
+            rf"band fans out over the empty half of the chart."
+        )
+    else:
+        _msg = (
+            rf"The highest-earning half of the workers decline to report their wages, "
+            rf"leaving {_k[7]} of 400. Now the availability of data depends on the "
+            rf"outcome itself, and the slope collapses from \${_f[1]:.2f} to "
+            rf"\${_k[1]:.2f}: at every experience level, the workers who remain are the "
+            rf"ones who happened to earn little, so the line tilts toward flat. This is "
+            rf"sample selection bias, and no amount of extra data of the same kind "
+            rf"fixes it."
+        )
+    _caption = mo.md(
+        "<span style='display:block;margin:0.2rem auto 1rem;max-width:560px;"
+        "font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;'>"
+        + _msg + "</span>"
+    )
+    mo.vstack([_chart, _caption], align="center")
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     **Solutions.** Improve the data collection so availability no longer depends on the outcome, or control for the selection criteria directly, for example by including an indicator for rural versus urban counties.
 
     ### <span style="color:#0b68cb">Threat 5: Simultaneous causality bias</span>
@@ -417,7 +553,7 @@ def _(mo):
     3. Measure how well the predictions do on the hold-out sample, using the SER or the $R^2$.
     4. Repeat with new model specifications until the hold-out SER is as small as you can make it.
 
-    The chart below runs this procedure on the same 100 workers from Lecture 11, whose wages follow a curved relationship with experience. The first 70 workers are the training data (navy) and the remaining 30 are the hold-out sample (gray). The slider sets the degree of a polynomial regression fitted to the training data only. In Lecture 11 you judged these polynomials by the adjusted R-squared; now the hold-out sample delivers the verdict directly.
+    The chart below runs this procedure on the same 100 workers from Lecture 11, whose wages follow a curved relationship with experience. The workers are split at random into training data (navy) and a hold-out sample (orange). The degree slider sets the polynomial fitted to the training data only, the share slider sets how much of the sample is used for training, and the button re-draws the random split. The two bars beside the chart report the SER separately for the training and the hold-out workers. In Lecture 11 you judged these polynomials by the adjusted R-squared; now the hold-out sample delivers the verdict directly.
     """)
     return
 
@@ -426,56 +562,84 @@ def _(mo):
 def _(np):
     # The same 100 workers as Lecture 11: identical seed and draw order, so the
     # scatter is literally the same data the polynomial-degree slider fit there.
-    # The train/hold-out split is a fixed index cut, not a random draw, so the
-    # demo never resamples. Fixed seed for reproducibility.
+    # Which workers land in the training set is decided in the chart cell,
+    # seeded by the resample button. Fixed seed for reproducibility.
     _rng = np.random.default_rng(116)
     ho_n = 100
     ho_exper = _rng.uniform(1.0, 40.0, ho_n)
     ho_wage = 8.0 + 1.10 * ho_exper - 0.017 * ho_exper**2 + _rng.normal(0.0, 3.0, ho_n)
-    ho_train = 70
-    return ho_exper, ho_n, ho_train, ho_wage
+    return ho_exper, ho_n, ho_wage
 
 
 @app.cell(hide_code=True)
 def _(mo):
     ho_degree = mo.ui.slider(
-        start=1, stop=12, step=1, value=1,
+        start=1, stop=30, step=1, value=1,
         label="Polynomial degree (fitted to training data only)",
         show_value=True,
+    )
+    ho_share = mo.ui.slider(
+        start=10, stop=90, step=5, value=70,
+        label="Training share of the sample (%)",
+        show_value=True,
+    )
+    ho_resample = mo.ui.button(
+        label="New random split", value=0, on_click=lambda c: c + 1,
     )
     mo.vstack(
         [
             mo.md("Raise the degree and compare the fit on the training workers with the fit on the hold-out workers."),
-            ho_degree,
+            mo.hstack([ho_degree, ho_share], justify="start", gap=2),
+            ho_resample,
         ]
     )
-    return (ho_degree,)
+    return ho_degree, ho_resample, ho_share
 
 
 @app.cell(hide_code=True)
-def _(alt, ho_degree, ho_exper, ho_train, ho_wage, mo, np, pd):
-    _deg = int(ho_degree.value)
-    _xtr, _ytr = ho_exper[:ho_train], ho_wage[:ho_train]
-    _xte, _yte = ho_exper[ho_train:], ho_wage[ho_train:]
+def _(alt, ho_degree, ho_exper, ho_n, ho_resample, ho_share, ho_wage, mo, np, pd):
+    # Random train/hold-out split, seeded by the resample button so dragging
+    # the sliders never reshuffles which workers land in each group.
+    _perm = np.random.default_rng(2024 + ho_resample.value).permutation(ho_n)
+    _n_tr = int(round(ho_share.value / 100 * ho_n))
+    _tr, _te = _perm[:_n_tr], _perm[_n_tr:]
+    _xtr, _ytr = ho_exper[_tr], ho_wage[_tr]
+    _xte, _yte = ho_exper[_te], ho_wage[_te]
+
+    # A degree-d polynomial needs more than d training points, so the degree
+    # is clamped when the training share is small.
+    _deg_req = int(ho_degree.value)
+    _deg = min(_deg_req, _n_tr - 2)
 
     # Fit on the training data only, in the Chebyshev basis, which stays well
     # conditioned at high degree where raw powers of experience would not.
     _series = np.polynomial.Chebyshev.fit(_xtr, _ytr, _deg)
-    _ser_tr = float(np.sqrt(((_ytr - _series(_xtr)) ** 2).sum() / (len(_xtr) - 2)))
-    _ser_te = float(np.sqrt(((_yte - _series(_xte)) ** 2).sum() / (len(_xte) - 2)))
+
+    def _ser(_y, _x, _s):
+        return float(np.sqrt(((_y - _s(_x)) ** 2).sum() / max(len(_y) - 2, 1)))
+
+    _ser_tr = _ser(_ytr, _xtr, _series)
+    _ser_te = _ser(_yte, _xte, _series)
+    # Degree-2 benchmark on the same split, for the caption's comparison.
+    _ser2_te = _ser(_yte, _xte, np.polynomial.Chebyshev.fit(_xtr, _ytr, 2))
+
+    def _fmt(_v):
+        if _v < 100.0:
+            return f"${_v:.2f}"
+        if _v < 10000.0:
+            return f"${_v:,.0f}"
+        return "> $10,000"
 
     _grid = np.linspace(1.0, 40.0, 250)
     _xsc = alt.Scale(domain=[0.0, 42.0], nice=False)
     _ysc = alt.Scale(domain=[0.0, 36.0], nice=False)
-    _pts = pd.DataFrame({
-        "exper": ho_exper,
-        "wage": ho_wage,
-        "set": (["Training (used to fit)"] * ho_train
-                + ["Hold-out (not used to fit)"] * (len(ho_exper) - ho_train)),
-    })
+    _set = np.empty(ho_n, dtype=object)
+    _set[_tr] = "Training (used to fit)"
+    _set[_te] = "Hold-out (not used to fit)"
+    _pts = pd.DataFrame({"exper": ho_exper, "wage": ho_wage, "set": _set})
     _scatter = (
         alt.Chart(_pts)
-        .mark_circle(size=30, opacity=0.45, clip=True)
+        .mark_circle(size=30, opacity=0.5, clip=True)
         .encode(
             x=alt.X("exper:Q", scale=_xsc, title="Work experience (years)"),
             y=alt.Y("wage:Q", scale=_ysc, title="Hourly wage (dollars)"),
@@ -483,7 +647,7 @@ def _(alt, ho_degree, ho_exper, ho_train, ho_wage, mo, np, pd):
                 "set:N",
                 scale=alt.Scale(
                     domain=["Training (used to fit)", "Hold-out (not used to fit)"],
-                    range=["#1f4e79", "#6b7280"],
+                    range=["#1f4e79", "orange"],
                 ),
                 legend=alt.Legend(title=None, orient="top"),
             ),
@@ -491,10 +655,49 @@ def _(alt, ho_degree, ho_exper, ho_train, ho_wage, mo, np, pd):
     )
     _line = (
         alt.Chart(pd.DataFrame({"exper": _grid, "wage": _series(_grid)}))
-        .mark_line(color="orange", size=3, clip=True)
+        .mark_line(color="#374151", size=3, clip=True)
         .encode(x=alt.X("exper:Q", scale=_xsc), y=alt.Y("wage:Q", scale=_ysc))
     )
-    _chart = (_scatter + _line).properties(width=560, height=340)
+    _main = (_scatter + _line).properties(width=460, height=340)
+
+    # SER bars beside the chart. The bar heights are capped so the frame stays
+    # fixed when the hold-out SER explodes at high degree; the text labels
+    # always report the actual value.
+    _cap = 12.0
+    _bars_df = pd.DataFrame({
+        "group": ["Training", "Hold-out"],
+        "ser": [min(_ser_tr, _cap), min(_ser_te, _cap)],
+        "label": [_fmt(_ser_tr), _fmt(_ser_te)],
+    })
+    _bar_x = alt.X(
+        "group:N", title=None, sort=["Training", "Hold-out"],
+        axis=alt.Axis(labelAngle=-25),
+    )
+    _bar_y = alt.Y(
+        "ser:Q", scale=alt.Scale(domain=[0.0, _cap], nice=False),
+        title="SER (dollars)",
+    )
+    _bars = (
+        alt.Chart(_bars_df)
+        .mark_bar(clip=True)
+        .encode(
+            x=_bar_x, y=_bar_y,
+            color=alt.Color(
+                "group:N",
+                scale=alt.Scale(domain=["Training", "Hold-out"],
+                                range=["#1f4e79", "orange"]),
+                legend=None,
+            ),
+        )
+    )
+    _bar_labels = (
+        alt.Chart(_bars_df)
+        .mark_text(dy=-7, fontSize=11, color="#374151")
+        .encode(x=_bar_x, y=_bar_y, text="label:N")
+    )
+    _chart = alt.hconcat(
+        _main, (_bars + _bar_labels).properties(width=110, height=340)
+    ).resolve_scale(color="independent")
 
     # The estimated specification, abbreviated above degree four so the
     # equation line stays short.
@@ -510,33 +713,41 @@ def _(alt, ho_degree, ho_exper, ho_train, ho_wage, mo, np, pd):
         _terms.append(rf"\beta_{{{_deg}}}\text{{Exper}}^{{{_deg}}}")
     _equation = mo.md(r"$$\text{Wage} = " + " + ".join(_terms) + r" + u$$")
 
+    _note = ""
+    if _deg < _deg_req:
+        _note = (
+            f"With only {_n_tr} training workers, the highest degree that can be "
+            f"fit is {_n_tr - 2}, so the chart shows degree {_deg}. "
+        )
     if _deg == 1:
-        _msg = (
+        _msg = _note + (
             rf"The straight line misses the curvature for both groups: the training SER "
-            rf"is \${_ser_tr:.2f} and the hold-out SER is \${_ser_te:.2f}. A model this "
+            rf"is {_fmt(_ser_tr)} and the hold-out SER is {_fmt(_ser_te)}. A model this "
             rf"rigid predicts badly everywhere. Raise the degree to 2."
         )
     elif _deg == 2:
-        _msg = (
-            rf"The quadratic captures the rise and later flattening of wages. The "
-            rf"training SER falls to \${_ser_tr:.2f}, and the hold-out SER falls to "
-            rf"\${_ser_te:.2f}, its lowest value at any degree on this slider. By the "
-            rf"out-of-sample criterion, this is the specification to keep."
+        _msg = _note + (
+            rf"The quadratic captures the rise and later flattening of wages: the "
+            rf"training SER falls to {_fmt(_ser_tr)} and the hold-out SER to "
+            rf"{_fmt(_ser_te)}. Press the button a few times: the numbers move with "
+            rf"each new split, but the quadratic stays hard to beat out of sample."
         )
-    elif _deg <= 5:
-        _msg = (
-            rf"At degree {_deg}, the training SER is \${_ser_tr:.2f}, barely below its "
-            rf"value at degree 2, while the hold-out SER has edged up to \${_ser_te:.2f}. "
-            rf"The extra terms bend the curve toward quirks of the training workers that "
-            rf"the hold-out workers do not share."
+    elif _ser_te <= _ser2_te:
+        _msg = _note + (
+            rf"On this split, degree {_deg} happens to predict the hold-out workers "
+            rf"slightly better than the quadratic ({_fmt(_ser_te)} against "
+            rf"{_fmt(_ser2_te)}). Press the button a few times: the advantage rarely "
+            rf"survives a new split, which is why single-split verdicts should be "
+            rf"averaged (see the appendix)."
         )
     else:
-        _msg = (
-            rf"At degree {_deg}, the training SER has fallen to \${_ser_tr:.2f}, because "
-            rf"adding flexibility can only improve the in-sample fit. The hold-out SER "
-            rf"has risen to \${_ser_te:.2f}. The gap between the two is overfitting: the "
-            rf"model is memorizing noise in the training data, and the noise does not "
-            rf"repeat in the hold-out sample."
+        _msg = _note + (
+            rf"At degree {_deg}, the training SER has fallen to {_fmt(_ser_tr)}, "
+            rf"because adding flexibility can only improve the in-sample fit. The "
+            rf"hold-out SER is {_fmt(_ser_te)}, against {_fmt(_ser2_te)} for the "
+            rf"quadratic on the same split. The gap between the two bars is "
+            rf"overfitting: the model is memorizing noise in the training data, and "
+            rf"the noise does not repeat in the hold-out sample."
         )
     _caption = mo.md(
         "<span style='display:block;margin:0.2rem auto 1rem;max-width:560px;"
@@ -550,7 +761,7 @@ def _(alt, ho_degree, ho_exper, ho_train, ho_wage, mo, np, pd):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    Steps like these underlie many *model evaluation algorithms*. The most common one is *$k$-fold cross-validation*: split the sample into $k$ folds (sub-samples), train the model on $k-1$ of them, test it on the remaining fold, and repeat so that each fold takes one turn as the test set. Averaging the test performance across folds gives a more stable measure than a single split, because no single lucky or unlucky hold-out sample decides the verdict. The logic is exactly what the chart above showed: if the model fits noise in the training folds, it performs poorly on the test fold.
+    A single split is the simplest version of this check, and it leaves the verdict partly to luck: press the resample button above and the two SER bars shift with every new split. *Model evaluation algorithms* refine the idea by averaging the check over many splits. The most common one, *$k$-fold cross-validation*, is described in detail in the appendix.
 
     This closes the validity checklist. Internal validity asks whether a study's estimate means what it claims within the population studied, and Section 2's five threats are the ways it can fail. External validity asks how far the estimate travels, by argument and replication for causal questions, and by out-of-sample performance for prediction. Lecture 15 turns to panel data, the first of several tools that remove an internal-validity threat rather than just naming it: following the same entities over time makes it possible to cancel out omitted variables that stay fixed within each entity.
     """)
@@ -590,6 +801,32 @@ def _(mo):
         "## Appendix": mo.md(r"""
         This is bonus material. You will not be tested on the content of the appendix.
 
+        **The algebra of classical measurement error in $X$.** Section 2 stated that classical measurement error shrinks the estimated slope by the factor $\text{var}(X) / (\text{var}(X) + \text{var}(\nu))$. Here is the derivation. When we use $\widetilde{X}$ in place of $X$, the true population regression $Y = \beta_0 + \beta_1 X + u$ becomes
+
+        $$
+        \begin{aligned}
+        Y &= \beta_0 + \beta_1 X + u \\
+          &= \beta_0 + \beta_1 \widetilde{X} + \beta_1(X - \widetilde{X}) + u \\
+          &= \beta_0 + \beta_1 \widetilde{X} + w,
+        \end{aligned}
+        $$
+
+        where $w = \beta_1(X - \widetilde{X}) + u$. The regression we can actually run uses $\widetilde{X}$, so its error term is $w$, and $w$ contains the measurement gap $X - \widetilde{X}$. If $\text{cov}(\widetilde{X}, w) \neq 0$, then $\mathbb{E}[w \mid \widetilde{X}] \neq 0$ and $\hat{\beta}_1$ is inconsistent.
+
+        Under classical measurement error, $\widetilde{X} = X + \nu$ with $\mathbb{E}[\nu \mid X, u] = 0$, and we can compute exactly where the slope estimator settles. In large samples,
+
+        $$
+        \hat{\beta}_1 \overset{p}{\to} \frac{\text{cov}(\widetilde{X}, Y)}{\text{var}(\widetilde{X})} = \frac{\text{cov}(X + \nu,\ \beta_1 X + u)}{\text{var}(X + \nu)} = \frac{\text{cov}(X, Y)}{\text{var}(X) + \text{var}(\nu)}.
+        $$
+
+        The numerator is unchanged, because purely random noise does not covary with $Y$. The denominator grows by $\text{var}(\nu)$. Because
+
+        $$
+        \left| \frac{\text{cov}(X, Y)}{\text{var}(X) + \text{var}(\nu)} \right| \leq \left| \frac{\text{cov}(X, Y)}{\text{var}(X)} \right|,
+        $$
+
+        we must have $|\hat{\beta}_1| < |\beta_1|$, which is the attenuation result the slider in Section 2 demonstrates.
+
         **Measurement error in $Y$.** Section 2 showed that classical measurement error in $X$ produces attenuation bias. Classical measurement error in $Y$ is far more forgiving. Suppose the true model is $Y = \beta_0 + \beta_1 X + u$, but we observe $\widetilde{Y} = Y + v$ with $\mathbb{E}[v \mid X, u] = 0$. In large samples,
 
         $$
@@ -599,6 +836,16 @@ def _(mo):
         where the second-to-last equality follows from $\mathbb{E}[v \mid X, u] = 0$: the noise in $Y$ is unrelated to $X$, so it contributes nothing to the covariance in the numerator. The slope estimator is therefore still consistent.
 
         The noise is not free, however. Because $\text{var}(\widetilde{Y}) > \text{var}(Y)$, there is more unexplained variation around the fitted line, so the standard errors increase and the $R^2$ falls. Noise in the outcome costs precision; noise in the regressor costs consistency. That asymmetry is why Section 2's checklist worries about measurement error in $X$.
+
+        **$k$-fold cross-validation.** Section 4 judged each polynomial by a single split into training and hold-out data, and the resample button showed the weakness of that verdict: it depends on the split. An unlucky hold-out sample can make a good model look bad, and a lucky one can excuse an overfit model. $k$-fold cross-validation replaces the single split with an average over many. The procedure:
+
+        1. Split the sample into $k$ folds (sub-samples) of roughly equal size. Common choices are $k = 5$ and $k = 10$.
+        2. Set fold 1 aside as the test data, estimate the model on the other $k - 1$ folds combined, and record the SER (or the $R^2$) of its predictions on fold 1.
+        3. Repeat until each fold has taken exactly one turn as the test data. Every observation is used for estimation in $k - 1$ rounds and for testing in one round, and never for both at once.
+        4. Average the $k$ test SERs. This average, the cross-validated SER, is the model's score.
+        5. Compute the score for every candidate specification, for example each polynomial degree, and pick the specification with the lowest score. Then re-estimate that specification on the full sample to get the final coefficients.
+
+        The averaging is what the single split lacks. Each observation gets one turn at being predicted by a model that never saw it, so the score reflects the whole sample rather than one arbitrary cut, and the verdict stops bouncing around the way the SER bars in Section 4 do. The overfitting logic is unchanged: the in-sample SER always falls as the model grows more flexible, while the cross-validated SER falls and then rises, and its minimum marks where flexibility stops paying for itself. Taking $k$ all the way to $n$ gives leave-one-out cross-validation, in which each single observation takes a turn as the test set. That is the most thorough version, at the cost of estimating the model $n$ times.
         """),
     })
     return
