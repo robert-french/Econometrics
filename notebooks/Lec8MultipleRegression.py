@@ -629,10 +629,10 @@ def _(alt, fit_path, junk_slider, mo):
 def _(mo):
     mo.callout(
         mo.md(
-            "**Key terms covered:** omitted variable bias, multiple-variable regression "
+            "**Terms:** omitted variable bias, multiple-variable regression "
             "model, ordinary least squares, fitted value, residual, sum of squared "
             "residuals, standard error of the regression, R-squared, adjusted R-squared.\n\n"
-            "**Key concepts covered:** why an omitted variable that affects the outcome and "
+            "**Concepts:** why an omitted variable that affects the outcome and "
             "varies systematically with a regressor biases the OLS slope, reading the "
             "direction of the bias off the correlation between the regressor and the error, "
             "holding included variables fixed as the repair for omitted variable bias, OLS "
@@ -641,6 +641,7 @@ def _(mo):
             "adjusted R-squared can, and why a variable can matter for the causal story "
             "while barely improving the fit."
         ),
+        title="Key terms and concepts",
         kind="info",
     )
     return

@@ -507,10 +507,10 @@ def _(mo):
 def _(mo):
     mo.callout(
         mo.md(
-            "**Key terms covered:** logarithmic regression, exponential function, natural "
+            "**Terms:** logarithmic regression, exponential function, natural "
             "logarithm, percent change, percentage point, log point, linear-log model, "
             "log-linear model, log-log model, elasticity.\n\n"
-            "**Key concepts covered:** the natural logarithm as the inverse of the "
+            "**Concepts:** the natural logarithm as the inverse of the "
             "exponential function, defined only for positive values and with slope 1/X, "
             "why a change in a logarithm approximates a percent change divided by 100 and "
             "where the approximation breaks down, the difference between percent and "
@@ -521,6 +521,7 @@ def _(mo):
             "logarithms, and why the R-squared cannot be compared between regressions of a "
             "variable and of its logarithm."
         ),
+        title="Key terms and concepts",
         kind="info",
     )
     return

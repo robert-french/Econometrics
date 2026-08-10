@@ -530,10 +530,10 @@ def _(mo):
 def _(mo):
     mo.callout(
         mo.md(
-            "**Key terms covered:** conditional expectation, causal "
+            "**Terms:** conditional expectation, causal "
             "interpretation, least squares assumptions, outlier, unbiasedness, "
             "consistency.\n\n"
-            "**Key concepts covered:** the conditional expectation as the "
+            "**Concepts:** the conditional expectation as the "
             "population object a regression approximates, the error term as "
             "everything besides X that affects Y, why only the mean-zero error "
             "assumption carries causal content, why that assumption cannot be "
@@ -544,6 +544,7 @@ def _(mo):
             "why the first assumption makes the slope estimator unbiased while "
             "the assumptions together make it consistent."
         ),
+        title="Key terms and concepts",
         kind="info",
     )
     return

@@ -288,11 +288,12 @@ def _(mo):
 def _(mo):
     mo.callout(
         mo.md(
-            "**Key terms covered:** variable, omitted variable, population, "
+            "**Terms:** variable, omitted variable, population, "
             "sample, cross-sectional data, time-series data, panel data.\n\n"
-            "**Key concepts covered:** descriptive question, causal question, "
+            "**Concepts:** descriptive question, causal question, "
             "reverse causality, statistical inference."
         ),
+        title="Key terms and concepts",
         kind="info",
     )
     return

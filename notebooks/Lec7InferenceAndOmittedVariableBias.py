@@ -597,15 +597,16 @@ def _(mo):
 def _(mo):
     mo.callout(
         mo.md(
-            "**Key terms covered:** homoskedasticity, standard error, sampling "
+            "**Terms:** homoskedasticity, standard error, sampling "
             "distribution, heteroskedasticity, heteroskedasticity-robust standard "
             "error, hypothesis test, null hypothesis, t-statistic, p-value, "
             "confidence interval, significance level.\n\n"
-            "**Key concepts covered:** the variance of the slope estimator and "
+            "**Concepts:** the variance of the slope estimator and "
             "what drives it, the normal sampling distribution from the central "
             "limit theorem, testing whether a slope is zero, and a confidence "
             "interval as the set of guesses the data do not reject."
         ),
+        title="Key terms and concepts",
         kind="info",
     )
     return

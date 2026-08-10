@@ -12,7 +12,7 @@
 
 import marimo
 
-__generated_with = "0.23.14"
+__generated_with = "0.23.16"
 app = marimo.App(
     app_title="Lecture 13: Nonlinear Regression, Interaction Terms",
     css_file="marimo-overrides.css",
@@ -529,9 +529,9 @@ def _(mo):
 def _(mo):
     mo.callout(
         mo.md(
-            "**Key terms covered:** binary variable, indicator variable, interaction "
+            "**Terms:** binary variable, indicator variable, interaction "
             "term, saturated regression, intercept shift, slope shift.\n\n"
-            "**Key concepts covered:** reading a binary regressor's coefficients as two "
+            "**Concepts:** reading a binary regressor's coefficients as two "
             "group averages and their difference, how two interacted indicators produce "
             "four predicted wages built from sums of coefficients, the interaction "
             "coefficient as the additional wage difference associated with having both "
@@ -547,6 +547,7 @@ def _(mo):
             "fitted associations, not causal effects."
         ),
         kind="info",
+        title="Key terms and concepts",
     )
     return
 

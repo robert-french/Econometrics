@@ -468,10 +468,10 @@ def _(mo):
 def _(mo):
     mo.callout(
         mo.md(
-            "**Key terms covered:** nonlinear regression, polynomial regression, "
+            "**Terms:** nonlinear regression, polynomial regression, "
             "quadratic regression, polynomial of degree r, overfitting, adjusted "
             "R-squared.\n\n"
-            "**Key concepts covered:** modeling a curved relationship by including powers "
+            "**Concepts:** modeling a curved relationship by including powers "
             "of an independent variable, why a polynomial regression remains linear in its "
             "coefficients and can be estimated by OLS as a multiple regression, why the "
             "coefficients on experience and experience squared cannot be interpreted "
@@ -484,6 +484,7 @@ def _(mo):
             "adding terms can never lower the R-squared while the adjusted R-squared "
             "penalizes each added term and signals overfitting."
         ),
+        title="Key terms and concepts",
         kind="info",
     )
     return

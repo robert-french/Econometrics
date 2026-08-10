@@ -34,13 +34,13 @@ def _():
 def _(mo):
     mo.sidebar(
         [
-            mo.md('<a href="https://robert-french.github.io/Econometrics/" target="_self" style="display: block; margin-bottom: 1.5em;">Course home</a>'),
+            "**Terms:** validity, internal validity, external validity, "
             mo.md("# [Lecture 14](#top)"),
             mo.md("Internal and External Validity"),
             mo.nav_menu(
                 {
                     "#sec1": "1. What makes a study valid",
-                    "#sec2": "2. Threats to internal validity",
+            "**Concepts:** the five threats to internal validity and why "
                     "#sec3": "3. External validity in causal inference",
                     "#sec4": "4. External validity in prediction",
                 },
@@ -50,7 +50,6 @@ def _(mo):
         width="260px",
     )
     return
-
 
 @app.cell(hide_code=True)
 def _(mo):
@@ -772,13 +771,13 @@ def _(mo):
 def _(mo):
     mo.callout(
         mo.md(
-            "**Key terms covered:** validity, internal validity, external validity, "
+            "**Terms:** validity, internal validity, external validity, "
             "functional form, misspecification, measurement error in X, classical "
             "measurement error, attenuation bias, sample selection, sample selection "
             "bias, simultaneous causality, introspection, replication, training data, "
             "hold-out sample, testing data, model evaluation algorithm, k-fold "
             "cross-validation.\n\n"
-            "**Key concepts covered:** the five threats to internal validity and why "
+            "**Concepts:** the five threats to internal validity and why "
             "every one of them violates the first causal-inference assumption, reading "
             "the sign and size of the omitted variable bias term, how fitting the wrong "
             "shape puts the leftover curvature into the error term, why purely random "
@@ -790,6 +789,7 @@ def _(mo):
             "fit on a hold-out sample, and overfitting as the gap between training and "
             "hold-out performance that k-fold cross-validation is built to detect."
         ),
+        title="Key terms and concepts",
         kind="info",
     )
     return

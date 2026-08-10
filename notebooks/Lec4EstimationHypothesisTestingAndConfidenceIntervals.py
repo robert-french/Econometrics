@@ -503,17 +503,18 @@ def _(alt, ci_button, ci_level, ci_n, mo, np, pd):
 def _(mo):
     mo.callout(
         mo.md(
-            "**Key terms covered:** estimator, estimate, parameter, bias, unbiased, "
+            "**Terms:** estimator, estimate, parameter, bias, unbiased, "
             "consistency, mean squared error, efficiency, hypothesis test, "
             "null hypothesis, alternative hypothesis, two-sided alternative, "
             "one-sided alternative, p-value, test statistic, t-statistic, "
             "standard error, significance level, confidence interval, critical "
             "value.\n\n"
-            "**Key concepts covered:** an estimator is a random variable, the "
+            "**Concepts:** an estimator is a random variable, the "
             "bias-variance decomposition, the t-statistic is approximately "
             "standard normal under the null by the central limit theorem, the "
             "interpretation of a confidence interval."
         ),
+        title="Key terms and concepts",
         kind="info",
     )
     return

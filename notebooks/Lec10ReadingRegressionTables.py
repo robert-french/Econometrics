@@ -306,17 +306,18 @@ def _(mo):
 def _(mo):
     mo.callout(
         mo.md(
-            "**Key terms covered:** regression table, statistical "
+            "**Terms:** regression table, statistical "
             "significance, significance level, t-statistic, "
             "omitted variable bias, R-squared, "
             "adjusted R-squared.\n\n"
-            "**Key concepts covered:** reading a regression table column by column and "
+            "**Concepts:** reading a regression table column by column and "
             "row by row, a coefficient changes when an added variable is correlated "
             "with it and also explains the outcome, "
             "statistical significance versus "
             "economic importance, and a high R-squared does not make a "
             "coefficient causal."
         ),
+        title="Key terms and concepts",
         kind="info",
     )
     return

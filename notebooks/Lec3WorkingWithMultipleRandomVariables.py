@@ -439,15 +439,16 @@ def _(mo):
 def _(mo):
     mo.callout(
         mo.md(
-            "**Key terms covered:** joint probability distribution, marginal "
+            "**Terms:** joint probability distribution, marginal "
             "probability distribution, conditional probability distribution, "
             "Bayes' rule, covariance, correlation, correlation coefficient, "
             "sample covariance, sample correlation, independence, "
             "independently and identically distributed (i.i.d.), constants.\n\n"
-            "**Key concepts covered:** linearity of the expected value, "
+            "**Concepts:** linearity of the expected value, "
             "variance of a sum of i.i.d. random variables, zero correlation "
             "does not imply independence."
         ),
+        title="Key terms and concepts",
         kind="info",
     )
     return

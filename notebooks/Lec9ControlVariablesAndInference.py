@@ -399,17 +399,18 @@ def _(mo):
 def _(mo):
     mo.callout(
         mo.md(
-            "**Key terms covered:** mean independence, perfect multicollinearity, control "
+            "**Terms:** mean independence, perfect multicollinearity, control "
             "variable, variable of interest, conditional mean independence, bad control, "
             "mediator, multicollinearity, variance inflation, imperfect multicollinearity, "
             "t-statistic.\n\n"
-            "**Key concepts covered:** the four least squares assumptions for regression with "
+            "**Concepts:** the four least squares assumptions for regression with "
             "several independent variables including no perfect multicollinearity, a control variable "
             "holds confounders fixed and need only satisfy conditional mean independence, a "
             "bad control is a mediator that blocks part of the causal effect, how correlation "
             "between independent variables inflates a coefficient's variance, and testing one coefficient "
             "with a t-test."
         ),
+        title="Key terms and concepts",
         kind="info",
     )
     return

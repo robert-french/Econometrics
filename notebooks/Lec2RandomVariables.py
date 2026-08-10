@@ -765,15 +765,16 @@ def _(alt, clt_button, clt_n, clt_process, clt_reps, mo, np, pd, stats):
 def _(mo):
     mo.callout(
         mo.md(
-            "**Key terms covered:** random variable, probability "
+            "**Terms:** random variable, probability "
             "distribution, probability mass function, cumulative "
             "probability distribution, probability density function, "
             "sample statistics, expected value, variance, standard "
             "deviation, sample mean, sample variance, standard error.\n\n"
-            "**Key concepts covered:** sample mean as a random variable, "
+            "**Concepts:** sample mean as a random variable, "
             "central limit theorem, law of large numbers, normal "
             "distribution, standard normal distribution, standardization."
         ),
+        title="Key terms and concepts",
         kind="info",
     )
     return

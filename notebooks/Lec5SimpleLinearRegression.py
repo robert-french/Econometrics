@@ -517,17 +517,18 @@ def _(alt, fit_noise, mo, np, pd, reg_X, reg_b0_true, reg_b1_true, reg_noise):
 def _(mo):
     mo.callout(
         mo.md(
-            "**Key terms covered:** linear regression, dependent variable, "
+            "**Terms:** linear regression, dependent variable, "
             "independent variable, population regression line, intercept, slope, "
             "error term, ordinary least squares, residual, fitted value, "
             "in-sample prediction, out-of-sample prediction, extrapolation, "
             "R-squared, total sum of squares, explained sum of squares, sum of "
             "squared residuals, standard error of the regression.\n\n"
-            "**Key concepts covered:** the least-squares criterion, the OLS slope "
+            "**Concepts:** the least-squares criterion, the OLS slope "
             "as covariance over variance, interpreting the slope for continuous "
             "and binary X, the difference between prediction and causation, and "
             "splitting the variation in Y into explained and unexplained parts."
         ),
+        title="Key terms and concepts",
         kind="info",
     )
     return
