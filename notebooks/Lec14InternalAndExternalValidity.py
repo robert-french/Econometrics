@@ -159,9 +159,7 @@ def _(mo):
 
     *Measurement error in $X$* occurs when we observe $X$ imprecisely. Data may be entered incorrectly, and self-reports of income, hours worked, or years of experience are often inaccurate. We denote the measured value of $X$ by $\widetilde{X}$.
 
-    Suppose the true regression is $Y = \beta_0 + \beta_1 X + u$, but we observe $\widetilde{X}$ rather than the true $X$. Write the measurement error as $\nu$, so that $\widetilde{X} = X + \nu$. Since $X = \widetilde{X} - \nu$, we can rewrite the true regression as $Y = \beta_0 + \beta_1\widetilde{X} + (u-\beta_1\nu)$. The measurement error has now become part of the regression's error term. If measured $X$ is related to this new error term, the first OLS assumption fails and $\hat{\beta}_1$ is inconsistent.
-
-    The direction of the bias depends on how $X$ is mismeasured. For example, if more experienced workers exaggerate their experience more in a survey, measured experience will rise faster than true experience. A regression of wages on measured experience will then understate how much wages increase with true experience.
+    Suppose the true regression is $Y = \beta_0 + \beta_1 X + u$, but we observe $\widetilde{X}$ rather than the true $X$. Write the measurement error as $\nu$, so that $\widetilde{X} = X + \nu$. Since $X = \widetilde{X} - \nu$, we can rewrite the true regression as $Y = \beta_0 + \beta_1\widetilde{X} + (u-\beta_1\nu)$. The measurement error has now become part of the regression's error term. If measured $X$ is related to this new error term, the first OLS assumption fails and $\hat{\beta}_1$ is inconsistent. The direction of the bias depends on how $X$ is mismeasured. For example, if more experienced workers exaggerate their experience more in a survey, measured experience will rise faster than true experience. A regression of wages on measured experience will then understate how much wages increase with true experience.
 
     An important special case of measurement error is *classical measurement error*. Here, $\nu$ is purely random and unrelated to both the true $X$ and the original error term $u$. For example, workers might simply misremember their years of experience, with some reporting too much and others too little. Even this purely random error biases $\hat{\beta}_1$. In a simple regression,
 
@@ -197,12 +195,11 @@ def _(np):
 def _(mo):
     me_noise = mo.ui.slider(
         start=0, stop=12, step=1, value=0,
-        label="Standard deviation of the reporting error (years)",
+        label="Standard deviation of the reporting error for experience (years)",
         show_value=True,
     )
     mo.vstack(
         [
-            mo.md("Increase the size of the reporting error and watch the fitted slope on reported experience."),
             me_noise,
         ]
     )
