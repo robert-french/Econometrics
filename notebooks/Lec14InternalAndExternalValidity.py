@@ -40,8 +40,7 @@ def _(mo):
                 {
                     "#sec1": "1. What makes a study valid",
                     "#sec2": "2. Threats to internal validity",
-                    "#sec3": "3. External validity in causal inference",
-                    "#sec4": "4. External validity in prediction",
+                    "#sec3": "3. External validity",
                 },
                 orientation="vertical",
             ),
@@ -84,8 +83,7 @@ def _(mo):
 
     [1. What makes a study valid](#sec1)<br>
     [2. Threats to internal validity](#sec2)<br>
-    [3. External validity in causal inference](#sec3)<br>
-    [4. External validity in prediction](#sec4)
+    [3. External validity](#sec3)
     """)
     return
 
@@ -512,11 +510,13 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec3"></a>
-    ## 3. External validity in causal inference
+    ## 3. External validity
 
-    Suppose a study clears every threat in Section 2, so its $\hat{\beta}_1$ is a credible estimate of the causal effect in the population studied. External validity asks a different question: does that estimate apply beyond the study?
+    Suppose a study clears every threat in Section 2, so its $\hat{\beta}_1$ is a credible estimate of the causal effect in the population studied. External validity asks a different question: does that estimate apply beyond the study? The answer depends on what the study is for. We consider causal questions first and predictive questions second.
 
-    For a causal question, this comes down to two things:
+    ### <span style="color:#0b68cb">External validity in causal inference</span>
+
+    For a causal question, external validity comes down to two things:
 
     - Who is the intended population of interest?
     - Should we expect the same causal relationship in the population of interest as in the population studied?
@@ -536,8 +536,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    <a id="sec4"></a>
-    ## 4. External validity in prediction
+    ### <span style="color:#0b68cb">External validity in prediction</span>
 
     When the goal is prediction or forecasting rather than causal inference, external validity has a sharper meaning: how well does the fitted model predict variation in other samples from the population of interest? This is the out-of-sample prediction idea from Lecture 5, now promoted to the main criterion of success.
 
@@ -868,7 +867,7 @@ def _(mo):
 
         The noise is not free, however. Because $\text{var}(\widetilde{Y}) > \text{var}(Y)$, there is more unexplained variation around the fitted line, so the standard errors increase and the $R^2$ falls. Noise in the outcome costs precision; noise in the regressor costs consistency. That asymmetry is why Section 2's checklist worries about measurement error in $X$.
 
-        **$k$-fold cross-validation.** Section 4 judged each polynomial by a single split into training and hold-out data, and the resample button showed the weakness of that verdict: it depends on the split. An unlucky hold-out sample can make a good model look bad, and a lucky one can excuse an overfit model. $k$-fold cross-validation replaces the single split with an average over many. The procedure:
+        **$k$-fold cross-validation.** Section 3 judged each polynomial by a single split into training and hold-out data, and the resample button showed the weakness of that verdict: it depends on the split. An unlucky hold-out sample can make a good model look bad, and a lucky one can excuse an overfit model. $k$-fold cross-validation replaces the single split with an average over many. The procedure:
 
         1. Split the sample into $k$ folds (sub-samples) of roughly equal size. Common choices are $k = 5$ and $k = 10$.
         2. Set fold 1 aside as the test data, estimate the model on the other $k - 1$ folds combined, and record the SER (or the $R^2$) of its predictions on fold 1.
@@ -876,7 +875,7 @@ def _(mo):
         4. Average the $k$ test SERs. This average, the cross-validated SER, is the model's score.
         5. Compute the score for every candidate specification, for example each polynomial degree, and pick the specification with the lowest score. Then re-estimate that specification on the full sample to get the final coefficients.
 
-        The averaging is what the single split lacks. Each observation gets one turn at being predicted by a model that never saw it, so the score reflects the whole sample rather than one arbitrary cut, and the verdict stops bouncing around the way the SER bars in Section 4 do. The overfitting logic is unchanged: the in-sample SER always falls as the model grows more flexible, while the cross-validated SER falls and then rises, and its minimum marks where flexibility stops paying for itself. Taking $k$ all the way to $n$ gives leave-one-out cross-validation, in which each single observation takes a turn as the test set. That is the most thorough version, at the cost of estimating the model $n$ times.
+        The averaging is what the single split lacks. Each observation gets one turn at being predicted by a model that never saw it, so the score reflects the whole sample rather than one arbitrary cut, and the verdict stops bouncing around the way the SER bars in Section 3 do. The overfitting logic is unchanged: the in-sample SER always falls as the model grows more flexible, while the cross-validated SER falls and then rises, and its minimum marks where flexibility stops paying for itself. Taking $k$ all the way to $n$ gives leave-one-out cross-validation, in which each single observation takes a turn as the test set. That is the most thorough version, at the cost of estimating the model $n$ times.
         """),
     })
     return
