@@ -34,13 +34,13 @@ def _():
 def _(mo):
     mo.sidebar(
         [
-            "**Terms:** validity, internal validity, external validity, "
+            mo.md('<a href="https://robert-french.github.io/Econometrics/" target="_self" style="display: block; margin-bottom: 1.5em;">Course home</a>'),
             mo.md("# [Lecture 14](#top)"),
             mo.md("Internal and External Validity"),
             mo.nav_menu(
                 {
                     "#sec1": "1. What makes a study valid",
-            "**Concepts:** the five threats to internal validity and why "
+                    "#sec2": "2. Threats to internal validity",
                     "#sec3": "3. External validity in causal inference",
                     "#sec4": "4. External validity in prediction",
                 },
@@ -50,6 +50,7 @@ def _(mo):
         width="260px",
     )
     return
+
 
 @app.cell(hide_code=True)
 def _(mo):
