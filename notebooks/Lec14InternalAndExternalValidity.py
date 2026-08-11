@@ -194,15 +194,15 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(np):
     # Simulated survey for the attenuation-bias demo: 100 workers, wages linear
-    # in true experience with slope 0.30. The reporting error is a fixed
-    # standard-normal draw scaled by the slider, so dragging the slider never
-    # resamples; it only stretches the same noise realization. Fixed seed.
+    # in true experience with slope 0.30. Wages and true experience are fixed;
+    # the reporting error is drawn fresh in the chart cell, seeded by the
+    # slider value, so every slider move redraws the noise while the same
+    # position always renders the same picture. Fixed seed.
     _rng = np.random.default_rng(117)
     me_n = 100
     me_exper = _rng.uniform(1.0, 40.0, me_n)
     me_wage = 12.0 + 0.30 * me_exper + _rng.normal(0.0, 2.0, me_n)
-    me_base = _rng.standard_normal(me_n)
-    return me_base, me_exper, me_wage
+    return me_exper, me_wage
 
 
 @app.cell(hide_code=True)
@@ -222,9 +222,13 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(alt, me_base, me_exper, me_noise, me_wage, mo, np, pd):
+def _(alt, me_exper, me_noise, me_wage, mo, np, pd):
     _sig = float(me_noise.value)
-    _xt = me_exper + _sig * me_base
+    # A fresh reporting-error draw at each slider position, seeded by the
+    # slider value: moving the slider redraws the noise, and returning to a
+    # position reproduces its draw. The wages never change.
+    _nu_rng = np.random.default_rng(1700 + int(me_noise.value))
+    _xt = me_exper + _sig * _nu_rng.standard_normal(len(me_exper))
 
     # Clean fit on true experience, and the fit the researcher actually gets
     # when only reported experience is available.
@@ -506,9 +510,7 @@ def _(mo):
     Y \longrightarrow X.
     $$
 
-    Consider a researcher studying the effect of the minimum wage on unemployment. A higher minimum wage may affect unemployment, but unemployment may also influence the minimum wage that states choose. Changes in unemployment that would otherwise be part of the error term can therefore cause changes in $X$, making $X$ and $u$ related. The first OLS assumption fails, and $\hat{\beta}_1$ is biased.
-
-    The direction of the bias depends on the reverse effect. If higher unemployment leads states to lower their minimum wage, the reverse channel works against the effect of the minimum wage on unemployment and will tend to bias $\hat{\beta}_1$ downward. If higher unemployment instead leads states to raise their minimum wage, the reverse channel works in the same direction and will tend to bias $\hat{\beta}_1$ upward.
+    Consider a researcher studying the effect of the minimum wage on unemployment. A higher minimum wage may affect unemployment, but unemployment may also influence the minimum wage that states choose. Changes in unemployment that would otherwise be part of the error term can therefore cause changes in $X$, making $X$ and $u$ related. The first OLS assumption fails, and $\hat{\beta}_1$ is biased.<sup><a id="fnref1" href="#fn1">1</a></sup>
 
     **Solutions.** Focus on settings where causality runs in only one direction, or use methods that isolate changes in $X$ that are not caused by $Y$. Lectures 18 and 19 will introduce methods to do exactly this.
     """)
@@ -820,6 +822,16 @@ def _(mo):
         title="Key terms and concepts",
         kind="info",
     )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ---
+
+    <span id="fn1" style="display:block;font-size:0.9rem;">**1.** The direction of the bias depends on the reverse effect. If higher unemployment leads states to lower their minimum wage, the reverse channel works against the effect of the minimum wage on unemployment and will tend to bias $\hat{\beta}_1$ downward. If higher unemployment instead leads states to raise their minimum wage, the reverse channel works in the same direction and will tend to bias $\hat{\beta}_1$ upward. <a href="#fnref1" title="Back to text">&#8617;</a></span>
+    """)
     return
 
 
