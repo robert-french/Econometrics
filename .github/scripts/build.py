@@ -105,10 +105,21 @@ def _extract_preliminary(notebook_path: Path) -> bool:
     return False
 
 
+# Labels that open the two halves of a notebook's summary callout. The
+# "**Terms:**"/"**Concepts:**" pair is current; the "Key ... covered:" pair is
+# the original wording, kept so an older notebook still yields a teaser.
+_KEY_TERM_LABELS = (
+    "**Terms:**",
+    "**Concepts:**",
+    "Key terms covered:",
+    "Key concepts covered:",
+)
+
+
 def _extract_key_terms(notebook_path: Path) -> Optional[str]:
-    """Return the notebook's 'Key terms covered' and 'Key concepts covered'
-    entries as one comma-separated string, for use as a teaser on the index
-    cards. Returns None if the summary callout is absent.
+    """Return the notebook's summary-callout terms and concepts as one
+    comma-separated string, for use as a teaser on the index cards. Returns
+    None if the summary callout is absent.
 
     The summary callout is written as adjacent string literals, which Python
     concatenates into a single string constant, so the whole block lives in one
@@ -122,13 +133,14 @@ def _extract_key_terms(notebook_path: Path) -> Optional[str]:
         if not (isinstance(node, ast.Constant) and isinstance(node.value, str)):
             continue
         text = node.value
-        if "Key terms covered:" not in text:
+        if not any(label in text for label in _KEY_TERM_LABELS):
             continue
-        cleaned = (
-            text.replace("**", "")
-            .replace("Key terms covered:", "")
-            .replace("Key concepts covered:", "")
-        )
+        # Strip the labels before the bold markers, so a label carrying its own
+        # asterisks ("**Terms:**") is matched while it is still intact.
+        cleaned = text
+        for label in _KEY_TERM_LABELS:
+            cleaned = cleaned.replace(label, "")
+        cleaned = cleaned.replace("**", "")
         parts = [
             seg.strip().strip(".").strip()
             for seg in cleaned.split("\n")

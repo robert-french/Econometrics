@@ -12,8 +12,7 @@
 
 import marimo
 
-__generated_with = "0.23.14"
-__preliminary__ = True
+__generated_with = "0.23.16"
 app = marimo.App(
     app_title="Lecture 14: Internal and External Validity",
     css_file="marimo-overrides.css",
@@ -97,9 +96,13 @@ def _(mo):
     <a id="sec1"></a>
     ## 1. What makes a study valid
 
-    We say a study is *valid* if it is useful for answering the question it set out to answer. Validity has two parts, and they can fail independently. *Internal validity* asks whether the study correctly estimates the causal effect of $X$ on $Y$ within the population studied: in the language of Lecture 6, whether $\hat{\beta}_1$ is an unbiased and consistent estimator of the true causal value $\beta_1$. *External validity* asks whether the findings generalize to other populations and settings. It is about how far the estimate travels rather than about bias, and a study can be useful for prediction even when its $\hat{\beta}_1$ is not an unbiased estimate of a causal effect.
+    Remember that regression models are designed to answer questions. Sometimes we want to estimate a causal effect, such as how an extra year of experience affects wages. Other times we want to describe an economic relationship or make a prediction. Once we have estimated a regression, we therefore need to ask how well it answers the question we care about. This is the idea of *validity*.
 
-    Our survey of workers from Lectures 11 through 13 makes the distinction concrete. Internal validity asks whether the estimated return to experience measures what an additional year of experience causes wages to be among workers like those surveyed. External validity asks whether that estimate tells us anything about workers in a different industry, country, or decade. Section 2 works through the five ways internal validity fails; Sections 3 and 4 turn to external validity, first for causal questions and then for prediction.
+    There are two types of validity. *Internal validity* asks whether the regression gives us the right answer for the population we studied. For a causal question, this means asking whether $\hat{\beta}_1$ is an unbiased and consistent estimator of the true causal effect $\beta_1$.
+
+    *External validity* asks whether the result from our sample also applies to the population and setting we want to draw conclusions about.
+
+    For instance, continuing our running example from Lectures 11 through 13, *internal validity* asks whether the estimated return to experience captures the causal effect of an extra year of experience for the workers in our sample. *External validity* asks whether that result also applies to the workers we ultimately care about, who may work in a different industry, country, or decade.
     """)
     return
 
@@ -110,67 +113,80 @@ def _(mo):
     <a id="sec2"></a>
     ## 2. Threats to internal validity
 
-    Five threats account for most internal-validity failures in regression studies:
+    To assess internal validity, we consider what could prevent our regression from identifying the causal effect we care about. Most problems fall into five recurring categories, which we call *threats to internal validity*:
 
     1. Omitted variable bias
     2. Misspecification of the functional form
-    3. Bias due to measurement error
-    4. Bias due to sample selection
-    5. Simultaneous causality bias
+    3. Measurement error
+    4. Sample selection
+    5. Simultaneous causality
 
-    Each threat, in its own way, breaks the first causal-inference assumption from Lecture 6, $\mathbb{E}[u \mid X_1, \dots, X_k] = 0$ (or, with control variables, its conditional mean independence version from Lecture 9), so $\hat{\beta}_1$ no longer centers on the causal effect. We take the five threats one at a time.
+    Each threat gives us a different reason why $\hat{\beta}_1$ might differ systematically from the true causal effect $\beta_1$. In each case, the first OLS assumption from Lecture 6, $\mathbb{E}[u \mid X_1, \dots, X_k] = 0$, fails. We will consider each of these five threats in turn.
 
     ### <span style="color:#0b68cb">Threat 1: Omitted variable bias</span>
 
-    Lecture 8 introduced omitted variable bias: a variable that affects $Y$ and is correlated with $X$ is left out of the regression, so its influence ends up inside the error term. Suppose we regress wages on experience but leave out schooling. Workers with more schooling earn higher wages at every level of experience, so schooling sits inside $u$, and if experience and schooling are correlated, then $\text{cov}(X, u) \neq 0$. Whenever $\text{cov}(X, u) \neq 0$, we also have $\mathbb{E}[u \mid X] \neq 0$, so the first causal-inference assumption fails and
+    We first saw *omitted variable bias* in Lecture 8. It occurs when we leave out a variable that affects $Y$ and is correlated with $X$. The omitted variable becomes part of the error term, making $X$ and $u$ correlated. Suppose we regress wages on experience but leave out schooling. Schooling affects wages, so it becomes part of $u$. If experience and schooling are correlated, then $\text{cov}(X,u) \neq 0$, which means $\mathbb{E}[u \mid X] \neq 0$. The first OLS assumption therefore fails, and
 
     $$
-    \hat{\beta}_1 \overset{p}{\to} \underbrace{\beta_1}_{\text{True causal effect}} + \underbrace{\rho_{Xu} \cdot \frac{\sigma_u}{\sigma_X}}_{\text{Bias term}}.
+    \hat{\beta}_1 \overset{p}{\to} \underbrace{\beta_1}_{\text{True causal effect}}
+    +
+    \underbrace{\rho_{Xu}\frac{\sigma_u}{\sigma_X}}_{\text{Bias}}.
     $$
 
-    The bias term is worth reading closely. Its sign comes from $\rho_{Xu}$, the correlation between the independent variable and the error term, so you can often reason out the direction of the bias even without data. Its size grows with the standard deviation of the error relative to the standard deviation of $X$.
+    The sign of the bias depends on $\rho_{Xu}$, so we can often work out whether $\hat{\beta}_1$ is biased upward or downward even if we cannot calculate the bias exactly. Its size also grows with the variation in the error term relative to the variation in $X$.
 
-    **Solutions.** Include the variables that would otherwise generate the bias as controls, as in Lecture 9. When the needed control is not available in the data, the honest fallback is to acknowledge the likely direction of the bias and discuss what it means for the study's conclusion.
+    **Solutions.** The most direct solution is to control for the omitted variables, as in Lecture 9. If the needed variables are not available, we should acknowledge the likely direction of the bias and explain what it means for our conclusions. Lecture 19 will introduce more advanced ways to address omitted variable bias.
 
     ### <span style="color:#0b68cb">Threat 2: Misspecification of the functional form</span>
 
-    *Functional form* is the shape you assume for the relationship between variables. Functional-form *misspecification* arises when you assume the wrong shape. A common example is assuming a linear relationship when the true relationship curves.
+    ### Threat 2: Misspecification of the functional form
 
-    Suppose the true relationship is quadratic,
+    *Functional form* describes the shape we assume for the relationship between variables. Functional-form *misspecification* occurs when we assume the wrong shape. A common example is assuming a linear relationship when the true relationship curves.
+
+    Suppose the true relationship between $X$ and $Y$ is quadratic,
 
     $$
-    Y = \alpha_0 + \alpha_1 X + \alpha_2 X^2 + \varepsilon,
-    \qquad
+    Y = \alpha_0 + \alpha_1 X + \alpha_2 X^2 + \varepsilon
+    \qquad\text{with}\qquad
     \mathbb{E}[\varepsilon \mid X] = 0,
     $$
 
-    but you instead specify the linear regression
+    but we instead estimate the linear regression
 
     $$
     Y = \beta_0 + \beta_1 X + u.
     $$
 
-    A straight line cannot capture the quadratic relationship at every value of $X$. The error term therefore varies systematically with $X$, so
+    A straight line cannot capture the quadratic relationship at every value of $X$. The part of the relationship that the linear model misses ends up in the error term, so the error varies systematically with $X$. As a result,
 
     $$
     \mathbb{E}[u \mid X] \neq 0.
     $$
 
-    Functional-form misspecification therefore violates the zero-conditional-mean assumption. It is similar to omitted-variable bias because the linear model leaves out the relevant term $X^2$.
+    The first OLS assumption therefore fails. In this sense, functional-form misspecification is similar to omitted variable bias. The regression has left out a term, $X^2$, that is needed to correctly describe the relationship between $X$ and $Y$. We saw this problem in Lecture 11. When the relationship between wages and experience was curved, a straight line predicted wages that were too high at low and high levels of experience and too low in the middle.
 
-    We saw this failure in Lecture 11. A straight line fit to the curved relationship between wages and experience predicted wages that were too high at low and high levels of experience and too low in the middle.
-
-    **Solution.** Choose a specification flexible enough to capture the relationship. Polynomials, logarithms, and interaction terms provide common ways to do so.
+    **Solutions.** Choose a functional form flexible enough to capture the relationship. Polynomials, logarithms, and interaction terms are common ways to do so.
 
     ### <span style="color:#0b68cb">Threat 3: Bias due to measurement error</span>
 
-    *Measurement error in $X$* occurs when the true value of $X$ is measured imprecisely. Data can be entered incorrectly into a database, and self-reports of income, hours worked, or years of experience are often inaccurate. We denote the imprecisely measured value of $X$ as $\widetilde{X}$.
+    *Measurement error in $X$* occurs when we observe $X$ imprecisely. Data may be entered incorrectly, and self-reports of income, hours worked, or years of experience are often inaccurate. We denote the measured value of $X$ by $\widetilde{X}$.
 
-    When we use $\widetilde{X}$ in place of $X$, the gap between the true value and the reported value becomes part of the regression's error term. If that gap is related to $\widetilde{X}$, the first causal-inference assumption fails and $\hat{\beta}_1$ is inconsistent.
+    Suppose the true regression is $Y = \beta_0 + \beta_1 X + u$, but we observe $\widetilde{X}$ rather than the true $X$. Write the measurement error as $\nu$, so that $\widetilde{X} = X + \nu$. Since $X = \widetilde{X} - \nu$, we can rewrite the true regression as $Y = \beta_0 + \beta_1\widetilde{X} + (u-\beta_1\nu)$. The measurement error has now become part of the regression's error term. If measured $X$ is related to this new error term, the first OLS assumption fails and $\hat{\beta}_1$ is inconsistent.
 
-    The most important special case has a name. *Classical measurement error* means $\widetilde{X}$ equals $X$ plus a purely random component $\nu$, so $\widetilde{X} = X + \nu$. The reporting error is unrelated to the truth, like a worker misremembering their years of experience with no particular tilt up or down. Even this best case biases the slope. The noise adds variation to the regressor without adding any relationship with $Y$, and in large samples the estimated slope shrinks by the factor $\text{var}(X) / (\text{var}(X) + \text{var}(\nu))$, so that $|\hat{\beta}_1| < |\beta_1|$: the estimated slope is always dragged toward zero. This is called *attenuation bias*, and it is a common problem in observational studies. Note what it rules out: random noise in $X$ does not average away. It systematically flattens the estimated relationship. The appendix works through the algebra behind the shrinkage factor.
+    The direction of the bias depends on how $X$ is mismeasured. For example, if more experienced workers exaggerate their experience more in a survey, measured experience will rise faster than true experience. A regression of wages on measured experience will then understate how much wages increase with true experience.
 
-    The chart below re-creates this result with a simulated survey of 100 workers whose wages follow the true relationship $\text{Wage} = 12 + 0.30 \cdot \text{Exper} + u$. The navy points plot each worker at their true experience. The slider adds random reporting error to experience, as if the workers misremember how long they have worked, and the orange points plot the same workers at their reported experience $\widetilde{X} = X + \nu$. Watch what the noise does to the orange fitted line.
+    An important special case of measurement error is *classical measurement error*. Here, $\nu$ is purely random and unrelated to both the true $X$ and the original error term $u$. For example, workers might simply misremember their years of experience, with some reporting too much and others too little. Even this purely random error biases $\hat{\beta}_1$. In a simple regression,
+
+    $$
+    \hat{\beta}_1 \overset{p}{\to}
+    \beta_1
+    \frac{\text{var}(X)}
+    {\text{var}(X)+\text{var}(\nu)}.
+    $$
+
+    Because $\text{var}(X)/[\text{var}(X)+\text{var}(\nu)]$ is less than one, the estimated slope is pulled toward zero. This is called *attenuation bias*, and more measurement error produces more attenuation. The important lesson is that random measurement error in $X$ does not simply average away. It systematically flattens the estimated relationship. The appendix works through the algebra behind this result.
+
+    The chart below illustrates attenuation bias using a simulated survey of 100 workers whose wages follow $\text{Wage} = 12 + 0.30\cdot\text{Exper} + u$. The navy points show each worker's true experience. The slider adds random reporting error, as if workers misremember how long they have worked, and the orange points show their reported experience, $\widetilde{X}=X+\nu$. As the reporting error grows the estimated regression slope flattens.
     """)
     return
 
@@ -186,7 +202,7 @@ def _(np):
     me_exper = _rng.uniform(1.0, 40.0, me_n)
     me_wage = 12.0 + 0.30 * me_exper + _rng.normal(0.0, 2.0, me_n)
     me_base = _rng.standard_normal(me_n)
-    return me_base, me_exper, me_n, me_wage
+    return me_base, me_exper, me_wage
 
 
 @app.cell(hide_code=True)
@@ -274,19 +290,17 @@ def _(alt, me_base, me_exper, me_noise, me_wage, mo, np, pd):
             rf"With no reporting error, reported and true experience coincide, and the "
             rf"fitted line on true experience has slope \${_b1c:.2f} per year of "
             rf"experience, close to the true \$0.30. Drag the slider to the right to add "
-            rf"reporting error."
+            rf"random reporting error."
         )
     else:
         _msg = (
-            rf"The same workers, the same wages. Only the recorded experience values have "
-            rf"changed: the orange points are the navy points pushed sideways by the "
-            rf"reporting error. The fit on true experience still has slope \${_b1c:.2f}, "
-            rf"but the fit on reported experience has slope \${_b1n:.2f}. The shrinkage "
-            rf"factor predicts this: var(X)/(var(X) + var(ν)) = "
-            rf"{_varx:.0f}/({_varx:.0f} + {_sig**2:.0f}) = {_factor:.2f}, and "
-            rf"{_factor:.2f} × \${_b1c:.2f} = \${_factor * _b1c:.2f}. The noise spreads "
-            rf"the points horizontally without changing their wages, so the cloud gets "
-            rf"wider but no steeper, and the fitted line tilts toward flat."
+            rf"As you move the slider, workers keep the same wages but report their experience with more error. "
+            rf"The orange points are therefore the same workers shifted horizontally from their true experience. "
+            rf"The slope using true experience remains \${_b1c:.2f}, while the slope using reported experience "
+            rf"falls to \${_b1n:.2f}. The attenuation bias formula predicts this change: "
+            rf"var(X)/(var(X) + var(ν)) = {_varx:.0f}/({_varx:.0f} + {_sig**2:.0f}) = {_factor:.2f}, "
+            rf"so {_factor:.2f} × \${_b1c:.2f} = \${_factor * _b1c:.2f}. "
+            rf"Measurement error spreads the points horizontally without changing wages, flattening the fitted line."
         )
     _caption = mo.md(
         "<span style='display:block;margin:0.2rem auto 1rem;max-width:560px;"
@@ -300,19 +314,19 @@ def _(alt, me_base, me_exper, me_noise, me_wage, mo, np, pd):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    **Solutions.** Obtain more accurate data when possible. When it is not, acknowledge the likely attenuation and discuss what it means for the study, or turn to more advanced econometric methods designed for mismeasured regressors. Measurement error in $Y$ rather than in $X$ turns out to be far less damaging; the appendix works through why.
+    **Solutions.** Obtain more accurate data when possible. If that is not possible, acknowledge the likely bias and explain what it means for the study. Measurement error in $Y$ rather than $X$ is much less of an issue for internal validity, as we explain in the appendix.
 
     ### <span style="color:#0b68cb">Threat 4: Bias due to sample selection</span>
 
-    *Sample selection* occurs when the sampling procedure influences which observations end up in the data. Whether selection biases $\hat{\beta}_1$ depends entirely on what the availability of data is related to.
+    *Sample selection* occurs when some types of observations are more likely to end up in our sample than others. Whether this biases $\hat{\beta}_1$ depends on what types of observations are missing.
 
-    - **Data missing at random.** Some surveys are lost in transit, unrelated to anything about the workers. $\hat{\beta}_1$ is not biased; the only cost is a smaller sample, so the standard error $\sigma_{\hat{\beta}_1}$ increases.
-    - **Data missing based on $X$.** Suppose workers with long careers rarely answer the survey. $\hat{\beta}_1$ is still not biased, but the standard error increases and the $R^2$ falls: with less variation in $X$ in the sample, the regression can explain less of the variation in $Y$.
-    - **Data missing based on $Y$.** This is the damaging case, called *sample selection bias*: $\hat{\beta}_1$ becomes biased. Consider collecting national election data from only urban areas. Which observations are available now depends on the outcome being studied, and the fitted relationship inside the sample no longer matches the relationship in the population.
+    * **Selection unrelated to $X$ or $Y$.** Suppose some worker surveys are randomly lost in the mail. The workers who remain are no different from those who are missing, so $\hat{\beta}_1$ remains unbiased. We simply have less data, which increases the estimate's standard error.
 
-    If the missing data depend on both $X$ and $Y$, the bias can go in either direction.
+    * **Selection based on $X$.** Suppose workers with more experience are less likely to answer the survey. We observe fewer highly experienced workers in the sample, but within each level of experience, the workers who respond are no different from those who do not. $\hat{\beta}_1$ therefore remains unbiased, although having less data and less variation in $X$ will generally increase its standard error.
 
-    The chart below lets you watch each rule act on the same data. It shows a large simulated survey of 400 workers whose wages follow the true relationship $\text{Wage} = 12 + 0.30 \cdot \text{Exper} + u$, together with the fitted OLS line and its 95 percent confidence band. Choose a rule for which data go missing: the excluded workers fade to gray, the full-sample line stays behind for comparison, and a new line and band are fit to the workers who remain.
+    * **Selection based on $Y$.** Now suppose high-wage workers are more likely to answer the survey. At a given level of experience, the workers who respond are no longer representative of all workers. For example, low-experience workers who make it into the sample will tend to have unusually high wages, and therefore high values of $u$, while high-experience workers need not have high values of $u$. This makes $X$ and $u$ negatively related in the sample, violating $\mathbb{E}[u \mid X] = 0$ and biasing $\hat{\beta}_1$ downward. This is called *sample selection bias*.
+
+    The chart below illustrates these cases using a simulated survey of 400 workers whose wages follow $\text{Wage} = 12 + 0.30\cdot\text{Exper} + u$. Choose a rule for which workers are missing from the sample. The excluded workers fade to gray, while the full-sample line remains for comparison and a new line and confidence band are fit to the workers who remain in the sample.
     """)
     return
 
@@ -437,38 +451,36 @@ def _(alt, mo, np, pd, sel_exper, sel_mar, sel_n, sel_rule, sel_wage):
 
     if _rule == "Keep the full sample":
         _msg = (
-            rf"All 400 workers are in the sample. The fitted line has slope "
-            rf"\${_f[1]:.2f} per year of experience (standard error {_f[2]:.3f}), close "
-            rf"to the true \$0.30, with an R-squared of {_f[3]:.2f}. Choose a "
-            rf"missing-data rule above to drop about half the sample."
+            rf"All 400 workers are in the sample. The fitted line has a slope of "
+            rf"\${_f[1]:.2f} per year of experience, close to the true \$0.30, "
+            rf"with a standard error of {_f[2]:.3f}. Choose a missing-data rule "
+            rf"above to drop about half the sample."
         )
     elif _rule == "Data missing at random":
         _msg = (
             rf"About half the surveys are lost for reasons unrelated to the workers, "
             rf"leaving {_k[7]} of 400. The slope barely moves, from \${_f[1]:.2f} to "
             rf"\${_k[1]:.2f}, but its standard error rises from {_f[2]:.3f} to "
-            rf"{_k[2]:.3f} and the confidence band widens. The estimate is still "
-            rf"unbiased; it is just measured less precisely."
+            rf"{_k[2]:.3f} and the confidence band widens. Randomly losing observations "
+            rf"does not bias the slope; it simply leaves us with less information."
         )
     elif _rule == "Data missing based on X":
         _msg = (
-            rf"Long-career workers stop answering the survey: everyone with more than "
-            rf"about 20 years of experience is missing, leaving {_k[7]} of 400. The "
-            rf"slope is still \${_k[1]:.2f}, against \${_f[1]:.2f} in the full sample, "
-            rf"but the standard error jumps from {_f[2]:.3f} to {_k[2]:.3f} and the "
-            rf"R-squared falls from {_f[3]:.2f} to {_k[3]:.2f}. With less variation in "
-            rf"experience, the regression explains less variation in wages, and the "
-            rf"band fans out over the empty half of the chart."
+            rf"Workers with more than about 20 years of experience stop answering the "
+            rf"survey, leaving {_k[7]} of 400. The slope remains close to the full-sample "
+            rf"estimate, at \${_k[1]:.2f} compared with \${_f[1]:.2f}. Its standard "
+            rf"error rises from {_f[2]:.3f} to {_k[2]:.3f}, however, because we now "
+            rf"have fewer workers and less variation in experience. Selection based "
+            rf"only on X does not bias the slope."
         )
     else:
         _msg = (
-            rf"The highest-earning half of the workers decline to report their wages, "
-            rf"leaving {_k[7]} of 400. Now the availability of data depends on the "
-            rf"outcome itself, and the slope collapses from \${_f[1]:.2f} to "
-            rf"\${_k[1]:.2f}: at every experience level, the workers who remain are the "
-            rf"ones who happened to earn little, so the line tilts toward flat. This is "
-            rf"sample selection bias, and no amount of extra data of the same kind "
-            rf"fixes it."
+            rf"The highest-earning half of workers decline to report their wages, "
+            rf"leaving {_k[7]} of 400. The slope falls from \${_f[1]:.2f} to "
+            rf"\${_k[1]:.2f}. High-experience workers now make it into the sample only "
+            rf"when their wages are unusually low for their experience, creating a "
+            rf"negative relationship between experience and the error term. The fitted "
+            rf"line therefore becomes flatter. This is sample selection bias."
         )
     _caption = mo.md(
         "<span style='display:block;margin:0.2rem auto 1rem;max-width:560px;"
@@ -482,19 +494,23 @@ def _(alt, mo, np, pd, sel_exper, sel_mar, sel_n, sel_rule, sel_wage):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    **Solutions.** Improve the data collection so availability no longer depends on the outcome, or control for the selection criteria directly, for example by including an indicator for rural versus urban counties.
+    Solutions. Improve data collection so that inclusion in the sample no longer depends on the outcome.
 
     ### <span style="color:#0b68cb">Threat 5: Simultaneous causality bias</span>
 
-    *Simultaneous causality* occurs when $X$ affects $Y$ and $Y$ also affects $X$, so the causal arrow runs in both directions at once:
+    *Simultaneous causality* occurs when $X$ affects $Y$, but $Y$ also affects $X$. The causal relationship therefore runs in both directions:
 
     $$
-    X \longrightarrow Y \qquad \text{and} \qquad Y \longrightarrow X.
+    X \longrightarrow Y
+    \qquad \text{and} \qquad
+    Y \longrightarrow X.
     $$
 
-    Consider a researcher examining the effect of the minimum wage on unemployment. A higher minimum wage may increase unemployment. But states with higher unemployment may respond by lowering their minimum wage. The regression of unemployment on the minimum wage cannot tell these channels apart, so $\hat{\beta}_1$ picks up the causal effects from both directions. If the two channels counteract each other, $\hat{\beta}_1$ is likely an underestimate of the effect of the minimum wage; if they reinforce each other, it is likely an overestimate.
+    Consider a researcher studying the effect of the minimum wage on unemployment. A higher minimum wage may affect unemployment, but unemployment may also influence the minimum wage that states choose. Changes in unemployment that would otherwise be part of the error term can therefore cause changes in $X$, making $X$ and $u$ related. The first OLS assumption fails, and $\hat{\beta}_1$ is biased.
 
-    **Solutions.** Focus on settings where the relationship runs in only one direction, or use more advanced econometric methods built for two-way causation. The experiments and quasi-experiments of Lectures 18 and 19 are designed to shut down the reverse channel by construction.
+    The direction of the bias depends on the reverse effect. If higher unemployment leads states to lower their minimum wage, the reverse channel works against the effect of the minimum wage on unemployment and will tend to bias $\hat{\beta}_1$ downward. If higher unemployment instead leads states to raise their minimum wage, the reverse channel works in the same direction and will tend to bias $\hat{\beta}_1$ upward.
+
+    **Solutions.** Focus on settings where causality runs in only one direction, or use methods that isolate changes in $X$ that are not caused by $Y$. Lectures 18 and 19 will introduce methods to do exactly this.
     """)
     return
 
@@ -597,7 +613,18 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(alt, ho_degree, ho_exper, ho_n, ho_resample, ho_share, ho_wage, mo, np, pd):
+def _(
+    alt,
+    ho_degree,
+    ho_exper,
+    ho_n,
+    ho_resample,
+    ho_share,
+    ho_wage,
+    mo,
+    np,
+    pd,
+):
     # Random train/hold-out split, seeded by the resample button so dragging
     # the sliders never reshuffles which workers land in each group.
     _perm = np.random.default_rng(2024 + ho_resample.value).permutation(ho_n)
