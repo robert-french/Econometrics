@@ -98,9 +98,7 @@ def _(mo):
 
     Remember that regression models are designed to answer questions. Sometimes we want to estimate a causal effect, such as how an extra year of experience affects wages. Other times we want to describe an economic relationship or make a prediction. Once we have estimated a regression, we therefore need to ask how well it answers the question we care about. This is the idea of *validity*.
 
-    There are two types of validity. *Internal validity* asks whether the regression gives us the right answer for the population we studied. For a causal question, this means asking whether $\hat{\beta}_1$ is an unbiased and consistent estimator of the true causal effect $\beta_1$.
-
-    *External validity* asks whether the result from our sample also applies to the population and setting we want to draw conclusions about.
+    There are two types of validity. *Internal validity* asks whether the regression gives us the right answer for the population we studied. For a causal question, this means asking whether $\hat{\beta}_1$ is an unbiased and consistent estimator of the true causal effect $\beta_1$. *External validity* asks whether the result from our sample also applies to the population and setting we want to draw conclusions about.
 
     For instance, continuing our running example from Lectures 11 through 13, *internal validity* asks whether the estimated return to experience captures the causal effect of an extra year of experience for the workers in our sample. *External validity* asks whether that result also applies to the workers we ultimately care about, who may work in a different industry, country, or decade.
     """)
@@ -139,8 +137,6 @@ def _(mo):
 
     ### <span style="color:#0b68cb">Threat 2: Misspecification of the functional form</span>
 
-    ### Threat 2: Misspecification of the functional form
-
     *Functional form* describes the shape we assume for the relationship between variables. Functional-form *misspecification* occurs when we assume the wrong shape. A common example is assuming a linear relationship when the true relationship curves.
 
     Suppose the true relationship between $X$ and $Y$ is quadratic,
@@ -157,13 +153,7 @@ def _(mo):
     Y = \beta_0 + \beta_1 X + u.
     $$
 
-    A straight line cannot capture the quadratic relationship at every value of $X$. The part of the relationship that the linear model misses ends up in the error term, so the error varies systematically with $X$. As a result,
-
-    $$
-    \mathbb{E}[u \mid X] \neq 0.
-    $$
-
-    The first OLS assumption therefore fails. In this sense, functional-form misspecification is similar to omitted variable bias. The regression has left out a term, $X^2$, that is needed to correctly describe the relationship between $X$ and $Y$. We saw this problem in Lecture 11. When the relationship between wages and experience was curved, a straight line predicted wages that were too high at low and high levels of experience and too low in the middle.
+    A straight line cannot capture the quadratic relationship at every value of $X$. The part of the relationship that the linear model misses ends up in the error term, so the error varies systematically with $X$. As a result, $\mathbb{E}[u \mid X] \neq 0$. The first OLS assumption therefore fails. In this sense, functional-form misspecification is similar to omitted variable bias. The regression has left out a term, $X^2$, that is needed to correctly describe the relationship between $X$ and $Y$. We saw this problem in Lecture 11. When the relationship between wages and experience was curved, a straight line predicted wages that were too high at low and high levels of experience and too low in the middle.
 
     **Solutions.** Choose a functional form flexible enough to capture the relationship. Polynomials, logarithms, and interaction terms are common ways to do so.
 
@@ -360,6 +350,7 @@ def _(mo):
         ],
         value="Keep the full sample",
         label="Which data go missing?",
+        inline=True,
     )
     sel_rule
     return (sel_rule,)
