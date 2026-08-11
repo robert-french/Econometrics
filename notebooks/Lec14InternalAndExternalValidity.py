@@ -109,7 +109,7 @@ def _(mo):
     <a id="sec2"></a>
     ## 2. Threats to internal validity
 
-    To assess internal validity, we consider what could prevent our regression from identifying the causal effect we care about. Most problems fall into five recurring categories, which we call *threats to internal validity*:
+    We focus first on internal validity for causal questions. Most problems that prevent a regression from answering a causal question correctly fall into five recurring categories, which we call *threats to internal validity*:
 
     1. Omitted variable bias
     2. Misspecification of the functional form
@@ -117,7 +117,9 @@ def _(mo):
     4. Sample selection
     5. Simultaneous causality
 
-    Each threat gives us a different reason why $\hat{\beta}_1$ might differ systematically from the true causal effect $\beta_1$. In each case, the first OLS assumption from Lecture 6, $\mathbb{E}[u \mid X_1, \dots, X_k] = 0$, fails. We will consider each of these five threats in turn.
+    All five threats matter when the question is causal, but not all matter when the question is descriptive. Functional-form misspecification, measurement error, and sample selection can also lead a regression to answer descriptive questions poorly. Omitted variable bias and simultaneous causality matter primarily when we are asking a causal question.
+
+    Each threat gives us a different reason why $\hat{\beta}_1$ might fail to answer the causal question we care about. We now consider them in turn.
 
     ### <span style="color:#0b68cb">Threat 1: Omitted variable bias</span>
 
@@ -172,7 +174,7 @@ def _(mo):
 
     Because $\text{var}(X)/[\text{var}(X)+\text{var}(\nu)]$ is less than one, the estimated slope is pulled toward zero. This is called *attenuation bias*, and more measurement error produces more attenuation. The important lesson is that random measurement error in $X$ does not simply average away. It systematically flattens the estimated relationship. The appendix works through the algebra behind this result.
 
-    The chart below illustrates attenuation bias using a simulated survey of 100 workers whose wages follow $\text{Wage} = 12 + 0.30\cdot\text{Exper} + u$. The navy points show each worker's true experience. The slider adds random reporting error, as if workers misremember how long they have worked, and the orange points show their reported experience, $\widetilde{X}=X+\nu$. As the reporting error grows the estimated regression slope flattens.
+    The chart below illustrates attenuation bias using a simulated survey of 100 workers whose wages are modeled as $\text{Wage} = 12 + 0.30\cdot\text{Exper} + u$. The navy points show each worker's true experience. The slider adds random reporting error, as if workers misremember how long they have worked, and the orange points show their reported experience, $\widetilde{X}=X+\nu$. As the reporting error grows the estimated regression slope flattens.
     """)
     return
 
@@ -195,8 +197,8 @@ def _(np):
 def _(mo):
     me_noise = mo.ui.slider(
         start=0, stop=12, step=1, value=0,
-        label="Standard deviation of the reporting error for experience (years)",
-        show_value=True,
+        label="Standard deviation of the reporting error for experience",
+        show_value=False,
     )
     mo.vstack(
         [
@@ -284,12 +286,11 @@ def _(alt, me_exper, me_noise, me_wage, mo, np, pd):
     else:
         _msg = (
             rf"As you move the slider, workers keep the same wages but report their experience with more error. "
-            rf"The orange points are therefore the same workers shifted horizontally from their true experience. "
-            rf"The slope using true experience remains \${_b1c:.2f}, while the slope using reported experience "
-            rf"falls to \${_b1n:.2f}. The attenuation bias formula predicts this change: "
-            rf"var(X)/(var(X) + var(ν)) = {_varx:.0f}/({_varx:.0f} + {_sig**2:.0f}) = {_factor:.2f}, "
-            rf"so {_factor:.2f} × \${_b1c:.2f} = \${_factor * _b1c:.2f}. "
-            rf"Measurement error spreads the points horizontally without changing wages, flattening the fitted line."
+            rf"The orange points therefore spread horizontally, flattening the fitted line. "
+            rf"The slope falls from \${_b1c:.2f} using true experience to \${_b1n:.2f} using reported experience. "
+            rf"The attenuation formula predicts this change: "
+            rf"{_varx:.0f}/({_varx:.0f} + {_sig**2:.0f}) = {_factor:.2f}, "
+            rf"so {_factor:.2f} × \${_b1c:.2f} = \${_factor * _b1c:.2f}."
         )
     _caption = mo.md(
         "<span style='display:block;margin:0.2rem auto 1rem;max-width:560px;"
@@ -509,23 +510,23 @@ def _(mo):
     <a id="sec3"></a>
     ## 3. External validity
 
-    Suppose a study clears every threat in Section 2, so its $\hat{\beta}_1$ is a credible estimate of the causal effect in the population studied. External validity asks a different question: does that estimate apply beyond the study? The answer depends on what the study is for. We consider causal questions first and predictive questions second.
+    Suppose a regression is internally valid, so it answers the question we are asking correctly for the *population studied. External validity asks whether that answer also applies to our population of interest*, the population we ultimately care about. What this requires depends on whether the question is causal or predictive.
 
     ### <span style="color:#0b68cb">External validity in causal inference</span>
 
-    For a causal question, external validity comes down to two things:
+    For a causal question, external validity comes down to two questions:
 
-    - Who is the intended population of interest?
-    - Should we expect the same causal relationship in the population of interest as in the population studied?
+    * Who is the population of interest?
+    * Should we expect the same causal effect in the population of interest as in the population studied?
 
-    Suppose our survey estimates the causal return to experience among manufacturing workers. If the population of interest is service workers, the estimate travels only if experience builds wages the same way in both settings, which is far from guaranteed.
+    Suppose a study estimates the causal return to experience among manufacturing workers. If we want to know the return to experience among service workers, the estimate applies only if experience affects wages similarly in both populations.
 
-    Two tools help evaluate external validity for causal questions.
+    There are two main ways to assess whether a causal effect applies to our population of interest.
 
-    1. *Introspection*: think carefully about the similarities and differences between the population studied and the population of interest. Do the mechanisms that generate the causal effect operate the same way in both?
-    2. *Replication*: when multiple studies ask the same causal question in different populations, external validity improves if they find similar results. One study of the minimum wage in one state is suggestive; twenty studies across different states and decades that agree are far more persuasive.
+    1. **Introspection.** Compare the population studied with the population of interest. Ask yourself, are the mechanisms generating the causal effect likely to operate similarly in both populations?
+    2. **Replication.** Study the same causal question in different populations and compare the estimated effects. If similar studies find similar effects across different populations, we have more reason to believe the causal effect carries over beyond any one of them. For example, one study of the minimum wage in one state tells us little about whether its effect applies elsewhere. Similar estimates across many states and decades provide much stronger evidence that it does.
 
-    Neither tool is a formula. External validity for causal questions is ultimately an argument, and the argument has to be made case by case.
+    Unlike internal validity, external validity cannot usually be established from the study alone. We need to ask how the population of interest differs from the population studied and whether those differences are likely to change the causal effect.
     """)
     return
 
@@ -535,30 +536,34 @@ def _(mo):
     mo.md(r"""
     ### <span style="color:#0b68cb">External validity in prediction</span>
 
-    When the goal is prediction or forecasting rather than causal inference, external validity has a sharper meaning: how well does the fitted model predict variation in other samples from the population of interest? This is the out-of-sample prediction idea from Lecture 5, now promoted to the main criterion of success.
+    ### External validity in prediction
 
-    The two measures of fit from Lecture 5 do the assessing. The standard error of the regression,
+    When the goal is prediction rather than causal inference, external validity asks how well a model predicts outcomes for observations beyond the sample used to estimate it. This is the idea of out-of-sample prediction from Lecture 5. We can assess this using the same measures of fit introduced there. The standard error of the regression,
 
     $$
     \text{SER} = \sqrt{\frac{\text{SSR}}{n-2}}, \quad \text{where } \text{SSR} = \sum_{i=1}^{n} \hat{u}_i^2,
     $$
 
-    reports the typical prediction miss in the units of $Y$, and the R-squared,
+    measures the typical prediction error in the units of $Y$. The R-squared,
 
     $$
-    R^2 = \frac{\text{ESS}}{\text{TSS}} = \frac{\sum_{i=1}^{n}(\hat{Y}_i - \hat{\mu}_Y)^2}{\sum_{i=1}^{n}(Y_i - \hat{\mu}_Y)^2},
+    R^2 = \frac{\text{ESS}}{\text{TSS}}
+    = \frac{\sum_{i=1}^{n}(\hat{Y}_i-\hat{\mu}*Y)^2}*
+    *{\sum*{i=1}^{n}(Y_i-\hat{\mu}_Y)^2},
     $$
 
-    reports the share of the variation in $Y$ the predictions account for. The key move is where they are computed: on a sample from the population of interest, using the $\hat{\beta}$s estimated from the population studied. A model that fits its own sample well but predicts a new sample badly has low external validity for prediction, however good its in-sample fit looks.
+    measures how much of the variation in $Y$ the predictions explain.
 
-    You do not need to wait for a second dataset to run this check. Your current sample can play both roles:
+    For external validity, what matters is where these measures are calculated. Indeed, we can estimate the $\hat{\beta}$s using one sample and evaluate the resulting predictions on a different sample from the population of interest. A model can fit the data used to estimate it very well but predict new observations poorly.
 
-    1. Estimate the model on a sub-sample of your data, called the *training data*.
-    2. Predict $Y$ given the $X$s on the *hold-out sample*, also called the *testing data*: the part of the sample the model was not trained on.
-    3. Measure how well the predictions do on the hold-out sample, using the SER or the $R^2$.
-    4. Repeat with new model specifications until the hold-out SER is as small as you can make it.
+    We do not need a separate dataset to illustrate this idea. We can split the data we already have into two parts:
 
-    The chart below runs this procedure on the same 100 workers from Lecture 11, whose wages follow a curved relationship with experience. The workers are split at random into training data (navy) and a hold-out sample (orange). The degree slider sets the polynomial fitted to the training data only, the share slider sets how much of the sample is used for training, and the button re-draws the random split. The two bars beside the chart report the SER separately for the training and the hold-out workers. In Lecture 11 you judged these polynomials by the adjusted R-squared; now the hold-out sample delivers the verdict directly.
+    1. Estimate the model using the *training data*.
+    2. Use the estimated model to predict $Y$ from the $X$s in the *hold-out sample*, or *testing data*, which was not used to estimate the model.
+    3. Evaluate those predictions using the SER or $R^2$ on the hold-out sample.
+    4. Compare model specifications based on how well they predict the hold-out observations.
+
+    The chart below applies this procedure to the same 100 workers from Lecture 11, whose wages follow a curved relationship with experience. The workers are randomly divided into training data (navy) and a hold-out sample (orange). The degree slider determines the polynomial estimated using the training data, the share slider determines how much of the sample is used for training, and the button draws a new random split. The two bars report the SER for the training and hold-out samples separately. In Lecture 11, you compared these polynomials using the adjusted R-squared. Here, their performance on the hold-out sample tells us how well they predict new observations.
     """)
     return
 
