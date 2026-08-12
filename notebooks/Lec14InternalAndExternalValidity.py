@@ -94,7 +94,7 @@ def _(mo):
     <a id="sec1"></a>
     ## 1. What makes a study valid
 
-    Remember that regression models are designed to answer questions. Sometimes we want to estimate a causal effect, such as how an extra year of experience affects wages. Other times we want to describe an economic relationship or make a prediction. Once we have estimated a regression, we therefore need to ask how well it answers the question we care about. This is the idea of *validity*.
+    Remember that regression models are designed to answer questions. Sometimes we want to estimate a causal effect, such as how an extra year of work experience affects wages. Other times we want to describe an economic relationship or make a prediction. Once we have estimated a regression, we therefore need to ask how well it answers the question we care about. This is the idea of *validity*.
 
     There are two types of validity. *Internal validity* asks whether the regression gives us the right answer for the population we studied. For a causal question, this means asking whether $\hat{\beta}_1$ is an unbiased and consistent estimator of the true causal effect $\beta_1$. *External validity* asks whether the result from our sample also applies to the population and setting we want to draw conclusions about.
 
@@ -117,9 +117,7 @@ def _(mo):
     4. Sample selection
     5. Simultaneous causality
 
-    All five threats matter when the question is causal, but not all matter when the question is descriptive. Functional-form misspecification, measurement error, and sample selection can also lead a regression to answer descriptive questions poorly. Omitted variable bias and simultaneous causality matter primarily when we are asking a causal question.
-
-    Each threat gives us a different reason why $\hat{\beta}_1$ might fail to answer the causal question we care about. We now consider them in turn.
+    All five threats matter when the question is causal, but not all matter when the question is descriptive. Functional-form misspecification, measurement error, and sample selection can also lead a regression to answer descriptive questions poorly. Omitted variable bias and simultaneous causality matter primarily when we are asking a causal question. We now consider each of the five threats in turn.
 
     ### <span style="color:#0b68cb">Threat 1: Omitted variable bias</span>
 
@@ -153,15 +151,15 @@ def _(mo):
     Y = \beta_0 + \beta_1 X + u.
     $$
 
-    A straight line cannot capture the quadratic relationship at every value of $X$. The part of the relationship that the linear model misses ends up in the error term, so the error varies systematically with $X$. As a result, $\mathbb{E}[u \mid X] \neq 0$. The first OLS assumption therefore fails. In this sense, functional-form misspecification is similar to omitted variable bias. The regression has left out a term, $X^2$, that is needed to correctly describe the relationship between $X$ and $Y$. We saw this problem in Lecture 11. When the relationship between wages and experience was curved, a straight line predicted wages that were too high at low and high levels of experience and too low in the middle.
+    A straight line cannot capture the quadratic relationship at every value of $X$. The part of the relationship that the linear model misses ends up in the error term, so the error varies systematically with $X$. As a result, $\mathbb{E}[u \mid X] \neq 0$. The first OLS assumption therefore fails. In this sense, functional-form misspecification is similar to omitted variable bias; the regression has left out a term, $X^2$, that is needed to correctly describe the relationship between $X$ and $Y$. We saw this problem in Lecture 11. When the relationship between wages and experience was curved, a straight line predicted wages that were too high at low and high levels of experience and too low in the middle.
 
     **Solutions.** Choose a functional form flexible enough to capture the relationship. Polynomials, logarithms, and interaction terms are common ways to do so.
 
     ### <span style="color:#0b68cb">Threat 3: Bias due to measurement error</span>
 
-    *Measurement error in $X$* occurs when we observe $X$ imprecisely. Data may be entered incorrectly, and self-reports of income, hours worked, or years of experience are often inaccurate. We denote the measured value of $X$ by $\widetilde{X}$.
+    *Measurement error in $X$* occurs when we observe $X$ imprecisely. Data may be entered incorrectly, and self-reports of income, hours worked, or years of experience are often inaccurate. We typically denote the measured value of $X$ by $\widetilde{X}$.
 
-    Suppose the true regression is $Y = \beta_0 + \beta_1 X + u$, but we observe $\widetilde{X}$ rather than the true $X$. Write the measurement error as $\nu$, so that $\widetilde{X} = X + \nu$. Since $X = \widetilde{X} - \nu$, we can rewrite the true regression as $Y = \beta_0 + \beta_1\widetilde{X} + (u-\beta_1\nu)$. The measurement error has now become part of the regression's error term. If measured $X$ is related to this new error term, the first OLS assumption fails and $\hat{\beta}_1$ is inconsistent. The direction of the bias depends on how $X$ is mismeasured. For example, if more experienced workers exaggerate their experience more in a survey, measured experience will rise faster than true experience. A regression of wages on measured experience will then understate how much wages increase with true experience.
+    Suppose the true regression is $Y = \beta_0 + \beta_1 X + u$, but we observe $\widetilde{X}$ rather than the true $X$. Write the measurement error as $\nu$, so that $\widetilde{X} = X + \nu$. Since $X = \widetilde{X} - \nu$, we can rewrite the true regression as $Y = \beta_0 + \beta_1\widetilde{X} + (u-\beta_1\nu)$. Notice that the measurement error has now become part of the regression's error term. If measured $X$ is related to this new error term, the first OLS assumption fails and $\hat{\beta}_1$ is inconsistent.<sup><a id="fnref1" href="#fn1">1</a></sup>
 
     An important special case of measurement error is *classical measurement error*. Here, $\nu$ is purely random and unrelated to both the true $X$ and the original error term $u$. For example, workers might simply misremember their years of experience, with some reporting too much and others too little. Even this purely random error biases $\hat{\beta}_1$. In a simple regression,
 
@@ -497,7 +495,7 @@ def _(mo):
     Y \longrightarrow X.
     $$
 
-    Consider a researcher studying the effect of the minimum wage on unemployment. A higher minimum wage may affect unemployment, but unemployment may also influence the minimum wage that states choose. Changes in unemployment that would otherwise be part of the error term can therefore cause changes in $X$, making $X$ and $u$ related. The first OLS assumption fails, and $\hat{\beta}_1$ is biased.<sup><a id="fnref1" href="#fn1">1</a></sup>
+    Consider a researcher studying the effect of the minimum wage on unemployment. A higher minimum wage may affect unemployment, but unemployment may also influence the minimum wage that states choose. Changes in unemployment that would otherwise be part of the error term can therefore cause changes in $X$, making $X$ and $u$ related. In this case, the first OLS assumption fails, and $\hat{\beta}_1$ is biased.<sup><a id="fnref2" href="#fn2">2</a></sup>
 
     **Solutions.** Focus on settings where causality runs in only one direction, or use methods that isolate changes in $X$ that are not caused by $Y$. Lectures 18 and 19 will introduce methods to do exactly this.
     """)
@@ -510,7 +508,7 @@ def _(mo):
     <a id="sec3"></a>
     ## 3. External validity
 
-    Suppose a regression is internally valid, so it answers the question we are asking correctly for the *population studied. External validity asks whether that answer also applies to our population of interest*, the population we ultimately care about. What this requires depends on whether the question is causal or predictive.
+    Suppose a regression is internally valid, so it answers the question we are asking correctly for the *population studied*. External validity asks whether that answer also applies to our *population of interest*, the population we ultimately care about. What this requires depends on whether the question is causal or predictive.
 
     ### <span style="color:#0b68cb">External validity in causal inference</span>
 
@@ -536,15 +534,15 @@ def _(mo):
     mo.md(r"""
     ### <span style="color:#0b68cb">External validity in prediction</span>
 
-    ### External validity in prediction
+    When the goal is to predict an outcome rather than estimate a causal effect, external validity asks whether a model that predicts the outcome well in the sample used to estimate it will also predict it well for new observations from the population of interest. This is the idea of out-of-sample prediction from Lecture 5. A model may fit the original sample closely because it captures genuine patterns in the population, but it may also fit randomness that will not appear again in a new sample.
 
-    When the goal is prediction rather than causal inference, external validity asks how well a model predicts outcomes for observations beyond the sample used to estimate it. This is the idea of out-of-sample prediction from Lecture 5. We can assess this using the same measures of fit introduced there. The standard error of the regression,
+    We can evaluate predictive performance using the same measures of fit introduced in Lecture 5. Recall that the standard error of the regression,
 
     $$
     \text{SER} = \sqrt{\frac{\text{SSR}}{n-2}}, \quad \text{where } \text{SSR} = \sum_{i=1}^{n} \hat{u}_i^2,
     $$
 
-    measures the typical prediction error in the units of $Y$. The R-squared,
+    measures the typical prediction error in the units of $Y$, while the R-squared,
 
     $$
     R^2 = \frac{\text{ESS}}{\text{TSS}}
@@ -552,18 +550,20 @@ def _(mo):
     *{\sum*{i=1}^{n}(Y_i-\hat{\mu}_Y)^2},
     $$
 
-    measures how much of the variation in $Y$ the predictions explain.
+    measures how much of the variation in $Y$ the predictions explain. To learn about external validity, however, we want to know how these predictions perform on observations that were **not used to estimate the model**.
 
-    For external validity, what matters is where these measures are calculated. Indeed, we can estimate the $\hat{\beta}$s using one sample and evaluate the resulting predictions on a different sample from the population of interest. A model can fit the data used to estimate it very well but predict new observations poorly.
+    Ideally, we would estimate the model using one sample and then evaluate its predictions using a new sample from the population we care about. When a second sample is not available, we can approximate this exercise by splitting our existing sample. Some observations are used to estimate the model, while the remaining observations are set aside and treated as if they were new data. Because the model never sees these observations during estimation, its performance on them gives us a better indication of how well it will predict new observations from the same population.
 
-    We do not need a separate dataset to illustrate this idea. We can split the data we already have into two parts:
+    The procedure is straightforward.
 
-    1. Estimate the model using the *training data*.
-    2. Use the estimated model to predict $Y$ from the $X$s in the *hold-out sample*, or *testing data*, which was not used to estimate the model.
-    3. Evaluate those predictions using the SER or $R^2$ on the hold-out sample.
-    4. Compare model specifications based on how well they predict the hold-out observations.
+    1. Randomly divide the sample into *training data* and a *hold-out sample*, or *testing data*.
+    2. Estimate the model using only the training data.
+    3. Use the estimated model to predict $Y$ for the observations in the hold-out sample.
+    4. Compare model specifications based on how well they predict these observations.
 
-    The chart below applies this procedure to the same 100 workers from Lecture 11, whose wages follow a curved relationship with experience. The workers are randomly divided into training data (navy) and a hold-out sample (orange). The degree slider determines the polynomial estimated using the training data, the share slider determines how much of the sample is used for training, and the button draws a new random split. The two bars report the SER for the training and hold-out samples separately. In Lecture 11, you compared these polynomials using the adjusted R-squared. Here, their performance on the hold-out sample tells us how well they predict new observations.
+    This exercise measures out-of-sample prediction within the population represented by the original data. It does not by itself tell us whether the model will predict well in a different population, time period, or setting. That broader question requires data from those settings.
+
+    The chart below applies this procedure to the same 100 workers from Lecture 11, whose wages follow a curved relationship with experience. The workers are randomly divided into training data (navy) and a hold-out sample (orange). The degree slider determines the polynomial estimated on the training data, the share slider determines how much of the sample is used for training, and the button draws a new random split between training and hold-out samples. The two bars report prediction error for the training and hold-out samples separately. In Lecture 11, you compared these polynomials using the adjusted R-squared. Here, the key comparison is how well each polynomial predicts observations it was not estimated on. A more flexible polynomial may fit the training data better while predicting the hold-out sample worse, revealing that some of its apparent fit does not generalize to new observations from the same population.
     """)
     return
 
@@ -822,7 +822,9 @@ def _(mo):
     mo.md(r"""
     ---
 
-    <span id="fn1" style="display:block;font-size:0.9rem;">**1.** The direction of the bias depends on the reverse effect. If higher unemployment leads states to lower their minimum wage, the reverse channel works against the effect of the minimum wage on unemployment and will tend to bias $\hat{\beta}_1$ downward. If higher unemployment instead leads states to raise their minimum wage, the reverse channel works in the same direction and will tend to bias $\hat{\beta}_1$ upward. <a href="#fnref1" title="Back to text">&#8617;</a></span>
+    <span id="fn1" style="display:block;font-size:0.9rem;">**1.** The direction of the bias depends on how $X$ is mismeasured. For example, if more experienced workers exaggerate their experience more in a survey, measured experience will rise faster than true experience. A regression of wages on measured experience will then understate how much wages increase with true experience. <a href="#fnref1" title="Back to text">&#8617;</a></span>
+
+    <span id="fn2" style="display:block;font-size:0.9rem;">**2.** The direction of the bias depends on the reverse effect. If higher unemployment leads states to lower their minimum wage, the reverse channel works against the effect of the minimum wage on unemployment and will tend to bias $\hat{\beta}_1$ downward. If higher unemployment instead leads states to raise their minimum wage, the reverse channel works in the same direction and will tend to bias $\hat{\beta}_1$ upward. <a href="#fnref2" title="Back to text">&#8617;</a></span>
     """)
     return
 
