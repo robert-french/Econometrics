@@ -546,8 +546,7 @@ def _(mo):
 
     $$
     R^2 = \frac{\text{ESS}}{\text{TSS}}
-    = \frac{\sum_{i=1}^{n}(\hat{Y}_i-\hat{\mu}*Y)^2}*
-    *{\sum*{i=1}^{n}(Y_i-\hat{\mu}_Y)^2},
+    = \frac{\sum_{i=1}^{n}(\hat{Y}_i-\hat{\mu}_Y)^2}{\sum_{i=1}^{n}(Y_i-\hat{\mu}_Y)^2},
     $$
 
     measures how much of the variation in $Y$ the predictions explain. To learn about external validity, however, we want to know how these predictions perform on observations that were **not used to estimate the model**.
