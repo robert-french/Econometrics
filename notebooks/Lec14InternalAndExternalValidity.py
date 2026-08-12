@@ -534,9 +534,9 @@ def _(mo):
     mo.md(r"""
     ### <span style="color:#0b68cb">External validity in prediction</span>
 
-    When the goal is to predict an outcome rather than estimate a causal effect, external validity asks whether a model that predicts the outcome well in the sample used to estimate it will also predict it well for new observations from the population of interest. This is the idea of out-of-sample prediction from Lecture 5. A model may fit the original sample closely because it captures genuine patterns in the population, but it may also fit randomness that will not appear again in a new sample.
+    When we use a regression to predict outcomes from observed $X$s rather than to estimate a causal effect, external validity asks how well those predictions carry over to new observations from the population of interest. This is the idea of out-of-sample prediction from Lecture 5. A model may fit the original sample closely because it captures genuine patterns in the population, but it may also fit randomness that will not appear again in a new sample. If the regression fits too much of this randomness, it will predict new observations poorly.
 
-    We can evaluate predictive performance using the same measures of fit introduced in Lecture 5. Recall that the standard error of the regression,
+    We can assess how well the model makes predictions using the same measures of fit introduced in Lecture 5. Recall that the standard error of the regression,
 
     $$
     \text{SER} = \sqrt{\frac{\text{SSR}}{n-2}}, \quad \text{where } \text{SSR} = \sum_{i=1}^{n} \hat{u}_i^2,
@@ -549,20 +549,20 @@ def _(mo):
     = \frac{\sum_{i=1}^{n}(\hat{Y}_i-\hat{\mu}_Y)^2}{\sum_{i=1}^{n}(Y_i-\hat{\mu}_Y)^2},
     $$
 
-    measures how much of the variation in $Y$ the predictions explain. To learn about external validity, however, we want to know how these predictions perform on observations that were **not used to estimate the model**.
+    measures how much of the variation in $Y$ the predictions explain. To learn about external validity, however, we want to know how these predictions perform on observations that were not used to estimate the model.
 
-    Ideally, we would estimate the model using one sample and then evaluate its predictions using a new sample from the population we care about. When a second sample is not available, we can approximate this exercise by splitting our existing sample. Some observations are used to estimate the model, while the remaining observations are set aside and treated as if they were new data. Because the model never sees these observations during estimation, its performance on them gives us a better indication of how well it will predict new observations from the same population.
+    Ideally, we would estimate the model using one sample and then evaluate its predictions using a new sample from the population we care about. When a second sample is not available, we can approximate this exercise by randomly dividing our sample into two groups. We use one group to estimate the model and set the other group aside. We then use the estimated model to predict the outcomes of the observations in the second group. Because those observations were not used to estimate the model, the resulting prediction errors give us a better indication of how well the model will predict new observations from the same population. We call the first group the *training data* and the second group the *hold-out sample*, or *testing data*.
 
-    The procedure is straightforward.
+    To evaluate how well a model predicts new observations using a single sample, we can follow these four steps.
 
     1. Randomly divide the sample into *training data* and a *hold-out sample*, or *testing data*.
     2. Estimate the model using only the training data.
     3. Use the estimated model to predict $Y$ for the observations in the hold-out sample.
-    4. Compare model specifications based on how well they predict these observations.
+    4. Calculate the SER or $R^2$ in the hold-out sample and compare model specifications based on these measures.
 
-    This exercise measures out-of-sample prediction within the population represented by the original data. It does not by itself tell us whether the model will predict well in a different population, time period, or setting. That broader question requires data from those settings.
+    Note, however, that this procedure us how well the model predicts new observations from the same population as the original sample. It does not tell us whether the model will predict well in a different population, time period, or setting. Answering that broader question requires data from those other settings.
 
-    The chart below applies this procedure to the same 100 workers from Lecture 11, whose wages follow a curved relationship with experience. The workers are randomly divided into training data (navy) and a hold-out sample (orange). The degree slider determines the polynomial estimated on the training data, the share slider determines how much of the sample is used for training, and the button draws a new random split between training and hold-out samples. The two bars report prediction error for the training and hold-out samples separately. In Lecture 11, you compared these polynomials using the adjusted R-squared. Here, the key comparison is how well each polynomial predicts observations it was not estimated on. A more flexible polynomial may fit the training data better while predicting the hold-out sample worse, revealing that some of its apparent fit does not generalize to new observations from the same population.
+    The chart below applies this procedure to the same 100 workers from Lecture 11, whose wages have a curved relationship with experience. The workers are randomly divided into training data (navy) and a hold-out sample (orange). The degree slider selects the degree of the polynomial regression estimated on the training data, the share slider changes the size of the training sample, and the button creates a new random split between training data and the hold-out sample. The bars report prediction error for the training and hold-out samples separately. In Lecture 11, you compared these polynomial regressions using the adjusted R-squared. Here, we instead compare how well they predict the hold-out sample. A more flexible polynomial may fit the training data better but predict new observations worse.
     """)
     return
 
@@ -780,35 +780,21 @@ def _(
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""
-    A single split is the simplest version of this check, and it leaves the verdict partly to luck: press the resample button above and the two SER bars shift with every new split. *Model evaluation algorithms* refine the idea by averaging the check over many splits. The most common one, *$k$-fold cross-validation*, is described in detail in the appendix.
-
-    This closes the validity checklist. Internal validity asks whether a study's estimate means what it claims within the population studied, and Section 2's five threats are the ways it can fail. External validity asks how far the estimate travels, by argument and replication for causal questions, and by out-of-sample performance for prediction. Lecture 15 turns to panel data, the first of several tools that remove an internal-validity threat rather than just naming it: following the same entities over time makes it possible to cancel out omitted variables that stay fixed within each entity.
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
     mo.callout(
         mo.md(
             "**Terms:** validity, internal validity, external validity, "
             "functional form, misspecification, measurement error in X, classical "
             "measurement error, attenuation bias, sample selection, sample selection "
             "bias, simultaneous causality, introspection, replication, training data, "
-            "hold-out sample, testing data, model evaluation algorithm, k-fold "
-            "cross-validation.\n\n"
-            "**Concepts:** the five threats to internal validity and why "
-            "every one of them violates the first causal-inference assumption, reading "
-            "the sign and size of the omitted variable bias term, how fitting the wrong "
-            "shape puts the leftover curvature into the error term, why purely random "
-            "noise in X does not average away but drags the estimated slope toward zero, "
-            "why bias from missing data depends on whether availability is related to Y "
-            "rather than to X, how two-way causation mixes both causal directions into "
-            "one estimated slope, evaluating external validity for causal questions by "
-            "introspection and replication, judging predictive models by out-of-sample "
-            "fit on a hold-out sample, and overfitting as the gap between training and "
-            "hold-out performance that k-fold cross-validation is built to detect."
+            "hold-out sample, testing data, k-fold cross-validation.\n\n"
+
+            "**Concepts:** the five threats to internal validity and how each can make "
+            "X correlated with the error term, the direction of omitted variable bias, "
+            "how functional form misspecification, measurement error, sample selection, "
+            "and simultaneous causality bias regression estimates, assessing external "
+            "validity through introspection and replication, evaluating predictions on "
+            "a hold-out sample, and using k-fold cross-validation to compare models "
+            "while limiting overfitting."
         ),
         title="Key terms and concepts",
         kind="info",
@@ -834,7 +820,7 @@ def _(mo):
         "## Appendix": mo.md(r"""
         This is bonus material. You will not be tested on the content of the appendix.
 
-        **The algebra of classical measurement error in $X$.** Section 2 stated that classical measurement error shrinks the estimated slope by the factor $\text{var}(X) / (\text{var}(X) + \text{var}(\nu))$. Here is the derivation. When we use $\widetilde{X}$ in place of $X$, the true population regression $Y = \beta_0 + \beta_1 X + u$ becomes
+        **The algebra of classical measurement error in $X$.** Section 2 stated that classical measurement error shrinks the estimated slope by the factor $\text{var}(X) / (\text{var}(X) + \text{var}(\nu))$. When we use $\widetilde{X}$ in place of $X$, the true population regression $Y = \beta_0 + \beta_1 X + u$ becomes
 
         $$
         \begin{aligned}
@@ -846,13 +832,13 @@ def _(mo):
 
         where $w = \beta_1(X - \widetilde{X}) + u$. The regression we can actually run uses $\widetilde{X}$, so its error term is $w$, and $w$ contains the measurement gap $X - \widetilde{X}$. If $\text{cov}(\widetilde{X}, w) \neq 0$, then $\mathbb{E}[w \mid \widetilde{X}] \neq 0$ and $\hat{\beta}_1$ is inconsistent.
 
-        Under classical measurement error, $\widetilde{X} = X + \nu$ with $\mathbb{E}[\nu \mid X, u] = 0$, and we can compute exactly where the slope estimator settles. In large samples,
+        Under classical measurement error, $\widetilde{X} = X + \nu$ with $\mathbb{E}[\nu \mid X, u] = 0$. And in large samples,
 
         $$
         \hat{\beta}_1 \overset{p}{\to} \frac{\text{cov}(\widetilde{X}, Y)}{\text{var}(\widetilde{X})} = \frac{\text{cov}(X + \nu,\ \beta_1 X + u)}{\text{var}(X + \nu)} = \frac{\text{cov}(X, Y)}{\text{var}(X) + \text{var}(\nu)}.
         $$
 
-        The numerator is unchanged, because purely random noise does not covary with $Y$. The denominator grows by $\text{var}(\nu)$. Because
+        The numerator is unchanged, because purely random noise does not covary with $Y$. By contrast, the denominator grows by $\text{var}(\nu)$. And because
 
         $$
         \left| \frac{\text{cov}(X, Y)}{\text{var}(X) + \text{var}(\nu)} \right| \leq \left| \frac{\text{cov}(X, Y)}{\text{var}(X)} \right|,
@@ -860,25 +846,27 @@ def _(mo):
 
         we must have $|\hat{\beta}_1| < |\beta_1|$, which is the attenuation result the slider in Section 2 demonstrates.
 
-        **Measurement error in $Y$.** Section 2 showed that classical measurement error in $X$ produces attenuation bias. Classical measurement error in $Y$ is far more forgiving. Suppose the true model is $Y = \beta_0 + \beta_1 X + u$, but we observe $\widetilde{Y} = Y + v$ with $\mathbb{E}[v \mid X, u] = 0$. In large samples,
+        **Measurement error in $Y$.** Section 2 showed that classical measurement error in $X$ produces attenuation bias. Classical measurement error in $Y$ is less of an issue for estimation. Suppose the true model is $Y = \beta_0 + \beta_1 X + u$, but we observe $\widetilde{Y} = Y + v$ with $\mathbb{E}[v \mid X, u] = 0$. In large samples,
 
         $$
         \hat{\beta}_1 \overset{p}{\to} \frac{\text{cov}(X, \widetilde{Y})}{\text{var}(X)} = \frac{\text{cov}(X,\ \beta_1 X + u + v)}{\text{var}(X)} = \frac{\text{cov}(X, Y)}{\text{var}(X)} = \beta_1,
         $$
 
-        where the second-to-last equality follows from $\mathbb{E}[v \mid X, u] = 0$: the noise in $Y$ is unrelated to $X$, so it contributes nothing to the covariance in the numerator. The slope estimator is therefore still consistent.
+        where the second-to-last equality follows from $\mathbb{E}[v \mid X, u] = 0$; that is, the noise in $Y$ is unrelated to $X$, so it contributes nothing to the covariance in the numerator. The slope estimator is therefore still consistent.
 
-        The noise is not free, however. Because $\text{var}(\widetilde{Y}) > \text{var}(Y)$, there is more unexplained variation around the fitted line, so the standard errors increase and the $R^2$ falls. Noise in the outcome costs precision; noise in the regressor costs consistency. That asymmetry is why Section 2's checklist worries about measurement error in $X$.
+        However, because $\text{var}(\widetilde{Y}) > \text{var}(Y)$, there is more unexplained variation around the fitted line, so the coefficients' standard errors increase and the $R^2$ falls. While the slope is unbiased when there is measurement error in $Y$, the model is less informative.
 
-        **$k$-fold cross-validation.** Section 3 judged each polynomial by a single split into training and hold-out data, and the resample button showed the weakness of that verdict: it depends on the split. An unlucky hold-out sample can make a good model look bad, and a lucky one can excuse an overfit model. $k$-fold cross-validation replaces the single split with an average over many. The procedure:
+        **$k$-fold cross-validation.** Section 3 evaluated each polynomial using a single random split between training data and a hold-out sample. But the results can depend on which observations happen to fall into each group. A different split can therefore make the same model look better or worse. $k$-fold cross-validation reduces this problem by evaluating the model on several different parts of the sample.
 
-        1. Split the sample into $k$ folds (sub-samples) of roughly equal size. Common choices are $k = 5$ and $k = 10$.
-        2. Set fold 1 aside as the test data, estimate the model on the other $k - 1$ folds combined, and record the SER (or the $R^2$) of its predictions on fold 1.
-        3. Repeat until each fold has taken exactly one turn as the test data. Every observation is used for estimation in $k - 1$ rounds and for testing in one round, and never for both at once.
-        4. Average the $k$ test SERs. This average, the cross-validated SER, is the model's score.
-        5. Compute the score for every candidate specification, for example each polynomial degree, and pick the specification with the lowest score. Then re-estimate that specification on the full sample to get the final coefficients.
+        The procedure works as follows.
 
-        The averaging is what the single split lacks. Each observation gets one turn at being predicted by a model that never saw it, so the score reflects the whole sample rather than one arbitrary cut, and the verdict stops bouncing around the way the SER bars in Section 3 do. The overfitting logic is unchanged: the in-sample SER always falls as the model grows more flexible, while the cross-validated SER falls and then rises, and its minimum marks where flexibility stops paying for itself. Taking $k$ all the way to $n$ gives leave-one-out cross-validation, in which each single observation takes a turn as the test set. That is the most thorough version, at the cost of estimating the model $n$ times.
+        1. Divide the sample into $k$ groups, called *folds*, of roughly equal size. Common choices are $k = 5$ and $k = 10$.
+        2. Set the first fold aside, estimate the model using the other $k-1$ folds, and measure how well it predicts the observations in the first fold using the SER.
+        3. Repeat this process until each fold has been set aside once. Each observation is therefore used for estimation in $k-1$ rounds and for testing in one round.
+        4. Average the $k$ test SERs. This gives the model's *cross-validated SER*.
+        5. Repeat the procedure for each candidate specification, such as each polynomial degree, and choose the specification with the lowest cross-validated SER. Then estimate that specification on the full sample to obtain the final coefficients.
+
+        The advantage over a single training and hold-out split is that the result no longer depends on one particular group of observations being set aside. Every observation gets one turn being predicted by a model that was estimated without it, and the cross-validated SER summarizes prediction error across the full sample.
         """),
     })
     return
