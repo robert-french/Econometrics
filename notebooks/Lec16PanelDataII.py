@@ -13,6 +13,7 @@
 import marimo
 
 __generated_with = "0.23.16"
+__preliminary__ = True
 app = marimo.App(
     app_title="Lecture 16: Panel Data II: Time Effects, Two-Way Fixed Effects, and Clustered Standard Errors",
     css_file="marimo-overrides.css",

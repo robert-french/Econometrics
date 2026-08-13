@@ -13,6 +13,7 @@
 import marimo
 
 __generated_with = "0.23.16"
+__preliminary__ = True
 app = marimo.App(
     app_title="Lecture 15: Panel Data I: Entity Fixed Effects and Before/After Comparisons",
     css_file="marimo-overrides.css",
