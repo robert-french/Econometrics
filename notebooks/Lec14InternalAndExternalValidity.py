@@ -96,7 +96,7 @@ def _(mo):
 
     Remember that regression models are designed to answer questions. Sometimes we want to estimate a causal effect, such as how an extra year of work experience affects wages. Other times we want to describe an economic relationship or make a prediction. Once we have estimated a regression, we therefore need to ask how well it answers the question we care about. This is the idea of *validity*.
 
-    There are two types of validity. *Internal validity* asks whether the regression gives us the right answer for the population we studied. For a causal question, this means asking whether $\hat{\beta}_1$ is an unbiased and consistent estimator of the true causal effect $\beta_1$. *External validity* asks whether the result from our sample also applies to the population and setting we want to draw conclusions about.
+    There are two types of validity. *Internal validity* asks whether the regression gives us the correct answer for the population we studied. For a causal question, this means asking whether $\hat{\beta}_1$ is an unbiased and consistent estimator of the true causal effect $\beta_1$. *External validity* asks whether the result from our sample applies to the population and setting we want to draw conclusions about.
 
     For instance, continuing our running example from Lectures 11 through 13, *internal validity* asks whether the estimated return to experience captures the causal effect of an extra year of experience for the workers in our sample. *External validity* asks whether that result also applies to the workers we ultimately care about, who may work in a different industry, country, or decade.
     """)
@@ -151,7 +151,7 @@ def _(mo):
     Y = \beta_0 + \beta_1 X + u.
     $$
 
-    A straight line cannot capture the quadratic relationship at every value of $X$. The part of the relationship that the linear model misses ends up in the error term, so the error varies systematically with $X$. As a result, $\mathbb{E}[u \mid X] \neq 0$. The first OLS assumption therefore fails. In this sense, functional-form misspecification is similar to omitted variable bias; the regression has left out a term, $X^2$, that is needed to correctly describe the relationship between $X$ and $Y$. We saw this problem in Lecture 11. When the relationship between wages and experience was curved, a straight line predicted wages that were too high at low and high levels of experience and too low in the middle.
+    A straight line cannot capture the quadratic relationship at every value of $X$. The part of the relationship that the linear model misses ends up in the error term, so the error varies systematically with $X$. As a result, $\mathbb{E}[u \mid X] \neq 0$. The first OLS assumption therefore fails. In this sense, functional-form misspecification is similar to omitted variable bias. We saw this threat in Lecture 11. When the relationship between wages and experience was curved, a straight line predicted wages that were too high at low and high levels of experience and too low in the middle.
 
     **Solutions.** Choose a functional form flexible enough to capture the relationship. Polynomials, logarithms, and interaction terms are common ways to do so.
 
@@ -159,7 +159,7 @@ def _(mo):
 
     *Measurement error in $X$* occurs when we observe $X$ imprecisely. Data may be entered incorrectly, and self-reports of income, hours worked, or years of experience are often inaccurate. We typically denote the measured value of $X$ by $\widetilde{X}$.
 
-    Suppose the true regression is $Y = \beta_0 + \beta_1 X + u$, but we observe $\widetilde{X}$ rather than the true $X$. Write the measurement error as $\nu$, so that $\widetilde{X} = X + \nu$. Since $X = \widetilde{X} - \nu$, we can rewrite the true regression as $Y = \beta_0 + \beta_1\widetilde{X} + (u-\beta_1\nu)$. Notice that the measurement error has now become part of the regression's error term. If measured $X$ is related to this new error term, the first OLS assumption fails and $\hat{\beta}_1$ is inconsistent.<sup><a id="fnref1" href="#fn1">1</a></sup>
+    Suppose the true regression is $Y = \beta_0 + \beta_1 X + u$, but we observe $\widetilde{X}$ rather than the true $X$. Write the measurement error as $\nu$, so that $\widetilde{X} = X + \nu$. Since $X = \widetilde{X} - \nu$, we can rewrite the true regression as $Y = \beta_0 + \beta_1\widetilde{X} + (u-\beta_1\nu)$. Notice that the measurement error has now become part of the regression's error term. If $\widetilde{X}$ is related to this new error term, the first OLS assumption fails and $\hat{\beta}_1$ is inconsistent.<sup><a id="fnref1" href="#fn1">1</a></sup>
 
     An important special case of measurement error is *classical measurement error*. Here, $\nu$ is purely random and unrelated to both the true $X$ and the original error term $u$. For example, workers might simply misremember their years of experience, with some reporting too much and others too little. Even this purely random error biases $\hat{\beta}_1$. In a simple regression,
 
@@ -170,7 +170,7 @@ def _(mo):
     {\text{var}(X)+\text{var}(\nu)}.
     $$
 
-    Because $\text{var}(X)/[\text{var}(X)+\text{var}(\nu)]$ is less than one, the estimated slope is pulled toward zero. This is called *attenuation bias*, and more measurement error produces more attenuation. The important lesson is that random measurement error in $X$ does not simply average away. It systematically flattens the estimated relationship. The appendix works through the algebra behind this result.
+    Because $\text{var}(X)/[\text{var}(X)+\text{var}(\nu)]$ is less than one, the estimated slope is pulled toward zero. This is called *attenuation bias*, and more measurement error produces more attenuation. The key point is that random measurement error in $X$ does not wash out with more observations. It systematically flattens the estimated relationship, as the appendix proves algebraically.
 
     The chart below illustrates attenuation bias using a simulated survey of 100 workers whose wages are modeled as $\text{Wage} = 12 + 0.30\cdot\text{Exper} + u$. The navy points show each worker's true experience. The slider adds random reporting error, as if workers misremember how long they have worked, and the orange points show their reported experience, $\widetilde{X}=X+\nu$. As the reporting error grows the estimated regression slope flattens.
     """)
@@ -306,7 +306,7 @@ def _(mo):
 
     ### <span style="color:#0b68cb">Threat 4: Bias due to sample selection</span>
 
-    *Sample selection* occurs when some types of observations are more likely to end up in our sample than others. Whether this biases $\hat{\beta}_1$ depends on what types of observations are missing.
+    *Sample selection* occurs when some types of observations are more likely to end up in our sample than others. Whether this biases $\hat{\beta}_1$ depends on what types of observations are missing. There are three main cases of sample selection:
 
     * **Selection unrelated to $X$ or $Y$.** Suppose some worker surveys are randomly lost in the mail. The workers who remain are no different from those who are missing, so $\hat{\beta}_1$ remains unbiased. We simply have less data, which increases the estimate's standard error.
 
@@ -483,7 +483,7 @@ def _(alt, mo, np, pd, sel_exper, sel_mar, sel_n, sel_rule, sel_wage):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    Solutions. Improve data collection so that inclusion in the sample no longer depends on the outcome.
+    **Solutions.** Improve data collection so that inclusion in the sample no longer depends on the outcome.
 
     ### <span style="color:#0b68cb">Threat 5: Simultaneous causality bias</span>
 
@@ -551,16 +551,16 @@ def _(mo):
 
     measures how much of the variation in $Y$ the predictions explain. To learn about external validity, however, we want to know how these predictions perform on observations that were not used to estimate the model.
 
-    Ideally, we would estimate the model using one sample and then evaluate its predictions using a new sample from the population we care about. When a second sample is not available, we can approximate this exercise by randomly dividing our sample into two groups. We use one group to estimate the model and set the other group aside. We then use the estimated model to predict the outcomes of the observations in the second group. Because those observations were not used to estimate the model, the resulting prediction errors give us a better indication of how well the model will predict new observations from the same population. We call the first group the *training data* and the second group the *hold-out sample*, or *testing data*.
+    Ideally, we would estimate the model using our sample and then evaluate its predictions using a new sample from the population we care about. When a new sample is not available, we can approximate this exercise by randomly dividing our sample into two groups. We use one group to estimate the model and set the other group aside. We then use the estimated model to predict the outcomes of the observations in the second group. Because those observations were not used to estimate the model, the resulting prediction errors give us a better indication of how well the model will predict new observations from the same population. We call the first group the *training data* and the second group the *hold-out sample*, or *testing data*.
 
-    To evaluate how well a model predicts new observations using a single sample, we can follow these four steps.
+    To evaluate how well a model predicts new observations using a single sample, we can follow these four steps:
 
     1. Randomly divide the sample into *training data* and a *hold-out sample*, or *testing data*.
     2. Estimate the model using only the training data.
     3. Use the estimated model to predict $Y$ for the observations in the hold-out sample.
     4. Calculate the SER or $R^2$ in the hold-out sample and compare model specifications based on these measures.
 
-    Note, however, that this procedure us how well the model predicts new observations from the same population as the original sample. It does not tell us whether the model will predict well in a different population, time period, or setting. Answering that broader question requires data from those other settings.
+    Note, however, that this procedure uses how well the model predicts new observations from the same population as the original sample. It does not tell us whether the model will predict well in a different population, time period, or setting. Answering that broader question requires data from those other settings.
 
     The chart below applies this procedure to the same 100 workers from Lecture 11, whose wages have a curved relationship with experience. The workers are randomly divided into training data (navy) and a hold-out sample (orange). The degree slider selects the degree of the polynomial regression estimated on the training data, the share slider changes the size of the training sample, and the button creates a new random split between training data and the hold-out sample. The bars report prediction error for the training and hold-out samples separately. In Lecture 11, you compared these polynomial regressions using the adjusted R-squared. Here, we instead compare how well they predict the hold-out sample. A more flexible polynomial may fit the training data better but predict new observations worse.
     """)
