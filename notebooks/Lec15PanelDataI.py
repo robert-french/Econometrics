@@ -39,7 +39,7 @@ def _(mo):
             mo.md("Panel Data I: Entity Fixed Effects and Before/After Comparisons"),
             mo.nav_menu(
                 {
-                    "#sec1": "1. What a fixed effect is",
+                    "#sec1": "1. A puzzling regression",
                     "#sec2": "2. Panel data",
                     "#sec3": "3. Before-and-after comparisons",
                     "#sec4": "4. Entity fixed effects",
@@ -81,7 +81,7 @@ def _(mo):
     mo.md(r"""
     ## Contents
 
-    [1. What a fixed effect is](#sec1)<br>
+    [1. A puzzling regression](#sec1)<br>
     [2. Panel data](#sec2)<br>
     [3. Before-and-after comparisons](#sec3)<br>
     [4. Entity fixed effects](#sec4)<br>
@@ -94,17 +94,262 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec1"></a>
-    ## 1. What a fixed effect is
+    ## 1. A puzzling regression
 
-    Lecture 14 listed omitted variable bias first among the threats to internal validity, and its solutions were limited. We can control for an omitted variable if we can measure it, or acknowledge the bias if we cannot. This lecture develops a tool that removes an entire class of omitted variables without measuring any of them. The tool works whenever the observations in our data belong to groups, such as students in courses or yearly observations on states.
+    Does nitrogen fertilizer raise corn yields? Every agronomy textbook says yes, and every farmer who buys fertilizer is betting on it. Let us check with a regression.
 
-    We begin with a regression whose independent variables are a set of binary variables,
+    Our data is a survey of 150 corn farms. For each farm we observe the season's yield, measured in bushels of corn per acre, and the amount of nitrogen fertilizer the farm applied, in pounds per acre. Using the 2014 growing season, we estimate
+
+    $$
+    \text{Yield}_i = \beta_0 + \beta_1 \, \text{Fertilizer}_i + u_i
+    $$
+
+    and obtain $\hat{\beta}_1 = -0.19$: each additional pound of nitrogen is associated with about a fifth of a bushel *less* corn. Taken at face value, fertilizer poisons corn. Use the dropdown to try the other seasons in the survey; the slope is negative every single year.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(np):
+    # The farm panel used throughout the lecture: 150 corn farms observed over
+    # the six growing seasons 2014-2019. Soil quality (fm_z, in bushels per
+    # acre) is the time-invariant confounder: farms with poor soil apply more
+    # nitrogen to compensate, which is what turns the cross-sectional slope
+    # negative. Fertilizer is a level that wobbles year to year around each
+    # farm's typical rate, with no trend. Errors are persistent within a farm
+    # (AR(1) with coefficient 0.7). True fertilizer effect: +0.30 bushels per
+    # acre per pound of nitrogen. Fixed seed; draw order matters.
+    fm_years = np.arange(2014, 2020)
+    _n, _T = 150, 6
+    _rng = np.random.default_rng(411)
+    fm_z = _rng.normal(0.0, 25.0, _n)
+    _typical = 150.0 - 0.6 * fm_z + _rng.normal(0.0, 20.0, _n)
+    fm_fert = _typical[:, None] + _rng.normal(0.0, 12.0, (_n, _T))
+    _innov = _rng.normal(0.0, 1.0, (_n, _T))
+    _eps = np.empty((_n, _T))
+    _eps[:, 0] = _innov[:, 0]
+    for _t in range(1, _T):
+        _eps[:, _t] = 0.7 * _eps[:, _t - 1] + np.sqrt(1 - 0.7**2) * _innov[:, _t]
+    _eps *= 8.0
+    fm_yield = 125.0 + 0.30 * fm_fert + fm_z[:, None] + _eps
+    # Six farms with a spread of typical nitrogen rates, used by the Section 4
+    # chart and the appendix. Deterministic given the seed.
+    fm_six = [7, 47, 65, 110, 114, 115]
+    return fm_fert, fm_six, fm_years, fm_yield, fm_z
+
+
+@app.cell(hide_code=True)
+def _(fm_years, mo):
+    cs_year = mo.ui.dropdown(
+        options=[str(_y) for _y in fm_years],
+        value="2014",
+        label="Growing season",
+    )
+    cs_year
+    return (cs_year,)
+
+
+@app.cell(hide_code=True)
+def _(alt, cs_year, fm_fert, fm_years, fm_yield, mo, np, pd):
+    _t = int(cs_year.value) - int(fm_years[0])
+    _x, _y = fm_fert[:, _t], fm_yield[:, _t]
+    _b1, _b0 = np.polyfit(_x, _y, 1)
+
+    _xsc = alt.Scale(domain=[60.0, 250.0], nice=False)
+    _ysc = alt.Scale(domain=[95.0, 245.0], nice=False)
+    _pts = (
+        alt.Chart(pd.DataFrame({"fert": _x, "yield": _y}))
+        .mark_circle(size=34, opacity=0.5, color="#1f4e79", clip=True)
+        .encode(
+            x=alt.X("fert:Q", scale=_xsc,
+                    title=f"Nitrogen applied in {cs_year.value} (pounds per acre)"),
+            y=alt.Y("yield:Q", scale=_ysc,
+                    title=f"Corn yield in {cs_year.value} (bushels per acre)"),
+        )
+    )
+    _gx = np.array([float(_x.min()), float(_x.max())])
+    _line = (
+        alt.Chart(pd.DataFrame({"fert": _gx, "yield": _b0 + _b1 * _gx}))
+        .mark_line(color="orange", size=3, clip=True)
+        .encode(x=alt.X("fert:Q", scale=_xsc), y=alt.Y("yield:Q", scale=_ysc))
+    )
+    _chart = (_pts + _line).properties(width=560, height=340)
+
+    _msg = (
+        f"Each point is one of the 150 farms in the {cs_year.value} season. "
+        f"The fitted slope is {_b1:+.2f} bushels per pound of nitrogen. "
+        f"Whichever season you pick, the heaviest fertilizer users harvest "
+        f"the least corn."
+    )
+    _caption = mo.md(
+        "<span style='display:block;margin:0.2rem auto 1rem;max-width:560px;"
+        "font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;'>"
+        + _msg + "</span>"
+    )
+    mo.vstack([_chart, _caption], align="center")
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    Lecture 14 taught us what to suspect: an omitted variable. Farms differ in *soil quality*, which we cannot measure. Good soil raises yields on its own. And it is precisely the farms with poor soil that apply the most nitrogen, trying to compensate for what their land lacks. Soil quality therefore sits in the error term and is negatively correlated with fertilizer use, which biases $\hat{\beta}_1$ downward, so far downward that its sign flips.
+
+    The usual remedy from Lecture 9 would be to control for soil quality. But no one in the survey measured it, and "soil quality" bundles drainage, nutrients, slope, and history into something no single number captures. We seem stuck.
+
+    We are not stuck, because this survey has a structure we have not exploited yet: it went back to the *same 150 farms* every season from 2014 to 2019.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    <a id="sec2"></a>
+    ## 2. Panel data
+
+    So far in the course, each dataset observed every worker, district, or farm exactly once. In *panel data*, the same entities are observed over multiple time periods. The entities can be farms, individuals, firms, states, or any other category that is repeatedly observed. Panel data is also called *longitudinal data*. We use the following notation:
+
+    * $i$ indexes the entity (a farm, an individual, a firm),
+    * $t$ indexes the time period (a season, a year, a month),
+    * $Y_{i,t}$ is the value of the variable $Y$ for entity $i$ in period $t$.
+
+    A panel is a *balanced panel* if it contains data on every entity in every time period. If data on some entities are missing in at least one period, the panel is an *unbalanced panel*. Ours is balanced because every farm reported in every season; a real survey in which some farms sold up or stopped responding would be unbalanced.
+
+    Our panel follows $n = 150$ farms over the $T = 6$ seasons from 2014 to 2019, giving $150 \times 6 = 900$ observations. The first rows look like this:
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(fm_fert, fm_years, fm_yield, mo):
+    _lines = []
+    for _i, _t in [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2)]:
+        _lines.append(
+            f"| Farm {_i + 1} | {fm_years[_t]} | {fm_yield[_i, _t]:.0f} "
+            f"| {fm_fert[_i, _t]:.0f} |"
+        )
+    _table = (
+        "| Farm ($i$) | Season ($t$) | Yield (bu/acre) | Nitrogen (lbs/acre) |\n"
+        "|---|---|---|---|\n" + "\n".join(_lines) + "\n| ⋮ | ⋮ | ⋮ | ⋮ |"
+    )
+    mo.md(_table)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    Each farm contributes one row per season. Reading down Farm 1's rows shows how its yield and nitrogen use evolve over time; jumping to Farm 2's rows switches to a different entity. The repetition is the resource: whatever is stable about a farm, soil quality included, appears in all six of its rows. The next two sections turn that repetition into a way of removing soil quality from the regression without ever measuring it.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    <a id="sec3"></a>
+    ## 3. Before-and-after comparisons
+
+    Split the error term into two parts,
+
+    $$
+    u_{i,t} = Z_i + \varepsilon_{i,t},
+    $$
+
+    where $Z_i$ collects the unobserved factors that differ across farms but do not change over time (note that $Z_i$ has no $t$ subscript), and $\varepsilon_{i,t}$ collects the unobserved factors that vary over time within a farm. Soil quality changes very little over six seasons, so it lives in $Z_i$.
+
+    Now take the survey's first and last seasons and subtract, farm by farm. The result is the *difference regression*:
+
+    $$
+    \text{Yield}_{i,2019} - \text{Yield}_{i,2014}
+    = \beta_1\left(\text{Fertilizer}_{i,2019} - \text{Fertilizer}_{i,2014}\right)
+    + \underbrace{Z_i - Z_i}_{0}
+    + \left(\varepsilon_{i,2019} - \varepsilon_{i,2014}\right).
+    $$
+
+    Every time-invariant farm factor subtracts away, whether we can measure it or not. The intercept $\beta_0$ cancels for the same reason, since it too is the same in both seasons. What remains relates the *change* in yield to the *change* in fertilizer. The logic:
+
+    * Soil quality influences the *level* of a farm's yield.
+    * If soil quality did not change between 2014 and 2019, it did not cause *changes* in yield.
+    * Any change in a farm's yield must therefore come from other sources, such as its change in fertilizer use.
+    * The caveat: factors that *did* change over the period, and did so in step with fertilizer use, remain in $\varepsilon_{i,2019} - \varepsilon_{i,2014}$ and can still bias $\hat{\beta}_1$. Section 5 returns to this.
+
+    The chart below runs the difference regression on our 150 farms.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(alt, fm_fert, fm_yield, mo, np, pd):
+    _dx = fm_fert[:, 5] - fm_fert[:, 0]
+    _dy = fm_yield[:, 5] - fm_yield[:, 0]
+    _b1, _b0 = np.polyfit(_dx, _dy, 1)
+
+    _xsc = alt.Scale(domain=[-50.0, 50.0], nice=False)
+    _ysc = alt.Scale(domain=[-36.0, 42.0], nice=False)
+    _pts = (
+        alt.Chart(pd.DataFrame({"dfert": _dx, "dyield": _dy}))
+        .mark_circle(size=34, opacity=0.5, color="#1f4e79", clip=True)
+        .encode(
+            x=alt.X("dfert:Q", scale=_xsc,
+                    title="Change in nitrogen, 2019 minus 2014 (pounds per acre)"),
+            y=alt.Y("dyield:Q", scale=_ysc,
+                    title="Change in yield (bushels per acre)"),
+        )
+    )
+    _zero = (
+        alt.Chart(pd.DataFrame({"dyield": [0.0]}))
+        .mark_rule(color="#9aa5b1", strokeDash=[4, 3])
+        .encode(y=alt.Y("dyield:Q", scale=_ysc))
+    )
+    _gx = np.array([float(_dx.min()), float(_dx.max())])
+    _line = (
+        alt.Chart(pd.DataFrame({"dfert": _gx, "dyield": _b0 + _b1 * _gx}))
+        .mark_line(color="orange", size=3, clip=True)
+        .encode(x=alt.X("dfert:Q", scale=_xsc), y=alt.Y("dyield:Q", scale=_ysc))
+    )
+    _chart = (_pts + _zero + _line).properties(width=560, height=340)
+
+    _msg = (
+        f"Each point is now one farm's change from 2014 to 2019, so soil "
+        f"quality has subtracted out. The slope flips sign to {_b1:+.2f}: "
+        f"farms that raised their nitrogen the most saw yields rise the most, "
+        f"close to the true effect of +0.30 built into the simulation. The "
+        f"dashed line marks a change of zero."
+    )
+    _caption = mo.md(
+        "<span style='display:block;margin:0.2rem auto 1rem;max-width:560px;"
+        "font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;'>"
+        + _msg + "</span>"
+    )
+    mo.vstack([_chart, _caption], align="center")
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    The same farms that told us fertilizer poisons corn now tell us a pound of nitrogen buys about a third of a bushel. Nothing about the data changed. We simply compared each farm *with itself*, so the differences in soil that drove the cross-sectional slope never entered the comparison.
+
+    One thing should nag at you: this used only two of our six seasons. The next section uses all 900 observations.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    <a id="sec4"></a>
+    ## 4. Entity fixed effects
+
+    The tool that generalizes before-and-after differencing is a regression whose independent variables are a set of binary variables,
 
     $$
     Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \dots + \beta_K X_K + u,
     $$
 
-    where each of $X_1, \dots, X_K$ equals either 0 or 1. The binary variables are *mutually exclusive* if only one of them can equal 1 for each observation. For example, $X_k$ might equal 1 if $k$ is the individual's home state. Every individual has exactly one home state, so exactly one of the fifty state indicators equals 1 and the other forty-nine equal 0.
+    where each of $X_1, \dots, X_K$ equals either 0 or 1. The binary variables are *mutually exclusive* if only one of them can equal 1 for each observation. For example, $X_k$ might equal 1 if the observation comes from farm $k$: every observation belongs to exactly one farm, so one indicator equals 1 and the other 149 equal 0.
 
     Interpreting the coefficients works the same way as for the single binary regressor in Lecture 5:
 
@@ -119,416 +364,31 @@ def _(mo):
     \alpha_k = \beta_1 X_1 + \beta_2 X_2 + \dots + \beta_K X_K.
     $$
 
-    The term $\alpha_k$ is called a *fixed effect*. For each observation, $\alpha_k$ takes the single value $\beta_k$ belonging to that observation's group: a fixed effect gives each group its own intercept.
+    The term $\alpha_k$ is called a *fixed effect*: a fixed effect gives each group its own intercept.
 
-    To see why these group intercepts matter, consider regressing students' final course grades on their weekly study hours, with a fixed effect for each course:
-
-    $$
-    \text{Grade} = \alpha_{\text{course}} + \beta \, \text{Study Hours} + u.
-    $$
-
-    The chart below shows simulated grades for 240 students across four economics courses. Within every course, studying more raises grades: each colored line has a slope of about 2 grade points per weekly hour. But the courses differ in difficulty. Econometrics students study the most and would earn the lowest grades for any fixed amount of study, while Intro students study the least and would earn the highest. The slider controls how strongly course difficulty is tied to study hours. The black line pools all 240 students into one regression with a single intercept.
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(np):
-    # Simulated grades for the course fixed-effects demo: 60 students in each
-    # of four courses, mean weekly study hours 3/6/9/11, within-course slope 2.
-    # The difficulty penalty is applied in the chart cell from the slider, so
-    # dragging the slider shifts intercepts of the same fixed draws and never
-    # resamples. Fixed seeds for reproducibility.
-    _mu = np.array([3.0, 6.0, 9.0, 11.0])
-    _rng = np.random.default_rng(1233)
-    _hours, _course = [], []
-    for _j, _m in enumerate(_mu):
-        _hours.append(np.clip(_rng.normal(_m, 0.9, 60), 0.5, 14.5))
-        _course.append(np.full(60, _j))
-    gr_hours = np.concatenate(_hours)
-    gr_course = np.concatenate(_course)
-    gr_noise = np.random.default_rng(1234).normal(0.0, 3.0, len(gr_hours))
-    gr_mu = _mu
-    gr_names = ["Intro Econ", "Computational Econ", "Micro", "Econometrics"]
-    return gr_course, gr_hours, gr_mu, gr_names, gr_noise
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    gr_c = mo.ui.slider(
-        start=0.0, stop=3.0, step=0.25, value=2.0,
-        label="Strength of the course-difficulty confounder",
-        show_value=True,
-    )
-    gr_c
-    return (gr_c,)
-
-
-@app.cell(hide_code=True)
-def _(alt, gr_c, gr_course, gr_hours, gr_mu, gr_names, gr_noise, mo, np, pd):
-    _c = float(gr_c.value)
-    _mubar = float(gr_mu.mean())
-    # Grades: common within-course slope of 2, minus a difficulty penalty that
-    # grows with the course's average study hours. Only the intercepts move
-    # with the slider; the draws are fixed.
-    _grade = (
-        80.0 + 2.0 * (gr_hours - _mubar)
-        - _c * (gr_mu[gr_course] - _mubar) + gr_noise
-    )
-
-    _b1p, _b0p = np.polyfit(gr_hours, _grade, 1)
-    # Within (fixed-effects) slope: demean hours and grades by course. This is
-    # numerically identical to the regression with course indicators.
-    _hd = gr_hours - np.array([gr_hours[gr_course == _j].mean() for _j in range(4)])[gr_course]
-    _gd = _grade - np.array([_grade[gr_course == _j].mean() for _j in range(4)])[gr_course]
-    _b1w = float((_hd * _gd).sum() / (_hd * _hd).sum())
-
-    _xsc = alt.Scale(domain=[0.0, 15.0], nice=False)
-    _ysc = alt.Scale(domain=[58.0, 103.0], nice=False)
-    _colors = ["#1f4e79", "#e69138", "#2a9d8f", "#7d5ba6"]
-
-    _pts = pd.DataFrame({
-        "hours": gr_hours,
-        "grade": _grade,
-        "course": [gr_names[_j] for _j in gr_course],
-    })
-    _layers = [
-        alt.Chart(_pts)
-        .mark_circle(size=24, opacity=0.45, clip=True)
-        .encode(
-            x=alt.X("hours:Q", scale=_xsc, title="Weekly study hours"),
-            y=alt.Y("grade:Q", scale=_ysc, title="Final course grade"),
-            color=alt.Color(
-                "course:N",
-                scale=alt.Scale(domain=gr_names, range=_colors),
-                legend=alt.Legend(title=None, orient="top", columns=2),
-            ),
-        )
-    ]
-    for _j in range(4):
-        _hj = gr_hours[gr_course == _j]
-        _gj = _grade[gr_course == _j]
-        _b1j, _b0j = np.polyfit(_hj, _gj, 1)
-        _gx = np.array([float(_hj.min()) - 0.4, float(_hj.max()) + 0.4])
-        _layers.append(
-            alt.Chart(pd.DataFrame({"hours": _gx, "grade": _b0j + _b1j * _gx}))
-            .mark_line(color=_colors[_j], size=2.5, clip=True)
-            .encode(x=alt.X("hours:Q", scale=_xsc), y=alt.Y("grade:Q", scale=_ysc))
-        )
-    _gx = np.array([0.5, 14.5])
-    _layers.append(
-        alt.Chart(pd.DataFrame({"hours": _gx, "grade": _b0p + _b1p * _gx}))
-        .mark_line(color="#111827", size=4, clip=True)
-        .encode(x=alt.X("hours:Q", scale=_xsc), y=alt.Y("grade:Q", scale=_ysc))
-    )
-    _chart = alt.layer(*_layers).properties(width=560, height=360)
-
-    if _c == 0.0:
-        _msg = (
-            f"With the confounder switched off, all four courses share the same "
-            f"difficulty, and studying is all that matters. The pooled black line "
-            f"has a slope of {_b1p:.2f} grade points per hour, essentially the same "
-            f"as the within-course slope of {_b1w:.2f}. Drag the slider to the "
-            f"right to make the courses with more study hours harder."
-        )
-    elif _b1p > 0.5:
-        _msg = (
-            f"Courses that demand more study hours now also grade harder. The "
-            f"within-course lines keep their slope of about {_b1w:.2f}, but the "
-            f"pooled black line has flattened to {_b1p:.2f}: comparing students "
-            f"across courses mixes the reward for studying with the penalty for "
-            f"being in a harder course."
-        )
-    elif _b1p > -0.05:
-        _msg = (
-            f"The pooled black line is now nearly flat, with a slope of only "
-            f"{_b1p:.2f}, even though every within-course line still has a slope "
-            f"of about {_b1w:.2f}. Pooling the courses hides the benefit of "
-            f"studying entirely, because the students who study the most sit in "
-            f"the hardest courses."
-        )
-    else:
-        _msg = (
-            f"The difficulty penalty is now so strong that the pooled black line "
-            f"slopes downward, at {_b1p:.2f}: across courses, students who study "
-            f"more earn lower grades. Yet within every course the slope is still "
-            f"about {_b1w:.2f}. Only the course intercepts, not the reward for "
-            f"studying, have changed."
-        )
-    _caption = mo.md(
-        "<span style='display:block;margin:0.2rem auto 1rem;max-width:560px;"
-        "font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;'>"
-        + _msg + "</span>"
-    )
-    mo.vstack([_chart, _caption], align="center")
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    Two questions about this chart are worth pausing on.
-
-    First, why does the pooled regression find almost no effect of studying? Because course difficulty is an omitted variable. It affects grades, and it is correlated with study hours, since the harder courses are the ones that demand more study. Difficulty therefore sits in the error term and is negatively correlated with $X$, which biases the pooled slope downward, exactly the omitted variable bias of Lecture 8. Including the course fixed effects $\alpha_{\text{course}}$ moves difficulty out of the error term and into the intercepts, and the estimated slope recovers the true reward for studying. Notice what made this possible: we never measured difficulty. The fixed effect absorbs it, together with every other difference between courses that is the same for all students in the course.
-
-    Second, if we include a fixed effect for every one of the four courses, can we still include the constant $\beta_0$? We cannot, for a reason we will meet again in Section 4: the four course indicators add up to 1 for every student, which makes them perfectly collinear with the constant.
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    <a id="sec2"></a>
-    ## 2. Panel data
-
-    So far in the course, each dataset observed every individual, worker, or state once. In *panel data*, the same entities are observed over multiple time periods. The entities can be individuals, firms, states, or any other category that is repeatedly observed. Panel data is also called *longitudinal data*. We use the following notation:
-
-    * $i$ indexes the entity (a state, an individual, a firm),
-    * $t$ indexes the time period (a year, a month, a day),
-    * $Y_{i,t}$ is the value of the variable $Y$ for entity $i$ in period $t$.
-
-    A panel is a *balanced panel* if it contains data on every entity in every time period. If data on some entities are missing in at least one period, the panel is an *unbalanced panel*.
-
-    Our running example for this lecture and the next is a balanced panel of the $n = 50$ U.S. states over the $T = 7$ years from 1982 to 1988, giving $50 \times 7 = 350$ observations. The research question: do higher alcohol taxes lower traffic fatalities? For each state and year we observe the traffic fatality rate, measured in deaths per 10,000 residents, and the tax on a case of beer, measured in dollars. The data are simulated for this course, built to mirror a well-known panel from Stock and Watson's textbook. The first rows look like this:
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(np):
-    # The state fatality panel used in Sections 2 through 5 and in Lecture 16:
-    # 50 states, 1982-1988. States whose drinking culture produces more
-    # fatalities (pn_z) also levy higher beer taxes, which is the confounder
-    # that flips the cross-sectional slope. Beer taxes drift up over the sample
-    # while their cross-state spread compresses, and the errors are persistent
-    # within a state (an AR(1) with coefficient 0.7, which matters for the
-    # standard-error discussion in Lecture 16). True tax effect: -0.45 deaths
-    # per 10,000 residents per dollar of tax. Fixed seed; draw order matters.
-    pn_states = [
-        "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
-        "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
-        "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
-        "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
-        "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY",
-    ]
-    pn_years = np.arange(1982, 1989)
-    _n, _T = 50, 7
-    _tau = np.arange(_T, dtype=float)
-    _spread = 1.0 - 0.055 * _tau
-
-    _rng = np.random.default_rng(3750)
-    pn_z = _rng.normal(0.0, 0.30, _n)
-    _base = 1.10 + 0.8333 * pn_z + _rng.normal(0.0, 0.25, _n)
-    pn_tax = (
-        _base.mean()
-        + _spread[None, :] * (_base[:, None] - _base.mean())
-        + 0.06 * _tau[None, :]
-        + _rng.normal(0.0, 0.03, (_n, _T))
-    )
-    _innov = _rng.normal(0.0, 1.0, (_n, _T))
-    _eps = np.empty((_n, _T))
-    _eps[:, 0] = _innov[:, 0]
-    for _t in range(1, _T):
-        _eps[:, _t] = 0.7 * _eps[:, _t - 1] + np.sqrt(1 - 0.7**2) * _innov[:, _t]
-    _eps *= 0.10
-    pn_fat = 2.40 - 0.45 * pn_tax + pn_z[:, None] + _eps
-    return pn_fat, pn_states, pn_tax, pn_years
-
-
-@app.cell(hide_code=True)
-def _(mo, pn_fat, pn_states, pn_tax, pn_years):
-    _lines = []
-    for _i, _t in [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2)]:
-        _lines.append(
-            f"| {pn_states[_i]} | {pn_years[_t]} | {pn_fat[_i, _t]:.2f} "
-            f"| {pn_tax[_i, _t]:.2f} |"
-        )
-    _table = (
-        "| State ($i$) | Year ($t$) | Fatality rate (per 10,000) | Beer tax (\\$ per case) |\n"
-        "|---|---|---|---|\n" + "\n".join(_lines) + "\n| ⋮ | ⋮ | ⋮ | ⋮ |"
-    )
-    mo.md(_table)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    Each state contributes one row per year. Reading down the rows for Alabama shows how its fatality rate and beer tax evolve over time; jumping to the Alaska rows switches to a different entity. This structure, many entities each observed in many periods, is what lets us apply the fixed-effects idea from Section 1: the repeated observations on a state play the role that the students in a course played there.
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    <a id="sec3"></a>
-    ## 3. Before-and-after comparisons
-
-    A first idea is to ignore the panel structure and run one cross-sectional regression per year:
-
-    $$
-    \begin{aligned}
-    \text{Fatality Rate}_{i,1982} &= \beta_0 + \beta_1 \, \text{Beer Tax}_{i,1982} + u_{i,1982}, \\
-    \text{Fatality Rate}_{i,1988} &= \beta_0 + \beta_1 \, \text{Beer Tax}_{i,1988} + u_{i,1988}.
-    \end{aligned}
-    $$
-
-    Running these two regressions on our panel gives $\hat{\beta}_1 = 0.15$ for 1982 and $\hat{\beta}_1 = 0.44$ for 1988. Taken at face value, higher taxes on beer are associated with *more* traffic fatalities. Before concluding that alcohol taxes kill, recall Lecture 14: these estimates are likely biased by state-level omitted variables. A state's drinking culture influences both how many fatal crashes it has and how heavily it decides to tax alcohol. States with severe drunk-driving problems tax beer heavily *because* of those problems, which drags the cross-sectional slope upward.
-
-    Panel data lets us do something about this without measuring drinking culture. Split the error term into two parts,
-
-    $$
-    u_{i,t} = Z_i + \varepsilon_{i,t},
-    $$
-
-    where $Z_i$ collects the unobserved factors that differ across states but do not change over time (note that $Z_i$ has no $t$ subscript), and $\varepsilon_{i,t}$ collects the unobserved factors that vary over time within a state. Drinking culture, if it is stable over our seven years, lives in $Z_i$.
-
-    Now subtract the 1982 regression from the 1988 regression, state by state. The result is the *difference regression*:
-
-    $$
-    \text{Fatality Rate}_{i,1988} - \text{Fatality Rate}_{i,1982}
-    = \beta_1\left(\text{Beer Tax}_{i,1988} - \text{Beer Tax}_{i,1982}\right)
-    + \underbrace{Z_i - Z_i}_{0}
-    + \left(\varepsilon_{i,1988} - \varepsilon_{i,1982}\right).
-    $$
-
-    Every time-invariant state factor subtracts away, whether we can measure it or not. The intercept $\beta_0$ cancels for the same reason, since it too is the same in both years. What remains relates the *change* in fatalities to the *change* in the beer tax. The logic:
-
-    * Cultural attitudes toward drinking and driving influence the level of a state's traffic fatalities.
-    * If those attitudes did not change between 1982 and 1988, they did not cause *changes* in fatalities.
-    * Any change in fatalities must therefore come from other sources, such as changes in the beer tax.
-    * The caveat: unobserved factors that *did* change over the period, and did so in step with beer taxes, remain in $\varepsilon_{i,1988} - \varepsilon_{i,1982}$ and can still bias $\hat{\beta}_1$. We return to this in Section 5.
-
-    Use the buttons below to compare the two cross-sections with the difference regression on the same 50 states.
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    ba_view = mo.ui.radio(
-        options=[
-            "1982 cross-section",
-            "1988 cross-section",
-            "Changes, 1988 minus 1982",
-        ],
-        value="1982 cross-section",
-        label="Which regression?",
-        inline=True,
-    )
-    ba_view
-    return (ba_view,)
-
-
-@app.cell(hide_code=True)
-def _(alt, ba_view, mo, np, pd, pn_fat, pn_tax):
-    _view = ba_view.value
-
-    if _view == "1982 cross-section":
-        _x, _y = pn_tax[:, 0], pn_fat[:, 0]
-        _xt = "Beer tax in 1982 (dollars per case)"
-        _yt = "Fatality rate in 1982 (per 10,000)"
-        _xsc = alt.Scale(domain=[0.4, 2.3], nice=False)
-        _ysc = alt.Scale(domain=[1.0, 2.6], nice=False)
-    elif _view == "1988 cross-section":
-        _x, _y = pn_tax[:, 6], pn_fat[:, 6]
-        _xt = "Beer tax in 1988 (dollars per case)"
-        _yt = "Fatality rate in 1988 (per 10,000)"
-        _xsc = alt.Scale(domain=[0.4, 2.3], nice=False)
-        _ysc = alt.Scale(domain=[1.0, 2.6], nice=False)
-    else:
-        _x, _y = pn_tax[:, 6] - pn_tax[:, 0], pn_fat[:, 6] - pn_fat[:, 0]
-        _xt = "Change in beer tax, 1988 minus 1982 (dollars per case)"
-        _yt = "Change in fatality rate (per 10,000)"
-        _xsc = alt.Scale(domain=[-0.05, 0.70], nice=False)
-        _ysc = alt.Scale(domain=[-0.55, 0.25], nice=False)
-
-    _b1, _b0 = np.polyfit(_x, _y, 1)
-    _pts = (
-        alt.Chart(pd.DataFrame({"tax": _x, "fat": _y}))
-        .mark_circle(size=42, opacity=0.55, color="#1f4e79", clip=True)
-        .encode(
-            x=alt.X("tax:Q", scale=_xsc, title=_xt),
-            y=alt.Y("fat:Q", scale=_ysc, title=_yt),
-        )
-    )
-    _gx = np.array([float(_x.min()), float(_x.max())])
-    _line = (
-        alt.Chart(pd.DataFrame({"tax": _gx, "fat": _b0 + _b1 * _gx}))
-        .mark_line(color="orange", size=3, clip=True)
-        .encode(x=alt.X("tax:Q", scale=_xsc), y=alt.Y("fat:Q", scale=_ysc))
-    )
-    _layers = [_pts, _line]
-    if _view == "Changes, 1988 minus 1982":
-        _layers.append(
-            alt.Chart(pd.DataFrame({"fat": [0.0]}))
-            .mark_rule(color="#9aa5b1", strokeDash=[4, 3])
-            .encode(y=alt.Y("fat:Q", scale=_ysc))
-        )
-    _chart = alt.layer(*_layers).properties(width=560, height=340)
-
-    if _view == "1982 cross-section":
-        _msg = (
-            f"Each point is one state in 1982. The fitted slope is {_b1:+.2f}: "
-            f"states with higher beer taxes have slightly higher fatality rates. "
-            f"The high-tax states sit high because of their drinking culture, "
-            f"not because of the tax."
-        )
-    elif _view == "1988 cross-section":
-        _msg = (
-            f"Six years later the puzzle is worse: the fitted slope is now "
-            f"{_b1:+.2f}. A researcher with only cross-sectional data might "
-            f"conclude that raising the beer tax by one dollar per case adds "
-            f"{_b1:.2f} deaths per 10,000 residents."
-        )
-    else:
-        _msg = (
-            f"Now each point is one state's change from 1982 to 1988, so the "
-            f"stable state factors Z (drinking culture among them) have "
-            f"subtracted out. The slope flips sign to {_b1:+.2f}: states that "
-            f"raised their beer tax the most saw fatalities fall the most. The "
-            f"dashed line marks a change of zero."
-        )
-    _caption = mo.md(
-        "<span style='display:block;margin:0.2rem auto 1rem;max-width:560px;"
-        "font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;'>"
-        + _msg + "</span>"
-    )
-    mo.vstack([_chart, _caption], align="center")
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    <a id="sec4"></a>
-    ## 4. Entity fixed effects
-
-    The before-and-after comparison uses only two of our seven years. To use all 350 observations, start from the pooled model with the error split as before:
+    Now apply this to the panel. Start from the pooled model with the error split as in Section 3,
 
     $$
     Y_{i,t} = \beta_0 + \beta_1 X_{i,t} + \underbrace{Z_i + \varepsilon_{i,t}}_{u_{i,t}},
     $$
 
-    where $Y_{i,t}$ is the fatality rate in state $i$ and year $t$, $X_{i,t}$ is the state's beer tax, $Z_i$ is the unobserved time-invariant state factors, and $\varepsilon_{i,t}$ is the unobserved time-varying factors. We cannot control for $Z_i$ directly, since we cannot measure drinking culture. But we can include a binary variable for each state:
+    where $Y_{i,t}$ is farm $i$'s yield in season $t$, $X_{i,t}$ is its nitrogen use, and $Z_i$ is its unobserved soil quality. We cannot control for $Z_i$ directly. But we can include a mutually exclusive binary variable for each farm,
 
     $$
-    Y_{i,t} = \beta_0 + \beta_1 X_{i,t} + \gamma_2\text{CA}_i + \gamma_3\text{IL}_i + \dots + \gamma_{50}\text{NY}_i + \varepsilon_{i,t},
+    Y_{i,t} = \beta_0 + \beta_1 X_{i,t} + \gamma_2\text{F2}_i + \gamma_3\text{F3}_i + \dots + \gamma_{150}\text{F150}_i + \varepsilon_{i,t},
     $$
 
-    where, for example, $\text{CA}_i$ is a binary variable equal to 1 when $i = \text{CA}$ and 0 otherwise. The state indicators are mutually exclusive, so exactly as in Section 1 we can collapse them into one term:
+    where, for example, $\text{F2}_i$ is a binary variable equal to 1 when $i$ is Farm 2 and 0 otherwise, and then collapse the indicators exactly as above:
 
     $$
     Y_{i,t} = \beta_0 + \beta_1 X_{i,t} + \alpha_i + \varepsilon_{i,t},
     \qquad \text{where} \qquad
-    \alpha_i = \gamma_2\text{CA}_i + \gamma_3\text{IL}_i + \dots + \gamma_{50}\text{NY}_i.
+    \alpha_i = \gamma_2\text{F2}_i + \gamma_3\text{F3}_i + \dots + \gamma_{150}\text{F150}_i.
     $$
 
-    This is the *fixed effects regression model* for panel data, and the $\alpha_i$ are called *entity fixed effects*. The regression estimates one intercept per state ($\alpha_2, \dots, \alpha_{50}$ are unknown coefficients, just like $\beta_1$) plus a single slope $\beta_1$ shared by all states. The fixed effect $\alpha_i$ controls for *all* factors in state $i$ that are constant over time, observed and unobserved alike. Drinking culture, geography, road quality, and anything else that does not change over the seven years is absorbed into the state's intercept, and $\beta_1$ is identified by how fatalities move *within* each state as its beer tax changes.
+    This is the *fixed effects regression model* for panel data, and the $\alpha_i$ are called *entity fixed effects*. The regression estimates one intercept per farm plus a single slope $\beta_1$ shared by all farms. The fixed effect $\alpha_i$ controls for *all* factors of farm $i$ that are constant over time, observed and unobserved alike: soil quality, drainage, the farmer's skill, distance to market. Only movements *within* each farm, this season's nitrogen against the same farm's other seasons, identify $\beta_1$. The before-and-after comparison of Section 3 is exactly this model in the special case $T = 2$.
 
-    The chart below shows six of the fifty states. Switch between fitting one pooled line and fitting one intercept per state.
+    The chart below shows six of the 150 farms. Switch between fitting one pooled line and fitting one intercept per farm.
     """)
     return
 
@@ -538,7 +398,7 @@ def _(mo):
     fe_view = mo.ui.radio(
         options=[
             "One pooled line",
-            "One intercept per state (fixed effects)",
+            "One intercept per farm (fixed effects)",
         ],
         value="One pooled line",
         label="How should the line(s) be fit?",
@@ -549,71 +409,69 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(alt, fe_view, mo, np, pd, pn_fat, pn_states, pn_tax):
-    _six = ["CA", "FL", "IL", "NY", "TX", "WI"]
-    _idx = [pn_states.index(_s) for _s in _six]
-    _t6 = pn_tax[_idx]
-    _f6 = pn_fat[_idx]
+def _(alt, fe_view, fm_fert, fm_six, fm_yield, mo, np, pd):
+    _t6 = fm_fert[fm_six]
+    _f6 = fm_yield[fm_six]
+    _names = [f"Farm {_i + 1}" for _i in fm_six]
     _colors = ["#1f4e79", "#e69138", "#2a9d8f", "#7d5ba6", "#c05b5b", "#5b8bc0"]
 
-    # Pooled fit on the 42 shown observations, and the fixed-effects fit with
-    # one indicator per state (the dummy regression; computed by demeaning
-    # within state, which yields the identical slope).
+    # Pooled fit on the 36 shown observations, and the fixed-effects fit with
+    # one indicator per farm (the dummy regression; computed by demeaning
+    # within farm, which yields the identical slope).
     _b1p, _b0p = np.polyfit(_t6.ravel(), _f6.ravel(), 1)
     _td = _t6 - _t6.mean(axis=1, keepdims=True)
     _fd = _f6 - _f6.mean(axis=1, keepdims=True)
     _b1f = float((_td * _fd).sum() / (_td * _td).sum())
 
-    _xsc = alt.Scale(domain=[0.7, 1.9], nice=False)
-    _ysc = alt.Scale(domain=[1.0, 2.5], nice=False)
+    _xsc = alt.Scale(domain=[95.0, 235.0], nice=False)
+    _ysc = alt.Scale(domain=[95.0, 235.0], nice=False)
 
     _pts = pd.DataFrame({
-        "tax": _t6.ravel(),
-        "fat": _f6.ravel(),
-        "state": np.repeat(_six, 7),
+        "fert": _t6.ravel(),
+        "yield": _f6.ravel(),
+        "farm": np.repeat(_names, 6),
     })
     _layers = [
         alt.Chart(_pts)
         .mark_circle(size=42, opacity=0.6, clip=True)
         .encode(
-            x=alt.X("tax:Q", scale=_xsc, title="Beer tax (dollars per case)"),
-            y=alt.Y("fat:Q", scale=_ysc, title="Fatality rate (per 10,000)"),
+            x=alt.X("fert:Q", scale=_xsc, title="Nitrogen applied (pounds per acre)"),
+            y=alt.Y("yield:Q", scale=_ysc, title="Corn yield (bushels per acre)"),
             color=alt.Color(
-                "state:N",
-                scale=alt.Scale(domain=_six, range=_colors),
+                "farm:N",
+                scale=alt.Scale(domain=_names, range=_colors),
                 legend=alt.Legend(title=None, orient="top"),
             ),
         )
     ]
     if fe_view.value == "One pooled line":
-        _gx = np.array([float(_t6.min()) - 0.05, float(_t6.max()) + 0.05])
+        _gx = np.array([float(_t6.min()) - 3.0, float(_t6.max()) + 3.0])
         _layers.append(
-            alt.Chart(pd.DataFrame({"tax": _gx, "fat": _b0p + _b1p * _gx}))
+            alt.Chart(pd.DataFrame({"fert": _gx, "yield": _b0p + _b1p * _gx}))
             .mark_line(color="#111827", size=4, clip=True)
-            .encode(x=alt.X("tax:Q", scale=_xsc), y=alt.Y("fat:Q", scale=_ysc))
+            .encode(x=alt.X("fert:Q", scale=_xsc), y=alt.Y("yield:Q", scale=_ysc))
         )
         _msg = (
-            f"One line through all six states has a slope of {_b1p:+.2f}: higher "
-            f"beer taxes look harmless or worse. The line is dragged upward by "
-            f"the same problem as in Section 3: the states with the highest "
-            f"taxes (and their own high intercepts) sit at the top right."
+            f"One line through all six farms has a slope of {_b1p:+.2f}: the "
+            f"cross-sectional puzzle again. The line is dragged downward "
+            f"because the farms applying the most nitrogen (their own low "
+            f"intercepts, poor soil) sit at the bottom right."
         )
     else:
-        for _j, _s in enumerate(_six):
+        for _j in range(6):
             _a = float(_f6[_j].mean() - _b1f * _t6[_j].mean())
-            _gx = np.array([float(_t6[_j].min()) - 0.06, float(_t6[_j].max()) + 0.06])
+            _gx = np.array([float(_t6[_j].min()) - 4.0, float(_t6[_j].max()) + 4.0])
             _layers.append(
-                alt.Chart(pd.DataFrame({"tax": _gx, "fat": _a + _b1f * _gx}))
+                alt.Chart(pd.DataFrame({"fert": _gx, "yield": _a + _b1f * _gx}))
                 .mark_line(color=_colors[_j], size=2.5, clip=True)
-                .encode(x=alt.X("tax:Q", scale=_xsc), y=alt.Y("fat:Q", scale=_ysc))
+                .encode(x=alt.X("fert:Q", scale=_xsc), y=alt.Y("yield:Q", scale=_ysc))
             )
         _msg = (
-            f"With one intercept per state, the common slope is {_b1f:+.2f}: "
-            f"within a state, raising the beer tax by one dollar per case lowers "
-            f"fatalities by about {abs(_b1f):.2f} per 10,000 residents. Using all "
-            f"fifty states, the estimate is -0.42, close to the true effect of "
-            f"-0.45 built into the simulation. Each state's intercept absorbs "
-            f"its stable characteristics, so only within-state movements "
+            f"With one intercept per farm, the common slope is {_b1f:+.2f}: "
+            f"within a farm, an extra pound of nitrogen adds about a third of "
+            f"a bushel. Using all 150 farms, the estimate is +0.30, matching "
+            f"the true effect built into the simulation. Each farm's intercept "
+            f"absorbs its soil quality, so only within-farm movements "
             f"identify the slope."
         )
     _chart = alt.layer(*_layers).properties(width=560, height=360)
@@ -631,14 +489,14 @@ def _(mo):
     mo.md(r"""
     ### <span style="color:#0b68cb">The dummy variable trap</span>
 
-    One detail needs care. We cannot include all 50 state fixed effects *and* the intercept $\beta_0$. The 50 state indicators sum to 1 for every observation, which makes them perfectly collinear with the constant, the *dummy variable trap* from Lecture 8's discussion of perfect multicollinearity. There are two equivalent ways out:
+    One detail needs care. We cannot include all 150 farm fixed effects *and* the intercept $\beta_0$. The 150 farm indicators sum to 1 for every observation, which makes them perfectly collinear with the constant, the *dummy variable trap* from Lecture 8's discussion of perfect multicollinearity. There are two equivalent ways out:
 
-    * Omit one state, as the equation above does by starting at $\gamma_2$. The omitted state is the *base state*, its intercept is $\beta_0$, and each $\alpha_i$ is the mean difference in $Y$ between state $i$ and the base state, holding the beer tax fixed.
-    * Or drop $\beta_0$ and include all 50 fixed effects, so each state's intercept is estimated directly.
+    * Omit one farm, as the equation above does by starting at $\gamma_2$. The omitted farm is the *base farm*, its intercept is $\beta_0$, and each $\alpha_i$ is the mean difference in $Y$ between farm $i$ and the base farm, holding fertilizer fixed.
+    * Or drop $\beta_0$ and include all 150 fixed effects, so each farm's intercept is estimated directly.
 
-    Which state is omitted changes how the intercepts are labelled but changes nothing of substance: $\hat{\beta}_1$, the fitted values, and the residuals are identical either way. The appendix lets you verify this.
+    Which farm is omitted changes how the intercepts are labelled but changes nothing of substance: $\hat{\beta}_1$, the fitted values, and the residuals are identical either way. The appendix lets you verify this.
 
-    Finally, the fixed-effects regression is not limited to one regressor. Like in regular multiple regression, we can add further time-varying variables $X_{1,i,t}, X_{2,i,t}, \dots, X_{k,i,t}$, such as each state's unemployment rate or minimum drinking age in each year, and their coefficients keep their usual holding-fixed interpretation.
+    Finally, the fixed-effects regression is not limited to one regressor. Like in regular multiple regression, we can add further time-varying variables $X_{1,i,t}, X_{2,i,t}, \dots, X_{k,i,t}$, such as each farm's rainfall or pest damage in each season, and their coefficients keep their usual holding-fixed interpretation.
     """)
     return
 
@@ -649,9 +507,9 @@ def _(mo):
     <a id="sec5"></a>
     ## 5. What fixed effects cannot fix
 
-    Entity fixed effects remove every confounder that is constant over time within a state. They remove nothing else. Factors that change over the sample period stay in $\varepsilon_{i,t}$, and if they move together with beer taxes they still bias $\hat{\beta}_1$, exactly the caveat from Section 3.
+    Entity fixed effects remove every confounder that is constant over time within a farm. They remove nothing else. Factors that change over the sample period stay in $\varepsilon_{i,t}$, and if they move together with fertilizer use they still bias $\hat{\beta}_1$, exactly the caveat from Section 3.
 
-    The dangerous confounders are now the ones that change over time for *all* states at once. Over 1982 to 1988, federal safety regulation tightened, cars gained better safety features, and national attitudes toward drunk driving shifted. None of these is constant over time, so no state fixed effect absorbs them. If they trended in step with beer taxes, our estimate of $\beta_1$ still mixes the tax effect with a nationwide trend.
+    The dangerous confounders are now the ones that change over time for *all* farms at once. A drought season lowers every farm's yield regardless of fertilizer. Fertilizer prices rise and fall for everyone together, shifting how much nitrogen every farm applies in the same year. Seed varieties improve for all farms over time. None of these is constant over time, so no farm fixed effect absorbs them. If they trend in step with fertilizer use, our estimate of $\beta_1$ still mixes the fertilizer effect with a shared shock.
 
     The fix mirrors what we did in this lecture: give each *time period* its own intercept. That is the subject of Lecture 16.
     """)
@@ -662,19 +520,20 @@ def _(mo):
 def _(mo):
     mo.callout(
         mo.md(
-            "**Terms:** mutually exclusive, fixed effect, panel data, "
-            "longitudinal data, balanced panel, unbalanced panel, difference "
-            "regression, fixed effects regression model, entity fixed effects, "
-            "dummy variable trap, base state.\n\n"
+            "**Terms:** panel data, longitudinal data, balanced panel, "
+            "unbalanced panel, difference regression, mutually exclusive, "
+            "fixed effect, fixed effects regression model, entity fixed "
+            "effects, dummy variable trap, base farm.\n\n"
 
-            "**Concepts:** a fixed effect as one intercept per group, group "
-            "intercepts absorbing all time-invariant group characteristics "
-            "without measuring them, why pooled regression is biased when group "
-            "intercepts are correlated with the regressor, panel notation and "
+            "**Concepts:** how an unmeasured, time-invariant confounder can "
+            "flip the sign of a cross-sectional slope, panel notation and "
             "structure, differencing two periods to remove time-invariant "
-            "confounders, the entity fixed-effects regression with many periods, "
-            "the dummy variable trap and the base-category interpretation, and "
-            "the limits of entity fixed effects when confounders vary over time."
+            "confounders, a fixed effect as one intercept per group absorbing "
+            "everything stable about that group, the entity fixed-effects "
+            "regression with many periods and why only within-entity movements "
+            "identify the slope, the dummy variable trap and the base-category "
+            "interpretation, and the limits of entity fixed effects when "
+            "confounders vary over time."
         ),
         title="Key terms and concepts",
         kind="info",
@@ -683,45 +542,44 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    bs_state = mo.ui.dropdown(
-        options=["CA", "FL", "IL", "NY", "TX", "WI"],
-        value="CA",
-        label="Base (omitted) state",
+def _(fm_six, mo):
+    bs_farm = mo.ui.dropdown(
+        options=[f"Farm {_i + 1}" for _i in fm_six],
+        value=f"Farm {fm_six[0] + 1}",
+        label="Base (omitted) farm",
     )
-    return (bs_state,)
+    return (bs_farm,)
 
 
 @app.cell(hide_code=True)
-def _(bs_state, mo, np, pn_fat, pn_states, pn_tax):
-    _six = ["CA", "FL", "IL", "NY", "TX", "WI"]
-    _idx = [pn_states.index(_s) for _s in _six]
-    _t6 = pn_tax[_idx]
-    _f6 = pn_fat[_idx]
-    _base = _six.index(bs_state.value)
+def _(bs_farm, fm_fert, fm_six, fm_yield, mo, np):
+    _names = [f"Farm {_i + 1}" for _i in fm_six]
+    _t6 = fm_fert[fm_six]
+    _f6 = fm_yield[fm_six]
+    _base = _names.index(bs_farm.value)
 
-    # The dummy regression itself: intercept, beer tax, and an indicator for
-    # every state except the chosen base state.
+    # The dummy regression itself: intercept, fertilizer, and an indicator for
+    # every farm except the chosen base farm.
     _y = _f6.ravel()
     _x = _t6.ravel()
-    _sid = np.repeat(np.arange(6), 7)
-    _cols = [np.ones(42), _x]
+    _fid = np.repeat(np.arange(6), 6)
+    _cols = [np.ones(36), _x]
     _labels = []
     for _j in range(6):
         if _j != _base:
-            _cols.append((_sid == _j).astype(float))
-            _labels.append(_six[_j])
+            _cols.append((_fid == _j).astype(float))
+            _labels.append(_names[_j])
     _X = np.column_stack(_cols)
     _beta, *_rest = np.linalg.lstsq(_X, _y, rcond=None)
 
     _rows = [
-        f"| Beer tax, $\\hat{{\\beta}}_1$ | {_beta[1]:+.3f} |",
-        f"| Constant, $\\hat{{\\beta}}_0$ (intercept of {bs_state.value}) | {_beta[0]:+.3f} |",
+        f"| Fertilizer, $\\hat{{\\beta}}_1$ | {_beta[1]:+.3f} |",
+        f"| Constant, $\\hat{{\\beta}}_0$ (intercept of {bs_farm.value}) | {_beta[0]:+.1f} |",
     ]
     for _k, _lab in enumerate(_labels):
         _rows.append(
-            f"| $\\hat{{\\alpha}}$: {_lab} (relative to {bs_state.value}) "
-            f"| {_beta[2 + _k]:+.3f} |"
+            f"| $\\hat{{\\alpha}}$: {_lab} (relative to {bs_farm.value}) "
+            f"| {_beta[2 + _k]:+.1f} |"
         )
     _table = (
         "| Coefficient | Estimate |\n|---|---|\n" + "\n".join(_rows)
@@ -730,13 +588,13 @@ def _(bs_state, mo, np, pn_fat, pn_states, pn_tax):
     _text = mo.md(r"""
     This is bonus material. You will not be tested on the content of the appendix.
 
-    **Choosing the base state.** Section 4 said that which state we omit from the fixed-effects regression is a labelling choice with no substance. Verify it here. The regression below uses the six states from Section 4's chart, an intercept, the beer tax, and an indicator for every state except the base state you choose.
+    **Choosing the base farm.** Section 4 said that which farm we omit from the fixed-effects regression is a labelling choice with no substance. Verify it here. The regression below uses the six farms from Section 4's chart, an intercept, fertilizer, and an indicator for every farm except the base farm you choose.
 
-    Change the base state and watch the table. The constant becomes the chosen state's intercept, and every $\hat{\alpha}$ re-expresses the other states' intercepts relative to that new base, so all of these numbers move. The beer-tax coefficient $\hat{\beta}_1$ never moves. Neither do the fitted values or residuals: adding a constant to every intercept while relabelling differences leaves every fitted line exactly where it was.
+    Change the base farm and watch the table. The constant becomes the chosen farm's intercept, and every $\hat{\alpha}$ re-expresses the other farms' intercepts relative to that new base, so all of these numbers move. The fertilizer coefficient $\hat{\beta}_1$ never moves. Neither do the fitted values or residuals: adding a constant to every intercept while relabelling differences leaves every fitted line exactly where it was.
     """)
 
     mo.accordion({
-        "## Appendix": mo.vstack([_text, bs_state, mo.md(_table)]),
+        "## Appendix": mo.vstack([_text, bs_farm, mo.md(_table)]),
     })
     return
 
