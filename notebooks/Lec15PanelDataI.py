@@ -13,7 +13,6 @@
 import marimo
 
 __generated_with = "0.23.16"
-__preliminary__ = True
 app = marimo.App(
     app_title="Lecture 15: Panel Data I: Entity Fixed Effects and Before/After Comparisons",
     css_file="marimo-overrides.css",
@@ -41,7 +40,7 @@ def _(mo):
                 {
                     "#sec1": "1. A puzzling regression",
                     "#sec2": "2. Panel data",
-                    "#sec3": "3. Before-and-after comparisons",
+                    "#sec3": "3. Difference regression",
                     "#sec4": "4. Entity fixed effects",
                     "#sec5": "5. What fixed effects cannot fix",
                 },
@@ -83,7 +82,7 @@ def _(mo):
 
     [1. A puzzling regression](#sec1)<br>
     [2. Panel data](#sec2)<br>
-    [3. Before-and-after comparisons](#sec3)<br>
+    [3. Difference regression](#sec3)<br>
     [4. Entity fixed effects](#sec4)<br>
     [5. What fixed effects cannot fix](#sec5)
     """)
@@ -96,15 +95,15 @@ def _(mo):
     <a id="sec1"></a>
     ## 1. A puzzling regression
 
-    Does nitrogen fertilizer raise corn yields? Every agronomy textbook says yes, and every farmer who buys fertilizer is betting on it. Let us check with a regression.
+    As we have frequently discussed in this course, many causal questions are difficult to answer because the observations we compare differ in ways that are hard to observe. Workers differ in ability, firms differ in management, and neighborhoods differ in amenities. When these unobserved differences are related to both our explanatory variable and our outcome of interest, they create omitted variable bias.
 
-    Our data is a survey of 150 corn farms. For each farm we observe the season's yield, measured in bushels of corn per acre, and the amount of nitrogen fertilizer the farm applied, in pounds per acre. Using the 2014 growing season, we estimate
+    In this lecture, we study another example involving the effect of nitrogen fertilizer on corn yields. Nitrogen is widely understood to increase corn yields, yet a simple regression of yields on nitrogen use can suggest exactly the opposite. We use data on 150 corn farms over six years that record each farm's yield, measured in bushels per acre, and nitrogen fertilizer use, measured in pounds per acre. Using data from only the 2014 growing season, when we estimate
 
     $$
-    \text{Yield}_i = \beta_0 + \beta_1 \, \text{Fertilizer}_i + u_i
+    \text{Yield}_i = \beta_0 + \beta_1 , \text{Fertilizer}_i + u_i
     $$
 
-    and obtain $\hat{\beta}_1 = -0.19$: each additional pound of nitrogen is associated with about a fifth of a bushel *less* corn. Taken at face value, fertilizer poisons corn. Use the dropdown to try the other seasons in the survey; the slope is negative every single year.
+    we obtain $\hat{\beta}_1 = -0.19$. According to the regression, each additional pound of nitrogen is associated with about one-fifth of a bushel less corn per acre. Use the dropdown to change seasons, and the same negative relationship appears every year.
     """)
     return
 
@@ -135,7 +134,7 @@ def _(np):
     # Six farms with a spread of typical nitrogen rates, used by the Section 4
     # chart and the appendix. Deterministic given the seed.
     fm_six = [7, 47, 65, 110, 114, 115]
-    return fm_fert, fm_six, fm_years, fm_yield, fm_z
+    return fm_fert, fm_six, fm_years, fm_yield
 
 
 @app.cell(hide_code=True)
@@ -178,8 +177,6 @@ def _(alt, cs_year, fm_fert, fm_years, fm_yield, mo, np, pd):
     _msg = (
         f"Each point is one of the 150 farms in the {cs_year.value} season. "
         f"The fitted slope is {_b1:+.2f} bushels per pound of nitrogen. "
-        f"Whichever season you pick, the heaviest fertilizer users harvest "
-        f"the least corn."
     )
     _caption = mo.md(
         "<span style='display:block;margin:0.2rem auto 1rem;max-width:560px;"
@@ -193,11 +190,9 @@ def _(alt, cs_year, fm_fert, fm_years, fm_yield, mo, np, pd):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    Lecture 14 taught us what to suspect: an omitted variable. Farms differ in *soil quality*, which we cannot measure. Good soil raises yields on its own. And it is precisely the farms with poor soil that apply the most nitrogen, trying to compensate for what their land lacks. Soil quality therefore sits in the error term and is negatively correlated with fertilizer use, which biases $\hat{\beta}_1$ downward, so far downward that its sign flips.
+    The likely explanation for these negative coefficient estimates is an omitted variable. Farms with better soil tend to produce higher yields with less fertilizer, while farms with poorer soil tend to apply more nitrogen to compensate for their poor soil. Soil quality therefore sits in the error term and is negatively correlated with fertilizer use, biasing $\hat{\beta}_1$ downward enough to reverse its sign. Controlling directly for soil quality would be difficult because the survey does not measure it, and no single variable fully captures differences in drainage, nutrients, slope, and land-use history.
 
-    The usual remedy from Lecture 9 would be to control for soil quality. But no one in the survey measured it, and "soil quality" bundles drainage, nutrients, slope, and history into something no single number captures. We seem stuck.
-
-    We are not stuck, because this survey has a structure we have not exploited yet: it went back to the *same 150 farms* every season from 2014 to 2019.
+    The important feature of these data is that the survey follows the same 150 farms every season from 2014 to 2019. This allows us to compare each farm with itself over time rather than relying only on comparisons across farms. In this lecture, we will see how repeated observations of the same unit can be used to account for persistent unobserved differences across units and thereby address an important source of omitted variable bias.
     """)
     return
 
@@ -208,15 +203,17 @@ def _(mo):
     <a id="sec2"></a>
     ## 2. Panel data
 
-    So far in the course, each dataset observed every worker, district, or farm exactly once. In *panel data*, the same entities are observed over multiple time periods. The entities can be farms, individuals, firms, states, or any other category that is repeatedly observed. Panel data is also called *longitudinal data*. We use the following notation:
+    So far in the course, our datasets have observed each worker, district, or other entity only once. Recall from Lecture 1 that data in which each unit is observed at a single point in time are called *cross-sectional data*. By contrast, *panel data* follow the same units repeatedly over time. These units might be individuals, firms, farms, states, or any other entities that can be observed across multiple periods. Panel data are also sometimes called *longitudinal data*.
 
-    * $i$ indexes the entity (a farm, an individual, a firm),
-    * $t$ indexes the time period (a season, a year, a month),
-    * $Y_{i,t}$ is the value of the variable $Y$ for entity $i$ in period $t$.
+    When working with panel data, we use the following notation:
 
-    A panel is a *balanced panel* if it contains data on every entity in every time period. If data on some entities are missing in at least one period, the panel is an *unbalanced panel*. Ours is balanced because every farm reported in every season; a real survey in which some farms sold up or stopped responding would be unbalanced.
+    * $i$ indexes the entity, such as a farm, individual, or firm,
+    * $t$ indexes the time period, such as a season, year, or month,
+    * $Y_{i,t}$ is the value of $Y$ for entity $i$ in period $t$.
 
-    Our panel follows $n = 150$ farms over the $T = 6$ seasons from 2014 to 2019, giving $150 \times 6 = 900$ observations. The first rows look like this:
+    A panel is *balanced* if every entity is observed in every time period. It is *unbalanced* if some entities are missing in one or more periods. Our farm data form a balanced panel because all 150 farms are observed in every season. If some farms had stopped responding or left the survey before 2019, the panel would instead be unbalanced.
+
+    Our panel follows $n = 150$ farms over $T = 6$ growing seasons from 2014 to 2019, giving us $150 \times 6 = 900$ observations. The first few rows of the dataset look like this:
     """)
     return
 
@@ -224,15 +221,26 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(fm_fert, fm_years, fm_yield, mo):
     _lines = []
-    for _i, _t in [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2)]:
+
+    for _t in range(6):
         _lines.append(
-            f"| Farm {_i + 1} | {fm_years[_t]} | {fm_yield[_i, _t]:.0f} "
-            f"| {fm_fert[_i, _t]:.0f} |"
+            f"| Farm 1 | {fm_years[_t]} | {fm_yield[0, _t]:.0f} "
+            f"| {fm_fert[0, _t]:.0f} |"
         )
+
+    for _t in range(3):
+        _lines.append(
+            f"| Farm 2 | {fm_years[_t]} | {fm_yield[1, _t]:.0f} "
+            f"| {fm_fert[1, _t]:.0f} |"
+        )
+
     _table = (
         "| Farm ($i$) | Season ($t$) | Yield (bu/acre) | Nitrogen (lbs/acre) |\n"
-        "|---|---|---|---|\n" + "\n".join(_lines) + "\n| ⋮ | ⋮ | ⋮ | ⋮ |"
+        "|---|---|---|---|\n"
+        + "\n".join(_lines)
+        + "\n| ⋮ | ⋮ | ⋮ | ⋮ |"
     )
+
     mo.md(_table)
     return
 
@@ -240,42 +248,37 @@ def _(fm_fert, fm_years, fm_yield, mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    Each farm contributes one row per season. Reading down Farm 1's rows shows how its yield and nitrogen use evolve over time; jumping to Farm 2's rows switches to a different entity. The repetition is the resource: whatever is stable about a farm, soil quality included, appears in all six of its rows. The next two sections turn that repetition into a way of removing soil quality from the regression without ever measuring it.
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
     <a id="sec3"></a>
-    ## 3. Before-and-after comparisons
 
-    Split the error term into two parts,
+    ## 3. Difference regression
+
+    To see how we can use panel data to help deal with omitted variable bias, consider splitting the error term into two parts,
 
     $$
     u_{i,t} = Z_i + \varepsilon_{i,t},
     $$
 
-    where $Z_i$ collects the unobserved factors that differ across farms but do not change over time (note that $Z_i$ has no $t$ subscript), and $\varepsilon_{i,t}$ collects the unobserved factors that vary over time within a farm. Soil quality changes very little over six seasons, so it lives in $Z_i$.
+    where $Z_i$ collects the unobserved factors that differ across farms but do not change over time, such as soil type, slope, or drainage. $\varepsilon_{i,t}$ collects the unobserved factors that vary over time within a farm, such as rainfall, temperature, or pest pressure in a particular season. The absence of a $t$ subscript on $Z_i$ is important; soil type, slope, or drainage changes very little over six seasons, so we can treat it as part of $Z_i$.
 
-    Now take the survey's first and last seasons and subtract, farm by farm. The result is the *difference regression*:
+    We can now compare each farm in the first and last seasons of the survey by subtracting its 2014 observation from its 2019 observation. This gives the *difference regression*,
 
     $$
-    \text{Yield}_{i,2019} - \text{Yield}_{i,2014}
-    = \beta_1\left(\text{Fertilizer}_{i,2019} - \text{Fertilizer}_{i,2014}\right)
-    + \underbrace{Z_i - Z_i}_{0}
-    + \left(\varepsilon_{i,2019} - \varepsilon_{i,2014}\right).
+    \text{Yield}_{i,2019} - \text{Yield}_{i,2014} =
+    \beta_1
+    \left(
+    \text{Fertilizer}_{i,2019} - \text{Fertilizer}_{i,2014}
+    \right)
+    +
+    \underbrace{(Z_i - Z_i)}_{= 0}
+    +
+    \left(\varepsilon_{i,2019} - \varepsilon_{i,2014}\right).
     $$
 
-    Every time-invariant farm factor subtracts away, whether we can measure it or not. The intercept $\beta_0$ cancels for the same reason, since it too is the same in both seasons. What remains relates the *change* in yield to the *change* in fertilizer. The logic:
+    Any farm characteristic that remained unchanged between 2014 and 2019 and hence in $Z_i$ cancels out, whether or not we can observe it. The intercept $\beta_0$ cancels for the same reason. Instead of comparing farms with different levels of soil quality, we are now asking whether farms whose fertilizer use increased more between 2014 and 2019 also experienced larger increases in crop yield.
 
-    * Soil quality influences the *level* of a farm's yield.
-    * If soil quality did not change between 2014 and 2019, it did not cause *changes* in yield.
-    * Any change in a farm's yield must therefore come from other sources, such as its change in fertilizer use.
-    * The caveat: factors that *did* change over the period, and did so in step with fertilizer use, remain in $\varepsilon_{i,2019} - \varepsilon_{i,2014}$ and can still bias $\hat{\beta}_1$. Section 5 returns to this.
+    The key is that soil type may affect the *level* of a farm's yield, but if soil type does not change over time, it cannot explain changes in yield between 2014 and 2019. Differencing therefore removes soil type, along with every other time-invariant farm characteristic, from the regression. Unobserved factors that do change over time are not removed. If changes in weather, pests, irrigation, or other conditions are related to changes in fertilizer use, they remain in $\varepsilon_{i,2019} - \varepsilon_{i,2014}$ and can still bias $\hat{\beta}_1$. We return to this issue in Section 5.
 
-    The chart below runs the difference regression on our 150 farms.
+    The chart below estimates this difference regression across our 150 farms.
     """)
     return
 
