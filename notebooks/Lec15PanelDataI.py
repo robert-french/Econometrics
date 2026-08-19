@@ -41,7 +41,7 @@ def _(mo):
                     "#sec1": "1. A puzzling regression",
                     "#sec2": "2. Panel data",
                     "#sec3": "3. Difference regression",
-                    "#sec4": "4. Entity fixed effects",
+                    "#sec4": "4. Fixed effect regressions",
                     "#sec5": "5. What fixed effects cannot fix",
                 },
                 orientation="vertical",
@@ -83,7 +83,7 @@ def _(mo):
     [1. A puzzling regression](#sec1)<br>
     [2. Panel data](#sec2)<br>
     [3. Difference regression](#sec3)<br>
-    [4. Entity fixed effects](#sec4)<br>
+    [4. Fixed effect regressions](#sec4)<br>
     [5. What fixed effects cannot fix](#sec5)
     """)
     return
@@ -95,9 +95,9 @@ def _(mo):
     <a id="sec1"></a>
     ## 1. A puzzling regression
 
-    As we have frequently discussed in this course, many causal questions are difficult to answer because the observations we compare differ in ways that are hard to observe. Workers differ in ability, firms differ in management, and neighborhoods differ in amenities. When these unobserved differences are related to both our explanatory variable and our outcome of interest, they create omitted variable bias.
+    As we have frequently discussed in this course, many causal questions are difficult to answer because the enities we compare differ in ways that are hard to observe. Workers differ in ability, firms differ in management, and neighborhoods differ in amenities. When these unobserved differences are related to both our outcome and independent variables of interest, they create omitted variable bias.
 
-    In this lecture, we study another example involving the effect of nitrogen fertilizer on corn yields. Nitrogen is widely understood to increase corn yields, yet a simple regression of yields on nitrogen use can suggest exactly the opposite. We use data on 150 corn farms over six years that record each farm's yield, measured in bushels per acre, and nitrogen fertilizer use, measured in pounds per acre. Using data from only the 2014 growing season, when we estimate
+    In this lecture, we study another economic relationship involving the effect of nitrogen fertilizer on corn yields. Nitrogen is widely understood to increase corn yields, yet a simple regression of corn yields on nitrogen use can suggest exactly the opposite. We will use data on 150 corn farms over six years that record each farm's yield, measured in bushels per acre, and nitrogen fertilizer use, measured in pounds per acre. Using data from only the 2014 growing season, when we estimate
 
     $$
     \text{Yield}_i = \beta_0 + \beta_1 , \text{Fertilizer}_i + u_i
@@ -192,7 +192,7 @@ def _(mo):
     mo.md(r"""
     The likely explanation for these negative coefficient estimates is an omitted variable. Farms with better soil tend to produce higher yields with less fertilizer, while farms with poorer soil tend to apply more nitrogen to compensate for their poor soil. Soil quality therefore sits in the error term and is negatively correlated with fertilizer use, biasing $\hat{\beta}_1$ downward enough to reverse its sign. Controlling directly for soil quality would be difficult because the survey does not measure it, and no single variable fully captures differences in drainage, nutrients, slope, and land-use history.
 
-    The important feature of these data is that the survey follows the same 150 farms every season from 2014 to 2019. This allows us to compare each farm with itself over time rather than relying only on comparisons across farms. In this lecture, we will see how repeated observations of the same unit can be used to account for persistent unobserved differences across units and thereby address an important source of omitted variable bias.
+    The important feature of these data is that the survey follows the same 150 farms every season from 2014 to 2019. This allows us to compare each farm with itself over time rather than relying only on comparisons across farms. In this lecture, we will see how repeated observations of the same entity can be used to account for persistent unobserved differences across entities and thereby address an important source of omitted variable bias.
     """)
     return
 
@@ -203,7 +203,7 @@ def _(mo):
     <a id="sec2"></a>
     ## 2. Panel data
 
-    So far in the course, our datasets have observed each worker, district, or other entity only once. Recall from Lecture 1 that data in which each unit is observed at a single point in time are called *cross-sectional data*. By contrast, *panel data* follow the same units repeatedly over time. These units might be individuals, firms, farms, states, or any other entities that can be observed across multiple periods. Panel data are also sometimes called *longitudinal data*.
+    So far in the course, our datasets have observed each worker, district, or other entity only once. Recall from Lecture 1 that data in which each entity is observed at a single point in time are called *cross-sectional data*. By contrast, *panel data* follow the same entities repeatedly over time. These might be individuals, firms, farms, states, or any other entities that can be observed across multiple periods. Panel data are also sometimes called *longitudinal data*.
 
     When working with panel data, we use the following notation:
 
@@ -258,7 +258,7 @@ def _(mo):
     u_{i,t} = Z_i + \varepsilon_{i,t},
     $$
 
-    where $Z_i$ collects the unobserved factors that differ across farms but do not change over time, such as soil type, slope, or drainage. $\varepsilon_{i,t}$ collects the unobserved factors that vary over time within a farm, such as rainfall, temperature, or pest pressure in a particular season. The absence of a $t$ subscript on $Z_i$ is important; soil type, slope, or drainage changes very little over six seasons, so we can treat it as part of $Z_i$.
+    where $Z_i$ represents the unobserved factors that differ across farms but do not change over time, such as soil type, slope, or drainage. $\varepsilon_{i,t}$ collects the unobserved factors that vary over time within a farm, such as rainfall, temperature, or pest pressure in a particular season. The absence of a $t$ subscript on $Z_i$ is important; soil type, slope, or drainage changes very little over six seasons, so we can treat it as part of $Z_i$.
 
     We can now compare each farm in the first and last seasons of the survey by subtracting its 2014 observation from its 2019 observation. This gives the *difference regression*,
 
@@ -274,7 +274,7 @@ def _(mo):
     \left(\varepsilon_{i,2019} - \varepsilon_{i,2014}\right).
     $$
 
-    Any farm characteristic that remained unchanged between 2014 and 2019 and hence in $Z_i$ cancels out, whether or not we can observe it. The intercept $\beta_0$ cancels for the same reason. Instead of comparing farms with different levels of soil quality, we are now asking whether farms whose fertilizer use increased more between 2014 and 2019 also experienced larger increases in crop yield.
+    Any farm characteristic that remained unchanged between 2014 and 2019 and hence in $Z_i$ cancels out, whether or not we can observe it. The intercept $\beta_0$ cancels for the same reason. Instead of comparing farms with different types of soil, we are now asking whether farms whose fertilizer use increased more between 2014 and 2019 also experienced larger increases in crop yield.
 
     The key is that soil type may affect the *level* of a farm's yield, but if soil type does not change over time, it cannot explain changes in yield between 2014 and 2019. Differencing therefore removes soil type, along with every other time-invariant farm characteristic, from the regression. Unobserved factors that do change over time are not removed. If changes in weather, pests, irrigation, or other conditions are related to changes in fertilizer use, they remain in $\varepsilon_{i,2019} - \varepsilon_{i,2014}$ and can still bias $\hat{\beta}_1$. We return to this issue in Section 5.
 
@@ -333,9 +333,7 @@ def _(alt, fm_fert, fm_yield, mo, np, pd):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    The same farms that told us fertilizer poisons corn now tell us a pound of nitrogen buys about a third of a bushel. Nothing about the data changed. We simply compared each farm *with itself*, so the differences in soil that drove the cross-sectional slope never entered the comparison.
-
-    One thing should nag at you: this used only two of our six seasons. The next section uses all 900 observations.
+    The same farms that told us fertilizer is associated with lower corn yields in regressions using cross-sectional data now tell us a pound of nitrogen yields about a third of an additional bushel. Nothing about the data changed. We simply compared each farm *with itself*, so the differences in soil that drove the cross-sectional slope never entered the comparison.
     """)
     return
 
@@ -344,54 +342,48 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec4"></a>
-    ## 4. Entity fixed effects
 
-    The tool that generalizes before-and-after differencing is a regression whose independent variables are a set of binary variables,
+    ## 4. Fixed effect regressions
 
-    $$
-    Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \dots + \beta_K X_K + u,
-    $$
+    The before-and-after comparison in Section 3 used only two years of our panel. *Fixed effects regressions* extend the same idea to all years in a dataset by allowing each entity, each farm in our case, to have its own intercept in the regression. In practice, we can do this by including a separate binary indicator for each farm. This allows us to estimate the relationship between nitrogen use and crop yield from changes within the same farm over time rather than from differences across farms.
 
-    where each of $X_1, \dots, X_K$ equals either 0 or 1. The binary variables are *mutually exclusive* if only one of them can equal 1 for each observation. For example, $X_k$ might equal 1 if the observation comes from farm $k$: every observation belongs to exactly one farm, so one indicator equals 1 and the other 149 equal 0.
-
-    Interpreting the coefficients works the same way as for the single binary regressor in Lecture 5:
-
-    * $\hat{\beta}_0$ is the predicted value of $Y$ for observations with all $X_k = 0$.
-    * $\hat{\beta}_0 + \hat{\beta}_k$ is the predicted value of $Y$ for observations with $X_k = 1$.
-
-    Because the binary variables are mutually exclusive, we can write the regression more compactly as
+    Consider again the model from Section 3,
 
     $$
-    Y = \beta_0 + \alpha_k + u,
-    \qquad \text{where} \qquad
-    \alpha_k = \beta_1 X_1 + \beta_2 X_2 + \dots + \beta_K X_K.
+    Y_{i,t} = \beta_0 + \beta_1 X_{i,t} + Z_i + \varepsilon_{i,t},
     $$
 
-    The term $\alpha_k$ is called a *fixed effect*: a fixed effect gives each group its own intercept.
-
-    Now apply this to the panel. Start from the pooled model with the error split as in Section 3,
+    where $Y_{i,t}$ is farm $i$'s yield in season $t$, $X_{i,t}$ is its nitrogen use, and $Z_i$ contains the characteristics of the farm that remain constant over time. We cannot observe $Z_i$ directly, but we can account for these persistent differences by allowing each farm to have its own intercept. To do so, we include binary indicators for Farms 1 through 149 in the regression,
 
     $$
-    Y_{i,t} = \beta_0 + \beta_1 X_{i,t} + \underbrace{Z_i + \varepsilon_{i,t}}_{u_{i,t}},
+    Y_{i,t} =
+    \beta_0
+    +
+    \beta_1 X_{i,t}
+    +
+    \gamma_1 \text{F1}_i
+    +
+    \gamma_2 \text{F2}_i
+    + \cdots +  \gamma_{149} \text{F149}_i + \varepsilon_{i,t},
     $$
+    where $\text{F1}_i$ equals 1 when farm $i$ is Farm 1 and 0 otherwise, $\text{F2}_i$ equals 1 when farm $i$ is Farm 2 and 0 otherwise, and so on.\footnote{We leave out the indicator for Farm 150 because the regression already contains the intercept $\beta_0$. If we included all 150 farm indicators, they would add up to 1 for every observation and would therefore be an exact linear function of the intercept. The regression would thus exhibit perfect multicollinearity, violating the fourth OLS assumption discussed in Lecture 9 that no independent variable is an exact linear function of the others.} With this setup, $\beta_0 + \gamma_1$ is Farm 1's expected corn yield when it uses no nitrogen fertilizer, $\beta_0 + \gamma_2$ is Farm 2's expected corn yield when it uses no nitrogen fertilizer, and so on. For Farm 150, whose indicator is omitted, the corresponding expected yield is simply $\beta_0$. Rather than writing out all 149 farm indicators each time, we can collect them into a single term,
 
-    where $Y_{i,t}$ is farm $i$'s yield in season $t$, $X_{i,t}$ is its nitrogen use, and $Z_i$ is its unobserved soil quality. We cannot control for $Z_i$ directly. But we can include a mutually exclusive binary variable for each farm,
+    $$\alpha_i = \gamma_1 \text{F1}_i + \gamma_2 \text{F2}_i +\cdots + \gamma_{149} \text{F149}_i.$$
 
+    We can then write the regression more compactly as,
     $$
-    Y_{i,t} = \beta_0 + \beta_1 X_{i,t} + \gamma_2\text{F2}_i + \gamma_3\text{F3}_i + \dots + \gamma_{150}\text{F150}_i + \varepsilon_{i,t},
+    Y_{i,t} =
+    \beta_0
+    +
+    \beta_1 X_{i,t}
+    +
+    \alpha_i
+    +
+    \varepsilon_{i,t}.
     $$
+    The term $\alpha_i$ is called an *entity fixed effect*. It allows the average level of corn yield to differ across farms because of any farm characteristic that remains constant over time, whether we observe it or not. In our example, this includes persistent differences in soil quality, slope, drainage, and other characteristics of the land. By accounting for these time-invariant differences, the regression estimates $\beta_1$ from changes *within* farms over time. It compares a farm's yield in seasons when it uses more fertilizer with its own yield in seasons when it uses less, rather than comparing different farms with one another. The regression still estimates a single $\beta_1$ shared by all farms, so farms can have different intercepts but the model assumes that the average effect of an additional pound of nitrogen on corn yield is the same across farms. When there are only two periods, the fixed effects estimate of $\beta_1$ is the same as the before-and-after difference estimate from Section 3.
 
-    where, for example, $\text{F2}_i$ is a binary variable equal to 1 when $i$ is Farm 2 and 0 otherwise, and then collapse the indicators exactly as above:
-
-    $$
-    Y_{i,t} = \beta_0 + \beta_1 X_{i,t} + \alpha_i + \varepsilon_{i,t},
-    \qquad \text{where} \qquad
-    \alpha_i = \gamma_2\text{F2}_i + \gamma_3\text{F3}_i + \dots + \gamma_{150}\text{F150}_i.
-    $$
-
-    This is the *fixed effects regression model* for panel data, and the $\alpha_i$ are called *entity fixed effects*. The regression estimates one intercept per farm plus a single slope $\beta_1$ shared by all farms. The fixed effect $\alpha_i$ controls for *all* factors of farm $i$ that are constant over time, observed and unobserved alike: soil quality, drainage, the farmer's skill, distance to market. Only movements *within* each farm, this season's nitrogen against the same farm's other seasons, identify $\beta_1$. The before-and-after comparison of Section 3 is exactly this model in the special case $T = 2$.
-
-    The chart below shows six of the 150 farms. Switch between fitting one pooled line and fitting one intercept per farm.
+    The chart below shows six of the 150 farms. Switch between the pooled regression and the fixed effects regression to see how the fitted relationship changes when each farm is allowed to have its own intercept.
     """)
     return
 
@@ -455,10 +447,10 @@ def _(alt, fe_view, fm_fert, fm_six, fm_yield, mo, np, pd):
             .encode(x=alt.X("fert:Q", scale=_xsc), y=alt.Y("yield:Q", scale=_ysc))
         )
         _msg = (
-            f"One line through all six farms has a slope of {_b1p:+.2f}: the "
-            f"cross-sectional puzzle again. The line is dragged downward "
-            f"because the farms applying the most nitrogen (their own low "
-            f"intercepts, poor soil) sit at the bottom right."
+            f"One line through all six farms has a slope of {_b1p:+.2f}. "
+            f"The line is biased downward "
+            f"because the farms applying the most nitrogen tend to have the "
+            f"worst quality soil."
         )
     else:
         for _j in range(6):
@@ -470,12 +462,12 @@ def _(alt, fe_view, fm_fert, fm_six, fm_yield, mo, np, pd):
                 .encode(x=alt.X("fert:Q", scale=_xsc), y=alt.Y("yield:Q", scale=_ysc))
             )
         _msg = (
-            f"With one intercept per farm, the common slope is {_b1f:+.2f}: "
-            f"within a farm, an extra pound of nitrogen adds about a third of "
-            f"a bushel. Using all 150 farms, the estimate is +0.30, matching "
-            f"the true effect built into the simulation. Each farm's intercept "
-            f"absorbs its soil quality, so only within-farm movements "
-            f"identify the slope."
+            f"With one intercept per farm, the common slope is {_b1f:+.2f}. "
+            f"For the same farm, an extra pound of nitrogen yields an additional third of "
+            f"a bushel of corn. Using all 150 farms, the $\hat\beta$ is 0.30. "
+            f"Each farm's intercept "
+            f"absorbs its soil quality, so only differences within a farm over time "
+            f"determine the slope."
         )
     _chart = alt.layer(*_layers).properties(width=560, height=360)
     _caption = mo.md(
@@ -490,31 +482,13 @@ def _(alt, fe_view, fm_fert, fm_six, fm_yield, mo, np, pd):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ### <span style="color:#0b68cb">The dummy variable trap</span>
-
-    One detail needs care. We cannot include all 150 farm fixed effects *and* the intercept $\beta_0$. The 150 farm indicators sum to 1 for every observation, which makes them perfectly collinear with the constant, the *dummy variable trap* from Lecture 8's discussion of perfect multicollinearity. There are two equivalent ways out:
-
-    * Omit one farm, as the equation above does by starting at $\gamma_2$. The omitted farm is the *base farm*, its intercept is $\beta_0$, and each $\alpha_i$ is the mean difference in $Y$ between farm $i$ and the base farm, holding fertilizer fixed.
-    * Or drop $\beta_0$ and include all 150 fixed effects, so each farm's intercept is estimated directly.
-
-    Which farm is omitted changes how the intercepts are labelled but changes nothing of substance: $\hat{\beta}_1$, the fitted values, and the residuals are identical either way. The appendix lets you verify this.
-
-    Finally, the fixed-effects regression is not limited to one regressor. Like in regular multiple regression, we can add further time-varying variables $X_{1,i,t}, X_{2,i,t}, \dots, X_{k,i,t}$, such as each farm's rainfall or pest damage in each season, and their coefficients keep their usual holding-fixed interpretation.
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
     <a id="sec5"></a>
+
     ## 5. What fixed effects cannot fix
 
-    Entity fixed effects remove every confounder that is constant over time within a farm. They remove nothing else. Factors that change over the sample period stay in $\varepsilon_{i,t}$, and if they move together with fertilizer use they still bias $\hat{\beta}_1$, exactly the caveat from Section 3.
+    Entity fixed effects remove factors that remain constant over time within a farm, but they do not remove factors that change from one season to another. These time-varying factors remain in $\varepsilon_{i,t}$ and can still bias $\hat{\beta}_1$ if they are related to fertilizer use. For example, rainfall, pest damage, or irrigation may change across seasons and affect both a farm's fertilizer use and its corn yield. Fixed effects do not solve this source of omitted variable bias simply because we observe the same farm over time.
 
-    The dangerous confounders are now the ones that change over time for *all* farms at once. A drought season lowers every farm's yield regardless of fertilizer. Fertilizer prices rise and fall for everyone together, shifting how much nitrogen every farm applies in the same year. Seed varieties improve for all farms over time. None of these is constant over time, so no farm fixed effect absorbs them. If they trend in step with fertilizer use, our estimate of $\beta_1$ still mixes the fertilizer effect with a shared shock.
-
-    The fix mirrors what we did in this lecture: give each *time period* its own intercept. That is the subject of Lecture 16.
+    As in a regular multiple regression, one solution is to control directly for time-varying factors that we observe. A fixed effects regression can include additional independent variables of interest, $X_{1it}, X_{2it}, \dots, X_{kit}$, as well as time-varying controls, $W_{1it}, W_{2it}, \dots, W_{rit}$. In our farm example, we might control for rainfall or pest damage in each farm and season if we could observe them. Doing so holds fixed these observed time-varying factors when estimating the effect of nitrogen fertilizer on yield.
     """)
     return
 
