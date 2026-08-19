@@ -14,7 +14,7 @@ import marimo
 
 __generated_with = "0.23.16"
 app = marimo.App(
-    app_title="Lecture 15: Panel Data I: Entity Fixed Effects and Before/After Comparisons",
+    app_title="Lecture 15: Panel Data I",
     css_file="marimo-overrides.css",
 )
 
@@ -97,7 +97,7 @@ def _(mo):
 
     As we have frequently discussed in this course, many causal questions are difficult to answer because the entities we compare differ in ways that are hard to observe. Workers differ in ability, firms differ in management, and neighborhoods differ in amenities. When these unobserved differences are related to both our outcome and independent variables of interest, they create omitted variable bias.
 
-    In this lecture, we study another economic relationship involving the effect of nitrogen fertilizer on corn yields. Nitrogen is widely understood to increase corn yields, yet a simple regression of corn yields on nitrogen use can suggest exactly the opposite. We will use data on 150 corn farms over six years that record each farm's yield, measured in bushels per acre, and nitrogen fertilizer use, measured in pounds per acre. Using data from only the 2014 growing season, when we estimate
+    In this lecture, we study another economic relationship involving the effect of nitrogen fertilizer on corn yields. Nitrogen is widely understood to increase corn yields, yet a simple regression of corn yields on nitrogen use can suggest exactly the opposite. We will use data on 150 corn farms over six years that record each farm's yield, measured in bushels per acre,<sup><a id="fnref1" href="#fn1">1</a></sup> and nitrogen fertilizer use, measured in pounds per acre. Using data from only the 2014 growing season, when we estimate
 
     $$
     \text{Yield}_i = \beta_0 + \beta_1 \, \text{Fertilizer}_i + u_i
@@ -358,7 +358,7 @@ def _(mo):
     $$
     Y_{it} = \beta_0 + \beta_1 X_{it} + \gamma_1 \text{F1}_i + \gamma_2 \text{F2}_i + \cdots +  \gamma_{149} \text{F149}_i + \varepsilon_{it},
     $$
-    where $\text{F1}_i$ equals 1 when farm $i$ is Farm 1 and 0 otherwise, $\text{F2}_i$ equals 1 when farm $i$ is Farm 2 and 0 otherwise, and so on.<sup><a id="fnref1" href="#fn1">1</a></sup> These binary indicators are what we call *mutually exclusive*; if one of the binary indicators equals 1, then all the other binary indicators must equal 0. With this setup, $\beta_0 + \gamma_1$ is Farm 1's expected corn yield when it uses no nitrogen fertilizer, $\beta_0 + \gamma_2$ is Farm 2's expected corn yield when it uses no nitrogen fertilizer, and so on. For Farm 150, whose indicator is omitted, the corresponding expected yield is simply $\beta_0$. Rather than writing out all 149 farm indicators each time, we can collect them into a single term,
+    where $\text{F1}_i$ equals 1 when farm $i$ is Farm 1 and 0 otherwise, $\text{F2}_i$ equals 1 when farm $i$ is Farm 2 and 0 otherwise, and so on.<sup><a id="fnref2" href="#fn2">2</a></sup> These binary indicators are what we call *mutually exclusive*; if one of the binary indicators equals 1, then all the other binary indicators must equal 0. With this setup, $\beta_0 + \gamma_1$ is Farm 1's expected corn yield when it uses no nitrogen fertilizer, $\beta_0 + \gamma_2$ is Farm 2's expected corn yield when it uses no nitrogen fertilizer, and so on. For Farm 150, whose indicator is omitted, the corresponding expected yield is simply $\beta_0$. Rather than writing out all 149 farm indicators each time, we can collect them into a single term,
 
     $$\alpha_i = \gamma_1 \text{F1}_i + \gamma_2 \text{F2}_i +\cdots + \gamma_{149} \text{F149}_i.$$
 
@@ -515,7 +515,9 @@ def _(mo):
     mo.md(r"""
     ---
 
-    <span id="fn1" style="display:block;font-size:0.9rem;">**1.** We leave out the indicator for Farm 150 because the regression already contains the intercept $\beta_0$. If we included all 150 farm indicators, they would add up to 1 for every observation and would therefore be an exact linear function of the intercept. The regression would thus exhibit perfect multicollinearity, violating the fourth OLS assumption discussed in Lecture 9 that no independent variable is an exact linear function of the others. <a href="#fnref1" title="Back to text">&#8617;</a></span>
+    <span id="fn1" style="display:block;font-size:0.9rem;">**1.** A bushel is a unit of volume traditionally used for grain in the United States, equal to about 35 liters. For corn, a bushel is standardized to weigh 56 pounds, so a yield of 180 bushels per acre means the farm harvested about 10,000 pounds, or 5 tons, of corn from each acre of land. <a href="#fnref1" title="Back to text">&#8617;</a></span>
+
+    <span id="fn2" style="display:block;font-size:0.9rem;">**2.** We leave out the indicator for Farm 150 because the regression already contains the intercept $\beta_0$. If we included all 150 farm indicators, they would add up to 1 for every observation and would therefore be an exact linear function of the intercept. The regression would thus exhibit perfect multicollinearity, violating the fourth OLS assumption discussed in Lecture 9 that no independent variable is an exact linear function of the others. <a href="#fnref2" title="Back to text">&#8617;</a></span>
     """)
     return
 
