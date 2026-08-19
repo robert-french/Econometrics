@@ -15,7 +15,7 @@ import marimo
 __generated_with = "0.23.16"
 __preliminary__ = True
 app = marimo.App(
-    app_title="Lecture 16: Panel Data II: Time Effects, Two-Way Fixed Effects, and Clustered Standard Errors",
+    app_title="Lecture 16: Panel Data II",
     css_file="marimo-overrides.css",
 )
 
@@ -36,10 +36,10 @@ def _(mo):
         [
             mo.md('<a href="https://robert-french.github.io/Econometrics/" target="_self" style="display: block; margin-bottom: 1.5em;">Course home</a>'),
             mo.md("# [Lecture 16](#top)"),
-            mo.md("Panel Data II: Time Effects, Two-Way Fixed Effects, and Clustered Standard Errors"),
+            mo.md("Panel Data II"),
             mo.nav_menu(
                 {
-                    "#sec1": "1. When entity fixed effects are not enough",
+                    "#sec1": "1. Another puzzling regression",
                     "#sec2": "2. Time fixed effects",
                     "#sec3": "3. Two-way fixed effects",
                     "#sec4": "4. Standard errors in panel data",
@@ -69,7 +69,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="top"></a>
-    # Lecture 16: Panel Data II: Time Effects, Two-Way Fixed Effects, and Clustered Standard Errors
+    # Lecture 16: Panel Data II
     """)
     return
 
@@ -81,7 +81,7 @@ def _(mo):
     mo.md(r"""
     ## Contents
 
-    [1. When entity fixed effects are not enough](#sec1)<br>
+    [1. Another puzzling regression](#sec1)<br>
     [2. Time fixed effects](#sec2)<br>
     [3. Two-way fixed effects](#sec3)<br>
     [4. Standard errors in panel data](#sec4)<br>
@@ -94,80 +94,79 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec1"></a>
-    ## 1. When entity fixed effects are not enough
+    ## 1. Another puzzling regression
 
-    Consider again the regression of state traffic fatalities on state beer taxes between 1982 and 1988 from Lecture 15,
+    In Lecture 15, we used a panel of 150 corn farms over the 2014 to 2019 growing seasons to estimate the effect of nitrogen fertilizer on corn yields. The fixed effect regression gave each farm its own intercept, absorbed the unobserved differences in soil quality that had flipped the cross-sectional slope, and estimated that an extra pound of nitrogen raises yields by $\hat{\beta}_1 = 0.30$ bushels per acre.
+
+    Suppose the survey later resumed and followed the same 150 farms for six more seasons, from 2020 through 2025. Two things changed during these years. Fertilizer became cheaper, and farms across the country responded by applying more nitrogen each season. At the same time, newly developed seed varieties spread quickly, raising yields on every farm that adopted them. Estimating the fixed effect regression from Lecture 15 on the new seasons,
 
     $$
-    Y_{i,t} = \beta_0 + \beta_1 X_{i,t} + u_{i,t},
+    Y_{it} = \beta_0 + \beta_1 X_{it} + \alpha_i + \varepsilon_{it},
     $$
 
-    where $Y_{i,t}$ is the fatality rate in state $i$ and year $t$, measured in deaths per 10,000 residents, $X_{i,t}$ is the state's beer tax in dollars per case, and $u_{i,t}$ collects the unobserved factors that influence fatalities. Lecture 15 ended with a warning: entity fixed effects absorb only the factors that are constant over time within a state. Anything that changes over the sample period stays in the error term.
-
-    Our panel has exactly this problem, and so did the real 1980s. National traffic fatalities declined over 1982 to 1988 while states' beer taxes rose on average. The charts below show the yearly averages across our 50 states:
+    now gives $\hat{\beta}_1 = 0.63$, more than double the estimate we trusted in Lecture 15. Fertilizer did not become twice as effective. Something is wrong with the regression, and the yearly averages below show what:
     """)
     return
 
 
 @app.cell(hide_code=True)
 def _(np):
-    # The same 50-state panel as Lecture 15 (identical seed and draw order),
-    # with one addition: a nationwide downward trend in fatalities of 0.025
-    # deaths per 10,000 per year, common to all states. Beer taxes drift up
-    # over the sample while their cross-state spread compresses; the state
-    # confounder pn_z ties drinking culture to tax levels; and the errors are
-    # persistent within a state (AR(1) with coefficient 0.7), which drives the
-    # standard-error discussion in Section 4. True tax effect: -0.45.
-    pn_states = [
-        "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
-        "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
-        "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
-        "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
-        "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY",
-    ]
-    pn_years = np.arange(1982, 1989)
-    _n, _T = 50, 7
+    # The same 150 farms as Lecture 15 (identical seed and draw order for the
+    # soil quality fm_z and each farm's typical nitrogen rate), now observed
+    # over six new seasons, 2020-2025. Two additions relative to the Lecture 15
+    # panel: a common upward drift in nitrogen use of 7 lbs per season (cheaper
+    # fertilizer) and a common upward trend in yields of 3.5 bushels per season
+    # (better seed varieties), which is the season-level confounder this
+    # lecture removes. A farm's nitrogen deviations from its typical rate are
+    # persistent (AR(1) with coefficient 0.8), as are the errors (0.7), which
+    # drives the standard-error discussion in Section 4. True fertilizer
+    # effect: +0.30 bushels per acre per pound of nitrogen. Fixed seeds; draw
+    # order matters.
+    fm_years = np.arange(2020, 2026)
+    _n, _T = 150, 6
     _tau = np.arange(_T, dtype=float)
-    _spread = 1.0 - 0.055 * _tau
+    _r = np.random.default_rng(411)
+    fm_z = _r.normal(0.0, 25.0, _n)
+    _typical = 150.0 - 0.6 * fm_z + _r.normal(0.0, 20.0, _n)
 
-    _rng = np.random.default_rng(3750)
-    pn_z = _rng.normal(0.0, 0.30, _n)
-    _base = 1.10 + 0.8333 * pn_z + _rng.normal(0.0, 0.25, _n)
-    pn_tax = (
-        _base.mean()
-        + _spread[None, :] * (_base[:, None] - _base.mean())
-        + 0.06 * _tau[None, :]
-        + _rng.normal(0.0, 0.03, (_n, _T))
-    )
-    _innov = _rng.normal(0.0, 1.0, (_n, _T))
-    _eps = np.empty((_n, _T))
-    _eps[:, 0] = _innov[:, 0]
+    _rng = np.random.default_rng(2820)
+    _wi = _rng.normal(0.0, 1.0, (_n, _T))
+    _wx = np.empty((_n, _T))
+    _wx[:, 0] = _wi[:, 0]
     for _t in range(1, _T):
-        _eps[:, _t] = 0.7 * _eps[:, _t - 1] + np.sqrt(1 - 0.7**2) * _innov[:, _t]
-    _eps *= 0.10
-    pn_fat = (
-        2.40 - 0.45 * pn_tax + pn_z[:, None] - 0.025 * _tau[None, :] + _eps
+        _wx[:, _t] = 0.8 * _wx[:, _t - 1] + np.sqrt(1 - 0.8**2) * _wi[:, _t]
+    fm_fert = _typical[:, None] + 7.0 * _tau[None, :] + 12.0 * _wx
+    _inn = _rng.normal(0.0, 1.0, (_n, _T))
+    _eps = np.empty((_n, _T))
+    _eps[:, 0] = _inn[:, 0]
+    for _t in range(1, _T):
+        _eps[:, _t] = 0.7 * _eps[:, _t - 1] + np.sqrt(1 - 0.7**2) * _inn[:, _t]
+    _eps *= 8.0
+    fm_yield = (
+        125.0 + 0.30 * fm_fert + fm_z[:, None] + 3.5 * _tau[None, :] + _eps
     )
-    pn_tau = _tau
-    return pn_fat, pn_states, pn_tau, pn_tax, pn_years, pn_z
+    # The same six display farms as Lecture 15.
+    fm_six = [7, 47, 65, 110, 114, 115]
+    fm_tau = _tau
+    return fm_fert, fm_six, fm_tau, fm_years, fm_yield, fm_z
 
 
 @app.cell(hide_code=True)
-def _(alt, mo, pd, pn_fat, pn_tax, pn_years):
+def _(alt, fm_fert, fm_years, fm_yield, mo, pd):
     _means = pd.DataFrame({
-        "year": pn_years,
-        "fat": pn_fat.mean(axis=0),
-        "tax": pn_tax.mean(axis=0),
+        "year": fm_years,
+        "yield": fm_yield.mean(axis=0),
+        "fert": fm_fert.mean(axis=0),
     })
     _left = (
         alt.Chart(_means)
         .mark_line(color="#1f4e79", size=3, point=alt.OverlayMarkDef(color="#1f4e79"))
         .encode(
-            x=alt.X("year:O", title="Year"),
+            x=alt.X("year:O", title="Season"),
             y=alt.Y(
-                "fat:Q",
-                scale=alt.Scale(domain=[1.45, 2.0], nice=False),
-                title="Average fatality rate (per 10,000)",
+                "yield:Q",
+                scale=alt.Scale(domain=[160.0, 200.0], nice=False),
+                title="Average corn yield (bushels per acre)",
             ),
         )
         .properties(width=260, height=260)
@@ -176,11 +175,11 @@ def _(alt, mo, pd, pn_fat, pn_tax, pn_years):
         alt.Chart(_means)
         .mark_line(color="#e69138", size=3, point=alt.OverlayMarkDef(color="#e69138"))
         .encode(
-            x=alt.X("year:O", title="Year"),
+            x=alt.X("year:O", title="Season"),
             y=alt.Y(
-                "tax:Q",
-                scale=alt.Scale(domain=[1.1, 1.6], nice=False),
-                title="Average beer tax (dollars per case)",
+                "fert:Q",
+                scale=alt.Scale(domain=[140.0, 195.0], nice=False),
+                title="Average nitrogen applied (pounds per acre)",
             ),
         )
         .properties(width=260, height=260)
@@ -189,8 +188,8 @@ def _(alt, mo, pd, pn_fat, pn_tax, pn_years):
     _caption = mo.md(
         "<span style='display:block;margin:0.2rem auto 1rem;max-width:560px;"
         "font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;'>"
-        "Averages across the 50 states in each year. Fatalities drift down "
-        "while beer taxes drift up."
+        "Averages across the 150 farms in each season, 2020 to 2025. Yields "
+        "and nitrogen use rise together on every farm at once."
         "</span>"
     )
     mo.vstack([_chart, _caption], align="center")
@@ -200,9 +199,9 @@ def _(alt, mo, pd, pn_fat, pn_tax, pn_years):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    Suppose the national decline in fatalities happened for reasons unrelated to beer taxes: federal safety regulations tightened, cars gained airbags and better brakes, and attitudes toward drunk driving shifted nationwide. These forces vary over time but hit all states together. A state fixed effect cannot absorb them, because $\alpha_i$ is one number per state, the same in 1982 as in 1988.
+    The problem is again an omitted variable, but of a new kind. The improved seed varieties raised every farm's yield in the same seasons in which every farm was also applying more nitrogen. Seed genetics therefore sits in the error term and is positively correlated with fertilizer use. Unlike soil quality, however, this confounder does not differ across farms while staying fixed over time. It is common to all farms and changes from season to season.
 
-    The result is omitted variable bias in a new disguise. Within every state, fatalities fell while beer taxes rose, so the two move in opposite directions year by year regardless of any causal effect. A regression with only entity fixed effects conflates the nationwide safety trend with the effect of the tax. On our panel it estimates $\hat{\beta}_1 = -0.78$, far more negative than the true effect of $-0.45$ built into the simulation. The tax looks nearly twice as lifesaving as it is, because it takes credit for airbags.
+    That is exactly the kind of omitted variable a farm's fixed effect cannot absorb. The intercept $\alpha_i$ is one number per farm, the same in 2020 as in 2025, so it can soak up nothing that varies over seasons. Within every farm, yields rose while nitrogen use rose, and the fixed effect regression credits fertilizer with gains that belong to the seed companies. Lecture 15 warned that fixed effects do not remove time-varying factors; this lecture shows what to do when those factors are shared by every entity.
     """)
     return
 
@@ -213,40 +212,25 @@ def _(mo):
     <a id="sec2"></a>
     ## 2. Time fixed effects
 
-    The fix mirrors Lecture 15, with the roles of state and year swapped. Decompose the error into a component that varies over time but not across states, and a remainder:
+    The remedy mirrors what we did in Lecture 15, with the roles of farm and season swapped. There we split the error term into a time-invariant farm component $Z_i$ and a remainder. Let's now split off a component $S_t$ that is common to all farms but varies over seasons,
 
     $$
-    Y_{i,t} = \beta_0 + \beta_1 X_{i,t} + \underbrace{S_t + \nu_{i,t}}_{u_{i,t}},
+    Y_{it} = \beta_0 + \beta_1 X_{it} + Z_i + S_t + \varepsilon_{it},
     $$
 
-    where $S_t$ collects the unobserved factors that are common to all states in year $t$ (note that $S_t$ has no $i$ subscript). In our example, $S_t$ contains:
+    where $S_t$ represents the unobserved factors that affect all farms in season $t$, such as the quality of available seed varieties, fertilizer prices, or statewide weather. The absence of an $i$ subscript on $S_t$ is important; these factors do not differ across farms within a season. $\varepsilon_{it}$ now collects the unobserved factors that vary across farms *and* over seasons, such as one farm's pest outbreak in one particular year.
 
-    * changes in federal vehicle safety regulations,
-    * changes in vehicle safety features,
-    * shifts in nationwide attitudes toward drinking and driving.
-
-    We cannot measure $S_t$ directly, but we can give each time period its own binary variable. Let $\text{B2}_t$ equal 1 when $t$ is the second period (1983) and 0 otherwise, and likewise up to $\text{B}T_t$ for the last period:
+    We cannot observe $S_t$ directly, but just as we gave each farm its own intercept, we can give each season its own intercept by including binary indicators for the seasons 2020 through 2024,
 
     $$
-    Y_{i,t} = \beta_0 + \beta_1 X_{i,t} + \delta_2\text{B2}_t + \delta_3\text{B3}_t + \dots + \delta_T\text{B}T_t + \nu_{i,t}.
+    Y_{it} = \beta_0 + \beta_1 X_{it} + Z_i + \delta_1 \text{B1}_t + \delta_2 \text{B2}_t + \cdots + \delta_5 \text{B5}_t + \varepsilon_{it},
     $$
 
-    The period indicators are mutually exclusive, one per year, so exactly as in Lecture 15 we can collapse them into a single term:
+    where $\text{B1}_t$ equals 1 when season $t$ is 2020 and 0 otherwise, $\text{B2}_t$ equals 1 when season $t$ is 2021 and 0 otherwise, and so on.<sup><a id="fnref1" href="#fn1">1</a></sup> These season indicators are mutually exclusive, exactly like the farm indicators in Lecture 15. With this setup, $\beta_0 + \delta_1$ is the expected yield in 2020 for a farm using no nitrogen (net of its $Z_i$), and $\delta_1$ measures how much higher or lower yields were in 2020 than in 2025, the season whose indicator is omitted. Rather than writing out all five indicators each time, we can collect them into a single term,
 
-    $$
-    Y_{i,t} = \beta_0 + \beta_1 X_{i,t} + \lambda_t + \nu_{i,t},
-    \qquad \text{where} \qquad
-    \lambda_t = \delta_2\text{B2}_t + \delta_3\text{B3}_t + \dots + \delta_T\text{B}T_t.
-    $$
+    $$\lambda_t = \delta_1 \text{B1}_t + \delta_2 \text{B2}_t + \cdots + \delta_5 \text{B5}_t.$$
 
-    This is the *time fixed effects regression model* for panel data. Everything we learned about entity fixed effects carries over with $i$ and $t$ swapped:
-
-    * $\lambda_2, \dots, \lambda_T$ are unknown intercepts to estimate, one per time period.
-    * $\lambda_t$ controls for all factors, observed and unobserved, that are common to every state in period $t$.
-    * The dummy variable trap appears again: we cannot include all $T$ period effects and the constant $\beta_0$, so we omit one period (the *base period*) and interpret each $\lambda_t$ as the mean difference in $Y$ relative to it. Alternatively, drop $\beta_0$ and keep all $T$ period effects.
-    * Additional time-varying regressors $X_{1,i,t}, \dots, X_{k,i,t}$ can be added as usual.
-
-    In our panel, the estimated $\lambda_t$ trace out the national decline: each year's intercept sits below the last, absorbing the nationwide drop in fatalities that has nothing to do with any single state's tax policy.
+    The term $\lambda_t$ is called a *time fixed effect*. It allows the average level of corn yield to differ across seasons because of any factor that hits all farms in the same season, whether we observe it or not: seed genetics, fertilizer prices, fuel costs, statewide weather. In our panel, the estimated $\lambda_t$ trace out the steady yield gains that the new seed varieties delivered season after season, so those gains are no longer available to be misattributed to fertilizer.
     """)
     return
 
@@ -257,53 +241,41 @@ def _(mo):
     <a id="sec3"></a>
     ## 3. Two-way fixed effects
 
-    Our panel suffers from both problems at once. Some omitted factors differ across states but are constant over time, like drinking culture: the $Z_i$ of Lecture 15. Others change over time but are common to all states, like federal safety standards: the $S_t$ of Section 2. The error term contains both,
+    Our new seasons suffer from both problems at once. Soil quality still differs across farms and is still correlated with nitrogen use, which is what biased the cross-sectional regressions in Lecture 15. And seed genetics now improves over seasons for all farms together, which is what biased the farm fixed effect regression in Section 1. The model therefore needs both kinds of intercepts. Including farm fixed effects *and* time fixed effects gives the *two-way fixed effects regression*,
 
     $$
-    u_{i,t} = Z_i + S_t + \epsilon_{i,t},
+    Y_{it} = \beta_0 + \beta_1 X_{it} + \alpha_i + \lambda_t + \varepsilon_{it}.
     $$
 
-    so the model needs both kinds of intercepts. Including entity fixed effects *and* time fixed effects gives the *two-way fixed effects model*:
+    Here $\alpha_i$ absorbs everything about farm $i$ that is constant over seasons, and $\lambda_t$ absorbs everything about season $t$ that is common to all farms. For $\hat{\beta}_1$ to estimate the causal effect of fertilizer, the remaining requirement is that nitrogen use be unrelated to what is left in the error term: the factors that vary across farms *and* over seasons, like a single farm's pest outbreak, drainage failure, or irrigation upgrade in a particular year. Formally, the first least squares assumption becomes $\mathbb{E}[\varepsilon_{it} \mid X_{it}, \alpha_i, \lambda_t] = \mathbb{E}[\varepsilon_{it} \mid \alpha_i, \lambda_t]$.
 
-    $$
-    Y_{i,t} = \beta_0 + \beta_1 X_{i,t} + \alpha_i + \lambda_t + \epsilon_{i,t}.
-    $$
-
-    Here $\alpha_i$ absorbs the time-invariant differences across states and $\lambda_t$ absorbs the year shocks common to all states. The estimate $\hat{\beta}_1$ is causal if
-
-    $$
-    \mathbb{E}[\epsilon_{i,t} \mid X_{i,t}, \alpha_i, \lambda_t] = \mathbb{E}[\epsilon_{i,t} \mid \alpha_i, \lambda_t],
-    $$
-
-    that is, if the beer tax is unrelated to whatever unobserved factors remain after the state and year intercepts have done their work: the factors that vary both over time *and* across states, such as one state toughening its own drunk-driving enforcement in one particular year.
-
-    The chart below puts the four estimators side by side on our panel, where the true effect is $\beta_1 = -0.45$. The left panel shows six of the fifty states; the estimates and the bars use all 350 observations.
+    The chart below compares all four regressions we have now seen on the 2020 to 2025 panel, where the true effect built into the simulation is $\beta_1 = 0.30$. The left panel shows the same six farms as Lecture 15; the estimates and the bars use all 900 observations.
     """)
     return
 
 
 @app.cell(hide_code=True)
-def _(np, pn_fat, pn_tax):
-    # The four estimates of beta_1 on the full 350-observation panel. Each
-    # fixed-effects regression is the dummy regression of Sections 2 and 3;
-    # demeaning within state and/or year gives the identical slope and is what
-    # the code computes.
+def _(fm_fert, fm_yield, np):
+    # The four estimates of beta_1 on the full 900-observation panel. Each
+    # fixed effects regression is the indicator regression of Sections 2 and
+    # 3; demeaning within farm and/or season gives the identical slope and is
+    # what the code computes.
     def _slope(_x, _y):
         return float((_x * _y).sum() / (_x * _x).sum())
 
-    _x0 = pn_tax - pn_tax.mean()
-    _y0 = pn_fat - pn_fat.mean()
-    _xe = pn_tax - pn_tax.mean(axis=1, keepdims=True)
-    _ye = pn_fat - pn_fat.mean(axis=1, keepdims=True)
-    _xt = pn_tax - pn_tax.mean(axis=0, keepdims=True)
-    _yt = pn_fat - pn_fat.mean(axis=0, keepdims=True)
+    _x0 = fm_fert - fm_fert.mean()
+    _y0 = fm_yield - fm_yield.mean()
+    _xe = fm_fert - fm_fert.mean(axis=1, keepdims=True)
+    _ye = fm_yield - fm_yield.mean(axis=1, keepdims=True)
+    _xt = fm_fert - fm_fert.mean(axis=0, keepdims=True)
+    _yt = fm_yield - fm_yield.mean(axis=0, keepdims=True)
     _xw = _xe - _xe.mean(axis=0, keepdims=True)
     _yw = _ye - _ye.mean(axis=0, keepdims=True)
 
     est_b1 = {
         "Pooled OLS": _slope(_x0, _y0),
-        "State fixed effects": _slope(_xe, _ye),
-        "Year fixed effects": _slope(_xt, _yt),
+        "Farm fixed effects": _slope(_xe, _ye),
+        "Season fixed effects": _slope(_xt, _yt),
         "Two-way fixed effects": _slope(_xw, _yw),
     }
     return (est_b1,)
@@ -314,12 +286,12 @@ def _(mo):
     est_pick = mo.ui.radio(
         options=[
             "Pooled OLS",
-            "State fixed effects",
-            "Year fixed effects",
+            "Farm fixed effects",
+            "Season fixed effects",
             "Two-way fixed effects",
         ],
         value="Pooled OLS",
-        label="Estimator",
+        label="Which regression should we fit?",
         inline=True,
     )
     est_pick
@@ -327,30 +299,29 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(alt, est_b1, est_pick, mo, np, pd, pn_fat, pn_states, pn_tax, pn_years):
+def _(alt, est_b1, est_pick, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
     _pick = est_pick.value
     _b1 = est_b1[_pick]
 
-    _six = ["CA", "FL", "IL", "NY", "TX", "WI"]
-    _idx = [pn_states.index(_s) for _s in _six]
-    _t6 = pn_tax[_idx]
-    _f6 = pn_fat[_idx]
-    _state_colors = ["#1f4e79", "#e69138", "#2a9d8f", "#7d5ba6", "#c05b5b", "#5b8bc0"]
+    _t6 = fm_fert[fm_six]
+    _f6 = fm_yield[fm_six]
+    _names = [f"Farm {_i + 1}" for _i in fm_six]
+    _farm_colors = ["#1f4e79", "#e69138", "#2a9d8f", "#7d5ba6", "#c05b5b", "#5b8bc0"]
 
-    _xsc = alt.Scale(domain=[0.7, 1.9], nice=False)
-    _ysc = alt.Scale(domain=[0.9, 2.5], nice=False)
-    _xax = alt.X("tax:Q", scale=_xsc, title="Beer tax (dollars per case)")
-    _yax = alt.Y("fat:Q", scale=_ysc, title="Fatality rate (per 10,000)")
+    _xsc = alt.Scale(domain=[110.0, 245.0], nice=False)
+    _ysc = alt.Scale(domain=[95.0, 260.0], nice=False)
+    _xax = alt.X("fert:Q", scale=_xsc, title="Nitrogen applied (pounds per acre)")
+    _yax = alt.Y("yield:Q", scale=_ysc, title="Corn yield (bushels per acre)")
 
     _long = pd.DataFrame({
-        "tax": _t6.ravel(),
-        "fat": _f6.ravel(),
-        "state": np.repeat(_six, 7),
-        "year": np.tile(pn_years, 6),
+        "fert": _t6.ravel(),
+        "yield": _f6.ravel(),
+        "farm": np.repeat(_names, 6),
+        "season": np.tile(fm_years, 6),
     })
 
-    # Lines use the full-panel slope for the chosen estimator; each line is
-    # anchored at its own group's mean point among the six displayed states.
+    # Lines use the full-panel slope for the chosen regression; each line is
+    # anchored at its own group's mean point among the six displayed farms.
     _layers = []
     if _pick == "Pooled OLS":
         _layers.append(
@@ -359,79 +330,81 @@ def _(alt, est_b1, est_pick, mo, np, pd, pn_fat, pn_states, pn_tax, pn_years):
             .encode(x=_xax, y=_yax)
         )
         _a = float(_f6.mean() - _b1 * _t6.mean())
-        _gx = np.array([float(_t6.min()) - 0.05, float(_t6.max()) + 0.05])
+        _gx = np.array([float(_t6.min()) - 3.0, float(_t6.max()) + 3.0])
         _layers.append(
-            alt.Chart(pd.DataFrame({"tax": _gx, "fat": _a + _b1 * _gx}))
+            alt.Chart(pd.DataFrame({"fert": _gx, "yield": _a + _b1 * _gx}))
             .mark_line(color="#111827", size=4, clip=True)
             .encode(x=_xax, y=_yax)
         )
-    elif _pick == "Year fixed effects":
+    elif _pick == "Season fixed effects":
         _layers.append(
             alt.Chart(_long)
             .mark_circle(size=40, opacity=0.6, clip=True)
             .encode(
                 x=_xax, y=_yax,
                 color=alt.Color(
-                    "year:O",
+                    "season:O",
                     scale=alt.Scale(scheme="viridis"),
-                    legend=alt.Legend(title="Year", orient="right"),
+                    legend=alt.Legend(title="Season", orient="right"),
                 ),
             )
         )
-        for _t in range(7):
+        for _t in range(6):
             _a = float(_f6[:, _t].mean() - _b1 * _t6[:, _t].mean())
-            _gx = np.array([float(_t6[:, _t].min()) - 0.06,
-                            float(_t6[:, _t].max()) + 0.06])
+            _gx = np.array([float(_t6[:, _t].min()) - 4.0,
+                            float(_t6[:, _t].max()) + 4.0])
             _layers.append(
                 alt.Chart(pd.DataFrame({
-                    "tax": _gx, "fat": _a + _b1 * _gx,
-                    "year": [pn_years[_t]] * 2,
+                    "fert": _gx, "yield": _a + _b1 * _gx,
+                    "season": [fm_years[_t]] * 2,
                 }))
                 .mark_line(size=2, clip=True)
                 .encode(
                     x=_xax, y=_yax,
-                    color=alt.Color("year:O", scale=alt.Scale(scheme="viridis"),
+                    color=alt.Color("season:O", scale=alt.Scale(scheme="viridis"),
                                     legend=None),
                 )
             )
     else:
-        # State fixed effects and two-way fixed effects: one line per state
-        # with the chosen estimator's common slope (for the two-way model the
-        # year effects are evaluated at their average).
+        # Farm fixed effects and two-way fixed effects: one line per farm with
+        # the chosen regression's common slope (for the two-way model the
+        # season effects are evaluated at their average).
         _layers.append(
             alt.Chart(_long)
             .mark_circle(size=40, opacity=0.6, clip=True)
             .encode(
                 x=_xax, y=_yax,
                 color=alt.Color(
-                    "state:N",
-                    scale=alt.Scale(domain=_six, range=_state_colors),
+                    "farm:N",
+                    scale=alt.Scale(domain=_names, range=_farm_colors),
                     legend=alt.Legend(title=None, orient="top"),
                 ),
             )
         )
         for _j in range(6):
             _a = float(_f6[_j].mean() - _b1 * _t6[_j].mean())
-            _gx = np.array([float(_t6[_j].min()) - 0.06,
-                            float(_t6[_j].max()) + 0.06])
+            _gx = np.array([float(_t6[_j].min()) - 4.0,
+                            float(_t6[_j].max()) + 4.0])
             _layers.append(
-                alt.Chart(pd.DataFrame({"tax": _gx, "fat": _a + _b1 * _gx,
-                                        "state": [_six[_j]] * 2}))
+                alt.Chart(pd.DataFrame({"fert": _gx, "yield": _a + _b1 * _gx,
+                                        "farm": [_names[_j]] * 2}))
                 .mark_line(size=2.5, clip=True)
                 .encode(
                     x=_xax, y=_yax,
-                    color=alt.Color("state:N",
-                                    scale=alt.Scale(domain=_six,
-                                                    range=_state_colors),
+                    color=alt.Color("farm:N",
+                                    scale=alt.Scale(domain=_names,
+                                                    range=_farm_colors),
                                     legend=None),
                 )
             )
     _main = alt.layer(*_layers).properties(width=430, height=340)
 
-    _order = ["Pooled OLS", "State fixed effects",
-              "Year fixed effects", "Two-way fixed effects"]
-    _short = {"Pooled OLS": "Pooled", "State fixed effects": "State FE",
-              "Year fixed effects": "Year FE", "Two-way fixed effects": "Two-way"}
+    _order = ["Pooled OLS", "Farm fixed effects",
+              "Season fixed effects", "Two-way fixed effects"]
+    _short = {"Pooled OLS": "Pooled", "Farm fixed effects": "Farm FE",
+              "Season fixed effects": "Season FE",
+              "Two-way fixed effects": "Two-way"}
+    _bsc = alt.Scale(domain=[-0.4, 0.8], nice=False)
     _bars_df = pd.DataFrame({
         "est": [_short[_k] for _k in _order],
         "b1": [est_b1[_k] for _k in _order],
@@ -443,8 +416,7 @@ def _(alt, est_b1, est_pick, mo, np, pd, pn_fat, pn_states, pn_tax, pn_years):
     _bx = alt.X("est:N", title=None,
                 sort=[_short[_k] for _k in _order],
                 axis=alt.Axis(labelAngle=-30))
-    _by = alt.Y("b1:Q", scale=alt.Scale(domain=[-0.9, 0.45], nice=False),
-                title="Estimated β₁")
+    _by = alt.Y("b1:Q", scale=_bsc, title="Estimated effect of nitrogen")
     _bars = (
         alt.Chart(_bars_df)
         .mark_bar(clip=True)
@@ -458,47 +430,46 @@ def _(alt, est_b1, est_pick, mo, np, pd, pn_fat, pn_states, pn_tax, pn_years):
     _blabels = (
         alt.Chart(_bars_df)
         .mark_text(fontSize=10.5, color="#374151", baseline="middle")
-        .encode(
-            x=_bx,
-            y=alt.Y("labely:Q", scale=alt.Scale(domain=[-0.9, 0.45], nice=False)),
-            text="label:N",
-        )
+        .encode(x=_bx, y=alt.Y("labely:Q", scale=_bsc), text="label:N")
     )
     _rule = (
-        alt.Chart(pd.DataFrame({"b1": [-0.45]}))
+        alt.Chart(pd.DataFrame({"b1": [0.30]}))
         .mark_rule(color="orange", strokeDash=[6, 4], size=2)
-        .encode(y=alt.Y("b1:Q", scale=alt.Scale(domain=[-0.9, 0.45], nice=False)))
+        .encode(y=alt.Y("b1:Q", scale=_bsc))
     )
     _side = (_bars + _blabels + _rule).properties(width=150, height=340)
     _chart = alt.hconcat(_main, _side).resolve_scale(color="independent")
 
     if _pick == "Pooled OLS":
         _msg = (
-            f"One intercept for everything. Both confounders are live: drinking "
-            f"culture pushes the estimate up, the national trend pushes it down, "
-            f"and the net is {_b1:+.2f}, the wrong sign. The dashed orange line "
-            f"marks the true effect, -0.45."
+            f"One intercept for everything. Both confounders are live: soil "
+            f"quality pulls the estimate down, the seed-genetics trend pushes "
+            f"it up, and the net is {_b1:+.2f}, as if fertilizer did nothing. "
+            f"The dashed orange line marks the true effect, +0.30."
         )
-    elif _pick == "State fixed effects":
+    elif _pick == "Farm fixed effects":
         _msg = (
-            f"One intercept per state absorbs drinking culture, but the "
-            f"national decline remains in the error. Within every state, "
-            f"fatalities fell while taxes rose, so the estimate overshoots to "
-            f"{_b1:+.2f}: the tax takes credit for the nationwide safety trend."
+            f"One intercept per farm absorbs soil quality, but the "
+            f"seed-genetics trend remains in the error. Within every farm, "
+            f"yields and nitrogen rose together, so the estimate overshoots "
+            f"to {_b1:+.2f}: fertilizer takes credit for the new seed "
+            f"varieties."
         )
-    elif _pick == "Year fixed effects":
+    elif _pick == "Season fixed effects":
         _msg = (
-            f"One intercept per year absorbs the national trend (each year's "
-            f"cloud slides down the chart), but drinking culture is back in the "
-            f"error, and comparisons across states drag the estimate up to "
-            f"{_b1:+.2f}, the same problem as Lecture 15's cross-sections."
+            f"One intercept per season absorbs the seed-genetics trend (each "
+            f"season's cloud slides up the chart), but soil quality is back "
+            f"in the error, and comparisons across farms drag the estimate "
+            f"down to {_b1:+.2f}, the same problem as Lecture 15's "
+            f"cross-sections."
         )
     else:
         _msg = (
-            f"State intercepts absorb drinking culture and year intercepts "
-            f"absorb the national trend. The estimate, {_b1:+.2f}, finally "
-            f"lands on the true effect of -0.45. Each fixed effect removes "
-            f"only its own kind of confounder, so the model needs both."
+            f"Farm intercepts absorb soil quality and season intercepts "
+            f"absorb the seed-genetics trend. The estimate, {_b1:+.2f}, "
+            f"lands on the true effect of +0.30. Each kind of fixed effect "
+            f"removes only its own kind of confounder, so the model needs "
+            f"both."
         )
     _caption = mo.md(
         "<span style='display:block;margin:0.2rem auto 1rem;max-width:600px;"
@@ -515,36 +486,32 @@ def _(mo):
     <a id="sec4"></a>
     ## 4. Standard errors in panel data
 
-    Estimating $\beta_1$ is only half the job; we also need its standard error. Recall from Lecture 6 that the usual standard errors require the observations to be i.i.d., drawn independently from the same population. In a panel, that assumption deserves suspicion, because the same state appears seven times.
+    Estimating $\beta_1$ is only half the job; we also need its standard error. Recall from Lecture 6 that the usual standard error formulas require the observations to be i.i.d. draws from the same population. In a panel, that assumption deserves suspicion, because the same farm appears in the data six times.
 
-    Knowing the beer tax in California in 1982 tells us a lot about the likely beer tax in California in 1983: tax policy persists. The same holds for the unobserved factors in the error term. A recession, a court ruling, or an enforcement push that raises California's fatalities in one year tends to still be at work the next. A variable with this property is *autocorrelated*, also called *serially correlated*. Formally, $M_{i,t}$ is autocorrelated if
+    Knowing a farm's nitrogen use in 2020 tells us a lot about its likely nitrogen use in 2021, since fertilizer habits persist. The same holds for the unobserved factors in the error term. A drainage problem, a pest infestation, or an irrigation upgrade that affects a farm's yield in one season tends to still be at work the next. A variable with this property is *autocorrelated*, also called *serially correlated*. Formally, $M_{it}$ is autocorrelated if $\text{corr}(M_{it}, M_{i,t+j}) \neq 0$ for some $j \neq 0$.
 
-    $$
-    \text{corr}(M_{i,t}, M_{i,t+j}) \neq 0 \quad \text{for some } j \neq 0.
-    $$
+    Autocorrelation does not bias $\hat{\beta}_1$. The problem is the standard errors. The usual formula counts every observation as an independent piece of information, but six correlated observations on the same farm carry less information than six independent ones. The usual standard errors are therefore invalid in panels with autocorrelation, and they typically overstate precision.
 
-    Autocorrelated errors do not bias $\hat{\beta}_1$. The problem is the standard errors. The usual formula counts every observation as an independent piece of information, but seven autocorrelated observations on California carry less information than seven independent ones. The usual standard errors are therefore not valid, and they typically overstate precision.
+    The solution is to use *clustered standard errors*, which allow the errors to be correlated in any way *within* an entity, here a farm, while assuming the errors are independent *across* entities. Statistical software makes clustering a one-option change to the regression command.
 
-    The solution is to *cluster* the standard errors at the entity level. *Clustered standard errors* allow the errors to be correlated in any way *within* an entity, here a state, while assuming the errors are independent *across* entities. Statistical software makes clustering a one-option change to the regression command.
-
-    The demonstration below shows why clustering matters. It re-simulates our panel many times, each time drawing errors whose within-state persistence you control with the slider, and estimates the two-way fixed-effects regression on each simulated panel. The first bar is the actual spread of $\hat{\beta}_1$ across the simulated panels, the honest measure of its sampling uncertainty. The other two bars show the average standard error that the conventional formula and the clustered formula report.
+    The demonstration below shows why clustering matters. It re-simulates our 2020 to 2025 panel many times, each time drawing errors whose within-farm persistence you control with the slider, and estimates the two-way fixed effects regression on each simulated panel. The first bar is the actual spread of $\hat{\beta}_1$ across the simulated panels, the honest measure of its sampling uncertainty. The other two bars show the average standard error that the conventional formula and the clustered formula report.
     """)
     return
 
 
 @app.cell(hide_code=True)
-def _(np, pn_tau, pn_tax, pn_z):
+def _(fm_fert, fm_tau, fm_z, np):
     # Pre-drawn innovations for the standard-error demo: 300 simulated panels.
     # The slider only changes how these fixed innovations are combined into an
     # AR(1), so dragging it never redraws the underlying randomness. The
     # within-transformed regressor is fixed across simulations.
-    ac_innov = np.random.default_rng(777).normal(0.0, 1.0, (300, 50, 7))
-    _xe = pn_tax - pn_tax.mean(axis=1, keepdims=True)
+    ac_innov = np.random.default_rng(777).normal(0.0, 1.0, (300, 150, 6))
+    _xe = fm_fert - fm_fert.mean(axis=1, keepdims=True)
     ac_xt = _xe - _xe.mean(axis=0, keepdims=True)
     ac_signal = (
-        2.40 - 0.45 * pn_tax[None, :, :]
-        + pn_z[None, :, None]
-        - 0.025 * pn_tau[None, None, :]
+        125.0 + 0.30 * fm_fert[None, :, :]
+        + fm_z[None, :, None]
+        + 3.5 * fm_tau[None, None, :]
     )
     return ac_innov, ac_signal, ac_xt
 
@@ -553,7 +520,7 @@ def _(np, pn_tau, pn_tax, pn_z):
 def _(mo):
     ac_rho = mo.ui.slider(
         start=0.0, stop=0.9, step=0.1, value=0.0,
-        label="Within-state persistence of the errors (ρ)",
+        label="Within-farm persistence of the errors (ρ)",
         show_value=True,
     )
     ac_rho
@@ -566,10 +533,10 @@ def _(ac_innov, ac_rho, ac_signal, ac_xt, alt, mo, np, pd):
     _R, _n, _T = ac_innov.shape
 
     # Build AR(1) errors from the fixed innovations, then estimate the two-way
-    # fixed-effects regression on each of the 300 simulated panels. Demeaning
-    # within state and year reproduces the dummy regression's slope; the
-    # conventional variance uses the dummy regression's degrees of freedom
-    # (350 observations, 57 coefficients).
+    # fixed effects regression on each of the 300 simulated panels. Demeaning
+    # within farm and season reproduces the indicator regression's slope; the
+    # conventional variance uses the indicator regression's degrees of freedom
+    # (900 observations, 156 coefficients).
     _eps = np.empty((_R, _n, _T))
     _eps[:, :, 0] = ac_innov[:, :, 0]
     for _t in range(1, _T):
@@ -577,7 +544,7 @@ def _(ac_innov, ac_rho, ac_signal, ac_xt, alt, mo, np, pd):
             _rho * _eps[:, :, _t - 1]
             + np.sqrt(1.0 - _rho**2) * ac_innov[:, :, _t]
         )
-    _eps *= 0.10
+    _eps *= 8.0
 
     _y = ac_signal + _eps
     _yt = _y - _y.mean(axis=2, keepdims=True)
@@ -599,7 +566,8 @@ def _(ac_innov, ac_rho, ac_signal, ac_xt, alt, mo, np, pd):
     _c2 = float(_clus.mean())
 
     _bars_df = pd.DataFrame({
-        "which": ["Actual spread of estimates", "Conventional SE", "Clustered SE"],
+        "which": ["Actual spread of estimates", "Conventional SE",
+                  "Clustered SE"],
         "se": [_truth, _c1, _c2],
         "label": [f"{_truth:.3f}", f"{_c1:.3f}", f"{_c2:.3f}"],
     })
@@ -608,7 +576,7 @@ def _(ac_innov, ac_rho, ac_signal, ac_xt, alt, mo, np, pd):
         sort=["Actual spread of estimates", "Conventional SE", "Clustered SE"],
         axis=alt.Axis(labelAngle=-20),
     )
-    _by = alt.Y("se:Q", scale=alt.Scale(domain=[0.0, 0.16], nice=False),
+    _by = alt.Y("se:Q", scale=alt.Scale(domain=[0.0, 0.055], nice=False),
                 title="Sampling uncertainty of the estimate")
     _bars = (
         alt.Chart(_bars_df)
@@ -635,13 +603,13 @@ def _(ac_innov, ac_rho, ac_signal, ac_xt, alt, mo, np, pd):
 
     if _rho == 0.0:
         _msg = (
-            f"With ρ = 0 the errors are independent across years, the i.i.d. "
-            f"assumption holds, and all three bars agree: the conventional "
-            f"formula ({_c1:.3f}) and the clustered formula ({_c2:.3f}) both "
-            f"match the actual spread ({_truth:.3f}). Drag ρ upward to make "
-            f"each state's errors persist."
+            f"With ρ = 0 the errors are independent across seasons, the "
+            f"i.i.d. assumption holds, and all three bars agree: the "
+            f"conventional formula ({_c1:.3f}) and the clustered formula "
+            f"({_c2:.3f}) both match the actual spread ({_truth:.3f}). Drag "
+            f"ρ upward to make each farm's errors persist."
         )
-    elif _c1 / _truth > 0.85:
+    elif _c1 / _truth > 0.9:
         _msg = (
             f"With ρ = {_rho:.1f}, persistence is mild. The conventional SE "
             f"({_c1:.3f}) is starting to slip below the actual spread "
@@ -650,12 +618,13 @@ def _(ac_innov, ac_rho, ac_signal, ac_xt, alt, mo, np, pd):
         )
     else:
         _msg = (
-            f"With ρ = {_rho:.1f}, the conventional formula reports {_c1:.3f} "
-            f"when the actual spread of the estimates is {_truth:.3f}: it overstates "
-            f"precision by about {100 * (1 - _c1 / _truth):.0f}%, so its "
-            f"confidence intervals are too narrow and its t-statistics too "
-            f"large. The clustered SE ({_c2:.3f}) tracks the truth, because it "
-            f"lets each state's seven errors be correlated however they like."
+            f"With ρ = {_rho:.1f}, the conventional formula reports "
+            f"{_c1:.3f} when the actual spread of the estimates is "
+            f"{_truth:.3f}: it overstates precision by about "
+            f"{100 * (1 - _c1 / _truth):.0f}%, so its confidence intervals "
+            f"are too narrow and its t-statistics too large. The clustered "
+            f"SE ({_c2:.3f}) tracks the truth, because it lets each farm's "
+            f"six errors be correlated however they like."
         )
     _caption = mo.md(
         "<span style='display:block;margin:0.2rem auto 1rem;max-width:560px;"
@@ -669,7 +638,7 @@ def _(ac_innov, ac_rho, ac_signal, ac_xt, alt, mo, np, pd):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    Our own fatality panel was simulated with persistent errors (ρ = 0.7), so clustering is not optional there: the conventional standard error on the two-way estimate is 0.08, while the clustered standard error is 0.11. Reporting the conventional number would claim more precision than we have.
+    Our own farm panel was simulated with persistent errors (ρ = 0.7), so clustering is not optional there. On the two-way fixed effects regression, the conventional standard error is 0.031 while the clustered standard error is 0.038. Reporting the conventional number would claim more precision than we actually have.
     """)
     return
 
@@ -680,35 +649,36 @@ def _(mo):
     <a id="sec5"></a>
     ## 5. Reading a panel regression table
 
-    Applied papers report panel regressions the way Lecture 10 taught you to read: several columns, one specification each, with rows at the bottom announcing which fixed effects are included. The table below runs the full sequence on our 350-observation panel.
+    Applied papers report panel regressions the way Lecture 10 taught you to read them: several columns, one specification each, with rows at the bottom announcing which fixed effects are included. The table below runs the full sequence on our 900 observations from 2020 to 2025.
     """)
     return
 
 
 @app.cell(hide_code=True)
-def _(np, pn_fat, pn_tax):
-    # The four columns of Section 5: pooled OLS, state FE, state + year FE,
-    # and state + year FE with standard errors clustered by state. Each
-    # regression is estimated as the dummy regression via least squares, so
-    # the R-squared and degrees of freedom come from the full design matrix.
-    _n, _T = pn_fat.shape
-    _y = pn_fat.ravel()
-    _x = pn_tax.ravel()
-    _sid = np.repeat(np.arange(_n), _T)
+def _(fm_fert, fm_yield, np):
+    # The four columns of Section 5: pooled OLS, farm FE, farm + season FE,
+    # and farm + season FE with standard errors clustered by farm. Each
+    # regression is estimated as the indicator regression via least squares,
+    # so the R-squared and degrees of freedom come from the full design
+    # matrix.
+    _n, _T = fm_yield.shape
+    _y = fm_yield.ravel()
+    _x = fm_fert.ravel()
+    _fid = np.repeat(np.arange(_n), _T)
     _tid = np.tile(np.arange(_T), _n)
 
-    def _design(_state_fe, _year_fe):
+    def _design(_farm_fe, _season_fe):
         _cols = [np.ones(_n * _T), _x]
-        if _state_fe:
+        if _farm_fe:
             for _i in range(1, _n):
-                _cols.append((_sid == _i).astype(float))
-        if _year_fe:
+                _cols.append((_fid == _i).astype(float))
+        if _season_fe:
             for _t in range(1, _T):
                 _cols.append((_tid == _t).astype(float))
         return np.column_stack(_cols)
 
-    def _fit(_state_fe, _year_fe, _cluster):
-        _X = _design(_state_fe, _year_fe)
+    def _fit(_farm_fe, _season_fe, _cluster):
+        _X = _design(_farm_fe, _season_fe)
         _k = _X.shape[1]
         _beta, *_rest = np.linalg.lstsq(_X, _y, rcond=None)
         _u = _y - _X @ _beta
@@ -716,12 +686,12 @@ def _(np, pn_fat, pn_tax):
         _tss = float(((_y - _y.mean()) ** 2).sum())
         _XtXi = np.linalg.inv(_X.T @ _X)
         if _cluster:
-            # Cluster-robust variance: sum the score outer products state by
-            # state, with the standard G/(G-1) small-sample factor.
+            # Cluster-robust variance: sum the score outer products farm by
+            # farm, with the standard G/(G-1) small-sample factor.
             _meat = np.zeros((_k, _k))
             for _i in range(_n):
-                _rows = _sid == _i
-                _g = _X[_rows].T @ _u[_rows]
+                _sel = _fid == _i
+                _g = _X[_sel].T @ _u[_sel]
                 _meat += np.outer(_g, _g)
             _V = _XtXi @ _meat @ _XtXi * (_n / (_n - 1))
         else:
@@ -741,9 +711,9 @@ def _(np, pn_fat, pn_tax):
         _fit(True, True, True),
     ]
     tbl_flags = [
-        ("State fixed effects", ["No", "Yes", "Yes", "Yes"]),
-        ("Year fixed effects", ["No", "No", "Yes", "Yes"]),
-        ("Clustered SEs (by state)", ["No", "No", "No", "Yes"]),
+        ("Farm fixed effects", ["No", "Yes", "Yes", "Yes"]),
+        ("Season fixed effects", ["No", "No", "Yes", "Yes"]),
+        ("Clustered SEs (by farm)", ["No", "No", "No", "Yes"]),
     ]
     return tbl_fits, tbl_flags
 
@@ -765,7 +735,7 @@ def _(mo, tbl_fits, tbl_flags):
 
     _rows = []
     _rows.append(
-        "<tr><td style='padding:3px 15px;text-align:left;'>Beer tax (\\$ per case)</td>"
+        "<tr><td style='padding:3px 15px;text-align:left;'>Nitrogen (lbs per acre)</td>"
         + "".join(_coef_cell(_f["b1"], _f["se1"]) for _f in tbl_fits)
         + "</tr>"
     )
@@ -786,7 +756,7 @@ def _(mo, tbl_fits, tbl_flags):
         )
     _rows.append(
         "<tr><td style='padding:3px 15px;text-align:left;'>Observations</td>"
-        + "".join(f"<td style='{_pad}'>350</td>" for _f in tbl_fits)
+        + "".join(f"<td style='{_pad}'>900</td>" for _f in tbl_fits)
         + "</tr>"
     )
     _rows.append(
@@ -806,8 +776,8 @@ def _(mo, tbl_fits, tbl_flags):
         f"border-top:{_rule};border-bottom:{_rule};'>"
         "<thead>"
         "<tr><td></td><td colspan='4' style='text-align:center;"
-        "padding:5px 0 3px;font-weight:600;'>Dependent variable: traffic fatality "
-        "rate (deaths per 10,000 residents)</td></tr>"
+        "padding:5px 0 3px;font-weight:600;'>Dependent variable: corn yield "
+        "(bushels per acre)</td></tr>"
         "<tr><td style='border-bottom:1px solid rgba(120,120,120,0.6);'></td>"
         "<td colspan='4' style='border-bottom:1px solid rgba(120,120,120,0.6);'></td></tr>"
         f"<tr><td></td>{_colhdr}</tr>"
@@ -820,7 +790,7 @@ def _(mo, tbl_fits, tbl_flags):
         "font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;'>"
         "Standard errors in parentheses. One star marks statistical significance "
         "at the 10% level, two at the 5% level, and three at the 1% level. "
-        "State and year indicator coefficients are estimated but not reported."
+        "Farm and season indicator coefficients are estimated but not reported."
         "</span>"
     )
     mo.vstack([mo.md(_table), _note])
@@ -830,14 +800,14 @@ def _(mo, tbl_fits, tbl_flags):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    Read it column by column, asking of each coefficient movement: which confounder did this column remove?
+    Read the table column by column, asking of each movement in the coefficient: which confounder did this column remove?
 
-    * **Column (1), pooled OLS**, estimates $+0.10$: the wrong sign, because drinking culture and the national trend are both in the error term.
-    * **Column (2)** adds state fixed effects. The estimate swings to $-0.78$ as drinking culture is absorbed, but it now overshoots: within every state, the national safety trend moves fatalities down while taxes drift up, and the tax takes the credit.
-    * **Column (3)** adds year fixed effects on top. The estimate settles at $-0.43$, close to the truth of $-0.45$, since each year's intercept soaks up that year's nationwide conditions. Comparing columns (2) and (3) is the Section 3 lesson in table form.
-    * **Column (4)** reports the same regression as column (3); only the standard error changes, from 0.08 to 0.11, once we allow each state's errors to be correlated over time. The coefficient is unchanged, the t-statistic shrinks, and the confidence interval widens honestly. With the clustered standard error, the estimate remains statistically significant at the 1% level.
+    * **Column (1), pooled OLS**, estimates $-0.04$, statistically indistinguishable from zero. Soil quality pulls the estimate down and the seed-genetics trend pushes it up, and the two roughly cancel: fertilizer looks useless.
+    * **Column (2)** adds farm fixed effects. The estimate jumps to $+0.63$ as soil quality is absorbed, but it now overshoots: within every farm, the new seed varieties raised yields in the same seasons nitrogen use rose, and fertilizer takes the credit.
+    * **Column (3)** adds season fixed effects on top. The estimate settles at $+0.30$, the true effect, since each season's intercept soaks up that season's seed genetics and prices. Comparing columns (2) and (3) is the Section 3 lesson in table form.
+    * **Column (4)** reports the same regression as column (3); only the standard error changes, from 0.031 to 0.038, once we allow each farm's errors to be correlated across seasons. The coefficient is unchanged, the t-statistic shrinks, and the confidence interval widens honestly. The estimate remains statistically significant at the 1% level.
 
-    Also glance at the R² row with Lecture 10's warning in mind: the fixed effects push the R² from 0.02 to above 0.9, but almost all of that fit comes from 55 intercepts, not from the beer tax. A large R² is no evidence that a coefficient is causal.
+    Also glance at the R² row with Lecture 10's warning in mind: the fixed effects push the R² from 0.00 to above 0.95, but almost all of that fit comes from the 154 intercepts, not from nitrogen. A large R² is no evidence that a coefficient is causal.
 
     This four-column progression, pooled, entity effects, two-way effects, clustered standard errors, is the standard way applied economists present panel evidence. You now know how to read every row of it.
     """)
@@ -848,23 +818,34 @@ def _(mo):
 def _(mo):
     mo.callout(
         mo.md(
-            "**Terms:** time fixed effects, time fixed effects regression "
-            "model, base period, two-way fixed effects model, autocorrelated, "
-            "serially correlated, clustered standard errors.\n\n"
+            "**Terms:** time fixed effect, two-way fixed effects regression, "
+            "autocorrelated, serially correlated, clustered standard "
+            "errors.\n\n"
 
-            "**Concepts:** why entity fixed effects cannot absorb nationwide "
-            "changes, period indicators collapsing into time fixed effects, "
-            "the dummy variable trap in the time dimension, the two-way model "
-            "absorbing both time-invariant state factors and common year "
-            "shocks, the identification condition for the two-way model, "
-            "autocorrelation of errors within an entity, why autocorrelation "
-            "invalidates the usual standard errors without biasing the "
-            "estimate, clustering standard errors at the entity level, and "
-            "reading a four-column panel regression table."
+            "**Concepts:** why an entity's fixed effect cannot absorb factors "
+            "that change over time for all entities together, season "
+            "indicators collapsing into a time fixed effect, the two-way "
+            "model absorbing both time-invariant entity factors and common "
+            "period shocks, the condition under which the two-way estimate is "
+            "causal, autocorrelation of the regressor and errors within an "
+            "entity, why autocorrelation invalidates the usual standard "
+            "errors without biasing the estimate, clustering standard errors "
+            "at the entity level, and reading a four-column panel regression "
+            "table."
         ),
         title="Key terms and concepts",
         kind="info",
     )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ---
+
+    <span id="fn1" style="display:block;font-size:0.9rem;">**1.** We leave out the indicator for the 2025 season for the same reason we left out the indicator for Farm 150 in Lecture 15: the regression already contains the intercept $\beta_0$. If we included all six season indicators, they would add up to 1 for every observation and would therefore be an exact linear function of the intercept, so the regression would exhibit perfect multicollinearity, violating the fourth OLS assumption discussed in Lecture 9. <a href="#fnref1" title="Back to text">&#8617;</a></span>
+    """)
     return
 
 
