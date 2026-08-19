@@ -95,12 +95,12 @@ def _(mo):
     <a id="sec1"></a>
     ## 1. A puzzling regression
 
-    As we have frequently discussed in this course, many causal questions are difficult to answer because the enities we compare differ in ways that are hard to observe. Workers differ in ability, firms differ in management, and neighborhoods differ in amenities. When these unobserved differences are related to both our outcome and independent variables of interest, they create omitted variable bias.
+    As we have frequently discussed in this course, many causal questions are difficult to answer because the entities we compare differ in ways that are hard to observe. Workers differ in ability, firms differ in management, and neighborhoods differ in amenities. When these unobserved differences are related to both our outcome and independent variables of interest, they create omitted variable bias.
 
     In this lecture, we study another economic relationship involving the effect of nitrogen fertilizer on corn yields. Nitrogen is widely understood to increase corn yields, yet a simple regression of corn yields on nitrogen use can suggest exactly the opposite. We will use data on 150 corn farms over six years that record each farm's yield, measured in bushels per acre, and nitrogen fertilizer use, measured in pounds per acre. Using data from only the 2014 growing season, when we estimate
 
     $$
-    \text{Yield}_i = \beta_0 + \beta_1 , \text{Fertilizer}_i + u_i
+    \text{Yield}_i = \beta_0 + \beta_1 \, \text{Fertilizer}_i + u_i
     $$
 
     we obtain $\hat{\beta}_1 = -0.19$. According to the regression, each additional pound of nitrogen is associated with about one-fifth of a bushel less corn per acre. Use the dropdown to change seasons, and the same negative relationship appears every year.
@@ -366,7 +366,7 @@ def _(mo):
     \gamma_2 \text{F2}_i
     + \cdots +  \gamma_{149} \text{F149}_i + \varepsilon_{i,t},
     $$
-    where $\text{F1}_i$ equals 1 when farm $i$ is Farm 1 and 0 otherwise, $\text{F2}_i$ equals 1 when farm $i$ is Farm 2 and 0 otherwise, and so on.\footnote{We leave out the indicator for Farm 150 because the regression already contains the intercept $\beta_0$. If we included all 150 farm indicators, they would add up to 1 for every observation and would therefore be an exact linear function of the intercept. The regression would thus exhibit perfect multicollinearity, violating the fourth OLS assumption discussed in Lecture 9 that no independent variable is an exact linear function of the others.} With this setup, $\beta_0 + \gamma_1$ is Farm 1's expected corn yield when it uses no nitrogen fertilizer, $\beta_0 + \gamma_2$ is Farm 2's expected corn yield when it uses no nitrogen fertilizer, and so on. For Farm 150, whose indicator is omitted, the corresponding expected yield is simply $\beta_0$. Rather than writing out all 149 farm indicators each time, we can collect them into a single term,
+    where $\text{F1}_i$ equals 1 when farm $i$ is Farm 1 and 0 otherwise, $\text{F2}_i$ equals 1 when farm $i$ is Farm 2 and 0 otherwise, and so on.<sup><a id="fnref1" href="#fn1">1</a></sup> With this setup, $\beta_0 + \gamma_1$ is Farm 1's expected corn yield when it uses no nitrogen fertilizer, $\beta_0 + \gamma_2$ is Farm 2's expected corn yield when it uses no nitrogen fertilizer, and so on. For Farm 150, whose indicator is omitted, the corresponding expected yield is simply $\beta_0$. Rather than writing out all 149 farm indicators each time, we can collect them into a single term,
 
     $$\alpha_i = \gamma_1 \text{F1}_i + \gamma_2 \text{F2}_i +\cdots + \gamma_{149} \text{F149}_i.$$
 
@@ -462,12 +462,12 @@ def _(alt, fe_view, fm_fert, fm_six, fm_yield, mo, np, pd):
                 .encode(x=alt.X("fert:Q", scale=_xsc), y=alt.Y("yield:Q", scale=_ysc))
             )
         _msg = (
-            f"With one intercept per farm, the common slope is {_b1f:+.2f}. "
-            f"For the same farm, an extra pound of nitrogen yields an additional third of "
-            f"a bushel of corn. Using all 150 farms, the $\hat\beta$ is 0.30. "
-            f"Each farm's intercept "
-            f"absorbs its soil quality, so only differences within a farm over time "
-            f"determine the slope."
+            rf"With one intercept per farm, the common slope is {_b1f:+.2f}. "
+            rf"For the same farm, an extra pound of nitrogen yields an additional third of "
+            rf"a bushel of corn. Using all 150 farms, $\hat{{\beta}}_1$ is 0.30. "
+            rf"Each farm's intercept "
+            rf"absorbs its soil quality, so only differences within a farm over time "
+            rf"determine the slope."
         )
     _chart = alt.layer(*_layers).properties(width=560, height=360)
     _caption = mo.md(
@@ -497,24 +497,33 @@ def _(mo):
 def _(mo):
     mo.callout(
         mo.md(
-            "**Terms:** panel data, longitudinal data, balanced panel, "
-            "unbalanced panel, difference regression, mutually exclusive, "
-            "fixed effect, fixed effects regression model, entity fixed "
-            "effects, dummy variable trap, base farm.\n\n"
+            "**Terms:** cross-sectional data, panel data, longitudinal data, "
+            "balanced panel, unbalanced panel, difference regression, fixed "
+            "effects regression, entity fixed effect, base farm.\n\n"
 
             "**Concepts:** how an unmeasured, time-invariant confounder can "
             "flip the sign of a cross-sectional slope, panel notation and "
             "structure, differencing two periods to remove time-invariant "
-            "confounders, a fixed effect as one intercept per group absorbing "
-            "everything stable about that group, the entity fixed-effects "
-            "regression with many periods and why only within-entity movements "
-            "identify the slope, the dummy variable trap and the base-category "
-            "interpretation, and the limits of entity fixed effects when "
-            "confounders vary over time."
+            "confounders, a fixed effect as one intercept per entity absorbing "
+            "everything constant about that entity, why only within-entity "
+            "movements identify the slope, why one indicator must be left out "
+            "of the regression and why the choice of base farm changes no "
+            "estimates of interest, and the limits of entity fixed effects "
+            "when confounders vary over time."
         ),
         title="Key terms and concepts",
         kind="info",
     )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ---
+
+    <span id="fn1" style="display:block;font-size:0.9rem;">**1.** We leave out the indicator for Farm 150 because the regression already contains the intercept $\beta_0$. If we included all 150 farm indicators, they would add up to 1 for every observation and would therefore be an exact linear function of the intercept. The regression would thus exhibit perfect multicollinearity, violating the fourth OLS assumption discussed in Lecture 9 that no independent variable is an exact linear function of the others. <a href="#fnref1" title="Back to text">&#8617;</a></span>
+    """)
     return
 
 
@@ -529,14 +538,60 @@ def _(fm_six, mo):
 
 
 @app.cell(hide_code=True)
-def _(bs_farm, fm_fert, fm_six, fm_yield, mo, np):
+def _(np):
+    # Appendix demo: six students in a single semester, eight courses each.
+    # Ability (in grade points) is the time-invariant confounder: the ablest
+    # students study the fewest weekly hours yet earn the highest grades, so
+    # the pooled slope turns negative while the within-student slope is +2.
+    # Fixed seed; draw order matters.
+    _rng = np.random.default_rng(1978)
+    _ability = _rng.normal(0.0, 12.0, 6)
+    _hbar = np.clip(7.0 - 0.21 * _ability + _rng.normal(0.0, 1.5, 6), 2.5, 11.0)
+    ap_hours = np.clip(_hbar[:, None] + _rng.normal(0.0, 2.0, (6, 8)), 1.0, 12.0)
+    ap_grades = (
+        58.0 + 2.0 * ap_hours + _ability[:, None]
+        + _rng.normal(0.0, 4.0, (6, 8))
+    )
+    ap_students = ["Ana", "Ben", "Cara", "Dan", "Eva", "Finn"]
+    return ap_grades, ap_hours, ap_students
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    ap_view = mo.ui.radio(
+        options=[
+            "One pooled line",
+            "One intercept per student (fixed effects)",
+        ],
+        value="One pooled line",
+        label="How should the line(s) be fit?",
+        inline=True,
+    )
+    return (ap_view,)
+
+
+@app.cell(hide_code=True)
+def _(
+    ap_grades,
+    ap_hours,
+    ap_students,
+    ap_view,
+    alt,
+    bs_farm,
+    fm_fert,
+    fm_six,
+    fm_yield,
+    mo,
+    np,
+    pd,
+):
     _names = [f"Farm {_i + 1}" for _i in fm_six]
     _t6 = fm_fert[fm_six]
     _f6 = fm_yield[fm_six]
     _base = _names.index(bs_farm.value)
 
-    # The dummy regression itself: intercept, fertilizer, and an indicator for
-    # every farm except the chosen base farm.
+    # Part 1 - the base-farm table: the dummy regression with an intercept,
+    # fertilizer, and an indicator for every farm except the chosen base farm.
     _y = _f6.ravel()
     _x = _t6.ravel()
     _fid = np.repeat(np.arange(6), 6)
@@ -555,23 +610,101 @@ def _(bs_farm, fm_fert, fm_six, fm_yield, mo, np):
     ]
     for _k, _lab in enumerate(_labels):
         _rows.append(
-            f"| $\\hat{{\\alpha}}$: {_lab} (relative to {bs_farm.value}) "
+            f"| $\\hat{{\\gamma}}$: {_lab} (relative to {bs_farm.value}) "
             f"| {_beta[2 + _k]:+.1f} |"
         )
-    _table = (
+    _table = mo.md(
         "| Coefficient | Estimate |\n|---|---|\n" + "\n".join(_rows)
     )
 
-    _text = mo.md(r"""
+    _intro = mo.md(r"""
     This is bonus material. You will not be tested on the content of the appendix.
 
-    **Choosing the base farm.** Section 4 said that which farm we omit from the fixed-effects regression is a labelling choice with no substance. Verify it here. The regression below uses the six farms from Section 4's chart, an intercept, fertilizer, and an indicator for every farm except the base farm you choose.
-
-    Change the base farm and watch the table. The constant becomes the chosen farm's intercept, and every $\hat{\alpha}$ re-expresses the other farms' intercepts relative to that new base, so all of these numbers move. The fertilizer coefficient $\hat{\beta}_1$ never moves. Neither do the fitted values or residuals: adding a constant to every intercept while relabelling differences leaves every fitted line exactly where it was.
+    **Choosing the base farm.** In Section 4 we left out the indicator for Farm 150, so $\beta_0$ became Farm 150's intercept and each $\gamma$ measured another farm's intercept relative to it. The farm whose indicator is omitted is called the *base farm*, and which farm plays this role is a labelling choice with no substance. Verify it here. The regression below uses the six farms from Section 4's chart, with an intercept, fertilizer, and an indicator for every farm except the base farm you choose. Changing the base farm moves the constant and every $\hat{\gamma}$, since they are all re-expressed relative to the new base. The fertilizer coefficient $\hat{\beta}_1$ never moves, and neither do the fitted values or residuals: shifting which intercept is the reference point leaves every fitted line exactly where it was.
     """)
 
+    # Part 2 - fixed effects without a time dimension: the student-grades
+    # demo. Fits mirror the Section 4 chart: pooled line vs one intercept per
+    # student, the latter computed by demeaning within student, which yields
+    # the identical slope to the dummy regression.
+    _b1p, _b0p = np.polyfit(ap_hours.ravel(), ap_grades.ravel(), 1)
+    _hd = ap_hours - ap_hours.mean(axis=1, keepdims=True)
+    _gd = ap_grades - ap_grades.mean(axis=1, keepdims=True)
+    _b1w = float((_hd * _gd).sum() / (_hd * _hd).sum())
+
+    _fe2 = mo.md(r"""
+    **Fixed effects without a time dimension.** Nothing in the fixed effects logic requires observing entities over time. It requires only multiple observations on the same entity, and those observations can all come from a single point in time. Suppose we observe six students during one semester, with a course grade and weekly study hours for each of the eight courses on their schedule. Regressing the 48 course grades on study hours pools two very different comparisons: hours across courses within a student's schedule, and differences between students. Student ability now plays the role soil quality played in the lecture. It is hard to measure, it raises grades directly, and the ablest students study the fewest hours, so the pooled regression suggests that studying lowers grades. Including a fixed effect for each student, one intercept per student exactly as in Section 4, absorbs ability along with every other stable student trait. Loosely speaking, a student's intercept is their overall grade level, their GPA, and $\beta_1$ is identified by comparing the courses a student studies hardest for with the rest of that same student's schedule.
+    """)
+
+    _xsc = alt.Scale(domain=[0.0, 13.0], nice=False)
+    _ysc = alt.Scale(domain=[48.0, 102.0], nice=False)
+    _colors = ["#1f4e79", "#e69138", "#2a9d8f", "#7d5ba6", "#c05b5b", "#5b8bc0"]
+    _pts = pd.DataFrame({
+        "hours": ap_hours.ravel(),
+        "grade": ap_grades.ravel(),
+        "student": np.repeat(ap_students, 8),
+    })
+    _layers = [
+        alt.Chart(_pts)
+        .mark_circle(size=42, opacity=0.6, clip=True)
+        .encode(
+            x=alt.X("hours:Q", scale=_xsc,
+                    title="Weekly study hours for the course"),
+            y=alt.Y("grade:Q", scale=_ysc, title="Course grade (out of 100)"),
+            color=alt.Color(
+                "student:N",
+                scale=alt.Scale(domain=ap_students, range=_colors),
+                legend=alt.Legend(title=None, orient="top"),
+            ),
+        )
+    ]
+    if ap_view.value == "One pooled line":
+        _gx = np.array([float(ap_hours.min()) - 0.4,
+                        float(ap_hours.max()) + 0.4])
+        _layers.append(
+            alt.Chart(pd.DataFrame({"hours": _gx, "grade": _b0p + _b1p * _gx}))
+            .mark_line(color="#111827", size=4, clip=True)
+            .encode(x=alt.X("hours:Q", scale=_xsc),
+                    y=alt.Y("grade:Q", scale=_ysc))
+        )
+        _msg = (
+            f"One line through all six students has a slope of {_b1p:+.2f}: "
+            f"studying appears to cost grade points. The line is biased "
+            f"because the strongest students both study the least and earn "
+            f"the highest grades, so ability hides the payoff to studying."
+        )
+    else:
+        for _j in range(6):
+            _a = float(ap_grades[_j].mean() - _b1w * ap_hours[_j].mean())
+            _gx = np.array([float(ap_hours[_j].min()) - 0.5,
+                            float(ap_hours[_j].max()) + 0.5])
+            _layers.append(
+                alt.Chart(pd.DataFrame({"hours": _gx,
+                                        "grade": _a + _b1w * _gx}))
+                .mark_line(color=_colors[_j], size=2.5, clip=True)
+                .encode(x=alt.X("hours:Q", scale=_xsc),
+                        y=alt.Y("grade:Q", scale=_ysc))
+            )
+        _msg = (
+            f"With one intercept per student, the common slope is "
+            f"{_b1w:+.2f}: an extra weekly hour spent on a course raises its "
+            f"grade by about two points. Each student's intercept absorbs "
+            f"their ability, and the slope comes only from comparisons "
+            f"within each student's own schedule."
+        )
+    _chart = alt.layer(*_layers).properties(width=560, height=340)
+    _caption = mo.md(
+        "<span style='display:block;margin:0.2rem auto 0.4rem;max-width:560px;"
+        "font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;'>"
+        + _msg + "</span>"
+    )
+    _grades_demo = mo.vstack([_chart, _caption], align="center")
+
     mo.accordion({
-        "## Appendix": mo.vstack([_text, bs_farm, mo.md(_table)]),
+        "## Appendix": mo.vstack(
+            [_intro, bs_farm, _table, _fe2, ap_view, _grades_demo],
+            gap=0.75,
+        ),
     })
     return
 
