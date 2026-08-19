@@ -515,7 +515,7 @@ def _(mo):
     mo.md(r"""
     ---
 
-    <span id="fn1" style="display:block;font-size:0.9rem;">**1.** A bushel is a unit of volume traditionally used for grain in the United States, equal to about 35 liters. For corn, a bushel is standardized to weigh 56 pounds, so a yield of 180 bushels per acre means the farm harvested about 10,000 pounds, or 5 tons, of corn from each acre of land. <a href="#fnref1" title="Back to text">&#8617;</a></span>
+    <span id="fn1" style="display:block;font-size:0.9rem;">**1.** A bushel is a unit of volume traditionally used for grain in the United States, equal to about 35 liters. <a href="#fnref1" title="Back to text">&#8617;</a></span>
 
     <span id="fn2" style="display:block;font-size:0.9rem;">**2.** We leave out the indicator for Farm 150 because the regression already contains the intercept $\beta_0$. If we included all 150 farm indicators, they would add up to 1 for every observation and would therefore be an exact linear function of the intercept. The regression would thus exhibit perfect multicollinearity, violating the fourth OLS assumption discussed in Lecture 9 that no independent variable is an exact linear function of the others. <a href="#fnref2" title="Back to text">&#8617;</a></span>
     """)
