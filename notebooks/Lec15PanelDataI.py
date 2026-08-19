@@ -41,7 +41,7 @@ def _(mo):
                     "#sec1": "1. A puzzling regression",
                     "#sec2": "2. Panel data",
                     "#sec3": "3. Difference regression",
-                    "#sec4": "4. Fixed effect regressions",
+                    "#sec4": "4. Fixed effect regression",
                     "#sec5": "5. What fixed effects cannot fix",
                 },
                 orientation="vertical",
@@ -83,7 +83,7 @@ def _(mo):
     [1. A puzzling regression](#sec1)<br>
     [2. Panel data](#sec2)<br>
     [3. Difference regression](#sec3)<br>
-    [4. Fixed effect regressions](#sec4)<br>
+    [4. Fixed effect regression](#sec4)<br>
     [5. What fixed effects cannot fix](#sec5)
     """)
     return
@@ -343,7 +343,7 @@ def _(mo):
     mo.md(r"""
     <a id="sec4"></a>
 
-    ## 4. Fixed effect regressions
+    ## 4. Fixed effect regression
 
     The before-and-after comparison in Section 3 used only two years of our panel. *Fixed effects regressions* extend the same idea to all years in a dataset by allowing each entity, each farm in our case, to have its own intercept in the regression. In practice, we can do this by including a separate binary indicator for each farm. This allows us to estimate the relationship between nitrogen use and crop yield from changes within the same farm over time rather than from differences across farms.
 
@@ -616,8 +616,7 @@ def _(
     # vstack gap alone controls the rhythm.
     _bonus = mo.md(r"""This is bonus material. You will not be tested on the content of the appendix.""")
 
-    _base_text = mo.md(r"""**Choosing the base farm.** In Section 4 we left out the indicator for Farm 150, so $\beta_0$ became Farm 150's intercept and each $\gamma$ measured another farm's intercept relative to it. The farm whose indicator is omitted is called the *base farm*, and which farm plays this role is a labelling choice with no substance. Verify it here. The regression below uses the six farms from Section 4's chart, with an intercept, fertilizer, and an indicator for every farm except the base farm you choose. Changing the base farm moves the constant and every $\hat{\gamma}$, since they are all re-expressed relative to the new base. The fertilizer coefficient $\hat{\beta}_1$ never moves, and neither do the fitted values or residuals: shifting which intercept is the reference point leaves every fitted line exactly where it was.""")
-
+    _base_text = mo.md(r"""**Choosing the base farm.** In Section 4, we left out the indicator for Farm 150. As a result, $\beta_0$ gives Farm 150's intercept, while each $\gamma$ measures the difference between another farm's intercept and Farm 150's. The omitted farm is called the *base farm*, but which farm we choose as the base is simply a matter of labelling. You can verify this below using the six farms from Section 4. The regression includes an intercept, fertilizer use, and an indicator for every farm except the base farm you select. Changing the base farm changes the constant and every $\hat{\gamma}$ because these coefficients are now expressed relative to a different farm. But $\hat{\beta}_1$, the fitted values, and the residuals do not change. Choosing a different base farm simply changes how the intercepts are represented, not the fitted regression.""")
     # Part 2 - fixed effects without a time dimension: the student-grades
     # demo. Fits mirror the Section 4 chart: pooled line vs one intercept per
     # student, the latter computed by demeaning within student, which yields
@@ -627,7 +626,7 @@ def _(
     _gd = ap_grades - ap_grades.mean(axis=1, keepdims=True)
     _b1w = float((_hd * _gd).sum() / (_hd * _hd).sum())
 
-    _fe2 = mo.md(r"""**Fixed effects without a time dimension.** Nothing in the fixed effects logic requires observing entities over time. It requires only multiple observations on the same entity, and those observations can all come from a single point in time. Suppose we observe six students during one semester, with a course grade and weekly study hours for each of the eight courses on their schedule. Regressing the 48 course grades on study hours pools two very different comparisons: hours across courses within a student's schedule, and differences between students. Student ability now plays the role soil quality played in the lecture. It is hard to measure, it raises grades directly, and the ablest students study the fewest hours, so the pooled regression suggests that studying lowers grades. Including a fixed effect for each student, one intercept per student exactly as in Section 4, absorbs ability along with every other stable student trait. Loosely speaking, a student's intercept is their overall grade level, their GPA, and $\beta_1$ is identified by comparing the courses a student studies hardest for with the rest of that same student's schedule.""")
+    _fe2 = mo.md(r"""**Fixed effects without a time dimension.** Nothing in the fixed effects logic requires observing entities over time. It requires only multiple observations on the same entity, and those observations can all come from a single point in time. Suppose we observe six students during one semester and have data on their course grades and weekly study hours for each of the eight courses on their schedules. Suppose we want to use regression analysis to understand the causal effect of hours studied on course grades. If we pooled all these observations and regressed the $6 \times 8 = 48$ course grades on study hours, we would mix two different statistical relationships: study hours vary across courses within a student's schedule, but students also differ in how much they tend to study overall. Student ability now plays the role that soil quality played in the lecture. It is hard to measure, raises grades directly, and in our data the ablest students tend to study less, so the pooled regression suggests that studying lowers grades. Including a student-level fixed effect, so that we have one intercept per student exactly as in Section 4, removes student ability and every other stable student trait from the error term. Then $\beta_1$ is estimated by comparing the courses a student studies hardest for with the other courses in that same student's schedule.""")
 
     _xsc = alt.Scale(domain=[0.0, 13.0], nice=False)
     _ysc = alt.Scale(domain=[48.0, 102.0], nice=False)
@@ -661,10 +660,10 @@ def _(
                     y=alt.Y("grade:Q", scale=_ysc))
         )
         _msg = (
-            f"One line through all six students has a slope of {_b1p:+.2f}: "
+            f"One line through all six students has a slope of {_b1p:+.2f}; "
             f"studying appears to cost grade points. The line is biased "
             f"because the strongest students both study the least and earn "
-            f"the highest grades, so ability hides the payoff to studying."
+            f"the highest grades."
         )
     else:
         for _j in range(6):
@@ -680,7 +679,7 @@ def _(
             )
         _msg = (
             f"With one intercept per student, the common slope is "
-            f"{_b1w:+.2f}: an extra weekly hour spent on a course raises its "
+            f"{_b1w:+.2f}. An extra weekly hour spent on a course raises its "
             f"grade by about two points. Each student's intercept absorbs "
             f"their ability, and the slope comes only from comparisons "
             f"within each student's own schedule."
