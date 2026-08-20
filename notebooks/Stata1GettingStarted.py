@@ -27,9 +27,9 @@ def _():
 def _(mo):
     mo.sidebar(
         [
-            mo.md('<a href="https://robert-french.github.io/Econometrics/" target="_self" style="display: block; margin-bottom: 1.5em;">Course home</a>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/" target="_self" style="display: flex; align-items: center; gap: 0.5em; margin-bottom: 0.5em;"><img src="https://robert-french.github.io/Econometrics/LMU_SquareOrig.png" alt="" style="height: 1.6em; width: auto; display: block;"><span>ECON 3300 Course home</span></a>'),
             mo.md("# [Stata Tutorial 1](#top)"),
-            mo.md("Getting Started with Stata"),
+            mo.md("**Getting Started with Stata**"),
         ],
         width="260px",
     )
