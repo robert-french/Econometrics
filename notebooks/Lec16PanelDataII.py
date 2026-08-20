@@ -466,7 +466,7 @@ def _(alt, est_b1, est_pick, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
         "labely": [est_b1[_k] + (0.05 if est_b1[_k] >= 0 else -0.06)
                    for _k in _order],
         "chosen": [_k == _pick for _k in _order],
-        "label": [f"{est_b1[_k]:+.2f}" for _k in _order],
+        "label": [f"{est_b1[_k]:.2f}" for _k in _order],
     })
     _bx = alt.X("est:N", title=None,
                 sort=[_short[_k] for _k in _order],
@@ -513,7 +513,7 @@ def _(alt, est_b1, est_pick, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
             f"Pooled OLS accounts for neither source of omitted-variable bias. "
             f"Soil quality biases the estimate downward, while improved seed varieties "
             f"bias it upward. The two effects nearly offset, giving an estimate of "
-            f"{_b1:+.2f}, even though the true effect is +0.30."
+            f"{_b1:.2f}, even though the true effect is 0.30."
         )
 
     elif _pick == "Farm (entity) fixed effects":
@@ -522,7 +522,7 @@ def _(alt, est_b1, est_pick, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
             f"constant within a farm over time. Improved seed varieties still remain "
             f"in the error term, however. Because corn yields and nitrogen use both rise "
             f"over time, the regression misattributes some of the yield gains from "
-            f"improved seeds to nitrogen, raising the estimate to {_b1:+.2f}."
+            f"improved seeds to nitrogen, raising the estimate to {_b1:.2f}."
         )
 
     elif _pick == "Season (time) fixed effects":
@@ -530,15 +530,15 @@ def _(alt, est_b1, est_pick, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
             f"Time fixed effects account for improved seed varieties and other factors "
             f"that change across seasons but affect all farms in a similar way. Soil "
             f"quality still remains in the error term, however, so comparisons across "
-            f"farms bias the estimate downward to {_b1:+.2f}."
+            f"farms bias the estimate downward to {_b1:.2f}."
         )
 
     else:
         _msg = (
             f"Two-way fixed effects account for both sources of omitted-variable bias. "
             f"Farm fixed effects account for soil quality, while time fixed effects "
-            f"account for improved seed varieties. The estimate is {_b1:+.2f}, close "
-            f"to the true effect of +0.30."
+            f"account for improved seed varieties. The estimate is {_b1:.2f}, close "
+            f"to the true effect of 0.30."
         )
     _caption = mo.md(
         "<span style='display:block;margin:0.2rem auto 1rem;max-width:600px;"
@@ -700,18 +700,18 @@ def _(mo):
     <a id="sec4"></a>
     ## 4. Reading a panel regression table
 
-    Applied papers report panel regressions the way Lecture 10 taught you to read them: several columns, one specification each, with rows at the bottom announcing which fixed effects are included. The table below runs the full sequence on our 900 observations from 2020 to 2025.
+    Applied papers often report panel regressions in the same format we learned in Lecture 10, including several columns, each showing a different specification, with rows at the bottom indicating which fixed effects are included. The table below reports the full sequence of regressions using our 900 observations from 2020 to 2025.
     """)
     return
 
 
 @app.cell(hide_code=True)
 def _(fm_fert, fm_yield, np):
-    # The four columns of Section 4: pooled OLS, farm FE, farm + season FE,
-    # and farm + season FE with standard errors clustered by farm. Each
-    # regression is estimated as the indicator regression via least squares,
-    # so the R-squared and degrees of freedom come from the full design
-    # matrix.
+    # The four columns of Section 4: pooled OLS, farm FE, season FE, and
+    # two-way FE, all with standard errors clustered by farm (the appendix
+    # explains clustering). Each regression is estimated as the indicator
+    # regression via least squares, so the R-squared and degrees of freedom
+    # come from the full design matrix.
     _n, _T = fm_yield.shape
     _y = fm_yield.ravel()
     _x = fm_fert.ravel()
@@ -756,15 +756,14 @@ def _(fm_fert, fm_yield, np):
         }
 
     tbl_fits = [
-        _fit(False, False, False),
-        _fit(True, False, False),
-        _fit(True, True, False),
+        _fit(False, False, True),
+        _fit(True, False, True),
+        _fit(False, True, True),
         _fit(True, True, True),
     ]
     tbl_flags = [
-        ("Farm fixed effects", ["No", "Yes", "Yes", "Yes"]),
+        ("Farm fixed effects", ["No", "Yes", "No", "Yes"]),
         ("Season fixed effects", ["No", "No", "Yes", "Yes"]),
-        ("Clustered SEs (by farm)", ["No", "No", "No", "Yes"]),
     ]
     return tbl_fits, tbl_flags
 
@@ -779,7 +778,7 @@ def _(mo, tbl_fits, tbl_flags):
 
     def _coef_cell(_b, _se):
         _inner = (
-            f"{_b:+.3f}{_stars(_b / _se)}"
+            f"{_b:.3f}{_stars(_b / _se)}"
             f"<br><span style='color:#6b7280;'>({_se:.3f})</span>"
         )
         return f"<td style='{_pad}'>{_inner}</td>"
@@ -839,9 +838,11 @@ def _(mo, tbl_fits, tbl_flags):
     _note = mo.md(
         "<span style='display:block;margin:0.2rem auto 1rem;max-width:620px;"
         "font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;'>"
-        "Standard errors in parentheses. One star marks statistical significance "
-        "at the 10% level, two at the 5% level, and three at the 1% level. "
-        "Farm and season indicator coefficients are estimated but not reported."
+        "Standard errors in parentheses are clustered by farm; the appendix "
+        "explains what clustering means and why it is needed here. One star "
+        "marks statistical significance at the 10% level, two at the 5% "
+        "level, and three at the 1% level. Farm and season indicator "
+        "coefficients are estimated but not reported."
         "</span>"
     )
     mo.vstack([mo.md(_table), _note])
@@ -851,16 +852,16 @@ def _(mo, tbl_fits, tbl_flags):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    Read the table column by column, asking of each movement in the coefficient: which confounder did this column remove?
+    Read the table column by column and ask what changes as we account for each source of omitted-variable bias.
 
-    * **Column (1), pooled OLS**, estimates $-0.04$, statistically indistinguishable from zero. Soil quality pulls the estimate down and the seed-genetics trend pushes it up, and the two roughly cancel: nitrogen looks useless.
-    * **Column (2)** adds farm fixed effects. The estimate jumps to $+0.63$ as soil quality is absorbed, but it now overshoots: within every farm, the new seed varieties raised yields in the same seasons nitrogen use rose, and nitrogen takes the credit.
-    * **Column (3)** adds season fixed effects on top. The estimate settles at $+0.30$, the true effect, since each season's intercept soaks up that season's seed genetics and prices. Comparing columns (2) and (3) is the Section 3 lesson in table form.
-    * **Column (4)** reports the same regression as column (3); only the standard error changes, from 0.031 to 0.038, once we allow each farm's errors to be correlated across seasons. The coefficient is unchanged, the t-statistic shrinks, and the confidence interval widens honestly. The estimate remains statistically significant at the 1% level.
+    * **Column (1)** estimates a pooled OLS regression. The coefficient estimate of $-0.04$ is statistically indistinguishable from zero. Soil quality biases the estimate downward, while improved seed varieties bias it upward. The two effects roughly offset, making fertilizer appear to have little effect on yields.
+    * **Column (2)** adds farm fixed effects. The estimate rises to $0.63$ because the regression now accounts for soil quality and other factors that remain constant within farms over time. Improved seed varieties still remain in the error term, however. Because corn yields and nitrogen use both rose over time, the regression misattributes some of the yield gains from improved seeds to fertilizer.
+    * **Column (3)** instead adds time fixed effects, but no farm fixed effects. The estimate falls to $-0.20$. The time fixed effects account for improved seed varieties and other factors that change across seasons but affect all farms in a similar way. Soil quality remains in the error term, however, so differences across farms continue to bias the estimate downward.
+    * **Column (4)** includes both farm and time fixed effects. The estimate is $0.30$, the true causal effect underlying the data. Farm fixed effects account for soil quality and other factors that remain constant within farms over time, while time fixed effects account for improved seed varieties and other factors that change across seasons but affect all farms in a similar way.
 
-    Also glance at the R² row with Lecture 10's warning in mind: the fixed effects push the R² from 0.00 to above 0.95, but almost all of that fit comes from the 154 intercepts, not from nitrogen. A large R² is no evidence that a coefficient is causal.
+    The $R^2$ row should be interpreted with the same caution we discussed in Lecture 10. Adding fixed effects raises the $R^2$ from approximately 0.00 to above 0.95, but much of this additional fit comes from allowing average corn yields to differ across farms and seasons, not from nitrogen use itself. A high $R^2$ therefore tells us little about whether the estimated effect of nitrogen is causal.
 
-    This four-column progression, pooled, entity effects, two-way effects, clustered standard errors, is the standard way applied economists present panel evidence. You now know how to read every row of it.
+    This progression from pooled OLS, to farm fixed effects, to time fixed effects, and finally to two-way fixed effects is common in applied panel-data work. Reading across the columns shows how the coefficient changes as different sources of omitted-variable bias are addressed.
     """)
     return
 
@@ -913,7 +914,7 @@ def _(ac_demo, ac_rho, mo):
         # Rendered as \displaystyle inline math in a styled block instead of
         # $$ display math, whose default margins leave too much vertical
         # space around the equation inside the accordion.
-        + r"""<span style='display:block;text-align:center;margin:0.25rem auto;'>$\displaystyle \text{corr}(M_{it}, M_{i,t+j}) \neq 0, \quad \text{for some} \quad j \neq 0.$</span>"""
+        + r"""<span style='display:block;text-align:center;margin:0.8rem auto 0.25rem;'>$\displaystyle \text{corr}(M_{it}, M_{i,t+j}) \neq 0, \quad \text{for some} \quad j \neq 0.$</span>"""
     )
 
     _p3 = mo.md(r"""Autocorrelation in the error term does not by itself bias $\hat{\beta}_1$, provided our causal assumption from Section 3 still holds. It does, however, create a problem for the usual standard errors. Six observations from the same farm with correlated errors do not provide the same amount of independent information as six observations from six unrelated farms. Conventional standard errors ignore this dependence and can therefore make our estimates appear more reliable than they really are.""")
