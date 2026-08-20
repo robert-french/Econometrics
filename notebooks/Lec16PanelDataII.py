@@ -503,36 +503,10 @@ def _(alt, est_b1, est_pick, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
             text="label:N",
         )
     )
-    # Vega axis titles are plain text, so a KaTeX \widehat is impossible and
-    # the unicode combining hat renders off-center over the beta. The axis
-    # title therefore stays plain, and the estimate symbol is drawn per
-    # character at the top-left of the bar panel: "β₁" plus a caret
-    # positioned above the β (the same hat technique as Lec11's charts).
-    _bhat_base = (
-        alt.Chart(pd.DataFrame({"t": ["β₁"]}))
-        .mark_text(fontSize=13, fontStyle="italic", color="#374151",
-                   align="left", baseline="top")
-        .encode(x=alt.value(4), y=alt.value(7), text="t:N")
+    _side = (_bars + _blabels + _rule + _rule_label).properties(
+        width=150, height=340,
     )
-    _bhat_caret = (
-        alt.Chart(pd.DataFrame({"t": ["ˆ"]}))
-        .mark_text(fontSize=12, color="#374151", align="center",
-                   baseline="top")
-        .encode(x=alt.value(8), y=alt.value(0), text="t:N")
-    )
-    _side = (
-        _bars + _blabels + _rule + _rule_label + _bhat_base + _bhat_caret
-    ).properties(width=150, height=340)
     _chart = alt.hconcat(_main, _side).resolve_scale(color="independent")
-    if _pick == "Pooled OLS":
-        # The pooled view has no legend, so pad the figure's right edge by
-        # one legend width to keep the overall chart width fixed across
-        # selections. Vega-lite only allows padding on the top-level chart,
-        # never inside the hconcat, and an explicit padding object zeroes
-        # unspecified sides, so restore the 5px default on the others.
-        _chart = _chart.properties(
-            padding={"left": 5, "top": 5, "bottom": 5, "right": 75},
-        )
 
     if _pick == "Pooled OLS":
         _msg = (
@@ -571,7 +545,12 @@ def _(alt, est_b1, est_pick, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
         "font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;'>"
         + _msg + "</span>"
     )
-    mo.vstack([_eq, _chart, _caption], align="center")
+    # The chart block is left-pinned rather than centered: the legend appears
+    # and disappears with the selection, so the total figure width varies, and
+    # centering would shift the plot horizontally on every click. With the
+    # left edge pinned, only the right edge (the legend area) grows or
+    # shrinks. The equation and caption stay centered via their own margins.
+    mo.vstack([_eq, mo.hstack([_chart], justify="start"), _caption])
     return
 
 
@@ -929,11 +908,13 @@ def _(ac_demo, ac_rho, mo):
 
     _p1 = mo.md(r"""**Standard errors in panel data.** Estimating $\beta_1$ is only half the job. We also need a standard error that correctly measures the uncertainty in $\hat{\beta}_1$. Recall from Lecture 6 that the usual standard error formulas treat observations as independent. That assumption is often unreasonable in panel data because the same entity appears repeatedly. In this lecture's panel, for example, each farm appears in six different seasons.""")
 
-    _p2 = mo.md(r"""Observations on the same farm are likely to be related over time. A farm that applies a lot of nitrogen in 2020 is likely to apply a lot in 2021 because nitrogen practices persist. More importantly for standard errors, unobserved factors affecting a farm's yield can also persist. A drainage problem, pest infestation, or irrigation upgrade that affects yield in one season may continue to matter in the next. A variable with this kind of relationship over time is *autocorrelated*, also called *serially correlated*. Formally, $M_{it}$ is autocorrelated if
-
-    $$
-    \text{corr}(M_{it}, M_{i,t+j}) \neq 0, \quad \text{for some} \quad j \neq 0.
-    $$""")
+    _p2 = mo.md(
+        r"""Observations on the same farm are likely to be related over time. A farm that applies a lot of nitrogen in 2020 is likely to apply a lot in 2021 because nitrogen practices persist. More importantly for standard errors, unobserved factors affecting a farm's yield can also persist. A drainage problem, pest infestation, or irrigation upgrade that affects yield in one season may continue to matter in the next. A variable with this kind of relationship over time is *autocorrelated*, also called *serially correlated*. Formally, $M_{it}$ is autocorrelated if"""
+        # Rendered as \displaystyle inline math in a styled block instead of
+        # $$ display math, whose default margins leave too much vertical
+        # space around the equation inside the accordion.
+        + r"""<span style='display:block;text-align:center;margin:0.25rem auto;'>$\displaystyle \text{corr}(M_{it}, M_{i,t+j}) \neq 0, \quad \text{for some} \quad j \neq 0.$</span>"""
+    )
 
     _p3 = mo.md(r"""Autocorrelation in the error term does not by itself bias $\hat{\beta}_1$, provided our causal assumption from Section 3 still holds. It does, however, create a problem for the usual standard errors. Six observations from the same farm with correlated errors do not provide the same amount of independent information as six observations from six unrelated farms. Conventional standard errors ignore this dependence and can therefore make our estimates appear more reliable than they really are.""")
 
