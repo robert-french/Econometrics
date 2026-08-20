@@ -32,6 +32,90 @@ import fire
 from loguru import logger
 
 
+# Homepage tabs are keyed off the notebook filename: LecN* files are lectures,
+# PSN* files are problem set solutions, StataN* files are Stata tutorials.
+_CATEGORY_PATTERNS = (
+    ("problem_set", re.compile(r"^PS(\d+)")),
+    ("stata", re.compile(r"^Stata(\d+)")),
+    ("lecture", re.compile(r"^Lec(\d+)")),
+)
+
+# Thematic groups for the Lectures tab, keyed on lecture number. A group with
+# no built notebooks is omitted from the rendered page.
+LECTURE_GROUPS = (
+    ("Foundations: Probability and Statistics", 1, 4),
+    ("Simple Linear Regression", 5, 7),
+    ("Multiple Regression", 8, 10),
+    ("Nonlinear Regression", 11, 13),
+    ("Internal and External Validity", 14, 14),
+    ("Panel Data", 15, 16),
+    ("Binary Dependent Variables", 17, 17),
+    ("Experiments and Quasi-Experiments", 18, 19),
+)
+
+
+def _categorize(stem: str) -> tuple[str, Optional[int]]:
+    """Return (category, number) for a notebook filename stem."""
+    for category, pattern in _CATEGORY_PATTERNS:
+        match = pattern.match(stem)
+        if match:
+            return category, int(match.group(1))
+    return "lecture", None
+
+
+def _index_sections(apps_data: List[dict]) -> tuple[List[dict], List[dict], List[dict]]:
+    """Split the exported apps into the three homepage tabs.
+
+    Returns (lecture_groups, problem_sets, stata_tutorials), where
+    lecture_groups is a list of {"title", "range_label", "items"} dicts in
+    LECTURE_GROUPS order. Lectures whose number falls outside every group
+    (or is missing) land in a trailing "Other lectures" group.
+    """
+    lectures: List[tuple[Optional[int], dict]] = []
+    problem_sets: List[dict] = []
+    stata_tutorials: List[dict] = []
+
+    for item in apps_data:
+        category, number = _categorize(item["stem"])
+        if category == "problem_set":
+            problem_sets.append(item)
+        elif category == "stata":
+            stata_tutorials.append(item)
+        else:
+            lectures.append((number, item))
+
+    grouped_numbers = set()
+    lecture_groups: List[dict] = []
+    for title, first, last in LECTURE_GROUPS:
+        items = [
+            item
+            for number, item in lectures
+            if number is not None and first <= number <= last
+        ]
+        if not items:
+            continue
+        grouped_numbers.update(range(first, last + 1))
+        range_label = (
+            f"Lecture {first}" if first == last else f"Lectures {first}–{last}"
+        )
+        lecture_groups.append(
+            {"title": title, "range_label": range_label, "items": items}
+        )
+
+    leftovers = [
+        item
+        for number, item in lectures
+        if number is None
+        or not any(first <= number <= last for _, first, last in LECTURE_GROUPS)
+    ]
+    if leftovers:
+        lecture_groups.append(
+            {"title": "Other lectures", "range_label": "", "items": leftovers}
+        )
+
+    return lecture_groups, problem_sets, stata_tutorials
+
+
 def _parse_notebook(notebook_path: Path) -> Optional[ast.Module]:
     try:
         return ast.parse(notebook_path.read_text(encoding="utf-8"))
@@ -227,10 +311,20 @@ def _generate_index(
             autoescape=jinja2.select_autoescape(["html", "xml"]),
         )
 
-        template = env.get_template(template_name)
-        rendered_html = template.render(notebooks=notebooks_data, apps=apps_data)
+        lecture_groups, problem_sets, stata_tutorials = _index_sections(
+            apps_data or []
+        )
 
-        with open(index_path, "w") as f:
+        template = env.get_template(template_name)
+        rendered_html = template.render(
+            notebooks=notebooks_data,
+            apps=apps_data,
+            lecture_groups=lecture_groups,
+            problem_sets=problem_sets,
+            stata_tutorials=stata_tutorials,
+        )
+
+        with open(index_path, "w", encoding="utf-8") as f:
             f.write(rendered_html)
 
         logger.info(f"Successfully generated index.html at {index_path}")
@@ -297,11 +391,12 @@ def _export_from_notebooks(
             display_name = _extract_app_title(nb) or nb.stem.replace("_", " ").title()
             notebook_data.append(
                 {
+                    "stem": nb.stem,
                     "display_name": display_name,
                     "description": _extract_description(nb),
                     "key_terms": _extract_key_terms(nb),
                     "preliminary": _extract_preliminary(nb),
-                    "html_path": str(html_path),
+                    "html_path": html_path.as_posix(),
                 }
             )
 

@@ -11,6 +11,48 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
+{#
+  Card used by all three tabs. `item` is one notebook dict from build.py;
+  the eyebrow label comes from splitting the app_title at the first ": "
+  (e.g. "Lecture 15: Panel Data I" -> "Lecture 15" / "Panel Data I").
+#}
+{% macro card(item, fallback_label, button_text, blurb_fallback) %}
+  {% set _parts = item.display_name.split(': ', 1) %}
+  {% set _label = _parts[0] if _parts|length == 2 else fallback_label %}
+  {% set _topic = _parts[1] if _parts|length == 2 else item.display_name %}
+  <article class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+
+    <div class="flex items-center justify-between gap-2 mb-2">
+      <p class="text-sm font-medium text-slate-500">
+        {{ _label }}
+      </p>
+      {% if item.preliminary %}
+      <span class="inline-flex items-center rounded-full bg-amber-100 text-amber-800 text-xs font-semibold px-2.5 py-0.5">
+        Preliminary
+      </span>
+      {% endif %}
+    </div>
+
+    <h3 class="text-xl font-semibold leading-snug min-h-[3.4375rem] flex items-center">
+      {{ _topic }}
+    </h3>
+
+    <p class="mt-3 text-slate-600 leading-7 line-clamp-2">
+      {{ item.description or item.key_terms or blurb_fallback }}
+    </p>
+
+    <div class="mt-6">
+      <a
+        href="{{ item.html_path }}"
+        class="inline-flex items-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
+      >
+        {{ button_text }}
+      </a>
+    </div>
+
+  </article>
+{% endmacro %}
+
 <body class="bg-slate-50 text-slate-900 font-sans">
 
   <span id="top"></span>
@@ -60,7 +102,9 @@
         </div>
 
         <nav class="flex flex-wrap gap-x-7 gap-y-2 text-lg font-semibold text-[#1f4e79] sm:pb-2 sm:pr-4">
-          <a href="#lectures" class="hover:text-[#15324f]">Lectures</a>
+          <a href="#lectures" data-tab-link="lectures" class="hover:text-[#15324f]">Lectures</a>
+          <a href="#problem-set-solutions" data-tab-link="problem-set-solutions" class="hover:text-[#15324f]">Problem set solutions</a>
+          <a href="#stata-tutorials" data-tab-link="stata-tutorials" class="hover:text-[#15324f]">Stata tutorials</a>
           <a href="#for-students" class="hover:text-[#15324f]">For students</a>
           <a href="#for-educators" class="hover:text-[#15324f]">For educators</a>
         </nav>
@@ -73,7 +117,7 @@
     <!-- First section, no nav link, edit this freely              -->
     <!-- ========================================================= -->
 
-    <section class="mb-20 max-w-3xl">
+    <section class="mb-12 max-w-3xl">
       <p class="text-lg leading-8 text-slate-600">
         This website is in development. Check back later for lecture notebooks and resources for ECON 3300!
       </p>
@@ -81,101 +125,83 @@
 
 
     <!-- ========================================================= -->
-    <!-- LECTURES                                                  -->
-    <!-- Cards are generated automatically from your notebooks     -->
+    <!-- TABS                                                      -->
+    <!-- No tab is open on load; clicking a tab reveals its panel  -->
+    <!-- and clicking it again collapses back to this state.       -->
     <!-- ========================================================= -->
 
-    <section id="lectures" class="scroll-mt-20 mb-20">
+    <div class="mb-10 flex flex-wrap gap-3" role="tablist" aria-label="Course materials">
+      <button
+        type="button"
+        data-tab="lectures"
+        class="tab-button rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-[#1f4e79] transition-colors hover:border-[#1f4e79]"
+      >
+        Lectures
+      </button>
+      <button
+        type="button"
+        data-tab="problem-set-solutions"
+        class="tab-button rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-[#1f4e79] transition-colors hover:border-[#1f4e79]"
+      >
+        Problem Set Solutions
+      </button>
+      <button
+        type="button"
+        data-tab="stata-tutorials"
+        class="tab-button rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-[#1f4e79] transition-colors hover:border-[#1f4e79]"
+      >
+        Stata Tutorials
+      </button>
+    </div>
+
+    <!-- Dummy element so the Tailwind CDN compiles the classes the tab
+         script toggles at runtime. -->
+    <span class="hidden bg-[#1f4e79] text-white border-[#1f4e79]"></span>
+
+
+    <!-- ========================================================= -->
+    <!-- LECTURES (tab panel)                                      -->
+    <!-- Cards are generated automatically from your notebooks     -->
+    <!-- and grouped by theme in build.py's LECTURE_GROUPS.        -->
+    <!-- ========================================================= -->
+
+    <section id="lectures" class="tab-panel scroll-mt-20 mb-20 hidden">
 
       <h2 class="text-2xl font-semibold mb-2">
         Lectures
       </h2>
 
       <p class="mb-6 text-slate-600">
-        Open a lecture to read it in your browser.
+        Open a unit, then open a lecture to read it in your browser.
       </p>
 
-      {% if apps %}
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-        {% for app in apps %}
-          {% set _parts = app.display_name.split(': ', 1) %}
-          {% set _label = _parts[0] if _parts|length == 2 else 'Lecture' %}
-          {% set _topic = _parts[1] if _parts|length == 2 else app.display_name %}
-          <article class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
-
-            <div class="flex items-center justify-between gap-2 mb-2">
-              <p class="text-sm font-medium text-slate-500">
-                {{ _label }}
-              </p>
-              {% if app.preliminary %}
-              <span class="inline-flex items-center rounded-full bg-amber-100 text-amber-800 text-xs font-semibold px-2.5 py-0.5">
-                Preliminary
-              </span>
+      {% if lecture_groups %}
+      <div class="space-y-4">
+        {% for group in lecture_groups %}
+        <details class="group rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <summary class="flex cursor-pointer items-center justify-between gap-4 px-6 py-4 list-none [&::-webkit-details-marker]:hidden">
+            <div>
+              <h3 class="text-lg font-semibold">{{ group.title }}</h3>
+              {% if group.range_label %}
+              <p class="mt-0.5 text-sm text-slate-500">{{ group.range_label }}</p>
               {% endif %}
             </div>
-
-            <h3 class="text-xl font-semibold leading-snug min-h-[3.4375rem] flex items-center">
-              {{ _topic }}
-            </h3>
-
-            <p class="mt-3 text-slate-600 leading-7 line-clamp-2">
-              {{ app.description or app.key_terms or "Open the lecture to read it in your browser." }}
-            </p>
-
-            <div class="mt-6">
-              <a
-                href="{{ app.html_path }}"
-                class="inline-flex items-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
-              >
-                Open lecture
-              </a>
-            </div>
-
-          </article>
-        {% endfor %}
-
-      </div>
-      {% elif notebooks %}
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-        {% for notebook in notebooks %}
-        {% set _parts = notebook.display_name.split(': ', 1) %}
-        {% set _label = _parts[0] if _parts|length == 2 else 'Lecture' %}
-        {% set _topic = _parts[1] if _parts|length == 2 else notebook.display_name %}
-        <article class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
-
-          <div class="flex items-center justify-between gap-2 mb-2">
-            <p class="text-sm font-medium text-slate-500">
-              {{ _label }}
-            </p>
-            {% if notebook.preliminary %}
-            <span class="inline-flex items-center rounded-full bg-amber-100 text-amber-800 text-xs font-semibold px-2.5 py-0.5">
-              Preliminary
-            </span>
-            {% endif %}
-          </div>
-
-          <h3 class="text-xl font-semibold leading-snug min-h-[3.4375rem] flex items-center">
-            {{ _topic }}
-          </h3>
-
-          <p class="mt-3 text-slate-600 leading-7 line-clamp-2">
-            {{ notebook.description or notebook.key_terms or "Open the lecture to read it in your browser." }}
-          </p>
-
-          <div class="mt-6">
-            <a
-              href="{{ notebook.html_path }}"
-              class="inline-flex items-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
+            <svg
+              class="h-5 w-5 shrink-0 text-slate-400 transition-transform duration-200 group-open:rotate-180"
+              fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"
             >
-              Open lecture
-            </a>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </summary>
+          <div class="border-t border-slate-100 px-6 pb-6 pt-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {% for item in group['items'] %}
+              {{ card(item, 'Lecture', 'Open lecture', 'Open the lecture to read it in your browser.') }}
+              {% endfor %}
+            </div>
           </div>
-
-        </article>
+        </details>
         {% endfor %}
-
       </div>
       {% else %}
       <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-8">
@@ -185,6 +211,78 @@
 
         <p class="mt-3 text-slate-600">
           Add marimo notebooks to the notebooks folder, then push your changes to GitHub.
+        </p>
+      </div>
+      {% endif %}
+
+    </section>
+
+
+    <!-- ========================================================= -->
+    <!-- PROBLEM SET SOLUTIONS (tab panel)                         -->
+    <!-- Cards come from notebooks named PS<N>...py                -->
+    <!-- ========================================================= -->
+
+    <section id="problem-set-solutions" class="tab-panel scroll-mt-20 mb-20 hidden">
+
+      <h2 class="text-2xl font-semibold mb-2">
+        Problem Set Solutions
+      </h2>
+
+      <p class="mb-6 text-slate-600">
+        Worked solutions to the problem sets, in the same notebook format as the lectures.
+      </p>
+
+      {% if problem_sets %}
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for item in problem_sets %}
+        {{ card(item, 'Problem Set', 'Open problem set', 'Open the problem set to read it in your browser.') }}
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-8">
+        <h3 class="text-xl font-semibold">
+          Coming soon
+        </h3>
+
+        <p class="mt-3 text-slate-600">
+          Problem set solutions will appear here as they are posted.
+        </p>
+      </div>
+      {% endif %}
+
+    </section>
+
+
+    <!-- ========================================================= -->
+    <!-- STATA TUTORIALS (tab panel)                               -->
+    <!-- Cards come from notebooks named Stata<N>...py             -->
+    <!-- ========================================================= -->
+
+    <section id="stata-tutorials" class="tab-panel scroll-mt-20 mb-20 hidden">
+
+      <h2 class="text-2xl font-semibold mb-2">
+        Stata Tutorials
+      </h2>
+
+      <p class="mb-6 text-slate-600">
+        Step-by-step guides to working with Stata.
+      </p>
+
+      {% if stata_tutorials %}
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for item in stata_tutorials %}
+        {{ card(item, 'Stata Tutorial', 'Open tutorial', 'Open the tutorial to read it in your browser.') }}
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-8">
+        <h3 class="text-xl font-semibold">
+          Coming soon
+        </h3>
+
+        <p class="mt-3 text-slate-600">
+          Stata tutorials will appear here as they are posted.
         </p>
       </div>
       {% endif %}
@@ -251,6 +349,62 @@
       }
       window.addEventListener("scroll", update, { passive: true });
       update();
+    })();
+
+    // Tabs: no panel is open on load. Clicking a tab (or a header nav link
+    // for one) opens its panel; clicking the active tab closes it again.
+    // The URL hash mirrors the open tab so deep links work.
+    (function () {
+      var TAB_IDS = ["lectures", "problem-set-solutions", "stata-tutorials"];
+      var ACTIVE = ["bg-[#1f4e79]", "text-white", "border-[#1f4e79]"];
+      var INACTIVE = ["bg-white", "text-[#1f4e79]", "border-slate-300"];
+      var current = null;
+
+      function setTab(id) {
+        current = id;
+        TAB_IDS.forEach(function (tabId) {
+          var panel = document.getElementById(tabId);
+          var button = document.querySelector('[data-tab="' + tabId + '"]');
+          var active = tabId === id;
+          if (panel) panel.classList.toggle("hidden", !active);
+          if (button) {
+            (active ? INACTIVE : ACTIVE).forEach(function (cls) {
+              button.classList.remove(cls);
+            });
+            (active ? ACTIVE : INACTIVE).forEach(function (cls) {
+              button.classList.add(cls);
+            });
+            button.setAttribute("aria-selected", active ? "true" : "false");
+          }
+        });
+      }
+
+      function openFromHash() {
+        var id = window.location.hash.replace("#", "");
+        if (TAB_IDS.indexOf(id) !== -1) setTab(id);
+      }
+
+      document.querySelectorAll("[data-tab]").forEach(function (button) {
+        button.addEventListener("click", function () {
+          var id = button.getAttribute("data-tab");
+          if (current === id) {
+            setTab(null);
+            history.replaceState(null, "", window.location.pathname + window.location.search);
+          } else {
+            setTab(id);
+            history.replaceState(null, "", "#" + id);
+          }
+        });
+      });
+
+      document.querySelectorAll("[data-tab-link]").forEach(function (link) {
+        link.addEventListener("click", function () {
+          setTab(link.getAttribute("data-tab-link"));
+        });
+      });
+
+      window.addEventListener("hashchange", openFromHash);
+      openFromHash();
     })();
   </script>
 
