@@ -28,6 +28,22 @@ a.hyperlink:visited {
     }
 }
 
+/* Sidebar nav menu (mo.nav_menu) links: marimo-link blue by default,
+   not only after being visited, so the menu never mixes black and blue
+   items. The nav menu renders in a shadow root; marimo copies this
+   stylesheet into it (the export embeds it as <style title='marimo-custom'>
+   and only title^="marimo" sheets cross the boundary), where the host
+   element is addressed with :host(). At the document level this rule is
+   inert, so no other links are affected. */
+:host(marimo-nav-menu) a {
+    color: #0b68cb !important;
+}
+@media (prefers-color-scheme: dark) {
+    :host(marimo-nav-menu) a {
+        color: #479bf5 !important;
+    }
+}
+
 /* Tighter vertical rhythm for section headings. Halves the browser
    default to keep section breaks readable but less airy. */
 h2 {

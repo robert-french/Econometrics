@@ -29,12 +29,6 @@ def _():
 def _(mo):
     mo.sidebar(
         [
-            mo.Html(
-                "<style>"
-                "marimo-nav-menu a { color: #0b68cb !important; } "
-                "@media (prefers-color-scheme: dark) { marimo-nav-menu a { color: #479bf5 !important; } }"
-                "</style>"
-            ),
             mo.md(
                 '<div>'
                 '<a href="https://robert-french.github.io/Econometrics/" target="_self" style="display: flex; align-items: center; gap: 0.5em; margin: 0;">'
