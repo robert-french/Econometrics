@@ -30,13 +30,13 @@ def _(mo):
     mo.sidebar(
         [
             mo.md(
-                '<a href="https://robert-french.github.io/Econometrics/" target="_self" style="display: flex; align-items: center; gap: 0.5em; margin-bottom: 1.5em;">'
+                '<a href="https://robert-french.github.io/Econometrics/" target="_self" style="display: flex; align-items: center; gap: 0.5em; margin-bottom: 0.5em;">'
                 '<img src="https://robert-french.github.io/Econometrics/LMU_SquareOrig.png" alt="" style="height: 1.6em; width: auto; display: block;">'
                 '<span>ECON 3300 Course home</span>'
                 '</a>'
             ),
             mo.md("# [Lecture 1](#top)"),
-            mo.md("Introduction to Econometrics"),
+            mo.md("**Introduction to Econometrics**"),
             mo.nav_menu(
                 {
                     "#sec1": "1. What is econometrics?",
