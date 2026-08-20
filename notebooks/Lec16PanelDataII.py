@@ -453,14 +453,7 @@ def _(alt, est_b1, est_pick, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
                                     legend=None),
                 )
             )
-    # The pooled view has no legend, so pad its right side by roughly one
-    # legend width to keep the overall chart width fixed across selections.
-    if _pick == "Pooled OLS":
-        _main = alt.layer(*_layers).properties(
-            width=430, height=340, padding={"right": 70},
-        )
-    else:
-        _main = alt.layer(*_layers).properties(width=430, height=340)
+    _main = alt.layer(*_layers).properties(width=430, height=340)
 
     _order = ["Pooled OLS", "Farm (entity) fixed effects",
               "Season fixed effects", "Two-way fixed effects"]
@@ -516,6 +509,15 @@ def _(alt, est_b1, est_pick, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
         width=150, height=340,
     )
     _chart = alt.hconcat(_main, _side).resolve_scale(color="independent")
+    if _pick == "Pooled OLS":
+        # The pooled view has no legend, so pad the figure's right edge by
+        # one legend width to keep the overall chart width fixed across
+        # selections. Vega-lite only allows padding on the top-level chart,
+        # never inside the hconcat, and an explicit padding object zeroes
+        # unspecified sides, so restore the 5px default on the others.
+        _chart = _chart.properties(
+            padding={"left": 5, "top": 5, "bottom": 5, "right": 75},
+        )
 
     if _pick == "Pooled OLS":
         _msg = (
