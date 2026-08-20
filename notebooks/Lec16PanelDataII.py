@@ -220,27 +220,32 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec2"></a>
+
     ## 2. Time fixed effects
 
-    The remedy mirrors what we did in Lecture 15, with the roles of farm and season swapped. There we split the error term into a time-invariant farm component $Z_i$ and a remainder. Let's now split off a component $S_t$ that is common to all farms but varies over seasons,
+    Farm fixed effects, $\alpha_i$, capture only omitted factors that remain constant within a farm over time. They therefore cannot account for the improved seed varieties in our example, which change from season to season in a way that's correlated with fertilizer use. However, because improved seed varieties affect all farms in a similar way, we can account for this unobserved factor using a second type of fixed effect.
+
+    In Lecture 15, we separated out from the error term a farm-specific component $Z_i$ that differed across farms but remained fixed over time. Now suppose the error also contains a component $S_t$ that changes across seasons but is common to all farms:
 
     $$
-    Y_{it} = \beta_0 + \beta_1 X_{it} + Z_i + S_t + \varepsilon_{it},
+    Y_{it} = \beta_0 + \beta_1 X_{it} + Z_i + S_t + \nu_{it},
     $$
 
-    where $S_t$ represents the unobserved factors that affect all farms in season $t$, such as the quality of available seed varieties, fertilizer prices, or statewide weather. The absence of an $i$ subscript on $S_t$ is important; these factors do not differ across farms within a season. $\varepsilon_{it}$ now collects the unobserved factors that vary across farms *and* over seasons, such as one farm's pest outbreak in one particular year.
+    where $S_t$ captures the common component of unobserved factors that affect farms in season $t$, such as the quality of available seed varieties or a widespread weather shock. The absence of an $i$ subscript on $S_t$ is important. Within a given season, the same $S_t$ applies to every farm. The remaining error $\nu_{it}$ represents unobserved factors that vary across farms *and* over seasons, such as a pest outbreak on one farm in one particular season.
 
-    We cannot observe $S_t$ directly, but just as we gave each farm its own intercept, we can give each season its own intercept by including binary indicators for the seasons 2020 through 2024,
+    We cannot observe $S_t$ directly, but we can account for it in much the same way that farm fixed effects accounted for $Z_i$. Specifically, we can add indicator variables for five of the six seasons to the regression,
 
     $$
-    Y_{it} = \beta_0 + \beta_1 X_{it} + Z_i + \delta_1 \text{B1}_t + \delta_2 \text{B2}_t + \cdots + \delta_5 \text{B5}_t + \varepsilon_{it},
+    Y_{it} = \beta_0 + \beta_1 X_{it} + Z_i + \delta_1 \text{B1}_t + \delta_2 \text{B2}_t + \cdots + \delta_5 \text{B5}_t + \nu_{it},
     $$
 
-    where $\text{B1}_t$ equals 1 when season $t$ is 2020 and 0 otherwise, $\text{B2}_t$ equals 1 when season $t$ is 2021 and 0 otherwise, and so on.<sup><a id="fnref1" href="#fn1">1</a></sup> These season indicators are mutually exclusive, exactly like the farm indicators in Lecture 15. With this setup, $\beta_0 + \delta_1$ is the expected yield in 2020 for a farm using no nitrogen (net of its $Z_i$), and $\delta_1$ measures how much higher or lower yields were in 2020 than in 2025, the season whose indicator is omitted. Rather than writing out all five indicators each time, we can collect them into a single term,
+    where $\text{B1}_t$ equals 1 when $t =$ 2020 and 0 otherwise, $\text{B2}_t$ equals 1 when $t =$ 2021 and 0 otherwise, and so on.<sup><a id="fnref1" href="#fn1">1</a></sup> Note that these season indicators are mutually exclusive, just like the farm indicators from Lecture 15. An observation can belong to only one season. Rather than writing out all five indicators each time, we can collect them into a single term,
 
-    $$\lambda_t = \delta_1 \text{B1}_t + \delta_2 \text{B2}_t + \cdots + \delta_5 \text{B5}_t.$$
+    $$
+    \lambda_t = \delta_1 \text{B1}_t + \delta_2 \text{B2}_t + \cdots + \delta_5 \text{B5}_t.
+    $$
 
-    The term $\lambda_t$ is called a *time fixed effect*. It allows the average level of corn yield to differ across seasons because of any factor that hits all farms in the same season, whether we observe it or not: seed genetics, fertilizer prices, fuel costs, statewide weather. In our panel, the estimated $\lambda_t$ trace out the steady yield gains that the new seed varieties delivered season after season, so those gains are no longer available to be misattributed to fertilizer.
+    The collection of season indicators is called *time fixed effects*, and $\lambda_t$ is a compact way to write them. Time fixed effects allow the average level of corn yields to differ from season to season because of factors that affect all farms in a similar way, whether or not we observe those factors. In our example, they account for the season-by-season corn yield gains associated with improved seed varieties, so those gains can no longer be misattributed to fertilizer.
     """)
     return
 
@@ -254,10 +259,10 @@ def _(mo):
     Our new seasons suffer from both problems at once. Soil quality still differs across farms and is still correlated with nitrogen use, which is what biased the cross-sectional regressions in Lecture 15. And seed genetics now improves over seasons for all farms together, which is what biased the farm fixed effect regression in Section 1. The model therefore needs both kinds of intercepts. Including farm fixed effects *and* time fixed effects gives the *two-way fixed effects regression*,
 
     $$
-    Y_{it} = \beta_0 + \beta_1 X_{it} + \alpha_i + \lambda_t + \varepsilon_{it}.
+    Y_{it} = \beta_0 + \beta_1 X_{it} + \alpha_i + \lambda_t + \nu_{it}.
     $$
 
-    Here $\alpha_i$ absorbs everything about farm $i$ that is constant over seasons, and $\lambda_t$ absorbs everything about season $t$ that is common to all farms. For $\hat{\beta}_1$ to estimate the causal effect of fertilizer, the remaining requirement is that nitrogen use be unrelated to what is left in the error term: the factors that vary across farms *and* over seasons, like a single farm's pest outbreak, drainage failure, or irrigation upgrade in a particular year. Formally, the first least squares assumption becomes $\mathbb{E}[\varepsilon_{it} \mid X_{it}, \alpha_i, \lambda_t] = \mathbb{E}[\varepsilon_{it} \mid \alpha_i, \lambda_t]$.
+    Here $\alpha_i$ absorbs everything about farm $i$ that is constant over seasons, and $\lambda_t$ absorbs everything about season $t$ that is common to all farms. For $\hat{\beta}_1$ to estimate the causal effect of fertilizer, the remaining requirement is that nitrogen use be unrelated to what is left in the error term: the factors that vary across farms *and* over seasons, like a single farm's pest outbreak, drainage failure, or irrigation upgrade in a particular year. Formally, the first least squares assumption becomes $\mathbb{E}[\nu_{it} \mid X_{it}, \alpha_i, \lambda_t] = \mathbb{E}[\nu_{it} \mid \alpha_i, \lambda_t]$.
 
     The chart below compares all four regressions we have now seen on the 2020 to 2025 panel, where the true effect built into the simulation is $\beta_1 = 0.30$. The left panel shows the same six farms as Lecture 15; the estimates and the bars use all 900 observations.
     """)
@@ -318,13 +323,13 @@ def _(alt, est_b1, est_pick, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
     # inside the error term, which is what biases that estimator.
     _eqs = {
         "Pooled OLS":
-            r"$$Y_{it} = \beta_0 + \beta_1 X_{it} + \underbrace{Z_i + S_t + \varepsilon_{it}}_{u_{it}}$$",
+            r"$$Y_{it} = \beta_0 + \beta_1 X_{it} + \underbrace{Z_i + S_t + \nu_{it}}_{u_{it}}$$",
         "Farm fixed effects":
-            r"$$Y_{it} = \beta_0 + \beta_1 X_{it} + \alpha_i + \underbrace{S_t + \varepsilon_{it}}_{u_{it}}$$",
+            r"$$Y_{it} = \beta_0 + \beta_1 X_{it} + \alpha_i + \underbrace{S_t + \nu_{it}}_{u_{it}}$$",
         "Season fixed effects":
-            r"$$Y_{it} = \beta_0 + \beta_1 X_{it} + \lambda_t + \underbrace{Z_i + \varepsilon_{it}}_{u_{it}}$$",
+            r"$$Y_{it} = \beta_0 + \beta_1 X_{it} + \lambda_t + \underbrace{Z_i + \nu_{it}}_{u_{it}}$$",
         "Two-way fixed effects":
-            r"$$Y_{it} = \beta_0 + \beta_1 X_{it} + \alpha_i + \lambda_t + \varepsilon_{it}$$",
+            r"$$Y_{it} = \beta_0 + \beta_1 X_{it} + \alpha_i + \lambda_t + \nu_{it}$$",
     }
     _eq = mo.md(_eqs[_pick])
 
@@ -869,7 +874,7 @@ def _(mo):
     mo.md(r"""
     ---
 
-    <span id="fn1" style="display:block;font-size:0.9rem;">**1.** We leave out the indicator for the 2025 season for the same reason we left out the indicator for Farm 150 in Lecture 15: the regression already contains the intercept $\beta_0$. If we included all six season indicators, they would add up to 1 for every observation and would therefore be an exact linear function of the intercept, so the regression would exhibit perfect multicollinearity, violating the fourth OLS assumption discussed in Lecture 9. <a href="#fnref1" title="Back to text">&#8617;</a></span>
+    <span id="fn1" style="display:block;font-size:0.9rem;">**1.** We leave out the indicator for the 2025 season for the same reason we left out the indicator for Farm 150 in Lecture 15. The regression already contains the intercept $\beta_0$. If we included all six season indicators, they would add up to 1 for every observation and would therefore be an exact linear function of the intercept. The regression would exhibit perfect multicollinearity, violating the fourth OLS assumption from Lecture 9. Omitting indicators for Farm 150 and Year 2025, $\beta_0$ represents the expected corn yield for Farm 150 in 2025 when no nitrogen is applied. $\beta_0 + \delta_1$ is the expected yield for the same farm in 2020 when no nitrogen is applied. Thus, $\delta_1$ measures how much higher or lower the common level of corn yields was in 2020 than in 2025. The other $\delta$ coefficients have the same interpretation for the remaining seasons. <a href="#fnref1" title="Back to text">&#8617;</a></span>
     """)
     return
 
