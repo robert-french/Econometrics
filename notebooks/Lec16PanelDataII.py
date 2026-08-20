@@ -837,11 +837,11 @@ def _(mo, tbl_fits, tbl_flags):
     _note = mo.md(
         "<span style='display:block;margin:0.2rem auto 1rem;max-width:620px;"
         "font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;'>"
-        "Standard errors in parentheses are clustered by farm; the appendix "
-        "explains what clustering means and why it is needed here. One star "
-        "marks statistical significance at the 10% level, two at the 5% "
-        "level, and three at the 1% level. Farm and season indicator "
-        "coefficients are estimated but not reported."
+        "Standard errors in parentheses are clustered by farm. The appendix "
+        "explains what clustering means and why it is necessary with panel data. One star "
+        "marks statistical significance at the 10% level, two stars mark statistical significance at the 5% "
+        "level, and three stars mark statistical significance at the 1% level. Farm and season indicator "
+        "coefficients are estimated but not reported in the table."
         "</span>"
     )
     mo.vstack([mo.md(_table), _note])
@@ -857,6 +857,8 @@ def _(mo):
     * **Column (2)** adds farm fixed effects. The estimate rises to $0.63$ because the regression now accounts for soil quality and other factors that remain constant within farms over time. Improved seed varieties still remain in the error term, however. Because corn yields and nitrogen use both rose over time, the regression misattributes some of the yield gains from improved seeds to fertilizer.
     * **Column (3)** instead adds time fixed effects, but no farm fixed effects. The estimate falls to $-0.20$. The time fixed effects account for improved seed varieties and other factors that change across seasons but affect all farms in a similar way. Soil quality remains in the error term, however, so differences across farms continue to bias the estimate downward.
     * **Column (4)** includes both farm and time fixed effects. The estimate is $0.30$, the true causal effect underlying the data. Farm fixed effects account for soil quality and other factors that remain constant within farms over time, while time fixed effects account for improved seed varieties and other factors that change across seasons but affect all farms in a similar way.
+
+    Notice that the constant estimate $\hat{\beta}_0 also changes substantially across columns. This is because its interpretation changes as fixed effects are added. Once farm or time fixed effects are included, the constant refers to the baseline corn yield for the omitted farm, omitted season, or both. Unlike the coefficient on nitrogen, the constant is therefore not directly comparable across these specifications.
 
     The $R^2$ row should be interpreted with the same caution we discussed in Lecture 10. Adding fixed effects raises the $R^2$ from approximately 0.00 to above 0.95, but much of this additional fit comes from allowing average corn yields to differ across farms and seasons, not from nitrogen use itself. A high $R^2$ therefore tells us little about whether the estimated effect of nitrogen is causal.
 
