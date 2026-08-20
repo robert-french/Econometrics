@@ -104,7 +104,7 @@ def _(mo):
     Y_{it} = \beta_0 + \beta_1 X_{it} + \alpha_i + \varepsilon_{it},
     $$
 
-    now gives $\hat{\beta}_1 = 0.63$, more than double the estimate we trusted in Lecture 15. Fertilizer did not become twice as effective. Something is wrong with the regression, and the yearly averages below show what:
+    now gives $\hat{\beta}_1 = 0.63$, more than double the estimate we trusted in Lecture 15. Fertilizer did not become twice as effective. Something is wrong with the regression, and the chart below shows what. It follows the same six farms as Lecture 15 across the six new seasons:
     """)
     return
 
@@ -152,44 +152,56 @@ def _(np):
 
 
 @app.cell(hide_code=True)
-def _(alt, fm_fert, fm_years, fm_yield, mo, pd):
-    _means = pd.DataFrame({
-        "year": fm_years,
-        "yield": fm_yield.mean(axis=0),
-        "fert": fm_fert.mean(axis=0),
+def _(alt, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
+    # The marching cloud: the six display farms in fertilizer-yield space,
+    # points colored by season, with a light path connecting each farm's six
+    # seasons in time order. Every farm's path climbs up and to the right,
+    # which is the common-shock problem made visible.
+    _t6 = fm_fert[fm_six]
+    _f6 = fm_yield[fm_six]
+    _long = pd.DataFrame({
+        "fert": _t6.ravel(),
+        "yield": _f6.ravel(),
+        "farm": np.repeat([f"Farm {_i + 1}" for _i in fm_six], 6),
+        "season": np.tile(fm_years, 6),
     })
-    _left = (
-        alt.Chart(_means)
-        .mark_line(color="#1f4e79", size=3, point=alt.OverlayMarkDef(color="#1f4e79"))
+    _xsc = alt.Scale(domain=[110.0, 245.0], nice=False)
+    _ysc = alt.Scale(domain=[95.0, 260.0], nice=False)
+    _paths = (
+        alt.Chart(_long)
+        .mark_line(color="#9aa5b1", size=1.2, opacity=0.8, clip=True)
         .encode(
-            x=alt.X("year:O", title="Season"),
-            y=alt.Y(
-                "yield:Q",
-                scale=alt.Scale(domain=[160.0, 200.0], nice=False),
-                title="Average corn yield (bushels per acre)",
+            x=alt.X("fert:Q", scale=_xsc,
+                    title="Nitrogen applied (pounds per acre)"),
+            y=alt.Y("yield:Q", scale=_ysc,
+                    title="Corn yield (bushels per acre)"),
+            detail="farm:N",
+            order="season:O",
+        )
+    )
+    _pts = (
+        alt.Chart(_long)
+        .mark_circle(size=54, opacity=0.9, clip=True)
+        .encode(
+            x=alt.X("fert:Q", scale=_xsc),
+            y=alt.Y("yield:Q", scale=_ysc),
+            color=alt.Color(
+                "season:O",
+                scale=alt.Scale(scheme="viridis"),
+                legend=alt.Legend(title="Season", orient="right"),
             ),
         )
-        .properties(width=260, height=260)
     )
-    _right = (
-        alt.Chart(_means)
-        .mark_line(color="#e69138", size=3, point=alt.OverlayMarkDef(color="#e69138"))
-        .encode(
-            x=alt.X("year:O", title="Season"),
-            y=alt.Y(
-                "fert:Q",
-                scale=alt.Scale(domain=[140.0, 195.0], nice=False),
-                title="Average nitrogen applied (pounds per acre)",
-            ),
-        )
-        .properties(width=260, height=260)
-    )
-    _chart = alt.hconcat(_left, _right)
+    _chart = (_paths + _pts).properties(width=560, height=360)
     _caption = mo.md(
         "<span style='display:block;margin:0.2rem auto 1rem;max-width:560px;"
         "font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;'>"
-        "Averages across the 150 farms in each season, 2020 to 2025. Yields "
-        "and nitrogen use rise together on every farm at once."
+        "Each point is one of the six farms in one season, colored from 2020 "
+        "(dark) to 2025 (yellow); the gray path connects each farm's seasons "
+        "in order. Every path climbs up and to the right: season by season, "
+        "each farm applied more nitrogen and harvested more corn. The "
+        "within-farm comparisons behind the fixed effect regression are "
+        "therefore also comparisons across seasons."
         "</span>"
     )
     mo.vstack([_chart, _caption], align="center")
