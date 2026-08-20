@@ -13,7 +13,6 @@
 import marimo
 
 __generated_with = "0.23.16"
-__preliminary__ = True
 app = marimo.App(
     app_title="Lecture 16: Panel Data II",
     css_file="marimo-overrides.css",
@@ -96,15 +95,17 @@ def _(mo):
     <a id="sec1"></a>
     ## 1. Another puzzling regression
 
-    In Lecture 15, we used a panel of 150 corn farms over the 2014 to 2019 growing seasons to estimate the effect of nitrogen fertilizer on corn yields. The fixed effect regression gave each farm its own intercept, absorbed the unobserved differences in soil quality that had flipped the cross-sectional slope, and estimated that an extra pound of nitrogen raises yields by $\hat{\beta}_1 = 0.30$ bushels per acre.
+    In Lecture 15, we used a panel of 150 corn farms observed over the 2014 to 2019 growing seasons to estimate the effect of nitrogen fertilizer on corn yields. The fixed effects regression gave each farm its own intercept, holding fixed unobserved differences in soil quality that had reversed the sign of the cross-sectional relationship. The regression estimated that an extra pound of nitrogen raises yields by $\hat{\beta}_1 = 0.30$ bushels per acre.
 
-    Suppose the survey later resumed and followed the same 150 farms for six more seasons, from 2020 through 2025. Two things changed during these years. Fertilizer became cheaper, and farms across the country responded by applying more nitrogen each season. At the same time, newly developed seed varieties spread quickly, raising yields on every farm that adopted them. Estimating the fixed effect regression from Lecture 15 on the new seasons,
+    Suppose the survey later resumed and followed the same 150 farms for six more seasons, from 2020 through 2025. During these years, however, two things changed. Fertilizer became cheaper, so farms across the country applied more nitrogen each season. At the same time, newly developed seed varieties spread quickly and raised yields on the farms that adopted them.
+
+    Estimating the same fixed effects regression from Lecture 15 on these new seasons,
 
     $$
     Y_{it} = \beta_0 + \beta_1 X_{it} + \alpha_i + \varepsilon_{it},
     $$
 
-    now gives $\hat{\beta}_1 = 0.63$, more than double the estimate we trusted in Lecture 15. Fertilizer did not become twice as effective. Something is wrong with the regression, and the chart below shows what. It follows the same six farms as Lecture 15 across the six new seasons:
+    now gives $\hat{\beta}_1 = 0.63$, more than twice the estimate we trusted in Lecture 15. Fertilizer did not suddenly become twice as effective, though. Something must therefore be wrong with the regression. The chart below suggests to us the issue, following the same six farms as Lecture 15 across the six new seasons:
     """)
     return
 
@@ -198,10 +199,7 @@ def _(alt, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
         "font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;'>"
         "Each point is one of the six farms in one season, colored from 2020 "
         "(dark) to 2025 (yellow); the gray path connects each farm's seasons "
-        "in order. Every path climbs up and to the right: season by season, "
-        "each farm applied more nitrogen and harvested more corn. The "
-        "within-farm comparisons behind the fixed effect regression are "
-        "therefore also comparisons across seasons."
+        "in order. "
         "</span>"
     )
     mo.vstack([_chart, _caption], align="center")
@@ -211,9 +209,9 @@ def _(alt, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    The problem is again an omitted variable, but of a new kind. The improved seed varieties raised every farm's yield in the same seasons in which every farm was also applying more nitrogen. Seed genetics therefore sits in the error term and is positively correlated with fertilizer use. Unlike soil quality, however, this confounder does not differ across farms while staying fixed over time. It is common to all farms and changes from season to season.
+    The problem with running our fixed effects regression from Lecture 15 on these latter seasons is a new omitted variable. Improved seed varieties raised corn yields during the same seasons in which all farms were also applying more nitrogen. Seed quality therefore enters the error term and is positively correlated with fertilizer use. Unlike soil quality, however, seed quality changes from season to season and affects all farms at the same time.
 
-    That is exactly the kind of omitted variable a farm's fixed effect cannot absorb. The intercept $\alpha_i$ is one number per farm, the same in 2020 as in 2025, so it can soak up nothing that varies over seasons. Within every farm, yields rose while nitrogen use rose, and the fixed effect regression credits fertilizer with gains that belong to the seed companies. Lecture 15 warned that fixed effects do not remove time-varying factors; this lecture shows what to do when those factors are shared by every entity.
+    A farm fixed effect cannot absorb this kind of time-varying omitted variable. The farm fixed effect $\alpha_i$ captures factors that differ across farms but remain fixed over time, not factors that change across seasons. As nitrogen use and seed quality rose together, the regression incorrectly attributed some of the gains in corn yield from improved seeds to fertilizer. This lecture shows how to handle omitted variables that change from season to season but affect all farms in a similar way.
     """)
     return
 
@@ -267,7 +265,7 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(fm_fert, fm_yield, np):
+def _(fm_fert, fm_yield):
     # The four estimates of beta_1 on the full 900-observation panel. Each
     # fixed effects regression is the indicator regression of Sections 2 and
     # 3; demeaning within farm and/or season gives the identical slope and is
@@ -314,6 +312,21 @@ def _(mo):
 def _(alt, est_b1, est_pick, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
     _pick = est_pick.value
     _b1 = est_b1[_pick]
+
+    # The regression the current selection fits, shown between the buttons and
+    # the chart. Each equation keeps the not-yet-absorbed confounders visible
+    # inside the error term, which is what biases that estimator.
+    _eqs = {
+        "Pooled OLS":
+            r"$$Y_{it} = \beta_0 + \beta_1 X_{it} + \underbrace{Z_i + S_t + \varepsilon_{it}}_{u_{it}}$$",
+        "Farm fixed effects":
+            r"$$Y_{it} = \beta_0 + \beta_1 X_{it} + \alpha_i + \underbrace{S_t + \varepsilon_{it}}_{u_{it}}$$",
+        "Season fixed effects":
+            r"$$Y_{it} = \beta_0 + \beta_1 X_{it} + \lambda_t + \underbrace{Z_i + \varepsilon_{it}}_{u_{it}}$$",
+        "Two-way fixed effects":
+            r"$$Y_{it} = \beta_0 + \beta_1 X_{it} + \alpha_i + \lambda_t + \varepsilon_{it}$$",
+    }
+    _eq = mo.md(_eqs[_pick])
 
     _t6 = fm_fert[fm_six]
     _f6 = fm_yield[fm_six]
@@ -488,7 +501,7 @@ def _(alt, est_b1, est_pick, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
         "font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;'>"
         + _msg + "</span>"
     )
-    mo.vstack([_chart, _caption], align="center")
+    mo.vstack([_eq, _chart, _caption], align="center")
     return
 
 

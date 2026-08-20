@@ -410,6 +410,17 @@ def _(alt, fe_view, fm_fert, fm_six, fm_yield, mo, np, pd):
     _fd = _f6 - _f6.mean(axis=1, keepdims=True)
     _b1f = float((_td * _fd).sum() / (_td * _td).sum())
 
+    # The regression the current selection fits, shown between the buttons and
+    # the chart. The pooled version keeps Z_i visible inside the error term,
+    # since leaving it there is exactly what biases the pooled line.
+    _eqs = {
+        "One pooled line":
+            r"$$Y_{it} = \beta_0 + \beta_1 X_{it} + \underbrace{Z_i + \varepsilon_{it}}_{u_{it}}$$",
+        "One intercept per farm (fixed effects)":
+            r"$$Y_{it} = \beta_0 + \beta_1 X_{it} + \alpha_i + \varepsilon_{it}$$",
+    }
+    _eq = mo.md(_eqs[fe_view.value])
+
     _xsc = alt.Scale(domain=[95.0, 235.0], nice=False)
     _ysc = alt.Scale(domain=[95.0, 235.0], nice=False)
 
@@ -467,7 +478,7 @@ def _(alt, fe_view, fm_fert, fm_six, fm_yield, mo, np, pd):
         "font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;'>"
         + _msg + "</span>"
     )
-    mo.vstack([_chart, _caption], align="center")
+    mo.vstack([_eq, _chart, _caption], align="center")
     return
 
 
