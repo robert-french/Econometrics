@@ -16,7 +16,7 @@
   the eyebrow label comes from splitting the app_title at the first ": "
   (e.g. "Lecture 15: Panel Data I" -> "Lecture 15" / "Panel Data I").
 #}
-{% macro card(item, fallback_label, button_text, blurb_fallback) %}
+{% macro card(item, fallback_label, button_text, blurb_fallback, disabled=false) %}
   {% set _parts = item.display_name.split(': ', 1) %}
   {% set _label = _parts[0] if _parts|length == 2 else fallback_label %}
   {% set _topic = _parts[1] if _parts|length == 2 else item.display_name %}
@@ -27,8 +27,8 @@
         {{ _label }}
       </p>
       {% if item.preliminary %}
-      <span class="inline-flex items-center rounded-full bg-amber-100 text-amber-800 text-xs font-semibold px-2.5 py-0.5">
-        Preliminary
+      <span class="inline-flex items-center rounded-full bg-red-100 text-red-800 text-xs font-semibold px-2.5 py-0.5">
+        Coming soon
       </span>
       {% endif %}
     </div>
@@ -42,12 +42,21 @@
     </p>
 
     <div class="mt-6">
+      {% if disabled %}
+      <span
+        aria-disabled="true"
+        class="inline-flex items-center rounded-lg bg-slate-200 px-4 py-2 text-sm font-medium text-slate-400 cursor-not-allowed select-none"
+      >
+        {{ button_text }}
+      </span>
+      {% else %}
       <a
         href="{{ item.html_path }}"
         class="inline-flex items-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
       >
         {{ button_text }}
       </a>
+      {% endif %}
     </div>
 
   </article>
@@ -91,15 +100,15 @@
 
     <header class="mb-16">
       <div class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-        <div>
+        <a href="./" data-home-link class="block">
           <p class="text-sm font-semibold tracking-wide uppercase text-slate-500">
-            ECON 3300
+            ECON 3300, Prof. French
           </p>
 
           <h1 class="mt-3 text-4xl md:text-5xl font-bold tracking-tight">
             Econometrics
           </h1>
-        </div>
+        </a>
 
         <nav class="flex flex-wrap gap-x-7 gap-y-2 text-lg font-semibold text-[#1f4e79] sm:pb-2 sm:pr-4">
           <a href="#lectures" data-tab-link="lectures" class="hover:text-[#15324f]">Lectures</a>
@@ -137,7 +146,7 @@
 
     <section id="lectures" class="tab-panel scroll-mt-20 mb-20 hidden">
 
-      <h2 class="text-2xl font-semibold mb-2">
+      <h2 class="text-2xl font-semibold mb-2 text-[#1f4e79]">
         Lectures
       </h2>
 
@@ -195,7 +204,7 @@
 
     <section id="problem-set-solutions" class="tab-panel scroll-mt-20 mb-20 hidden">
 
-      <h2 class="text-2xl font-semibold mb-2">
+      <h2 class="text-2xl font-semibold mb-2 text-[#1f4e79]">
         Problem Set Solutions
       </h2>
 
@@ -206,7 +215,7 @@
       {% if problem_sets %}
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for item in problem_sets %}
-        {{ card(item, 'Problem Set', 'Open problem set', 'Open the problem set to read it in your browser.') }}
+        {{ card(item, 'Problem Set', 'Open problem set', 'Open the problem set to read it in your browser.', disabled=item.preliminary) }}
         {% endfor %}
       </div>
       {% else %}
@@ -231,7 +240,7 @@
 
     <section id="stata-tutorials" class="tab-panel scroll-mt-20 mb-20 hidden">
 
-      <h2 class="text-2xl font-semibold mb-2">
+      <h2 class="text-2xl font-semibold mb-2 text-[#1f4e79]">
         Stata Tutorials
       </h2>
 
@@ -242,7 +251,7 @@
       {% if stata_tutorials %}
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for item in stata_tutorials %}
-        {{ card(item, 'Stata Tutorial', 'Open tutorial', 'Open the tutorial to read it in your browser.') }}
+        {{ card(item, 'Stata Tutorial', 'Open tutorial', 'Open the tutorial to read it in your browser.', disabled=item.preliminary) }}
         {% endfor %}
       </div>
       {% else %}
@@ -365,6 +374,17 @@
             setTab(id);
             history.replaceState(null, "", "#" + id);
           }
+        });
+      });
+
+      // The "ECON 3300 / Econometrics" header is a link back to the home
+      // view: close any open panel without reloading the page.
+      document.querySelectorAll("[data-home-link]").forEach(function (link) {
+        link.addEventListener("click", function (event) {
+          event.preventDefault();
+          setTab(null);
+          history.replaceState(null, "", window.location.pathname + window.location.search);
+          window.scrollTo({ top: 0 });
         });
       });
 

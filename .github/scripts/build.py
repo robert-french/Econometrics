@@ -43,7 +43,8 @@ _CATEGORY_PATTERNS = (
 # Thematic groups for the Lectures tab, keyed on lecture number. A group with
 # no built notebooks is omitted from the rendered page.
 LECTURE_GROUPS = (
-    ("Foundations: Probability and Statistics", 1, 4),
+    ("Introduction to Econometrics", 1, 1),
+    ("Foundations: Probability and Statistics", 2, 4),
     ("Simple Linear Regression", 5, 7),
     ("Multiple Regression", 8, 10),
     ("Nonlinear Regression", 11, 13),
