@@ -44,7 +44,7 @@ _CATEGORY_PATTERNS = (
 # no built notebooks is omitted from the rendered page.
 LECTURE_GROUPS = (
     ("Introduction to Econometrics", 1, 1),
-    ("Foundations: Probability and Statistics", 2, 4),
+    ("Probability and Statistics Review", 2, 4),
     ("Simple Linear Regression", 5, 7),
     ("Multiple Regression", 8, 10),
     ("Nonlinear Regression", 11, 13),

@@ -98,7 +98,7 @@
     <!-- Title on the left, section links along the top right      -->
     <!-- ========================================================= -->
 
-    <header class="mb-16">
+    <header class="mb-8">
       <div class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <a href="./" data-home-link class="block">
           <p class="text-sm font-semibold tracking-wide uppercase text-slate-500">
@@ -110,10 +110,10 @@
           </h1>
         </a>
 
-        <nav class="flex flex-wrap gap-x-7 gap-y-2 text-lg font-semibold text-[#1f4e79] sm:pb-2 sm:pr-4">
-          <a href="#lectures" data-tab-link="lectures" class="hover:text-[#15324f]">Lectures</a>
-          <a href="#problem-set-solutions" data-tab-link="problem-set-solutions" class="hover:text-[#15324f]">Problem set solutions</a>
-          <a href="#stata-tutorials" data-tab-link="stata-tutorials" class="hover:text-[#15324f]">Stata tutorials</a>
+        <nav class="flex flex-wrap gap-x-7 gap-y-2 text-lg font-semibold text-slate-900 sm:pb-2 sm:pr-4">
+          <a href="#lectures" data-tab-link="lectures" class="hover:text-[#3b82f6]">Lectures</a>
+          <a href="#problem-set-solutions" data-tab-link="problem-set-solutions" class="hover:text-[#3b82f6]">Problem set solutions</a>
+          <a href="#stata-tutorials" data-tab-link="stata-tutorials" class="hover:text-[#3b82f6]">Stata tutorials</a>
         </nav>
       </div>
     </header>
@@ -135,7 +135,7 @@
 
     <!-- Dummy element so the Tailwind CDN compiles the classes the tab
          script toggles at runtime. -->
-    <span class="hidden underline decoration-2 underline-offset-8 text-[#15324f]"></span>
+    <span class="hidden underline decoration-2 underline-offset-8 text-[#3b82f6]"></span>
 
 
     <!-- ========================================================= -->
@@ -146,7 +146,7 @@
 
     <section id="lectures" class="tab-panel scroll-mt-20 mb-20 hidden">
 
-      <h2 class="text-2xl font-semibold mb-2 text-[#1f4e79]">
+      <h2 class="text-2xl font-semibold mb-2 text-[#3b82f6]">
         Lectures
       </h2>
 
@@ -204,7 +204,7 @@
 
     <section id="problem-set-solutions" class="tab-panel scroll-mt-20 mb-20 hidden">
 
-      <h2 class="text-2xl font-semibold mb-2 text-[#1f4e79]">
+      <h2 class="text-2xl font-semibold mb-2 text-[#3b82f6]">
         Problem Set Solutions
       </h2>
 
@@ -240,7 +240,7 @@
 
     <section id="stata-tutorials" class="tab-panel scroll-mt-20 mb-20 hidden">
 
-      <h2 class="text-2xl font-semibold mb-2 text-[#1f4e79]">
+      <h2 class="text-2xl font-semibold mb-2 text-[#3b82f6]">
         Stata Tutorials
       </h2>
 
@@ -337,7 +337,7 @@
     // panel so deep links work.
     (function () {
       var TAB_IDS = ["lectures", "problem-set-solutions", "stata-tutorials"];
-      var ACTIVE = ["underline", "decoration-2", "underline-offset-8", "text-[#15324f]"];
+      var ACTIVE = ["underline", "decoration-2", "underline-offset-8", "text-[#3b82f6]"];
       var current = null;
 
       function setTab(id) {
