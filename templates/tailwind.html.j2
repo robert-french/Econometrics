@@ -105,58 +105,28 @@
           <a href="#lectures" data-tab-link="lectures" class="hover:text-[#15324f]">Lectures</a>
           <a href="#problem-set-solutions" data-tab-link="problem-set-solutions" class="hover:text-[#15324f]">Problem set solutions</a>
           <a href="#stata-tutorials" data-tab-link="stata-tutorials" class="hover:text-[#15324f]">Stata tutorials</a>
-          <a href="#for-students" class="hover:text-[#15324f]">For students</a>
-          <a href="#for-educators" class="hover:text-[#15324f]">For educators</a>
         </nav>
       </div>
     </header>
 
 
     <!-- ========================================================= -->
-    <!-- COURSE DESCRIPTION                                        -->
-    <!-- First section, no nav link, edit this freely              -->
+    <!-- COURSE DESCRIPTION (home view only)                       -->
+    <!-- Shown when no banner tab is selected; edit this freely.   -->
+    <!-- Selecting a banner link hides every .home-only section    -->
+    <!-- and shows just that panel; clicking the active link again -->
+    <!-- returns to this home view.                                -->
     <!-- ========================================================= -->
 
-    <section class="mb-12 max-w-3xl">
+    <section class="home-only mb-12 max-w-3xl">
       <p class="text-lg leading-8 text-slate-600">
         This website is in development. Check back later for lecture notebooks and resources for ECON 3300!
       </p>
     </section>
 
-
-    <!-- ========================================================= -->
-    <!-- TABS                                                      -->
-    <!-- No tab is open on load; clicking a tab reveals its panel  -->
-    <!-- and clicking it again collapses back to this state.       -->
-    <!-- ========================================================= -->
-
-    <div class="mb-10 flex flex-wrap gap-3" role="tablist" aria-label="Course materials">
-      <button
-        type="button"
-        data-tab="lectures"
-        class="tab-button rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-[#1f4e79] transition-colors hover:border-[#1f4e79]"
-      >
-        Lectures
-      </button>
-      <button
-        type="button"
-        data-tab="problem-set-solutions"
-        class="tab-button rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-[#1f4e79] transition-colors hover:border-[#1f4e79]"
-      >
-        Problem Set Solutions
-      </button>
-      <button
-        type="button"
-        data-tab="stata-tutorials"
-        class="tab-button rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-[#1f4e79] transition-colors hover:border-[#1f4e79]"
-      >
-        Stata Tutorials
-      </button>
-    </div>
-
     <!-- Dummy element so the Tailwind CDN compiles the classes the tab
          script toggles at runtime. -->
-    <span class="hidden bg-[#1f4e79] text-white border-[#1f4e79]"></span>
+    <span class="hidden underline decoration-2 underline-offset-8 text-[#15324f]"></span>
 
 
     <!-- ========================================================= -->
@@ -291,11 +261,11 @@
 
 
     <!-- ========================================================= -->
-    <!-- FOR STUDENTS                                              -->
+    <!-- FOR STUDENTS (home view only)                             -->
     <!-- Edit this section freely                                  -->
     <!-- ========================================================= -->
 
-    <section id="for-students" class="scroll-mt-20 mb-20 max-w-3xl">
+    <section id="for-students" class="home-only scroll-mt-20 mb-20 max-w-3xl">
       <h2 class="text-2xl font-semibold mb-4">
         Student guide
       </h2>
@@ -307,11 +277,11 @@
 
 
     <!-- ========================================================= -->
-    <!-- FOR EDUCATORS                                             -->
+    <!-- FOR EDUCATORS (home view only)                            -->
     <!-- Edit this section freely                                  -->
     <!-- ========================================================= -->
 
-    <section id="for-educators" class="scroll-mt-20 mb-20 max-w-3xl">
+    <section id="for-educators" class="home-only scroll-mt-20 mb-20 max-w-3xl">
       <h2 class="text-2xl font-semibold mb-4">
         For educators
       </h2>
@@ -351,31 +321,31 @@
       update();
     })();
 
-    // Tabs: no panel is open on load. Clicking a tab (or a header nav link
-    // for one) opens its panel; clicking the active tab closes it again.
-    // The URL hash mirrors the open tab so deep links work.
+    // Banner tabs: on load the home view (course description, For students,
+    // For educators) is shown and every panel is hidden. Selecting a banner
+    // link replaces the home view with that panel alone; clicking the active
+    // link again returns to the home view. The URL hash mirrors the open
+    // panel so deep links work.
     (function () {
       var TAB_IDS = ["lectures", "problem-set-solutions", "stata-tutorials"];
-      var ACTIVE = ["bg-[#1f4e79]", "text-white", "border-[#1f4e79]"];
-      var INACTIVE = ["bg-white", "text-[#1f4e79]", "border-slate-300"];
+      var ACTIVE = ["underline", "decoration-2", "underline-offset-8", "text-[#15324f]"];
       var current = null;
 
       function setTab(id) {
         current = id;
         TAB_IDS.forEach(function (tabId) {
           var panel = document.getElementById(tabId);
-          var button = document.querySelector('[data-tab="' + tabId + '"]');
+          var link = document.querySelector('[data-tab-link="' + tabId + '"]');
           var active = tabId === id;
           if (panel) panel.classList.toggle("hidden", !active);
-          if (button) {
-            (active ? INACTIVE : ACTIVE).forEach(function (cls) {
-              button.classList.remove(cls);
+          if (link) {
+            ACTIVE.forEach(function (cls) {
+              link.classList.toggle(cls, active);
             });
-            (active ? ACTIVE : INACTIVE).forEach(function (cls) {
-              button.classList.add(cls);
-            });
-            button.setAttribute("aria-selected", active ? "true" : "false");
           }
+        });
+        document.querySelectorAll(".home-only").forEach(function (el) {
+          el.classList.toggle("hidden", id !== null);
         });
       }
 
@@ -384,9 +354,10 @@
         if (TAB_IDS.indexOf(id) !== -1) setTab(id);
       }
 
-      document.querySelectorAll("[data-tab]").forEach(function (button) {
-        button.addEventListener("click", function () {
-          var id = button.getAttribute("data-tab");
+      document.querySelectorAll("[data-tab-link]").forEach(function (link) {
+        link.addEventListener("click", function (event) {
+          event.preventDefault();
+          var id = link.getAttribute("data-tab-link");
           if (current === id) {
             setTab(null);
             history.replaceState(null, "", window.location.pathname + window.location.search);
@@ -394,12 +365,6 @@
             setTab(id);
             history.replaceState(null, "", "#" + id);
           }
-        });
-      });
-
-      document.querySelectorAll("[data-tab-link]").forEach(function (link) {
-        link.addEventListener("click", function () {
-          setTab(link.getAttribute("data-tab-link"));
         });
       });
 
