@@ -239,13 +239,13 @@ def _(mo):
     Y_{it} = \beta_0 + \beta_1 X_{it} + \delta_1 \text{B1}_t + \delta_2 \text{B2}_t + \cdots + \delta_5 \text{B5}_t + Z_i + \nu_{it},
     $$
 
-    where $\text{B1}_t$ equals 1 when $t =$ 2020 and 0 otherwise, $\text{B2}_t$ equals 1 when $t =$ 2021 and 0 otherwise, and so on.<sup><a id="fnref1" href="#fn1">1</a></sup> Note that these season indicators are mutually exclusive, just like the farm indicators from Lecture 15. An observation can belong to only one season. Rather than writing out all five indicators each time, we can collect them into a single term, $\lambda_t = \delta_1 \text{B1}_t + \delta_2 \text{B2}_t + \cdots + \delta_5 \text{B5}_t$, so that the regression can be written,
+    where $\text{B1}_t$ equals 1 when $t =$ 2020 and 0 otherwise, $\text{B2}_t$ equals 1 when $t =$ 2021 and 0 otherwise, and so on.<sup><a id="fnref1" href="#fn1">1</a></sup> Note that these season indicators are mutually exclusive, just like the farm indicators from Lecture 15; a single observation can belong to only one season. Rather than writing out all five indicators each time, we can collect them into a single term, $\lambda_t = \delta_1 \text{B1}_t + \delta_2 \text{B2}_t + \cdots + \delta_5 \text{B5}_t$, so that the regression can be written,
 
     $$
     Y_{it} = \beta_0 + \beta_1 X_{it} + \lambda_t + \underbrace{v_{it}}_{Z_i + \nu_{it}}.
     $$
 
-    The season indicators are called *time fixed effects*, and $\lambda_t$ is a compact way to represent them. The corresponding regression is a *time fixed effects regression*. The error term $v_{it}$ contains everything not captured by the time fixed effects, including the time-invariant farm component $Z_i$ and unobserved factors $\nu_{it}$ that vary across farms and seasons. Time fixed effects allow the average level of corn yields to differ from season to season because of factors that affect all farms in a similar way, whether or not we observe those factors. In our example, they account for the season-by-season yield gains associated with improved seed varieties, so those gains can no longer be misattributed to fertilizer.
+    The season indicators are called *time fixed effects*, and $\lambda_t$ is a compact way to represent them. The corresponding regression is a *time fixed effects regression*. The error term $v_{it}$ contains everything not captured by the time fixed effects, including the time-invariant farm component $Z_i$ and remaining unobserved factors $\nu_{it}$ that vary across farms and seasons. Time fixed effects allow the average level of corn yields to differ from season to season because of factors that affect all farms in a similar way, whether or not we observe those factors. In our example, they account for the season-by-season yield gains associated with improved seed varieties, so those gains can no longer be misattributed to fertilizer.
     """)
     return
 
@@ -256,15 +256,17 @@ def _(mo):
     <a id="sec3"></a>
     ## 3. Two-way fixed effects
 
-    Our new seasons suffer from both problems at once. Soil quality still differs across farms and is still correlated with nitrogen use, which is what biased the cross-sectional regressions in Lecture 15. And seed genetics now improves over seasons for all farms together, which is what biased the farm fixed effect regression in Section 1. The model therefore needs both kinds of intercepts. Including farm fixed effects *and* time fixed effects gives the *two-way fixed effects regression*,
+    The 2020 to 2025 panel contains two distinct sources of omitted-variable bias. Soil quality differs across farms but remains fixed over time, and it is correlated with nitrogen use. Improved seed varieties, meanwhile, change from season to season and raise corn yields across farms at the same time that nitrogen use is increasing. Farm fixed effects account for the first source of bias, while time fixed effects account for the second. Including both fixed effects gives the *two-way fixed effects regression*,
 
     $$
     Y_{it} = \beta_0 + \beta_1 X_{it} + \alpha_i + \lambda_t + \nu_{it}.
     $$
 
-    Here $\alpha_i$ absorbs everything about farm $i$ that is constant over seasons, and $\lambda_t$ absorbs everything about season $t$ that is common to all farms. For $\hat{\beta}_1$ to estimate the causal effect of fertilizer, the remaining requirement is that nitrogen use be unrelated to what is left in the error term: the factors that vary across farms *and* over seasons, like a single farm's pest outbreak, drainage failure, or irrigation upgrade in a particular year. Formally, the first least squares assumption becomes $\mathbb{E}[\nu_{it} \mid X_{it}, \alpha_i, \lambda_t] = \mathbb{E}[\nu_{it} \mid \alpha_i, \lambda_t]$.
+    Here $\alpha_i$ captures factors about farm $i$ that remain constant over seasons, while $\lambda_t$ captures factors that change across seasons but affect all farms in a similar way. What remains in the error term, $\nu_{it}$, are unobserved factors that vary across farms and over seasons, such as a pest outbreak, drainage failure, or irrigation upgrade on one farm in a particular year.
 
-    The chart below compares all four regressions we have now seen on the 2020 to 2025 panel, where the true effect built into the simulation is $\beta_1 = 0.30$. The left panel shows the same six farms as Lecture 15; the estimates and the bars use all 900 observations.
+    For $\hat{\beta}_1$ to estimate the causal effect of fertilizer, nitrogen use must be unrelated to these remaining unobserved factors after accounting for the farm and time fixed effects. Formally, the first least squares assumption becomes $\mathbb{E}[\nu_{it} \mid X_{it}, \alpha_i, \lambda_t] = \mathbb{E}[\nu_{it} \mid \alpha_i, \lambda_t]$.
+
+    The chart below compares the four regressions we have now considered using the 2020 to 2025 panel: pooled OLS, farm fixed effects, time fixed effects, and two-way fixed effects. The true effect of nitrogen used on corn yield is given by $\beta_1 = 0.30$. The left panel shows the same six farms as Lecture 15 for readability, while the regression estimates and bars use all $150 \times 6 = 900$ observations.
     """)
     return
 
@@ -289,7 +291,7 @@ def _(fm_fert, fm_yield):
 
     est_b1 = {
         "Pooled OLS": _slope(_x0, _y0),
-        "Farm fixed effects": _slope(_xe, _ye),
+        "Farm (entity) fixed effects": _slope(_xe, _ye),
         "Season fixed effects": _slope(_xt, _yt),
         "Two-way fixed effects": _slope(_xw, _yw),
     }
@@ -301,14 +303,25 @@ def _(mo):
     est_pick = mo.ui.radio(
         options=[
             "Pooled OLS",
-            "Farm fixed effects",
+            "Farm (entity) fixed effects",
             "Season fixed effects",
             "Two-way fixed effects",
         ],
         value="Pooled OLS",
         inline=True,
     )
-    mo.vstack([mo.md("Which regression should we fit?"), est_pick], gap=0.25)
+    # The negative top margin pulls the question up toward the preceding
+    # paragraph, which otherwise sits a full cell gap away.
+    mo.vstack(
+        [
+            mo.md(
+                "<span style='display:block;margin:-0.5rem 0 0;'>"
+                "Which regression should we fit?</span>"
+            ),
+            est_pick,
+        ],
+        gap=0.5,
+    )
     return (est_pick,)
 
 
@@ -320,17 +333,17 @@ def _(alt, est_b1, est_pick, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
     # The regression the current selection fits, shown between the buttons and
     # the chart. Each equation keeps the not-yet-absorbed confounders visible
     # in the error, with braces labeled by the lectures' error symbols:
-    # u_it = Z_i + eps_it (Lecture 15) and eps_it = S_t + nu_it (Section 2).
-    # The season-FE leftover Z_i + nu_it has no symbol of its own, so it is
-    # shown without a brace. Rendered as \displaystyle inline math inside a
-    # styled block so the gap to the radio above stays tight.
+    # u_it = Z_i + eps_it (Lecture 15), eps_it = S_t + nu_it (Section 2), and
+    # v_it (Latin v, distinct from Greek nu) names the season-FE leftover
+    # Z_i + nu_it. Rendered as \displaystyle inline math inside a styled block
+    # so the gap to the radio above stays tight.
     _eqs = {
         "Pooled OLS":
             r"$\displaystyle Y_{it} = \beta_0 + \beta_1 X_{it} + \underbrace{Z_i + S_t + \nu_{it}}_{u_{it}}$",
-        "Farm fixed effects":
+        "Farm (entity) fixed effects":
             r"$\displaystyle Y_{it} = \beta_0 + \beta_1 X_{it} + \alpha_i + \underbrace{S_t + \nu_{it}}_{\varepsilon_{it}}$",
         "Season fixed effects":
-            r"$\displaystyle Y_{it} = \beta_0 + \beta_1 X_{it} + \lambda_t + Z_i + \nu_{it}$",
+            r"$\displaystyle Y_{it} = \beta_0 + \beta_1 X_{it} + \lambda_t + \underbrace{Z_i + \nu_{it}}_{v_{it}}$",
         "Two-way fixed effects":
             r"$\displaystyle Y_{it} = \beta_0 + \beta_1 X_{it} + \alpha_i + \lambda_t + \nu_{it}$",
     }
@@ -413,7 +426,14 @@ def _(alt, est_b1, est_pick, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
                 color=alt.Color(
                     "farm:N",
                     scale=alt.Scale(domain=_names, range=_farm_colors),
-                    legend=alt.Legend(title=None, orient="top"),
+                    # Right-hand legend like the season branch, so the chart
+                    # width does not jump between selections. The labels drop
+                    # the "Farm " prefix, keeping the legend as narrow as the
+                    # season years.
+                    legend=alt.Legend(
+                        title="Farm", orient="right",
+                        labelExpr='replace(datum.label, "Farm ", "")',
+                    ),
                 ),
             )
         )
@@ -433,11 +453,19 @@ def _(alt, est_b1, est_pick, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
                                     legend=None),
                 )
             )
-    _main = alt.layer(*_layers).properties(width=430, height=340)
+    # The pooled view has no legend, so pad its right side by roughly one
+    # legend width to keep the overall chart width fixed across selections.
+    if _pick == "Pooled OLS":
+        _main = alt.layer(*_layers).properties(
+            width=430, height=340, padding={"right": 70},
+        )
+    else:
+        _main = alt.layer(*_layers).properties(width=430, height=340)
 
-    _order = ["Pooled OLS", "Farm fixed effects",
+    _order = ["Pooled OLS", "Farm (entity) fixed effects",
               "Season fixed effects", "Two-way fixed effects"]
-    _short = {"Pooled OLS": "Pooled", "Farm fixed effects": "Farm FE",
+    _short = {"Pooled OLS": "Pooled",
+              "Farm (entity) fixed effects": "Farm FE",
               "Season fixed effects": "Season FE",
               "Two-way fixed effects": "Two-way"}
     _bsc = alt.Scale(domain=[-0.4, 0.8], nice=False)
@@ -473,7 +501,20 @@ def _(alt, est_b1, est_pick, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
         .mark_rule(color="orange", strokeDash=[6, 4], size=2)
         .encode(y=alt.Y("b1:Q", scale=_bsc))
     )
-    _side = (_bars + _blabels + _rule).properties(width=150, height=340)
+    # Label the dashed line on the chart itself, in its color, hugging the
+    # right edge where no bar reaches above the line.
+    _rule_label = (
+        alt.Chart(pd.DataFrame({"b1": [0.30], "label": ["True effect"]}))
+        .mark_text(color="orange", fontSize=9.5, align="right", dy=-6)
+        .encode(
+            x=alt.value(146),
+            y=alt.Y("b1:Q", scale=_bsc),
+            text="label:N",
+        )
+    )
+    _side = (_bars + _blabels + _rule + _rule_label).properties(
+        width=150, height=340,
+    )
     _chart = alt.hconcat(_main, _side).resolve_scale(color="independent")
 
     if _pick == "Pooled OLS":
@@ -483,7 +524,7 @@ def _(alt, est_b1, est_pick, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
             f"it up, and the net is {_b1:+.2f}, as if fertilizer did nothing. "
             f"The dashed orange line marks the true effect, +0.30."
         )
-    elif _pick == "Farm fixed effects":
+    elif _pick == "Farm (entity) fixed effects":
         _msg = (
             f"One intercept per farm absorbs soil quality, but the "
             f"seed-genetics trend remains in the error. Within every farm, "
