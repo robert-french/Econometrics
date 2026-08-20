@@ -33,8 +33,15 @@ def _():
 def _(mo):
     mo.sidebar(
         [
-            mo.md('<a href="https://robert-french.github.io/Econometrics/" target="_self" style="display: flex; align-items: center; gap: 0.5em; margin-bottom: 0.5em;"><img src="https://robert-french.github.io/Econometrics/LMU_SquareOrig.png" alt="" style="height: 1.6em; width: auto; display: block;"><span>ECON 3300 Course home</span></a>'),
-            mo.md("# [Lecture 2](#top)"),
+            mo.md(
+                '<div>'
+                '<a href="https://robert-french.github.io/Econometrics/" target="_self" style="display: flex; align-items: center; gap: 0.5em; margin: 0;">'
+                '<img src="https://robert-french.github.io/Econometrics/LMU_SquareOrig.png" alt="" style="height: 1.6em; width: auto; display: block;">'
+                '<span>ECON 3300 Course home</span>'
+                '</a>'
+                '<h1 style="margin: 0.25em 0 0;"><a href="#top">Lecture 2</a></h1>'
+                '</div>'
+            ),
             mo.md("**Random Variables and Probability Distributions**"),
             mo.nav_menu(
                 {
