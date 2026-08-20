@@ -225,10 +225,10 @@ def _(mo):
 
     Farm fixed effects, $\alpha_i$, capture only omitted factors that remain constant within a farm over time. They therefore cannot account for the improved seed varieties in our example, which change from season to season in a way that's correlated with fertilizer use. However, because improved seed varieties affect all farms in a similar way, we can account for this unobserved factor using a second type of fixed effect.
 
-    In Lecture 15, we separated out from the error term a farm-specific component $Z_i$ that differed across farms but remained fixed over time. Now suppose the error also contains a component $S_t$ that changes across seasons but is common to all farms:
+    In Lecture 15, we separated out from the error term a farm-specific component $Z_i$ that differed across farms but remained fixed over time. Now suppose the error also contains a component $S_t$ that changes across seasons but is common to all farms,
 
     $$
-    Y_{it} = \beta_0 + \beta_1 X_{it} + Z_i + S_t + \nu_{it},
+    Y_{it} = \beta_0 + \beta_1 X_{it} + S_t + Z_i + \nu_{it},
     $$
 
     where $S_t$ captures the common component of unobserved factors that affect farms in season $t$, such as the quality of available seed varieties or a widespread weather shock. The absence of an $i$ subscript on $S_t$ is important. Within a given season, the same $S_t$ applies to every farm. The remaining error $\nu_{it}$ represents unobserved factors that vary across farms *and* over seasons, such as a pest outbreak on one farm in one particular season.
@@ -236,16 +236,16 @@ def _(mo):
     We cannot observe $S_t$ directly, but we can account for it in much the same way that farm fixed effects accounted for $Z_i$. Specifically, we can add indicator variables for five of the six seasons to the regression,
 
     $$
-    Y_{it} = \beta_0 + \beta_1 X_{it} + Z_i + \delta_1 \text{B1}_t + \delta_2 \text{B2}_t + \cdots + \delta_5 \text{B5}_t + \nu_{it},
+    Y_{it} = \beta_0 + \beta_1 X_{it} + \delta_1 \text{B1}_t + \delta_2 \text{B2}_t + \cdots + \delta_5 \text{B5}_t + Z_i + \nu_{it},
     $$
 
-    where $\text{B1}_t$ equals 1 when $t =$ 2020 and 0 otherwise, $\text{B2}_t$ equals 1 when $t =$ 2021 and 0 otherwise, and so on.<sup><a id="fnref1" href="#fn1">1</a></sup> Note that these season indicators are mutually exclusive, just like the farm indicators from Lecture 15. An observation can belong to only one season. Rather than writing out all five indicators each time, we can collect them into a single term,
+    where $\text{B1}_t$ equals 1 when $t =$ 2020 and 0 otherwise, $\text{B2}_t$ equals 1 when $t =$ 2021 and 0 otherwise, and so on.<sup><a id="fnref1" href="#fn1">1</a></sup> Note that these season indicators are mutually exclusive, just like the farm indicators from Lecture 15. An observation can belong to only one season. Rather than writing out all five indicators each time, we can collect them into a single term, $\lambda_t = \delta_1 \text{B1}_t + \delta_2 \text{B2}_t + \cdots + \delta_5 \text{B5}_t$, so that the regression can be written,
 
     $$
-    \lambda_t = \delta_1 \text{B1}_t + \delta_2 \text{B2}_t + \cdots + \delta_5 \text{B5}_t.
+    Y_{it} = \beta_0 + \beta_1 X_{it} + \lambda_t + \underbrace{v_{it}}_{Z_i + \nu_{it}}.
     $$
 
-    The collection of season indicators is called *time fixed effects*, and $\lambda_t$ is a compact way to write them. Time fixed effects allow the average level of corn yields to differ from season to season because of factors that affect all farms in a similar way, whether or not we observe those factors. In our example, they account for the season-by-season corn yield gains associated with improved seed varieties, so those gains can no longer be misattributed to fertilizer.
+    The season indicators are called *time fixed effects*, and $\lambda_t$ is a compact way to represent them. The corresponding regression is a *time fixed effects regression*. The error term $v_{it}$ contains everything not captured by the time fixed effects, including the time-invariant farm component $Z_i$ and unobserved factors $\nu_{it}$ that vary across farms and seasons. Time fixed effects allow the average level of corn yields to differ from season to season because of factors that affect all farms in a similar way, whether or not we observe those factors. In our example, they account for the season-by-season yield gains associated with improved seed varieties, so those gains can no longer be misattributed to fertilizer.
     """)
     return
 
@@ -306,10 +306,9 @@ def _(mo):
             "Two-way fixed effects",
         ],
         value="Pooled OLS",
-        label="Which regression should we fit?",
         inline=True,
     )
-    est_pick
+    mo.vstack([mo.md("Which regression should we fit?"), est_pick], gap=0.25)
     return (est_pick,)
 
 
@@ -320,18 +319,25 @@ def _(alt, est_b1, est_pick, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
 
     # The regression the current selection fits, shown between the buttons and
     # the chart. Each equation keeps the not-yet-absorbed confounders visible
-    # inside the error term, which is what biases that estimator.
+    # in the error, with braces labeled by the lectures' error symbols:
+    # u_it = Z_i + eps_it (Lecture 15) and eps_it = S_t + nu_it (Section 2).
+    # The season-FE leftover Z_i + nu_it has no symbol of its own, so it is
+    # shown without a brace. Rendered as \displaystyle inline math inside a
+    # styled block so the gap to the radio above stays tight.
     _eqs = {
         "Pooled OLS":
-            r"$$Y_{it} = \beta_0 + \beta_1 X_{it} + \underbrace{Z_i + S_t + \nu_{it}}_{u_{it}}$$",
+            r"$\displaystyle Y_{it} = \beta_0 + \beta_1 X_{it} + \underbrace{Z_i + S_t + \nu_{it}}_{u_{it}}$",
         "Farm fixed effects":
-            r"$$Y_{it} = \beta_0 + \beta_1 X_{it} + \alpha_i + \underbrace{S_t + \nu_{it}}_{u_{it}}$$",
+            r"$\displaystyle Y_{it} = \beta_0 + \beta_1 X_{it} + \alpha_i + \underbrace{S_t + \nu_{it}}_{\varepsilon_{it}}$",
         "Season fixed effects":
-            r"$$Y_{it} = \beta_0 + \beta_1 X_{it} + \lambda_t + \underbrace{Z_i + \nu_{it}}_{u_{it}}$$",
+            r"$\displaystyle Y_{it} = \beta_0 + \beta_1 X_{it} + \lambda_t + Z_i + \nu_{it}$",
         "Two-way fixed effects":
-            r"$$Y_{it} = \beta_0 + \beta_1 X_{it} + \alpha_i + \lambda_t + \nu_{it}$$",
+            r"$\displaystyle Y_{it} = \beta_0 + \beta_1 X_{it} + \alpha_i + \lambda_t + \nu_{it}$",
     }
-    _eq = mo.md(_eqs[_pick])
+    _eq = mo.md(
+        "<span style='display:block;text-align:center;margin:-0.5rem auto 0.2rem;'>"
+        + _eqs[_pick] + "</span>"
+    )
 
     _t6 = fm_fert[fm_six]
     _f6 = fm_yield[fm_six]
