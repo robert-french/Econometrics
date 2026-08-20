@@ -112,7 +112,7 @@
 
         <nav class="flex flex-wrap gap-x-7 gap-y-2 text-lg font-semibold text-slate-900 sm:pb-2 sm:pr-4">
           <a href="#lectures" data-tab-link="lectures" class="hover:text-[#3b82f6]">Lectures</a>
-          <a href="#problem-set-solutions" data-tab-link="problem-set-solutions" class="hover:text-[#3b82f6]">Problem set solutions</a>
+          <a href="#problem-sets" data-tab-link="problem-sets" class="hover:text-[#3b82f6]">Problem sets</a>
           <a href="#stata-tutorials" data-tab-link="stata-tutorials" class="hover:text-[#3b82f6]">Stata tutorials</a>
         </nav>
       </div>
@@ -147,7 +147,7 @@
     <section id="lectures" class="tab-panel scroll-mt-20 mb-20 hidden">
 
       <p class="mb-6 text-slate-600">
-        Open a unit, then open a lecture to read it in your browser.
+        Lecture notebooks are posted here before we cover the material in class. 
       </p>
 
       {% if lecture_groups %}
@@ -198,10 +198,10 @@
     <!-- Cards come from notebooks named PS<N>...py                -->
     <!-- ========================================================= -->
 
-    <section id="problem-set-solutions" class="tab-panel scroll-mt-20 mb-20 hidden">
+    <section id="problem-sets" class="tab-panel scroll-mt-20 mb-20 hidden">
 
       <p class="mb-6 text-slate-600">
-        Worked solutions to the problem sets, in the same notebook format as the lectures.
+        Problem set solutions will appear here as they are posted.
       </p>
 
       {% if problem_sets %}
@@ -233,7 +233,7 @@
     <section id="stata-tutorials" class="tab-panel scroll-mt-20 mb-20 hidden">
 
       <p class="mb-6 text-slate-600">
-        Step-by-step guides to working with Stata.
+        Stata tutorials will appear here as they are posted.
       </p>
 
       {% if stata_tutorials %}
@@ -268,7 +268,7 @@
       </h2>
 
       <p class="text-slate-600 leading-8">
-        Resources and instructions for students will go here.
+        I will post resources and instructions for students here.
       </p>
     </section>
 
@@ -284,7 +284,7 @@
       </h2>
 
       <p class="text-slate-600 leading-8">
-        Notes for educators who want to reuse or adapt these materials will go here.
+        I will post notes for educators who want to reuse or adapt these materials here.
       </p>
     </section>
 
@@ -324,7 +324,7 @@
     // link again returns to the home view. The URL hash mirrors the open
     // panel so deep links work.
     (function () {
-      var TAB_IDS = ["lectures", "problem-set-solutions", "stata-tutorials"];
+      var TAB_IDS = ["lectures", "problem-sets", "stata-tutorials"];
       var ACTIVE = ["underline", "decoration-2", "underline-offset-8", "text-[#3b82f6]"];
       var current = null;
 
