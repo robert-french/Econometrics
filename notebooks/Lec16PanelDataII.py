@@ -245,7 +245,7 @@ def _(mo):
     Y_{it} = \beta_0 + \beta_1 X_{it} + \lambda_t + \underbrace{v_{it}}_{Z_i + \nu_{it}}.
     $$
 
-    The season indicators are called *time fixed effects*, and $\lambda_t$ is a compact way to represent them. The corresponding regression is a *time fixed effects regression*. The error term $v_{it}$ contains everything not captured by the time fixed effects, including the time-invariant farm component $Z_i$ and remaining unobserved factors $\nu_{it}$ that vary across farms and seasons. Time fixed effects allow the average level of corn yields to differ from season to season because of factors that affect all farms in a similar way, whether or not we observe those factors. In our example, they account for the season-by-season yield gains associated with improved seed varieties, so those gains can no longer be misattributed to fertilizer.
+    The season indicators are called *time fixed effects*, and $\lambda_t$ is a compact way to represent them. The corresponding regression is a *time fixed effects regression*. The error term $v_{it}$ contains everything not captured by the time fixed effects, including the time-invariant farm component $Z_i$ and remaining unobserved factors $\nu_{it}$ that vary across farms and seasons. Time fixed effects allow the average level of corn yields to differ from season to season because of factors that affect all farms in a similar way, whether or not we observe those factors. In our example, they account for the season-by-season corn yield gains associated with improved seed varieties, so those gains can no longer be misattributed to fertilizer.
     """)
     return
 
@@ -292,7 +292,7 @@ def _(fm_fert, fm_yield):
     est_b1 = {
         "Pooled OLS": _slope(_x0, _y0),
         "Farm (entity) fixed effects": _slope(_xe, _ye),
-        "Season fixed effects": _slope(_xt, _yt),
+        "Season (time) fixed effects": _slope(_xt, _yt),
         "Two-way fixed effects": _slope(_xw, _yw),
     }
     return (est_b1,)
@@ -304,7 +304,7 @@ def _(mo):
         options=[
             "Pooled OLS",
             "Farm (entity) fixed effects",
-            "Season fixed effects",
+            "Season (time) fixed effects",
             "Two-way fixed effects",
         ],
         value="Pooled OLS",
@@ -315,12 +315,12 @@ def _(mo):
     mo.vstack(
         [
             mo.md(
-                "<span style='display:block;margin:-0.5rem 0 0;'>"
+                "<span style='display:block;margin:-1.0rem 0 0;'>"
                 "Which regression should we fit?</span>"
             ),
             est_pick,
         ],
-        gap=0.5,
+        gap=1.0,
     )
     return (est_pick,)
 
@@ -342,7 +342,7 @@ def _(alt, est_b1, est_pick, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
             r"$\displaystyle Y_{it} = \beta_0 + \beta_1 X_{it} + \underbrace{Z_i + S_t + \nu_{it}}_{u_{it}}$",
         "Farm (entity) fixed effects":
             r"$\displaystyle Y_{it} = \beta_0 + \beta_1 X_{it} + \alpha_i + \underbrace{S_t + \nu_{it}}_{\varepsilon_{it}}$",
-        "Season fixed effects":
+        "Season (time) fixed effects":
             r"$\displaystyle Y_{it} = \beta_0 + \beta_1 X_{it} + \lambda_t + \underbrace{Z_i + \nu_{it}}_{v_{it}}$",
         "Two-way fixed effects":
             r"$\displaystyle Y_{it} = \beta_0 + \beta_1 X_{it} + \alpha_i + \lambda_t + \nu_{it}$",
@@ -385,7 +385,7 @@ def _(alt, est_b1, est_pick, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
             .mark_line(color="#111827", size=4, clip=True)
             .encode(x=_xax, y=_yax)
         )
-    elif _pick == "Season fixed effects":
+    elif _pick == "Season (time) fixed effects":
         _layers.append(
             alt.Chart(_long)
             .mark_circle(size=40, opacity=0.6, clip=True)
@@ -456,10 +456,10 @@ def _(alt, est_b1, est_pick, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
     _main = alt.layer(*_layers).properties(width=430, height=340)
 
     _order = ["Pooled OLS", "Farm (entity) fixed effects",
-              "Season fixed effects", "Two-way fixed effects"]
+              "Season (time) fixed effects", "Two-way fixed effects"]
     _short = {"Pooled OLS": "Pooled",
               "Farm (entity) fixed effects": "Farm FE",
-              "Season fixed effects": "Season FE",
+              "Season (time) fixed effects": "Season FE",
               "Two-way fixed effects": "Two-way"}
     _bsc = alt.Scale(domain=[-0.4, 0.8], nice=False)
     _bars_df = pd.DataFrame({
@@ -473,7 +473,9 @@ def _(alt, est_b1, est_pick, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
     _bx = alt.X("est:N", title=None,
                 sort=[_short[_k] for _k in _order],
                 axis=alt.Axis(labelAngle=-30))
-    _by = alt.Y("b1:Q", scale=_bsc, title="Estimated effect of nitrogen")
+    # Axis titles are plain text in vega, so the beta-hat is the unicode
+    # combining circumflex rather than KaTeX.
+    _by = alt.Y("b1:Q", scale=_bsc, title="Estimated effect of nitrogen, β̂₁")
     _bars = (
         alt.Chart(_bars_df)
         .mark_bar(clip=True)
@@ -494,13 +496,13 @@ def _(alt, est_b1, est_pick, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
         .mark_rule(color="orange", strokeDash=[6, 4], size=2)
         .encode(y=alt.Y("b1:Q", scale=_bsc))
     )
-    # Label the dashed line on the chart itself, in its color, hugging the
-    # right edge where no bar reaches above the line.
+    # Label the dashed line on the chart itself, in its color, centered
+    # horizontally just above the line.
     _rule_label = (
         alt.Chart(pd.DataFrame({"b1": [0.30], "label": ["True effect"]}))
-        .mark_text(color="orange", fontSize=9.5, align="right", dy=-6)
+        .mark_text(color="orange", fontSize=9.5, align="center", dy=-6)
         .encode(
-            x=alt.value(146),
+            x=alt.value(75),
             y=alt.Y("b1:Q", scale=_bsc),
             text="label:N",
         )
@@ -521,34 +523,35 @@ def _(alt, est_b1, est_pick, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
 
     if _pick == "Pooled OLS":
         _msg = (
-            f"One intercept for everything. Both confounders are live: soil "
-            f"quality pulls the estimate down, the seed-genetics trend pushes "
-            f"it up, and the net is {_b1:+.2f}, as if fertilizer did nothing. "
-            f"The dashed orange line marks the true effect, +0.30."
+            f"Pooled OLS accounts for neither source of omitted-variable bias. "
+            f"Soil quality biases the estimate downward, while improved seed varieties "
+            f"bias it upward. The two effects nearly offset, giving an estimate of "
+            f"{_b1:+.2f}, even though the true effect is +0.30."
         )
+
     elif _pick == "Farm (entity) fixed effects":
         _msg = (
-            f"One intercept per farm absorbs soil quality, but the "
-            f"seed-genetics trend remains in the error. Within every farm, "
-            f"yields and nitrogen rose together, so the estimate overshoots "
-            f"to {_b1:+.2f}: fertilizer takes credit for the new seed "
-            f"varieties."
+            f"Farm fixed effects account for soil quality and other factors that remain "
+            f"constant within a farm over time. Improved seed varieties still remain "
+            f"in the error term, however. Because corn yields and nitrogen use both rise "
+            f"over time, the regression misattributes some of the yield gains from "
+            f"improved seeds to fertilizer, raising the estimate to {_b1:+.2f}."
         )
-    elif _pick == "Season fixed effects":
+
+    elif _pick == "Season (time) fixed effects":
         _msg = (
-            f"One intercept per season absorbs the seed-genetics trend (each "
-            f"season's cloud slides up the chart), but soil quality is back "
-            f"in the error, and comparisons across farms drag the estimate "
-            f"down to {_b1:+.2f}, the same problem as Lecture 15's "
-            f"cross-sections."
+            f"Time fixed effects account for improved seed varieties and other factors "
+            f"that change across seasons but affect all farms in a similar way. Soil "
+            f"quality still remains in the error term, however, so comparisons across "
+            f"farms bias the estimate downward to {_b1:+.2f}."
         )
+
     else:
         _msg = (
-            f"Farm intercepts absorb soil quality and season intercepts "
-            f"absorb the seed-genetics trend. The estimate, {_b1:+.2f}, "
-            f"lands on the true effect of +0.30. Each kind of fixed effect "
-            f"removes only its own kind of confounder, so the model needs "
-            f"both."
+            f"Two-way fixed effects account for both sources of omitted-variable bias. "
+            f"Farm fixed effects account for soil quality, while time fixed effects "
+            f"account for improved seed varieties. The estimate is {_b1:+.2f}, close "
+            f"to the true effect of +0.30."
         )
     _caption = mo.md(
         "<span style='display:block;margin:0.2rem auto 1rem;max-width:600px;"
