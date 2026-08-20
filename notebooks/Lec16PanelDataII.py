@@ -789,8 +789,7 @@ def _(mo, tbl_fits, tbl_flags):
         + "".join(_coef_cell(_f["b1"], _f["se1"]) for _f in tbl_fits)
         + "</tr>"
     )
-    _const_cells = [_coef_cell(tbl_fits[0]["b0"], tbl_fits[0]["se0"])]
-    _const_cells += [f"<td style='{_pad}'></td>"] * 3
+    _const_cells = [_coef_cell(_f["b0"], _f["se0"]) for _f in tbl_fits]
     _rows.append(
         "<tr><td style='padding:3px 15px;text-align:left;'>Constant</td>"
         + "".join(_const_cells) + "</tr>"
