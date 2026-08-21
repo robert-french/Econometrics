@@ -43,6 +43,8 @@ def _(mo):
             ),
             mo.md(
                 r"""
+                <div style="font-weight: 700; font-size: 1.05em;">Course Outline</div>
+
                 1. <a href="https://robert-french.github.io/Econometrics/apps/Lec1Introduction.html" target="_self">Introduction</a>
                 2. **[Random Variables](#top)**
                     1. [Probability and statistics](#sec1)
@@ -72,7 +74,7 @@ def _(mo):
                 """
             ),
         ],
-        width="300px",
+        width="350px",
     )
     return
 

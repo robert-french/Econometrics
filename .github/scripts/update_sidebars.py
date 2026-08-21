@@ -107,6 +107,8 @@ def _(mo):
             ),
             mo.md(
                 r"""
+                <div style="font-weight: 700; font-size: 1.05em;">Course Outline</div>
+
 {outline}
                 """
             ),

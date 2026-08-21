@@ -39,6 +39,8 @@ def _(mo):
             ),
             mo.md(
                 r"""
+                <div style="font-weight: 700; font-size: 1.05em;">Course Outline</div>
+
                 1. **[Introduction](#top)**
                     1. [What is econometrics?](#sec1)
                     1. [Descriptive and causal questions](#sec2)
@@ -67,7 +69,7 @@ def _(mo):
                 """
             ),
         ],
-        width="300px",
+        width="350px",
     )
     return
 
