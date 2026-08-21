@@ -32,6 +32,7 @@ import fire
 
 from loguru import logger
 
+from course_outline import POSTED_THROUGH
 from export_pdf import export_notebook_pdf
 
 
@@ -446,6 +447,14 @@ def main(
     if not notebooks_data and not apps_data:
         logger.warning("No notebooks found!")
         return
+
+    # Lectures past the release dial keep their card inside the group
+    # dropdown but get the "Coming soon" badge and a disabled button, like
+    # unposted problem sets (both are driven by the preliminary flag).
+    for item in apps_data:
+        category, number = _categorize(item["stem"])
+        if category == "lecture" and number is not None and number > POSTED_THROUGH:
+            item["preliminary"] = True
 
     # Generate a downloadable PDF at _site/pdf/<stem>.pdf for every lecture
     # notebook (problem sets and Stata tutorials are skipped); each lecture's

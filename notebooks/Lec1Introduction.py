@@ -35,20 +35,36 @@ def _(mo):
                 '<img src="https://robert-french.github.io/Econometrics/LMU_SquareOrig.png" alt="" style="height: 1.6em; width: auto; display: block;">'
                 '<span>ECON 3300 Course home</span>'
                 '</a>'
-                '<h1 style="margin: 0.25em 0 0;"><a href="#top">Lecture 1</a></h1>'
                 '</div>'
             ),
-            mo.md("**Introduction to Econometrics**"),
-            mo.nav_menu(
-                {
-                    "#sec1": "1. What is econometrics?",
-                    "#sec2": "2. Descriptive and causal questions",
-                    "#sec3": "3. Education and earnings",
-                    "#sec4": "4. Why causal questions are hard",
-                    "#sec5": "5. Populations and samples",
-                    "#sec6": "6. Types of data",
-                },
-                orientation="vertical",
+            mo.md(
+                r"""
+                1. **[Introduction](#top)**
+                    1. [What is econometrics?](#sec1)
+                    1. [Descriptive and causal questions](#sec2)
+                    1. [Education and earnings](#sec3)
+                    1. [Why causal questions are hard](#sec4)
+                    1. [Populations and samples](#sec5)
+                    1. [Types of data](#sec6)
+                2. <a href="https://robert-french.github.io/Econometrics/apps/Lec2RandomVariables.html" target="_self">Random Variables</a>
+                3. <a href="https://robert-french.github.io/Econometrics/apps/Lec3WorkingWithMultipleRandomVariables.html" target="_self">Multiple Random Variables</a>
+                4. <a href="https://robert-french.github.io/Econometrics/apps/Lec4EstimationHypothesisTestingAndConfidenceIntervals.html" target="_self">Estimation and Hypothesis Testing</a>
+                5. <span class="soon">Simple Linear Regression</span>
+                6. <span class="soon">OLS Assumptions for Causal Inference</span>
+                7. <span class="soon">Inference and Omitted Variable Bias</span>
+                8. <span class="soon">Multiple Regression</span>
+                9. <span class="soon">Control Variables and Inference</span>
+                10. <span class="soon">Reading Regression Tables</span>
+                11. <span class="soon">Nonlinear Regression: Polynomials</span>
+                12. <span class="soon">Nonlinear Regression: Logarithms</span>
+                13. <span class="soon">Nonlinear Regression: Interaction Terms</span>
+                14. <span class="soon">Internal and External Validity</span>
+                15. <span class="soon">Panel Data I</span>
+                16. <span class="soon">Panel Data II</span>
+                17. <span class="soon">Binary Dependent Variable Regressions</span>
+                18. <span class="soon">Experiments</span>
+                19. <span class="soon">Quasi-Experiments</span>
+                """
             ),
         ],
         width="260px",

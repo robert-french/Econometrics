@@ -39,17 +39,33 @@ def _(mo):
                 '<img src="https://robert-french.github.io/Econometrics/LMU_SquareOrig.png" alt="" style="height: 1.6em; width: auto; display: block;">'
                 '<span>ECON 3300 Course home</span>'
                 '</a>'
-                '<h1 style="margin: 0.25em 0 0;"><a href="#top">Lecture 14</a></h1>'
                 '</div>'
             ),
-            mo.md("**Internal and External Validity**"),
-            mo.nav_menu(
-                {
-                    "#sec1": "1. What makes a study valid",
-                    "#sec2": "2. Threats to internal validity",
-                    "#sec3": "3. External validity",
-                },
-                orientation="vertical",
+            mo.md(
+                r"""
+                1. <a href="https://robert-french.github.io/Econometrics/apps/Lec1Introduction.html" target="_self">Introduction</a>
+                2. <a href="https://robert-french.github.io/Econometrics/apps/Lec2RandomVariables.html" target="_self">Random Variables</a>
+                3. <a href="https://robert-french.github.io/Econometrics/apps/Lec3WorkingWithMultipleRandomVariables.html" target="_self">Multiple Random Variables</a>
+                4. <a href="https://robert-french.github.io/Econometrics/apps/Lec4EstimationHypothesisTestingAndConfidenceIntervals.html" target="_self">Estimation and Hypothesis Testing</a>
+                5. <span class="soon">Simple Linear Regression</span>
+                6. <span class="soon">OLS Assumptions for Causal Inference</span>
+                7. <span class="soon">Inference and Omitted Variable Bias</span>
+                8. <span class="soon">Multiple Regression</span>
+                9. <span class="soon">Control Variables and Inference</span>
+                10. <span class="soon">Reading Regression Tables</span>
+                11. <span class="soon">Nonlinear Regression: Polynomials</span>
+                12. <span class="soon">Nonlinear Regression: Logarithms</span>
+                13. <span class="soon">Nonlinear Regression: Interaction Terms</span>
+                14. **[Internal and External Validity](#top)**
+                    1. [What makes a study valid](#sec1)
+                    1. [Threats to internal validity](#sec2)
+                    1. [External validity](#sec3)
+                15. <span class="soon">Panel Data I</span>
+                16. <span class="soon">Panel Data II</span>
+                17. <span class="soon">Binary Dependent Variable Regressions</span>
+                18. <span class="soon">Experiments</span>
+                19. <span class="soon">Quasi-Experiments</span>
+                """
             ),
         ],
         width="260px",
@@ -61,9 +77,9 @@ def _(mo):
 def _(mo):
     mo.hstack(
         [
-            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec13NonlinearRegressionInteractionTerms.html" target="_self">← Lecture 13</a>'),
+            mo.md('<span class="nav-soon">← Lecture 13 (coming soon)</span>'),
             mo.md('<a href="https://robert-french.github.io/Econometrics/pdf/Lec14InternalAndExternalValidity.pdf" target="_blank">Download PDF</a>'),
-            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec15PanelDataI.html" target="_self">Lecture 15 →</a>'),
+            mo.md('<span class="nav-soon">Lecture 15 (coming soon)</span>'),
         ],
         justify="space-between", align="center",
     )
@@ -884,8 +900,8 @@ def _(mo):
 def _(mo):
     mo.hstack(
         [
-            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec13NonlinearRegressionInteractionTerms.html" target="_self">← Lecture 13</a>'),
-            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec15PanelDataI.html" target="_self">Lecture 15 →</a>'),
+            mo.md('<span class="nav-soon">← Lecture 13 (coming soon)</span>'),
+            mo.md('<span class="nav-soon">Lecture 15 (coming soon)</span>'),
         ],
         justify="space-between", align="center",
     )
