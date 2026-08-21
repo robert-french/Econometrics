@@ -62,6 +62,7 @@ def _(mo):
     mo.hstack(
         [
             mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec5SimpleLinearRegression.html" target="_self">← Lecture 5</a>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/pdf/Lec6OLSAssumptionsForCausalInference.pdf" target="_blank">Download PDF</a>'),
             mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec7InferenceAndOmittedVariableBias.html" target="_self">Lecture 7 →</a>'),
         ],
         justify="space-between", align="center",

@@ -1,4 +1,4 @@
-"""
+﻿"""
 Build script for marimo notebooks.
 
 This script uses notebooks/ as the single source of truth.
@@ -15,7 +15,8 @@ The script also generates an index.html file that lists both versions.
 # dependencies = [
 #     "jinja2==3.1.3",
 #     "fire==0.7.0",
-#     "loguru==0.7.0"
+#     "loguru==0.7.0",
+#     "playwright>=1.55"
 # ]
 # ///
 
@@ -30,6 +31,8 @@ import jinja2
 import fire
 
 from loguru import logger
+
+from export_pdf import export_notebook_pdf
 
 
 # Homepage tabs are keyed off the notebook filename: LecN* files are lectures,
@@ -444,6 +447,14 @@ def main(
         logger.warning("No notebooks found!")
         return
 
+    # Generate a downloadable PDF at _site/pdf/<stem>.pdf for every lecture
+    # notebook (problem sets and Stata tutorials are skipped); each lecture's
+    # "Download PDF" nav link points there.
+    for nb in sorted(source_folder.rglob("*.py")):
+        category, number = _categorize(nb.stem)
+        if category == "lecture" and number is not None:
+            export_notebook_pdf(nb, output_dir / "pdf" / f"{nb.stem}.pdf")
+
     _generate_index(
         output_dir=output_dir,
         notebooks_data=notebooks_data,
@@ -466,3 +477,4 @@ def main(
 
 if __name__ == "__main__":
     fire.Fire(main)
+

@@ -64,6 +64,7 @@ def _(mo):
     mo.hstack(
         [
             mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec10ReadingRegressionTables.html" target="_self">← Lecture 10</a>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/pdf/Lec11NonlinearRegressionPolynomials.pdf" target="_blank">Download PDF</a>'),
             mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec12NonlinearRegressionLogarithms.html" target="_self">Lecture 12 →</a>'),
         ],
         justify="space-between", align="center",
