@@ -34,10 +34,6 @@ from loguru import logger
 
 from export_pdf import export_notebook_pdf
 
-# Notebooks that also get a downloadable PDF at _site/pdf/<stem>.pdf. The
-# notebook's "Download PDF" link points there.
-PDF_EXPORT_STEMS = {"Lec1Introduction", "Lec2RandomVariables"}
-
 
 # Homepage tabs are keyed off the notebook filename: LecN* files are lectures,
 # PSN* files are problem set solutions, StataN* files are Stata tutorials.
@@ -451,9 +447,12 @@ def main(
         logger.warning("No notebooks found!")
         return
 
-    # Generate downloadable PDFs for the allowlisted notebooks.
+    # Generate a downloadable PDF at _site/pdf/<stem>.pdf for every lecture
+    # notebook (problem sets and Stata tutorials are skipped); each lecture's
+    # "Download PDF" nav link points there.
     for nb in sorted(source_folder.rglob("*.py")):
-        if nb.stem in PDF_EXPORT_STEMS:
+        category, number = _categorize(nb.stem)
+        if category == "lecture" and number is not None:
             export_notebook_pdf(nb, output_dir / "pdf" / f"{nb.stem}.pdf")
 
     _generate_index(
