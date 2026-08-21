@@ -70,7 +70,7 @@ def _(mo):
                 """
             ),
         ],
-        width="260px",
+        width="300px",
     )
     return
 

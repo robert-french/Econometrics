@@ -32,7 +32,7 @@ import fire
 
 from loguru import logger
 
-from course_outline import POSTED_THROUGH
+from course_outline import LECTURES, POSTED_THROUGH
 from export_pdf import export_notebook_pdf
 
 
@@ -455,6 +455,22 @@ def main(
         category, number = _categorize(item["stem"])
         if category == "lecture" and number is not None and number > POSTED_THROUGH:
             item["preliminary"] = True
+
+    # Placeholder cards for lectures whose notebooks are not written yet
+    # (stem None in the course outline), so their homepage groups appear
+    # with disabled "Coming soon" cards.
+    for number, title, stem in LECTURES:
+        if stem is None:
+            apps_data.append(
+                {
+                    "stem": f"Lec{number}",
+                    "display_name": f"Lecture {number}: {title}",
+                    "description": "This lecture has not been posted yet.",
+                    "key_terms": None,
+                    "preliminary": True,
+                    "html_path": "",
+                }
+            )
 
     # Generate a downloadable PDF at _site/pdf/<stem>.pdf for every lecture
     # notebook (problem sets and Stata tutorials are skipped); each lecture's

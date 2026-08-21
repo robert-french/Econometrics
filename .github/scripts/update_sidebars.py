@@ -111,7 +111,7 @@ def _(mo):
                 """
             ),
         ],
-        width="260px",
+        width="300px",
     )
     return
 '''.replace("{BASE_URL}", BASE_URL).replace("{outline}", outline)
