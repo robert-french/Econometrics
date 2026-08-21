@@ -68,6 +68,7 @@ _PRINT_CSS = """
   button { display: none !important; }
   a[href^="https://robert-french.github.io/Econometrics"] { display: none !important; }
   div:has(> a[href^="https://robert-french.github.io/Econometrics"]) { display: none !important; }
+  span.nav-soon { display: none !important; }
 </style>
 """
 

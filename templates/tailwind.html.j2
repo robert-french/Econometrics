@@ -169,7 +169,7 @@
           <div class="pb-5 pl-6 pt-3">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {% for item in group['items'] %}
-              {{ card(item, 'Lecture', 'Open lecture', 'Open the lecture to read it in your browser.') }}
+              {{ card(item, 'Lecture', 'Open lecture', 'Open the lecture to read it in your browser.', disabled=item.preliminary) }}
               {% endfor %}
             </div>
           </div>
