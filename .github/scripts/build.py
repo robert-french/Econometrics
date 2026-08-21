@@ -1,4 +1,4 @@
-"""
+﻿"""
 Build script for marimo notebooks.
 
 This script uses notebooks/ as the single source of truth.
@@ -16,7 +16,7 @@ The script also generates an index.html file that lists both versions.
 #     "jinja2==3.1.3",
 #     "fire==0.7.0",
 #     "loguru==0.7.0",
-#     "psutil==7.0.0"
+#     "playwright>=1.55"
 # ]
 # ///
 
@@ -478,3 +478,4 @@ def main(
 
 if __name__ == "__main__":
     fire.Fire(main)
+
