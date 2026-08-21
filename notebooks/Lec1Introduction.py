@@ -61,6 +61,7 @@ def _(mo):
     mo.hstack(
         [
             mo.md('<a href="https://robert-french.github.io/Econometrics/" target="_self">← Course home</a>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/pdf/Lec1Introduction.pdf" target="_blank">Download PDF</a>'),
             mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec2RandomVariables.html" target="_self">Lecture 2 →</a>'),
         ],
         justify="space-between", align="center",

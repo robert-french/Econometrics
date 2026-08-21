@@ -15,7 +15,8 @@ The script also generates an index.html file that lists both versions.
 # dependencies = [
 #     "jinja2==3.1.3",
 #     "fire==0.7.0",
-#     "loguru==0.7.0"
+#     "loguru==0.7.0",
+#     "psutil==7.0.0"
 # ]
 # ///
 
@@ -30,6 +31,12 @@ import jinja2
 import fire
 
 from loguru import logger
+
+from export_pdf import export_notebook_pdf
+
+# Notebooks that also get a downloadable PDF at _site/pdf/<stem>.pdf. The
+# notebook's "Download PDF" link points there. Trial: Lecture 1 only.
+PDF_EXPORT_STEMS = {"Lec1Introduction"}
 
 
 # Homepage tabs are keyed off the notebook filename: LecN* files are lectures,
@@ -443,6 +450,11 @@ def main(
     if not notebooks_data and not apps_data:
         logger.warning("No notebooks found!")
         return
+
+    # Generate downloadable PDFs for the allowlisted notebooks.
+    for nb in sorted(source_folder.rglob("*.py")):
+        if nb.stem in PDF_EXPORT_STEMS:
+            export_notebook_pdf(nb, output_dir / "pdf" / f"{nb.stem}.pdf")
 
     _generate_index(
         output_dir=output_dir,
