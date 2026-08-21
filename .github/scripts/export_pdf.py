@@ -46,6 +46,8 @@ from playwright.sync_api import sync_playwright
 # chromium, present only if `playwright install chromium` was run.
 _BROWSER_CHANNELS = ("chrome", "msedge", "")
 
+_PRINT_ATTEMPTS = 3
+
 # The app body lives in a fixed-height scrolling container; without the
 # height/overflow rules the print captures a single cut-off page. Buttons
 # (the sidebar hamburger, chart menus) are chrome, not content, so they are
@@ -149,7 +151,18 @@ def export_notebook_pdf(notebook_path: Path, output_pdf: Path) -> bool:
         html_file.write_text(
             html.replace("</head>", f"{_PRINT_CSS}</head>", 1), encoding="utf-8"
         )
-        if not _print_to_pdf(html_file, output_pdf):
+        # A cold browser launch with an empty cache can occasionally lose the
+        # race against the CDN and time out before the page renders; a fresh
+        # attempt almost always succeeds.
+        for attempt in range(1, _PRINT_ATTEMPTS + 1):
+            if _print_to_pdf(html_file, output_pdf):
+                break
+            logger.warning(
+                f"Print attempt {attempt}/{_PRINT_ATTEMPTS} failed for "
+                f"{notebook_path.name}"
+            )
+        else:
+            logger.error(f"All print attempts failed for {notebook_path.name}")
             return False
 
     logger.info(f"Successfully exported {output_pdf}")

@@ -35,8 +35,8 @@ from loguru import logger
 from export_pdf import export_notebook_pdf
 
 # Notebooks that also get a downloadable PDF at _site/pdf/<stem>.pdf. The
-# notebook's "Download PDF" link points there. Trial: Lecture 1 only.
-PDF_EXPORT_STEMS = {"Lec1Introduction"}
+# notebook's "Download PDF" link points there.
+PDF_EXPORT_STEMS = {"Lec1Introduction", "Lec2RandomVariables"}
 
 
 # Homepage tabs are keyed off the notebook filename: LecN* files are lectures,
