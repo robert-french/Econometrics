@@ -34,6 +34,7 @@ from loguru import logger
 
 from course_outline import LECTURES, POSTED_THROUGH
 from export_pdf import export_notebook_pdf
+from update_sidebars import update_all as update_sidebars
 
 
 # Homepage tabs are keyed off the notebook filename: LecN* files are lectures,
@@ -429,6 +430,17 @@ def main(
     logger.info(f"Using template file: {template_file}")
 
     source_folder = Path("notebooks")
+
+    # Regenerate every lecture's sidebar outline and prev/next nav rows from
+    # course_outline.py before exporting, so a POSTED_THROUGH change deploys
+    # with just a push - no local update_sidebars.py run required. The
+    # regeneration is idempotent, so this is a no-op when the notebooks are
+    # already in sync.
+    sidebar_failures = update_sidebars()
+    if sidebar_failures:
+        logger.warning(
+            f"Sidebar regeneration skipped {sidebar_failures} notebook(s)"
+        )
 
     # Export each source notebook once as an editable notebook.
     notebooks_data = _export_from_notebooks(

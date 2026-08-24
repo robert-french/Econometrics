@@ -198,8 +198,9 @@ def update_notebook(number: int, stem: str) -> bool:
     return True
 
 
-def main() -> int:
-    only = set(sys.argv[1:])
+def update_all(only=None) -> int:
+    """Regenerate the given stems (or all lectures); returns failure count."""
+    only = set(only or [])
     failures = 0
     for number, title, stem in LECTURES:
         if stem is None:
@@ -208,7 +209,11 @@ def main() -> int:
             continue
         if not update_notebook(number, stem):
             failures += 1
-    return 1 if failures else 0
+    return failures
+
+
+def main() -> int:
+    return 1 if update_all(sys.argv[1:]) else 0
 
 
 if __name__ == "__main__":

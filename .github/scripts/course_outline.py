@@ -9,9 +9,12 @@ POSTED_THROUGH is the highest lecture number students can open. It drives:
     (update_sidebars.py): lectures past the dial appear as grey
     non-clickable text.
 
-Weekly release: bump POSTED_THROUGH, run
+Weekly release: bump POSTED_THROUGH, commit, push. That is the whole
+release - the site build runs update_sidebars.py itself before exporting,
+so the sidebars and nav rows regenerate in CI. Running
     uv run .github/scripts/update_sidebars.py
-then commit and push (the site build picks the new value up automatically).
+locally is optional; it just keeps the notebooks in your working copy in
+sync with what the deployed site shows.
 
 LECTURES lists (number, short sidebar title, notebook stem). A stem of None
 marks a notebook that has not been written yet; it appears in every sidebar

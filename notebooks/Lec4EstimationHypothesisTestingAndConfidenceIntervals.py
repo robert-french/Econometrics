@@ -55,18 +55,18 @@ def _(mo):
                     1. [Hypothesis tests](#sec4)
                     1. [P-values and the t-statistic](#sec5)
                     1. [Confidence intervals](#sec6)
-                5. <span class="soon">Simple Linear Regression</span>
-                6. <span class="soon">OLS Assumptions for Causal Inference</span>
-                7. <span class="soon">Inference and Omitted Variable Bias</span>
-                8. <span class="soon">Multiple Regression</span>
-                9. <span class="soon">Control Variables and Inference</span>
-                10. <span class="soon">Reading Regression Tables</span>
-                11. <span class="soon">Nonlinear Regression: Polynomials</span>
-                12. <span class="soon">Nonlinear Regression: Logarithms</span>
-                13. <span class="soon">Nonlinear Regression: Interaction Terms</span>
-                14. <span class="soon">Internal and External Validity</span>
-                15. <span class="soon">Panel Data I</span>
-                16. <span class="soon">Panel Data II</span>
+                5. <a href="https://robert-french.github.io/Econometrics/apps/Lec5SimpleLinearRegression.html" target="_self">Simple Linear Regression</a>
+                6. <a href="https://robert-french.github.io/Econometrics/apps/Lec6OLSAssumptionsForCausalInference.html" target="_self">OLS Assumptions for Causal Inference</a>
+                7. <a href="https://robert-french.github.io/Econometrics/apps/Lec7InferenceAndOmittedVariableBias.html" target="_self">Inference and Omitted Variable Bias</a>
+                8. <a href="https://robert-french.github.io/Econometrics/apps/Lec8MultipleRegression.html" target="_self">Multiple Regression</a>
+                9. <a href="https://robert-french.github.io/Econometrics/apps/Lec9ControlVariablesAndInference.html" target="_self">Control Variables and Inference</a>
+                10. <a href="https://robert-french.github.io/Econometrics/apps/Lec10ReadingRegressionTables.html" target="_self">Reading Regression Tables</a>
+                11. <a href="https://robert-french.github.io/Econometrics/apps/Lec11NonlinearRegressionPolynomials.html" target="_self">Nonlinear Regression: Polynomials</a>
+                12. <a href="https://robert-french.github.io/Econometrics/apps/Lec12NonlinearRegressionLogarithms.html" target="_self">Nonlinear Regression: Logarithms</a>
+                13. <a href="https://robert-french.github.io/Econometrics/apps/Lec13NonlinearRegressionInteractionTerms.html" target="_self">Nonlinear Regression: Interaction Terms</a>
+                14. <a href="https://robert-french.github.io/Econometrics/apps/Lec14InternalAndExternalValidity.html" target="_self">Internal and External Validity</a>
+                15. <a href="https://robert-french.github.io/Econometrics/apps/Lec15PanelDataI.html" target="_self">Panel Data I</a>
+                16. <a href="https://robert-french.github.io/Econometrics/apps/Lec16PanelDataII.html" target="_self">Panel Data II</a>
                 17. <span class="soon">Binary Dependent Variable Regressions</span>
                 18. <span class="soon">Experiments</span>
                 19. <span class="soon">Quasi-Experiments</span>
@@ -84,7 +84,7 @@ def _(mo):
         [
             mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec3WorkingWithMultipleRandomVariables.html" target="_self">← Lecture 3</a>'),
             mo.md('<a href="https://robert-french.github.io/Econometrics/pdf/Lec4EstimationHypothesisTestingAndConfidenceIntervals.pdf" target="_blank">Download PDF</a>'),
-            mo.md('<span class="nav-soon">Lecture 5 (coming soon)</span>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec5SimpleLinearRegression.html" target="_self">Lecture 5 →</a>'),
         ],
         justify="space-between", align="center",
     )
@@ -611,7 +611,7 @@ def _(mo):
     mo.hstack(
         [
             mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec3WorkingWithMultipleRandomVariables.html" target="_self">← Lecture 3</a>'),
-            mo.md('<span class="nav-soon">Lecture 5 (coming soon)</span>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec5SimpleLinearRegression.html" target="_self">Lecture 5 →</a>'),
         ],
         justify="space-between", align="center",
     )
