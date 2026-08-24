@@ -109,10 +109,10 @@ def _(mo):
     mo.md(r"""
     ## Contents
 
-    [1. Omitted variable bias](#sec1)<br>
-    [2. The multiple-variable regression model](#sec2)<br>
-    [3. Estimating the model with OLS](#sec3)<br>
-    [4. Measures of fit](#sec4)
+    8.1 [Omitted variable bias](#sec1)<br>
+    8.2 [The multiple-variable regression model](#sec2)<br>
+    8.3 [Estimating the model with OLS](#sec3)<br>
+    8.4 [Measures of fit](#sec4)
     """)
     return
 
@@ -122,7 +122,7 @@ def _(mo):
     mo.md(r"""
     <a id="sec1"></a>
 
-    ## 1. Omitted variable bias
+    ## 8.1 Omitted variable bias
 
     Recall the first least squares assumption from Lecture 6. It says that the conditional mean of the error term is zero at every value of $X$,
 
@@ -154,7 +154,7 @@ def _(mo):
     mo.md(r"""
     <a id="sec2"></a>
 
-    ## 2. The multiple-variable regression model
+    ## 8.2 The multiple-variable regression model
 
     A single-variable regression relates an outcome to one independent variable. A multiple-variable regression model relates the outcome to several independent variables at the same time,
 
@@ -202,7 +202,7 @@ def _(mo):
     mo.md(r"""
     <a id="sec3"></a>
 
-    ## 3. Estimating the model with OLS
+    ## 8.3 Estimating the model with OLS
 
     The multiple-variable regression model contains more unknown parameters than the single-variable model. Instead of estimating only an intercept and one slope, we now estimate an intercept and one slope for each independent variable,
 
@@ -506,7 +506,7 @@ def _(
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    The two-dimensional plot directly above shows the education-wage relationship implied by the multiple-variable regression model when parental income is held fixed at its average value. This line differs from the dashed single-variable OLS line because the multiple-variable regression coefficient on education is estimated after accounting for parental income. Notice that the single-variable OLS line is steeper than the coefficient on education in the multiple-variable regression model. Can you explain why the slopes differ using the omitted variable bias formula from Section 1?
+    The two-dimensional plot directly above shows the education-wage relationship implied by the multiple-variable regression model when parental income is held fixed at its average value. This line differs from the dashed single-variable OLS line because the multiple-variable regression coefficient on education is estimated after accounting for parental income. Notice that the single-variable OLS line is steeper than the coefficient on education in the multiple-variable regression model. Can you explain why the slopes differ using the omitted variable bias formula from Section 8.1?
     """)
     return
 
@@ -516,7 +516,7 @@ def _(mo):
     mo.md(r"""
     <a id="sec4"></a>
 
-    ## 4. Measures of fit
+    ## 8.4 Measures of fit
 
     The same two measures from the single-variable case summarize how well a multiple-variable regression fits the data. The first is the *standard error of the regression*, which measures the typical size of a residual,
 
@@ -740,7 +740,7 @@ def _(mo):
 
     **The sign of the change in the slope**
 
-    In Section 3 the education slope moved from $1.63$ in the single-variable regression to $1.22$ once parental income was added. We can derive the direction of that change in advance. Compare the two fitted regressions,
+    In Section 8.3 the education slope moved from $1.63$ in the single-variable regression to $1.22$ once parental income was added. We can derive the direction of that change in advance. Compare the two fitted regressions,
 
     $$
     \widehat{Y} = \hat{\beta}_0^{\text{single}} + \hat{\beta}_1^{\text{single}} X_1

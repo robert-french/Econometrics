@@ -112,14 +112,14 @@ def _(mo):
     mo.md(r"""
     ## Contents
 
-    [1. Conditional expectation](#sec1)<br>
-    [2. The error term revisited](#sec2)<br>
-    [3. From prediction to causation](#sec3)<br>
-    [4. The least squares assumptions](#sec4)<br>
+    6.1 [Conditional expectation](#sec1)<br>
+    6.2 [The error term revisited](#sec2)<br>
+    6.3 [From prediction to causation](#sec3)<br>
+    6.4 [The least squares assumptions](#sec4)<br>
     &emsp;&emsp;[Least Squares Assumption 1: the conditional mean of u given X is zero](#sec4a)<br>
     &emsp;&emsp;[Least Squares Assumption 2: the data are i.i.d.](#sec4b)<br>
     &emsp;&emsp;[Least Squares Assumption 3: large outliers are unlikely](#sec4c)<br>
-    [5. Unbiasedness and consistency](#sec5)
+    6.5 [Unbiasedness and consistency](#sec5)
     """)
     return
 
@@ -128,7 +128,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec1"></a>
-    ## 1. Conditional expectation
+    ## 6.1 Conditional expectation
 
     Lecture 5 fit a line through sample data on wages and years of education, and interpreted the slope as describing an association. But what is the line trying to summarize? At each level of education, it estimates the average wage among people with that level of education. Before asking when the slope of that line has a causal interpretation, we therefore need to define the population average that regression is trying to approximate.
 
@@ -196,7 +196,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec2"></a>
-    ## 2. The error term revisited
+    ## 6.2 The error term revisited
 
     Lecture 5 modeled the population relationship between hourly wages and years of education as
 
@@ -208,7 +208,7 @@ def _(mo):
 
     The error term is not the residual from Lecture 5. The residual $\hat{u}_i = Y_i - \hat{\beta}_0 - \hat{\beta}_1 X_i$ is the gap between an observed wage and the line we fit through one sample. The error $u$ is the gap between a wage and the true population line. Because the population intercept $\beta_0$ and slope $\beta_1$ are never observed, the error term is never observed either.
 
-    The conditional expectation from Section 1 gives us a precise way to talk about these unobserved factors. The quantity $\mathbb{E}[u \mid X = x]$ is the average value of the error term among workers with $x$ years of education. In the wage example, $\mathbb{E}[u \mid X = 16]$ is the average contribution of all unobserved factors including ability and family background to the wages of workers with 16 years of education. If you assume that this unobserved average does not vary with years of education, then you can interpret $\beta_1$ causally. We will state this condition more precisely in the following two sections.
+    The conditional expectation from Section 6.1 gives us a precise way to talk about these unobserved factors. The quantity $\mathbb{E}[u \mid X = x]$ is the average value of the error term among workers with $x$ years of education. In the wage example, $\mathbb{E}[u \mid X = 16]$ is the average contribution of all unobserved factors including ability and family background to the wages of workers with 16 years of education. If you assume that this unobserved average does not vary with years of education, then you can interpret $\beta_1$ causally. We will state this condition more precisely in the following two sections.
     """)
     return
 
@@ -217,7 +217,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec3"></a>
-    ## 3. From prediction to causation
+    ## 6.3 From prediction to causation
 
     Lecture 5 was about prediction. The fitted slope of $\hat{\beta}_1 =$ $1.25 says that a worker with one more year of education is predicted to earn about $1.25 more per hour. It does not say that sending the same worker back to school for one more year would raise that worker's wage by $1.25. The *causal interpretation* of the slope is this stronger claim. It says that increasing $X$ by one unit causes $Y$ to change by $\beta_1$ units. A student deciding whether to stay in school for another year, or a government deciding how much to spend on tuition subsidies, needs to know the causal effect of education on earnings, not just the fact that more educated workers tend to earn more.
 
@@ -246,7 +246,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec4"></a>
-    ## 4. The least squares assumptions
+    ## 6.4 The least squares assumptions
     """)
     return
 
@@ -265,7 +265,7 @@ def _(mo):
 
     In the wage example, this means that workers with different levels of education do not systematically differ in the other determinants of wages contained in $u$. Workers with 16 years of education may differ from workers with 12 years of education in their schooling, but on average they must not differ in ability, family background, health, luck, or anything else in the error term that affects wages.
 
-    This is a strong requirement, and it is easy to see how it can fail. Suppose students with higher ability find school easier and therefore stay in school longer. Then workers with 16 years of education will have higher average ability than workers with 12 years of education. In that case, $\mathbb{E}[u \mid X = 16] > \mathbb{E}[u \mid X = 12],$ and the assumption fails. OLS then attributes to education some of the wage gains that ability would have produced anyway, so $\hat{\beta}_1$ overstates the causal effect of schooling. When the assumption does hold, by contrast, this first assumption is exactly what makes the OLS slope estimator unbiased, so that across repeated samples its average equals the true causal effect $\beta_1$. Section 5 develops this property and its companion, consistency.
+    This is a strong requirement, and it is easy to see how it can fail. Suppose students with higher ability find school easier and therefore stay in school longer. Then workers with 16 years of education will have higher average ability than workers with 12 years of education. In that case, $\mathbb{E}[u \mid X = 16] > \mathbb{E}[u \mid X = 12],$ and the assumption fails. OLS then attributes to education some of the wage gains that ability would have produced anyway, so $\hat{\beta}_1$ overstates the causal effect of schooling. When the assumption does hold, by contrast, this first assumption is exactly what makes the OLS slope estimator unbiased, so that across repeated samples its average equals the true causal effect $\beta_1$. Section 6.5 develops this property and its companion, consistency.
 
     This assumption cannot be tested with the data alone. The error term is unobserved, so we cannot compute $\mathbb{E}[u \mid X = x]$ from a sample of $X$ and $Y$. Whether the assumption holds must be argued from what we know about how the data were generated, not read from a calculation.
 
@@ -529,7 +529,7 @@ def _(
 def _(mo):
     mo.md(r"""
     <a id="sec5"></a>
-    ## 5. Unbiasedness and consistency
+    ## 6.5 Unbiasedness and consistency
 
     The least squares assumptions do more than justify a causal interpretation of the slope. They also inform us of how the OLS estimator $\hat{\beta}_1$ behaves across repeated samples.
 
@@ -584,7 +584,7 @@ def _(mo):
 
         **The population regression line is a conditional expectation.**
 
-        Section 1 claimed that a regression approximates the conditional expectation of $Y$ given $X$. Assumption 1 makes that exact. Take the population model and condition on $X = x$,
+        Section 6.1 claimed that a regression approximates the conditional expectation of $Y$ given $X$. Assumption 1 makes that exact. Take the population model and condition on $X = x$,
 
         $$ \mathbb{E}[Y \mid X = x] = \mathbb{E}[\beta_0 + \beta_1 X + u \mid X = x] = \beta_0 + \beta_1 x + \mathbb{E}[u \mid X = x]. $$
 
@@ -596,7 +596,7 @@ def _(mo):
 
         **A constant conditional mean folds into the intercept.**
 
-        Section 4 stated that only variation of $\mathbb{E}[u \mid X = x]$ with $x$ threatens the slope. To see why, suppose the conditional mean is some constant $c$ other than zero, $\mathbb{E}[u \mid X = x] = c$ for every $x$. Define a new error $\tilde{u} = u - c$ and a new intercept $\tilde{\beta}_0 = \beta_0 + c$. Then
+        Section 6.4 stated that only variation of $\mathbb{E}[u \mid X = x]$ with $x$ threatens the slope. To see why, suppose the conditional mean is some constant $c$ other than zero, $\mathbb{E}[u \mid X = x] = c$ for every $x$. Define a new error $\tilde{u} = u - c$ and a new intercept $\tilde{\beta}_0 = \beta_0 + c$. Then
 
         $$ Y = \beta_0 + \beta_1 X + u = (\beta_0 + c) + \beta_1 X + (u - c) = \tilde{\beta}_0 + \beta_1 X + \tilde{u}, $$
 

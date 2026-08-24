@@ -105,12 +105,12 @@ def _(mo):
     mo.md(r"""
     ## Contents
 
-    1. [Estimators and estimates](#sec1)
-    2. [Bias and consistency](#sec2)
-    3. [Mean squared error and efficiency](#sec3)
-    4. [Hypothesis tests](#sec4)
-    5. [P-values and the t-statistic](#sec5)
-    6. [Confidence intervals](#sec6)
+    4.1 [Estimators and estimates](#sec1)<br>
+    4.2 [Bias and consistency](#sec2)<br>
+    4.3 [Mean squared error and efficiency](#sec3)<br>
+    4.4 [Hypothesis tests](#sec4)<br>
+    4.5 [P-values and the t-statistic](#sec5)<br>
+    4.6 [Confidence intervals](#sec6)
     """)
     return
 
@@ -119,7 +119,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec1"></a>
-    ## 1. Estimators and estimates
+    ## 4.1 Estimators and estimates
 
     The previous two lectures introduced random variables and their distributions. We now turn to the central task of statistical inference, which is using a sample of data to learn about a population we cannot fully observe.
 
@@ -134,7 +134,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec2"></a>
-    ## 2. Bias and consistency
+    ## 4.2 Bias and consistency
 
     The first property concerns where an estimator is centered across repeated samples of the same size. The *bias* of an estimator $\hat{\theta}$ of a population quantity $\theta$ is the difference between the estimator’s expected value and the population quantity,
 
@@ -165,7 +165,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec3"></a>
-    ## 3. Mean squared error and efficiency
+    ## 4.3 Mean squared error and efficiency
 
     Bias and consistency each capture one aspect of a good estimator, but we often want a single number that measures how close an estimator lands to the true parameter value. The *mean squared error* averages the squared distance between the estimator and the true parameter value,
 
@@ -186,7 +186,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec4"></a>
-    ## 4. Hypothesis tests
+    ## 4.4 Hypothesis tests
 
     Estimation gives us a best guess about a population quantity. A *hypothesis test* asks whether the data provide enough evidence against a specific claim about that quantity.
 
@@ -219,7 +219,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec5"></a>
-    ## 5. P-values and the t-statistic
+    ## 4.5 P-values and the t-statistic
 
     Suppose the null hypothesis says that the population mean is $\mu_{X,0}$, and our estimator is the sample mean, $\hat{\mu}_X$. In any particular sample, the estimate may come out above or below the null value, $\mu_{X,0}$. If the estimate is far from $\mu_{X,0}$, there are two possible explanations. The null may be false, meaning the true population mean differs from $\mu_{X,0}$, or the null may be true and our sample happened to produce an estimate far from the null value by chance.
 
@@ -415,7 +415,7 @@ def _(alt, mo, np, pd, pv_alpha, pv_est, pv_se, stats):
 def _(mo):
     mo.md(r"""
     <a id="sec6"></a>
-    ## 6. Confidence intervals
+    ## 4.6 Confidence intervals
 
     A hypothesis test starts with a claim and asks whether the data provide enough evidence to reject it. A *confidence interval* starts with the estimate and asks which values of the population mean remain plausible given uncertainty in it.
 
@@ -577,7 +577,7 @@ def _(mo, stats, tbl_t):
 
         This derivation is bonus material. You will not be tested on it.
 
-        Section 3 split the mean squared error into a variance term and a squared bias term. Here is why. Start from the definition and add and subtract the expected value of the estimator inside the square,
+        Section 4.3 split the mean squared error into a variance term and a squared bias term. Here is why. Start from the definition and add and subtract the expected value of the estimator inside the square,
 
         $$ \text{MSE}(\hat{\theta}) = \mathbb{E}\big[(\hat{\theta} - \theta)^2\big] = \mathbb{E}\big[(\hat{\theta} - \mathbb{E}[\hat{\theta}] + \mathbb{E}[\hat{\theta}] - \theta)^2\big]. $$
 

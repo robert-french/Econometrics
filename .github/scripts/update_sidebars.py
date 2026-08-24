@@ -53,8 +53,58 @@ def _scrape_sections(text: str) -> list[tuple[str, str]]:
     sections: dict[str, str] = {}
     for title, anchor in _SECTION_LINK.findall(text):
         if anchor not in sections:
-            sections[anchor] = re.sub(r"^\d+\.\s*", "", title).strip()
+            sections[anchor] = re.sub(r"^\d+(?:\.\d+)?\.?\s*", "", title).strip()
     return [(title, anchor) for anchor, title in sections.items()]
+
+
+# A Contents-cell section link in any of its three historical shapes:
+# "1. [Title](#sec1)" (markdown list), "[1. Title](#sec1)<br>" (br lines),
+# or the generated "2.1 [Title](#sec1)<br>". Sub-entries with lettered
+# anchors (#sec4a) deliberately do not match and are left untouched.
+_TOC_LINK = re.compile(
+    r"^(\s*)(?:\d+(?:\.\d+)?\.?\s+)?\[(?:\d+(?:\.\d+)?\.?\s*)?([^\]]+)\]"
+    r"\(#sec(\d+)\)(?:<br>)?\s*$"
+)
+
+
+def _renumber_contents(text: str, lecture_n: int) -> tuple[str, int]:
+    """Rewrite the Contents cell's section links as 'L.N [Title](#secN)<br>'.
+
+    Operates line by line inside the Contents cell only, so comments,
+    lettered sub-entries, and any other structure survive. The last section
+    link keeps no trailing <br>, matching the established style. Returns
+    (new_text, number_of_links_rewritten).
+    """
+    start = text.find("## Contents")
+    if start == -1:
+        return text, 0
+    end = text.find('"""', start)
+    if end == -1:
+        return text, 0
+
+    region = text[start:end]
+    lines = region.split("\n")
+    hits = [i for i, line in enumerate(lines) if _TOC_LINK.match(line)]
+    for i in hits:
+        m = _TOC_LINK.match(lines[i])
+        indent, title, sec = m.group(1), m.group(2).strip(), m.group(3)
+        br = "" if i == hits[-1] else "<br>"
+        lines[i] = f"{indent}{lecture_n}.{sec} [{title}](#sec{sec}){br}"
+    return text[:start] + "\n".join(lines) + text[end:], len(hits)
+
+
+def _renumber_headings(text: str, lecture_n: int) -> tuple[str, int]:
+    """Rewrite '## N. Title' section headings as '## L.N Title'.
+
+    Keyed to the '<a id="secN"></a>' anchor immediately above each heading,
+    so reruns renumber idempotently and lettered anchors are untouched.
+    """
+    pattern = re.compile(
+        r'(<a id="sec(\d+)"></a>\s*\n\s*)## +\d+(?:\.\d+)?\.? +'
+    )
+    return pattern.subn(
+        lambda m: f"{m.group(1)}## {lecture_n}.{m.group(2)} ", text
+    )
 
 _SIDEBAR_CELL = re.compile(
     r"@app\.cell\(hide_code=True\)\ndef _\(mo\):\n    mo\.sidebar\(.*?\n    return\n",
@@ -182,6 +232,14 @@ def update_notebook(number: int, stem: str) -> bool:
     if n_side != 1:
         print(f"SKIP {stem}: sidebar cell not found")
         return False
+
+    new_text, n_toc = _renumber_contents(new_text, number)
+    new_text, n_head = _renumber_headings(new_text, number)
+    if n_toc != len(sections) or n_head != len(sections):
+        print(
+            f"WARN {stem}: {len(sections)} sections but renumbered "
+            f"{n_toc} Contents links and {n_head} headings"
+        )
 
     nav_cells = _NAV_CELL.findall(new_text)
     if len(nav_cells) != 2:

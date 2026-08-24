@@ -106,11 +106,11 @@ def _(mo):
     mo.md(r"""
     ## Contents
 
-    1. [Joint, marginal, and conditional distributions](#sec1)
-    2. [Covariance and correlation](#sec2)
-    3. [Independence](#sec3)
-    4. [Independent and identically distributed](#sec4)
-    5. [Means and variances of sums](#sec5)
+    3.1 [Joint, marginal, and conditional distributions](#sec1)<br>
+    3.2 [Covariance and correlation](#sec2)<br>
+    3.3 [Independence](#sec3)<br>
+    3.4 [Independent and identically distributed](#sec4)<br>
+    3.5 [Means and variances of sums](#sec5)
     """)
     return
 
@@ -119,7 +119,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec1"></a>
-    ## 1. Joint, marginal, and conditional distributions
+    ## 3.1 Joint, marginal, and conditional distributions
 
     In Lecture 2 we focused on one random variable at a time. We defined its distribution, its expected value, and its spread or variance. Most questions in econometrics, however, ask about two variables together. Does a person's earnings depend on their level of education? Does the unemployment rate depend on the inflation rate? To answer these questions we need to extend the tools from one random variable to two.
 
@@ -204,7 +204,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec2"></a>
-    ## 2. Covariance and correlation
+    ## 3.2 Covariance and correlation
 
     The joint distribution describes how two random variables behave together, but it does not summarize their relationship in one number. The *covariance* of $X$ and $Y$ summarizes whether they tend to move in the same direction or in opposite directions. It is defined as
 
@@ -377,7 +377,7 @@ def _(SprayWidget, mo):
 def _(mo):
     mo.md(r"""
     <a id="sec3"></a>
-    ## 3. Independence
+    ## 3.3 Independence
 
     Two random variables are *independent* when knowing the value of one is not informative about the value of the other. In probability, that informal statement comes from three equivalent conditions. Specifically, if $X$ and $Y$ are independent, then:
 
@@ -389,7 +389,7 @@ def _(mo):
 
     For example, a coin flip and an unrelated die roll are independent. Knowing that the coin landed heads tells us nothing about which face of the die is showing, so the conditional distribution of the die given the coin is the same as the unconditional distribution. The result of the first die in a pair of rolls, however, is not independent of the sum of the two dice. If we know the sum is $11$, then the first die is very likely a $5$ or a $6$, and definitely not a $1$. So the conditional distribution of the first die given the sum is different from the unconditional distribution.
 
-    Note, however, that third condition only goes one way. If $X$ and $Y$ are independent, then their correlation is zero. The converse is not true though. Two random variables can have zero correlation and still be dependent on each other, because correlation only captures the linear part of a relationship. You can see this for yourself in the interactive scatter plot of Section 2. If you place points in a symmetric arch or trough, the sample correlation will stay near zero even though each point's height is informed by its horizontal position, so the two coordinates are clearly dependent.
+    Note, however, that third condition only goes one way. If $X$ and $Y$ are independent, then their correlation is zero. The converse is not true though. Two random variables can have zero correlation and still be dependent on each other, because correlation only captures the linear part of a relationship. You can see this for yourself in the interactive scatter plot of Section 3.2. If you place points in a symmetric arch or trough, the sample correlation will stay near zero even though each point's height is informed by its horizontal position, so the two coordinates are clearly dependent.
     """)
     return
 
@@ -398,7 +398,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec4"></a>
-    ## 4. Independent and identically distributed
+    ## 3.4 Independent and identically distributed
 
     We say the random variables $X_1, X_2, \ldots, X_n$ are *independently and identically distributed* (i.i.d.) when two conditions hold. First, every $X_i$ has the same distribution. This means each random variable comes from the same underlying population, so the corresponding observations differ only because of random chance, not because they were drawn from different groups. Second, every pair of $X_i$ and $X_j$ with $i \ne j$ is independent. We write $X_i \stackrel{\text{i.i.d.}}{\sim} F$ for random variables drawn i.i.d. from a distribution $F$.
 
@@ -415,7 +415,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec5"></a>
-    ## 5. Means and variances of sums
+    ## 3.5 Means and variances of sums
 
     We often want to know the expected value and variance of a sum or weighted sum of random variables. One approach would be to treat the whole sum as a new random variable and then apply the formulas from Lecture 2 to that new variable. But this can quickly become unwieldy. Instead, we can use a few simple rules that cover most cases.
 
@@ -487,11 +487,11 @@ def _(mo):
 
         **The covariance written with the expectation operator.**
 
-        Section 2 defined the covariance as a double sum over the joint distribution. It can be written more compactly with the expectation operator,
+        Section 3.2 defined the covariance as a double sum over the joint distribution. It can be written more compactly with the expectation operator,
 
         $$ \text{cov}(X, Y) \equiv \sigma_{XY} = \mathbb{E}\big[(X - \mu_X)(Y - \mu_Y)\big]. $$
 
-        This is the same quantity. The expectation $\mathbb{E}[\cdot]$ is itself a probability-weighted sum, so expanding it reproduces the double sum from Section 2. More advanced treatments use this compact form throughout.
+        This is the same quantity. The expectation $\mathbb{E}[\cdot]$ is itself a probability-weighted sum, so expanding it reproduces the double sum from Section 3.2. More advanced treatments use this compact form throughout.
 
         **Proof of the linearity of the expected value.**
 
@@ -513,7 +513,7 @@ def _(mo):
 
         **The variance of a sum when the variables are not i.i.d.**
 
-        Rule 5 in Section 5 covers the i.i.d. case, where the variance of a sum is $n$ times the variance of one variable. In general, the variance of a sum also depends on the covariances between every pair of variables,
+        Rule 5 in Section 3.5 covers the i.i.d. case, where the variance of a sum is $n$ times the variance of one variable. In general, the variance of a sum also depends on the covariances between every pair of variables,
 
         $$ \text{var}\left(\sum_{i=1}^{n} X_i\right) = \sum_{i=1}^{n} \text{var}(X_i) + 2 \sum_{i < j} \text{cov}(X_i, X_j). $$
 

@@ -107,9 +107,9 @@ def _(mo):
     mo.md(r"""
     ## Contents
 
-    [1. What makes a study valid](#sec1)<br>
-    [2. Threats to internal validity](#sec2)<br>
-    [3. External validity](#sec3)
+    14.1 [What makes a study valid](#sec1)<br>
+    14.2 [Threats to internal validity](#sec2)<br>
+    14.3 [External validity](#sec3)
     """)
     return
 
@@ -118,7 +118,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec1"></a>
-    ## 1. What makes a study valid
+    ## 14.1 What makes a study valid
 
     Remember that regression models are designed to answer questions. Sometimes we want to estimate a causal effect, such as how an extra year of work experience affects wages. Other times we want to describe an economic relationship or make a prediction. Once we have estimated a regression, we therefore need to ask how well it answers the question we care about. This is the idea of *validity*.
 
@@ -133,7 +133,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec2"></a>
-    ## 2. Threats to internal validity
+    ## 14.2 Threats to internal validity
 
     We focus first on internal validity for causal questions. Most problems that prevent a regression from answering a causal question correctly fall into five recurring categories, which we call *threats to internal validity*:
 
@@ -532,7 +532,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec3"></a>
-    ## 3. External validity
+    ## 14.3 External validity
 
     Suppose a regression is internally valid, so it answers the question we are asking correctly for the *population studied*. External validity asks whether that answer also applies to our *population of interest*, the population we ultimately care about. What this requires depends on whether the question is causal or predictive.
 
@@ -846,7 +846,7 @@ def _(mo):
         "## Appendix": mo.md(r"""
         This is bonus material. You will not be tested on the content of the appendix.
 
-        **The algebra of classical measurement error in $X$.** Section 2 stated that classical measurement error shrinks the estimated slope by the factor $\text{var}(X) / (\text{var}(X) + \text{var}(\nu))$. When we use $\widetilde{X}$ in place of $X$, the true population regression $Y = \beta_0 + \beta_1 X + u$ becomes
+        **The algebra of classical measurement error in $X$.** Section 14.2 stated that classical measurement error shrinks the estimated slope by the factor $\text{var}(X) / (\text{var}(X) + \text{var}(\nu))$. When we use $\widetilde{X}$ in place of $X$, the true population regression $Y = \beta_0 + \beta_1 X + u$ becomes
 
         $$
         \begin{aligned}
@@ -870,9 +870,9 @@ def _(mo):
         \left| \frac{\text{cov}(X, Y)}{\text{var}(X) + \text{var}(\nu)} \right| \leq \left| \frac{\text{cov}(X, Y)}{\text{var}(X)} \right|,
         $$
 
-        we must have $|\hat{\beta}_1| < |\beta_1|$, which is the attenuation result the slider in Section 2 demonstrates.
+        we must have $|\hat{\beta}_1| < |\beta_1|$, which is the attenuation result the slider in Section 14.2 demonstrates.
 
-        **Measurement error in $Y$.** Section 2 showed that classical measurement error in $X$ produces attenuation bias. Classical measurement error in $Y$ is less of an issue for estimation. Suppose the true model is $Y = \beta_0 + \beta_1 X + u$, but we observe $\widetilde{Y} = Y + v$ with $\mathbb{E}[v \mid X, u] = 0$. In large samples,
+        **Measurement error in $Y$.** Section 14.2 showed that classical measurement error in $X$ produces attenuation bias. Classical measurement error in $Y$ is less of an issue for estimation. Suppose the true model is $Y = \beta_0 + \beta_1 X + u$, but we observe $\widetilde{Y} = Y + v$ with $\mathbb{E}[v \mid X, u] = 0$. In large samples,
 
         $$
         \hat{\beta}_1 \overset{p}{\to} \frac{\text{cov}(X, \widetilde{Y})}{\text{var}(X)} = \frac{\text{cov}(X,\ \beta_1 X + u + v)}{\text{var}(X)} = \frac{\text{cov}(X, Y)}{\text{var}(X)} = \beta_1,
@@ -882,7 +882,7 @@ def _(mo):
 
         However, because $\text{var}(\widetilde{Y}) > \text{var}(Y)$, there is more unexplained variation around the fitted line, so the coefficients' standard errors increase and the $R^2$ falls. While the slope is unbiased when there is measurement error in $Y$, the model is less informative.
 
-        **$k$-fold cross-validation.** Section 3 evaluated each polynomial using a single random split between training data and a hold-out sample. But the results can depend on which observations happen to fall into each group. A different split can therefore make the same model look better or worse. $k$-fold cross-validation reduces this problem by evaluating the model on several different parts of the sample.
+        **$k$-fold cross-validation.** Section 14.3 evaluated each polynomial using a single random split between training data and a hold-out sample. But the results can depend on which observations happen to fall into each group. A different split can therefore make the same model look better or worse. $k$-fold cross-validation reduces this problem by evaluating the model on several different parts of the sample.
 
         The procedure works as follows.
 

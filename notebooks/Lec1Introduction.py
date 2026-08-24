@@ -101,12 +101,12 @@ def _(mo):
     mo.md(r"""
     ## Contents
 
-    1. [What is econometrics?](#sec1)
-    2. [Descriptive and causal questions](#sec2)
-    3. [Education and earnings](#sec3)
-    4. [Why causal questions are hard](#sec4)
-    5. [Populations and samples](#sec5)
-    6. [Types of data](#sec6)
+    1.1 [What is econometrics?](#sec1)<br>
+    1.2 [Descriptive and causal questions](#sec2)<br>
+    1.3 [Education and earnings](#sec3)<br>
+    1.4 [Why causal questions are hard](#sec4)<br>
+    1.5 [Populations and samples](#sec5)<br>
+    1.6 [Types of data](#sec6)
     """)
     return
 
@@ -115,7 +115,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec1"></a>
-    ## 1. What is econometrics?
+    ## 1.1 What is econometrics?
 
     Econometrics is the use of statistical methods to measure economic
     relationships in data.
@@ -131,7 +131,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec2"></a>
-    ## 2. Descriptive and causal questions
+    ## 1.2 Descriptive and causal questions
 
     Econometrics typically begins by turning broad economic ideas into questions that can be answered with data.
 
@@ -148,7 +148,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec3"></a>
-    ## 3. Education and earnings example
+    ## 1.3 Education and earnings example
 
     The link between education and earnings shows the gap between a descriptive
     answer and a causal one in concrete numbers.
@@ -201,7 +201,7 @@ def _(mo):
     had more opportunities, and many of them would have out-earned the high school
     group even without the degree. Some of the \$594 reflects those prior
     differences between the two groups, and only the remainder is caused by the
-    education itself. Section 4 explains why separating the two is hard, and the
+    education itself. Section 1.4 explains why separating the two is hard, and the
     later lectures will help us build the tools to do exactly this.
     """)
     return
@@ -211,7 +211,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec4"></a>
-    ## 4. Why causal questions are hard to answer
+    ## 1.4 Why causal questions are hard to answer
 
     Causal questions are hard to answer for two main reasons: omitted variables and reverse causality.
 
@@ -273,7 +273,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec5"></a>
-    ## 5. Populations and samples
+    ## 1.5 Populations and samples
 
     Every estimate in this course is computed from a limited set of data, but it is usually meant to tell us something about a larger setting that we never observe in full.
 
@@ -288,7 +288,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec6"></a>
-    ## 6. Types of data
+    ## 1.6 Types of data
 
     How a dataset is organized decides which questions it can answer.
 

@@ -102,11 +102,11 @@ def _(mo):
     mo.md(r"""
     ## Contents
 
-    1. [The regression model](#sec1)
-    2. [Ordinary least squares](#sec2)
-    3. [Interpreting the slope](#sec3)
-    4. [Prediction](#sec4)
-    5. [Measuring fit](#sec5)
+    5.1 [The regression model](#sec1)<br>
+    5.2 [Ordinary least squares](#sec2)<br>
+    5.3 [Interpreting the slope](#sec3)<br>
+    5.4 [Prediction](#sec4)<br>
+    5.5 [Measuring fit](#sec5)
     """)
     return
 
@@ -115,7 +115,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec1"></a>
-    ## 1. The regression model
+    ## 5.1 The regression model
 
     In Lecture 2, we introduced covariance and correlation as ways to describe how two random variables move together. In this lecture, we use those ideas to ask a new question. Given two variables that move together, what single straight line best summarizes their relationship?
 
@@ -142,7 +142,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec2"></a>
-    ## 2. Ordinary least squares
+    ## 5.2 Ordinary least squares
 
     The population regression model contains two unknown parameters, the intercept $\beta_0$ and the slope $\beta_1$. If we knew these values, we would know the population regression line. But in practice, we only have a sample of observations on wages and education. We therefore use the sample to estimate the population line.
 
@@ -308,7 +308,7 @@ def _(
 def _(mo):
     mo.md(r"""
     <a id="sec3"></a>
-    ## 3. Interpreting the slope
+    ## 5.3 Interpreting the slope
 
     Let's now consider how to interpret the fitted line, $\hat{Y}_i = \hat{\beta}_0 + \hat{\beta}_1 X_i$.
 
@@ -345,7 +345,7 @@ def _(mo):
     <a id="sec4"></a>
     <a id="sec4"></a>
 
-    ## 4. Prediction
+    ## 5.4 Prediction
 
     Once we estimate a regression line, we can use it to make predictions. The fitted line turns a value of $X$ into a predicted value of $Y$. For an observation in the sample, this predicted value is the fitted value,
 
@@ -434,7 +434,7 @@ def _(mo):
     <a id="sec5"></a>
     <a id="sec5"></a>
 
-    ## 5. Measuring fit
+    ## 5.5 Measuring fit
 
     OLS gives us the best-fitting straight line, but that does not mean the line predicts the data well. If the points are scattered far from the line, even the best straight line may leave large prediction errors. We therefore need measures of how closely the fitted line matches the data.
 
@@ -600,11 +600,11 @@ def _(mo):
 
         $$ \hat{\beta}_1 = \frac{\sum_{i=1}^{n}(X_i - \hat{\mu}_X)(Y_i - \hat{\mu}_Y)}{\sum_{i=1}^{n}(X_i - \hat{\mu}_X)^2} = \frac{\widehat{\text{cov}}(X, Y)}{\widehat{\text{var}}(X)}. $$
 
-        Both estimators are exactly the formulas used in Section 2.
+        Both estimators are exactly the formulas used in Section 5.2.
 
         **The variance decomposition: $\text{TSS} = \text{ESS} + \text{SSR}$.**
 
-        Section 5 used this identity but did not prove it. Write each deviation of $Y_i$ from its mean as the sum of a residual and the line's deviation from the mean,
+        Section 5.5 used this identity but did not prove it. Write each deviation of $Y_i$ from its mean as the sum of a residual and the line's deviation from the mean,
 
         $$ Y_i - \hat{\mu}_Y = \hat{u}_i + \left(\hat{Y}_i - \hat{\mu}_Y\right). $$
 

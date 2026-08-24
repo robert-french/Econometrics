@@ -107,9 +107,9 @@ def _(mo):
     mo.md(r"""
     ## Contents
 
-    [1. Interacting two binary variables](#sec1)<br>
-    [2. Interacting a binary and a continuous variable](#sec2)<br>
-    [3. Interacting two continuous variables](#sec3)
+    13.1 [Interacting two binary variables](#sec1)<br>
+    13.2 [Interacting a binary and a continuous variable](#sec2)<br>
+    13.3 [Interacting two continuous variables](#sec3)
     """)
     return
 
@@ -120,7 +120,7 @@ def _(np):
     # (same seed, and experience is the first draw in the same order, so the
     # experience values are the same workers), now extended with two binary
     # indicators. The wage equation is linear in levels so the straight-line
-    # pictures in Section 2 match the truth. Fixed seed for reproducibility.
+    # pictures in Section 13.2 match the truth. Fixed seed for reproducibility.
     _rng = np.random.default_rng(1)
     n_workers = 300
     exper = _rng.uniform(1.0, 40.0, n_workers)
@@ -138,7 +138,7 @@ def _(np):
 def _(mo):
     mo.md(r"""
     <a id="sec1"></a>
-    ## 1. Interacting two binary variables
+    ## 13.1 Interacting two binary variables
 
     A *binary variable*, also called an *indicator variable*, takes only the values 0 and 1. Lecture 5 showed how to interpret a regression of $Y$ on a single binary variable. Recall that the intercept $\hat{\beta}_0$ is the estimated mean of $Y$ for the observations with $X=0$, while $\hat{\beta}_0+\hat{\beta}_1$ is the estimated mean for the observations with $X=1$. The slope $\hat{\beta}_1$ is therefore the difference between the two estimated means.
 
@@ -170,7 +170,7 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(college, mo, np, stem, wage):
-    # Live saturated fit for Section 2: wage on college, STEM, and their
+    # Live saturated fit for Section 13.2: wage on college, STEM, and their
     # interaction. With four coefficients for four groups, the fitted values
     # reproduce the four group means exactly, which the table demonstrates.
     _X = np.column_stack([np.ones(len(wage)), college, stem, college * stem])
@@ -221,7 +221,7 @@ def _(mo):
     mo.md(r"""
     <a id="sec2"></a>
 
-    ## 2. Interacting a binary and a continuous variable
+    ## 13.2 Interacting a binary and a continuous variable
 
     A binary variable can also interact with a continuous variable. Work experience is continuous, and the wage difference associated with an additional year of experience may be larger in STEM jobs than in non-STEM jobs. Let $D = 1$ indicate a STEM job and $D = 0$ indicate a non-STEM job, and let $X$ denote years of experience. There are three main ways we can incorporate the STEM indicator into the regression of wages on work experience.
 
@@ -334,7 +334,7 @@ def _(alt, exper, int_shift, mo, n_workers, np, pd, slope_shift, stem, wage):
     # The model being fit, shown above the chart, and the per-line β labels
     # drawn on the plot. The labels give each line's intercept and slope as
     # the coefficient sums implied by setting STEM to 0 or 1; numbering
-    # matches Section 2's (a)/(b)/(c) ordering.
+    # matches Section 13.2's (a)/(b)/(c) ordering.
     if not _use_d and not _use_xd:
         _model_eq = r"$$\text{Wage} = \beta_0 + \beta_1\,\text{Experience} + u$$"
         _lab0 = "β₀ + β₁X"
@@ -526,7 +526,7 @@ def _(mo):
     mo.md(r"""
     <a id="sec3"></a>
 
-    ## 3. Interacting two continuous variables
+    ## 13.3 Interacting two continuous variables
 
     Interaction terms are not limited to binary variables. Years of schooling and years of experience are both continuous, and the wage difference associated with an additional year of experience may depend on how much schooling a worker has. Let $X_1$ denote years of experience and let $X_2$ denote years of schooling. We can interact these variables in a regression,
 

@@ -110,11 +110,11 @@ def _(mo):
     mo.md(r"""
     ## Contents
 
-    [1. The least squares assumptions with multiple independent variables](#sec1)<br>
-    [2. Control variables](#sec2)<br>
-    [3. Bad controls](#sec3)<br>
-    [4. The variance of a coefficient with multiple independent variables](#sec4)<br>
-    [5. Hypothesis testing a single coefficient](#sec5)
+    9.1 [The least squares assumptions with multiple independent variables](#sec1)<br>
+    9.2 [Control variables](#sec2)<br>
+    9.3 [Bad controls](#sec3)<br>
+    9.4 [The variance of a coefficient with multiple independent variables](#sec4)<br>
+    9.5 [Hypothesis testing a single coefficient](#sec5)
     """)
     return
 
@@ -124,7 +124,7 @@ def _(mo):
     mo.md(r"""
     <a id="sec1"></a>
 
-    ## 1. The least squares assumptions with multiple independent variables
+    ## 9.1 The least squares assumptions with multiple independent variables
 
     In Lecture 8, we estimated regressions with multiple independent variables. As in the single-variable case, we can interpret the OLS estimates as causal effects only under certain assumptions. We adapt the three assumptions from the single-variable case to the multiple-variable case and add a fourth assumption.
 
@@ -187,7 +187,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec2"></a>
-    ## 2. Control variables
+    ## 9.2 Control variables
 
     In many multiple-variable regressions, we care about interpreting some coefficients causally but not others. We can therefore divide the independent variables into *variables of interest*, whose causal effects we want to estimate, and *control variables*, whose causal effects we do not care about.
 
@@ -201,13 +201,13 @@ def _(mo):
 
     In our wage example from Lecture 8, we can treat education as the variable of interest and parental income as a control variable. We include parental income so that we compare workers with different levels of education but similar family backgrounds. We do not want to use the regression to estimate the causal effect of parental income on wages, however.
 
-    Because we seek a causal interpretation only for the variables of interest, we can relax the first least squares assumption from Section 1. Rather than requiring the average value of the error term to equal zero at every combination of the variables of interest and control variables, we instead require
+    Because we seek a causal interpretation only for the variables of interest, we can relax the first least squares assumption from Section 9.1. Rather than requiring the average value of the error term to equal zero at every combination of the variables of interest and control variables, we instead require
 
     $$
     \mathbb{E}[u \mid X_1, \dots, X_k, W_1, \dots, W_r] = \mathbb{E}[u \mid W_1, \dots, W_r].
     $$
 
-    This amended assumption is also called conditional mean independence. It says that once we hold the control variables fixed, the average value of the error term cannot vary systematically with the variables of interest. The error may still vary with the controls, making this condition easier to satisfy than the first least squares assumption from Section 1.
+    This amended assumption is also called conditional mean independence. It says that once we hold the control variables fixed, the average value of the error term cannot vary systematically with the variables of interest. The error may still vary with the controls, making this condition easier to satisfy than the first least squares assumption from Section 9.1.
 
     In the wage example, workers from different family backgrounds may differ in ability, health, luck, and other determinants of wages contained in $u$. The assumption allows these factors to differ across levels of parental income. It requires only that workers with different levels of education but the same parental income have, on average, the same remaining determinants of wages.
     """)
@@ -218,7 +218,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec3"></a>
-    ## 3. Bad controls
+    ## 9.3 Bad controls
 
     Adding a control variable does not always make the estimated coefficient on the variable of interest a better estimate of its causal effect. A *bad control* is an independent variable that lies on the causal path from the variable of interest to the outcome. The variable of interest affects this control, which then affects the outcome. Because the control mediates part of the causal effect, holding it fixed blocks part of the causal effect we want to estimate.
     """)
@@ -268,11 +268,11 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec4"></a>
-    ## 4. The variance of a coefficient with several independent variables
+    ## 9.4 The variance of a coefficient with several independent variables
 
     In Lecture 7, we showed that the variance of an OLS coefficient estimate in a single-variable regression depends on the sample size, the variation in the independent variable, and the variation in the error term. These same factors matter in a multiple-variable regression, but the variance of a coefficient estimate now also depends on how closely the independent variables are related to one another.
 
-    Across repeated random samples, each OLS coefficient has its own sampling distribution. Under the assumptions from Section 1, every $\hat{\beta}_j$ is approximately normally distributed in large samples and centered on the population coefficient $\beta_j$,
+    Across repeated random samples, each OLS coefficient has its own sampling distribution. Under the assumptions from Section 9.1, every $\hat{\beta}_j$ is approximately normally distributed in large samples and centered on the population coefficient $\beta_j$,
 
     $$
     \hat{\beta}j \sim \mathcal{N}\left(\beta_j,\ \sigma^2_{\hat{\beta}_j}\right).
@@ -397,7 +397,7 @@ def _(alt, mc_rho, mo, np, pd, stats):
 def _(mo):
     mo.md(r"""
     <a id="sec5"></a>
-    ## 5. Testing a single coefficient
+    ## 9.5 Testing a single coefficient
 
     Because each $\hat{\beta}_j$ is approximately normal, testing one coefficient works exactly as in Lecture 7. To test the null hypothesis that $\beta_j$ equals some value $\beta_{j, H_0}$, we form the *t-statistic*
 

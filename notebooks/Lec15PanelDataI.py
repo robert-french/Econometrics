@@ -106,11 +106,11 @@ def _(mo):
     mo.md(r"""
     ## Contents
 
-    [1. A puzzling regression](#sec1)<br>
-    [2. Panel data](#sec2)<br>
-    [3. Difference regression](#sec3)<br>
-    [4. Fixed effect regression](#sec4)<br>
-    [5. What fixed effects cannot fix](#sec5)
+    15.1 [A puzzling regression](#sec1)<br>
+    15.2 [Panel data](#sec2)<br>
+    15.3 [Difference regression](#sec3)<br>
+    15.4 [Fixed effect regression](#sec4)<br>
+    15.5 [What fixed effects cannot fix](#sec5)
     """)
     return
 
@@ -119,7 +119,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec1"></a>
-    ## 1. A puzzling regression
+    ## 15.1 A puzzling regression
 
     As we have frequently discussed in this course, many causal questions are difficult to answer because the entities we compare differ in ways that are hard to observe. Workers differ in ability, firms differ in management, and neighborhoods differ in amenities. When these unobserved differences are related to both our outcome and independent variables of interest, they create omitted variable bias.
 
@@ -157,7 +157,7 @@ def _(np):
         _eps[:, _t] = 0.7 * _eps[:, _t - 1] + np.sqrt(1 - 0.7**2) * _innov[:, _t]
     _eps *= 8.0
     fm_yield = 125.0 + 0.30 * fm_fert + fm_z[:, None] + _eps
-    # Six farms with a spread of typical nitrogen rates, used by the Section 4
+    # Six farms with a spread of typical nitrogen rates, used by the Section 15.4
     # chart and the appendix. Deterministic given the seed.
     fm_six = [7, 47, 65, 110, 114, 115]
     return fm_fert, fm_six, fm_years, fm_yield
@@ -227,7 +227,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec2"></a>
-    ## 2. Panel data
+    ## 15.2 Panel data
 
     So far in the course, our datasets have observed each worker, district, or other entity only once. Recall from Lecture 1 that data in which each entity is observed at a single point in time are called *cross-sectional data*. By contrast, *panel data* follow the same entities repeatedly over time. These might be individuals, firms, farms, states, or any other entities that can be observed across multiple periods. Panel data are also sometimes called *longitudinal data*.
 
@@ -276,7 +276,7 @@ def _(mo):
     mo.md(r"""
     <a id="sec3"></a>
 
-    ## 3. Difference regression
+    ## 15.3 Difference regression
 
     To see how we can use panel data to help deal with omitted variable bias, let's split the error term into two parts,
 
@@ -302,7 +302,7 @@ def _(mo):
 
     Any farm characteristic that remained unchanged between 2014 and 2019 and hence in $Z_i$ cancels out, whether or not we can observe it. The intercept $\beta_0$ cancels for the same reason. Instead of comparing farms with different types of soil, we are now asking whether farms whose fertilizer use increased more between 2014 and 2019 also experienced larger increases in crop yield.
 
-    The key is that soil type may affect the *level* of a farm's yield, but if soil type does not change over time, it cannot explain changes in yield between 2014 and 2019. Differencing therefore removes soil type, along with every other time-invariant farm characteristic, from the regression. Unobserved factors that do change over time are not removed. If changes in weather, pests, irrigation, or other conditions are related to changes in fertilizer use, they remain in $\varepsilon_{i2019} - \varepsilon_{i2014}$ and can still bias $\hat{\beta}_1$. We return to this issue in Section 5.
+    The key is that soil type may affect the *level* of a farm's yield, but if soil type does not change over time, it cannot explain changes in yield between 2014 and 2019. Differencing therefore removes soil type, along with every other time-invariant farm characteristic, from the regression. Unobserved factors that do change over time are not removed. If changes in weather, pests, irrigation, or other conditions are related to changes in fertilizer use, they remain in $\varepsilon_{i2019} - \varepsilon_{i2014}$ and can still bias $\hat{\beta}_1$. We return to this issue in Section 15.5.
 
     The chart below estimates this difference regression across our 150 farms.
     """)
@@ -369,11 +369,11 @@ def _(mo):
     mo.md(r"""
     <a id="sec4"></a>
 
-    ## 4. Fixed effect regression
+    ## 15.4 Fixed effect regression
 
-    The before-and-after comparison in Section 3 used only two years of our panel. *Fixed effects regressions* extend the same idea to all years in a dataset by allowing each entity, each farm in our case, to have its own intercept in the regression. In practice, we can do this by including a separate binary indicator for each farm. This allows us to estimate the relationship between nitrogen use and crop yield from changes within the same farm over time rather than from differences across farms.
+    The before-and-after comparison in Section 15.3 used only two years of our panel. *Fixed effects regressions* extend the same idea to all years in a dataset by allowing each entity, each farm in our case, to have its own intercept in the regression. In practice, we can do this by including a separate binary indicator for each farm. This allows us to estimate the relationship between nitrogen use and crop yield from changes within the same farm over time rather than from differences across farms.
 
-    Consider again the model from Section 3,
+    Consider again the model from Section 15.3,
 
     $$
     Y_{it} = \beta_0 + \beta_1 X_{it} + Z_i + \varepsilon_{it},
@@ -399,7 +399,7 @@ def _(mo):
     +
     \varepsilon_{it}.
     $$
-    The term $\alpha_i$ is called an *entity fixed effect*. It allows the average level of corn yield to differ across farms because of any farm characteristic that remains constant over time, whether we observe it or not. In our example, this includes persistent differences in soil quality, slope, drainage, and other characteristics of the land. By accounting for these time-invariant differences, the regression estimates $\beta_1$ from changes *within* farms over time. It compares a farm's yield in seasons when it uses more fertilizer with its own yield in seasons when it uses less, rather than comparing different farms with one another. The regression still estimates a single $\beta_1$ shared by all farms, so farms can have different intercepts but the model assumes that the average effect of an additional pound of nitrogen on corn yield is the same across farms. When there are only two periods, the fixed effects estimate of $\beta_1$ is the same as the before-and-after difference estimate from Section 3.
+    The term $\alpha_i$ is called an *entity fixed effect*. It allows the average level of corn yield to differ across farms because of any farm characteristic that remains constant over time, whether we observe it or not. In our example, this includes persistent differences in soil quality, slope, drainage, and other characteristics of the land. By accounting for these time-invariant differences, the regression estimates $\beta_1$ from changes *within* farms over time. It compares a farm's yield in seasons when it uses more fertilizer with its own yield in seasons when it uses less, rather than comparing different farms with one another. The regression still estimates a single $\beta_1$ shared by all farms, so farms can have different intercepts but the model assumes that the average effect of an additional pound of nitrogen on corn yield is the same across farms. When there are only two periods, the fixed effects estimate of $\beta_1$ is the same as the before-and-after difference estimate from Section 15.3.
 
     The chart below shows six of the 150 farms. Switch between the pooled regression and the fixed effects regression to see how the fitted relationship changes when each farm is allowed to have its own intercept.
     """)
@@ -513,7 +513,7 @@ def _(mo):
     mo.md(r"""
     <a id="sec5"></a>
 
-    ## 5. What fixed effects cannot fix
+    ## 15.5 What fixed effects cannot fix
 
     Entity fixed effects remove factors that remain constant over time within a farm, but they do not remove factors that change from one season to another. These time-varying factors remain in $\varepsilon_{it}$ and can still bias $\hat{\beta}_1$ if they are related to fertilizer use. For example, rainfall, pest damage, or irrigation may change across seasons and affect both a farm's fertilizer use and its corn yield. Fixed effects do not solve this source of omitted variable bias simply because we observe the same farm over time.
 
@@ -655,9 +655,9 @@ def _(
     # vstack gap alone controls the rhythm.
     _bonus = mo.md(r"""This is bonus material. You will not be tested on the content of the appendix.""")
 
-    _base_text = mo.md(r"""**Choosing the base farm.** In Section 4, we left out the indicator for Farm 150. As a result, $\beta_0$ gives Farm 150's intercept, while each $\gamma$ measures the difference between another farm's intercept and Farm 150's. The omitted farm is called the *base farm*, but which farm we choose as the base is simply a matter of labelling. You can verify this below using the six farms from Section 4. The regression includes an intercept, fertilizer use, and an indicator for every farm except the base farm you select. Changing the base farm changes the constant and every $\hat{\gamma}$ because these coefficients are now expressed relative to a different farm. But $\hat{\beta}_1$, the fitted values, and the residuals do not change. Choosing a different base farm simply changes how the intercepts are represented, not the fitted regression.""")
+    _base_text = mo.md(r"""**Choosing the base farm.** In Section 15.4, we left out the indicator for Farm 150. As a result, $\beta_0$ gives Farm 150's intercept, while each $\gamma$ measures the difference between another farm's intercept and Farm 150's. The omitted farm is called the *base farm*, but which farm we choose as the base is simply a matter of labelling. You can verify this below using the six farms from Section 15.4. The regression includes an intercept, fertilizer use, and an indicator for every farm except the base farm you select. Changing the base farm changes the constant and every $\hat{\gamma}$ because these coefficients are now expressed relative to a different farm. But $\hat{\beta}_1$, the fitted values, and the residuals do not change. Choosing a different base farm simply changes how the intercepts are represented, not the fitted regression.""")
     # Part 2 - fixed effects without a time dimension: the student-grades
-    # demo. Fits mirror the Section 4 chart: pooled line vs one intercept per
+    # demo. Fits mirror the Section 15.4 chart: pooled line vs one intercept per
     # student, the latter computed by demeaning within student, which yields
     # the identical slope to the dummy regression.
     _b1p, _b0p = np.polyfit(ap_hours.ravel(), ap_grades.ravel(), 1)
@@ -665,7 +665,7 @@ def _(
     _gd = ap_grades - ap_grades.mean(axis=1, keepdims=True)
     _b1w = float((_hd * _gd).sum() / (_hd * _hd).sum())
 
-    _fe2 = mo.md(r"""**Fixed effects without a time dimension.** Nothing in the fixed effects logic requires observing entities over time. It requires only multiple observations on the same entity, and those observations can all come from a single point in time. Suppose we observe six students during one semester and have data on their course grades and weekly study hours for each of the eight courses on their schedules. Suppose we want to use regression analysis to understand the causal effect of hours studied on course grades. If we pooled all these observations and regressed the $6 \times 8 = 48$ course grades on study hours, we would mix two different statistical relationships: study hours vary across courses within a student's schedule, but students also differ in how much they tend to study overall. Student ability now plays the role that soil quality played in the lecture. It is hard to measure, raises grades directly, and in our data the ablest students tend to study less, so the pooled regression suggests that studying lowers grades. Including a student-level fixed effect, so that we have one intercept per student exactly as in Section 4, removes student ability and every other stable student trait from the error term. Then $\beta_1$ is estimated by comparing the courses a student studies hardest for with the other courses in that same student's schedule.""")
+    _fe2 = mo.md(r"""**Fixed effects without a time dimension.** Nothing in the fixed effects logic requires observing entities over time. It requires only multiple observations on the same entity, and those observations can all come from a single point in time. Suppose we observe six students during one semester and have data on their course grades and weekly study hours for each of the eight courses on their schedules. Suppose we want to use regression analysis to understand the causal effect of hours studied on course grades. If we pooled all these observations and regressed the $6 \times 8 = 48$ course grades on study hours, we would mix two different statistical relationships: study hours vary across courses within a student's schedule, but students also differ in how much they tend to study overall. Student ability now plays the role that soil quality played in the lecture. It is hard to measure, raises grades directly, and in our data the ablest students tend to study less, so the pooled regression suggests that studying lowers grades. Including a student-level fixed effect, so that we have one intercept per student exactly as in Section 15.4, removes student ability and every other stable student trait from the error term. Then $\beta_1$ is estimated by comparing the courses a student studies hardest for with the other courses in that same student's schedule.""")
 
     _xsc = alt.Scale(domain=[0.0, 13.0], nice=False)
     _ysc = alt.Scale(domain=[48.0, 102.0], nice=False)

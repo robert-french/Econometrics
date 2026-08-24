@@ -1,4 +1,4 @@
-/* Hide marimo's auto-generated floating outline panel.
+﻿/* Hide marimo's auto-generated floating outline panel.
    Targets the Tailwind class combo on the outline container in
    _static/assets/floating-outline-*.js. Brittle to marimo upgrades —
    if the panel reappears, re-derive the selector from the bundle. */
@@ -49,17 +49,50 @@ a.hyperlink:visited {
    The outline is one markdown ordered list per sidebar; these rules give
    it a tight vertical rhythm and indent the current lecture's section
    sublist. The #fragment links inside must stay plain markdown (React
-   error #62), so ALL of their styling lives here, scoped to the
-   marimo-sidebar element so in-page Contents lists are unaffected. */
-marimo-sidebar ol {
+   error #62), so ALL of their styling lives here. Every rule is scoped
+   both to the <marimo-sidebar> element (the pre-rendered snapshot) and
+   to aside.app-sidebar (what the hydrated app actually renders the
+   sidebar into), so in-page Contents lists are unaffected. */
+marimo-sidebar ol,
+aside.app-sidebar ol {
     margin: 0 !important;
     padding-left: 1.4em !important;
 }
-marimo-sidebar li {
+
+/* Hierarchical outline numbering: lectures keep plain numbers (2.) while
+   the current lecture's section sublist shows lecture.section (2.1, 2.2,
+   ...). Native markers are replaced with CSS counters because only
+   counters can include the parent list's number in the sublist. The
+   sublist rule wins over the top-level rule by specificity. */
+marimo-sidebar ol,
+aside.app-sidebar ol {
+    list-style: none !important;
+    counter-reset: outline-item;
+}
+marimo-sidebar ol > li,
+aside.app-sidebar ol > li {
+    counter-increment: outline-item;
+    /* Hanging indent: wrapped lines align with the text after the number
+       rather than falling back under it. */
+    padding-left: 1.5em;
+    text-indent: -1.5em;
+}
+marimo-sidebar ol > li::before,
+aside.app-sidebar ol > li::before {
+    content: counter(outline-item) ". ";
+    color: #64748b;
+}
+marimo-sidebar ol ol > li::before,
+aside.app-sidebar ol ol > li::before {
+    content: counters(outline-item, ".") " ";
+}
+marimo-sidebar li,
+aside.app-sidebar li {
     margin: 0 !important;
     line-height: 1.45 !important;
 }
-marimo-sidebar ol ol {
+marimo-sidebar ol ol,
+aside.app-sidebar ol ol {
     font-size: 0.9em;
     margin: 0.1em 0 0.3em !important;
 }
@@ -67,18 +100,21 @@ marimo-sidebar ol ol {
 /* The current lecture's entry (the only #top link in the sidebar): bold,
    via attribute selector because the fragment link itself must stay
    unstyled markdown. */
-marimo-sidebar a[href="#top"] {
+marimo-sidebar a[href="#top"],
+aside.app-sidebar a[href="#top"] {
     font-weight: 700 !important;
 }
 
 /* Lectures not yet posted: grey placeholder text in the sidebar outline
    (span.soon) and in the prev/next nav rows (span.nav-soon). */
 marimo-sidebar span.soon,
+aside.app-sidebar span.soon,
 span.nav-soon {
     color: #94a3b8;
 }
 @media (prefers-color-scheme: dark) {
     marimo-sidebar span.soon,
+    aside.app-sidebar span.soon,
     span.nav-soon {
         color: #64748b;
     }
@@ -130,3 +166,4 @@ marimo-accordion .katex-display {
     margin-top: 0.4em;
     margin-bottom: 0.4em;
 }
+

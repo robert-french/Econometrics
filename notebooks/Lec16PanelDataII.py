@@ -105,10 +105,10 @@ def _(mo):
     mo.md(r"""
     ## Contents
 
-    [1. Another puzzling regression](#sec1)<br>
-    [2. Time fixed effects](#sec2)<br>
-    [3. Two-way fixed effects](#sec3)<br>
-    [4. Reading a panel regression table](#sec4)
+    16.1 [Another puzzling regression](#sec1)<br>
+    16.2 [Time fixed effects](#sec2)<br>
+    16.3 [Two-way fixed effects](#sec3)<br>
+    16.4 [Reading a panel regression table](#sec4)
     """)
     return
 
@@ -117,7 +117,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec1"></a>
-    ## 1. Another puzzling regression
+    ## 16.1 Another puzzling regression
 
     In Lecture 15, we used a panel of 150 corn farms observed over the 2014 to 2019 growing seasons to estimate the effect of nitrogen fertilizer on corn yields. The fixed effects regression gave each farm its own intercept, holding fixed unobserved differences in soil quality that had reversed the sign of the cross-sectional relationship. The regression estimated that an extra pound of nitrogen raises yields by $\hat{\beta}_1 = 0.30$ bushels per acre.
 
@@ -245,7 +245,7 @@ def _(mo):
     mo.md(r"""
     <a id="sec2"></a>
 
-    ## 2. Time fixed effects
+    ## 16.2 Time fixed effects
 
     Farm fixed effects, $\alpha_i$, capture only omitted factors that remain constant within a farm over time. They therefore cannot account for the improved seed varieties in our example, which change from season to season in a way that's correlated with nitrogen use. However, because improved seed varieties affect all farms in a similar way, we can account for this unobserved factor using a second type of fixed effect.
 
@@ -278,7 +278,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec3"></a>
-    ## 3. Two-way fixed effects
+    ## 16.3 Two-way fixed effects
 
     The 2020 to 2025 panel contains two distinct sources of omitted-variable bias. Soil quality differs across farms but remains fixed over time, and it is correlated with nitrogen use. Improved seed varieties, meanwhile, change from season to season and raise corn yields across farms at the same time that nitrogen use is increasing. Farm fixed effects account for the first source of bias, while time fixed effects account for the second. Including both fixed effects gives the *two-way fixed effects regression*,
 
@@ -298,8 +298,8 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(fm_fert, fm_yield):
     # The four estimates of beta_1 on the full 900-observation panel. Each
-    # fixed effects regression is the indicator regression of Sections 2 and
-    # 3; demeaning within farm and/or season gives the identical slope and is
+    # fixed effects regression is the indicator regression of Sections 16.2 and
+    # 16.3; demeaning within farm and/or season gives the identical slope and is
     # what the code computes.
     def _slope(_x, _y):
         return float((_x * _y).sum() / (_x * _x).sum())
@@ -357,7 +357,7 @@ def _(alt, est_b1, est_pick, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
     # The regression the current selection fits, shown between the buttons and
     # the chart. Each equation keeps the not-yet-absorbed confounders visible
     # in the error, with braces labeled by the lectures' error symbols:
-    # u_it = Z_i + eps_it (Lecture 15), eps_it = S_t + nu_it (Section 2), and
+    # u_it = Z_i + eps_it (Lecture 15), eps_it = S_t + nu_it (Section 16.2), and
     # v_it (Latin v, distinct from Greek nu) names the season-FE leftover
     # Z_i + nu_it. Rendered as \displaystyle inline math inside a styled block
     # so the gap to the radio above stays tight.
@@ -724,7 +724,7 @@ def _(ac_innov, ac_rho, ac_signal, ac_xt, alt, mo, np, pd):
 def _(mo):
     mo.md(r"""
     <a id="sec4"></a>
-    ## 4. Reading a panel regression table
+    ## 16.4 Reading a panel regression table
 
     Applied papers often report panel regressions in the same format we learned in Lecture 10, including several columns, each showing a different specification, with rows at the bottom indicating which fixed effects are included. The table below reports the full sequence of regressions using our 900 observations from 2020 to 2025.
     """)
@@ -733,7 +733,7 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(fm_fert, fm_yield, np):
-    # The four columns of Section 4: pooled OLS, farm FE, season FE, and
+    # The four columns of Section 16.4: pooled OLS, farm FE, season FE, and
     # two-way FE, all with standard errors clustered by farm (the appendix
     # explains clustering). Each regression is estimated as the indicator
     # regression via least squares, so the R-squared and degrees of freedom
@@ -944,7 +944,7 @@ def _(ac_demo, ac_rho, mo):
         + r"""<span style='display:block;text-align:center;margin:0.8rem auto 0.25rem;'>$\displaystyle \text{corr}(M_{it}, M_{i,t+j}) \neq 0, \quad \text{for some} \quad j \neq 0.$</span>"""
     )
 
-    _p3 = mo.md(r"""Autocorrelation in the error term does not by itself bias $\hat{\beta}_1$, provided our causal assumption from Section 3 still holds. It does, however, create a problem for the usual standard errors. Six observations from the same farm with correlated errors do not provide the same amount of independent information as six observations from six unrelated farms. Conventional standard errors ignore this dependence and can therefore make our estimates appear more reliable than they really are.""")
+    _p3 = mo.md(r"""Autocorrelation in the error term does not by itself bias $\hat{\beta}_1$, provided our causal assumption from Section 16.3 still holds. It does, however, create a problem for the usual standard errors. Six observations from the same farm with correlated errors do not provide the same amount of independent information as six observations from six unrelated farms. Conventional standard errors ignore this dependence and can therefore make our estimates appear more reliable than they really are.""")
 
     _p4 = mo.md(r"""The standard solution in panel data is to use *clustered standard errors*. Clustering by farm allows the errors for different observations on the same farm to be correlated with one another in any way, while treating different farms as independent of one another. Intuitively, clustering recognizes that six observations from one farm are not six completely separate pieces of information. It treats the farm as the independent unit and adjusts the standard error to account for the dependence among observations within that farm. In our example, we therefore cluster the standard errors at the farm level. Statistical software like Stata makes this a simple option in the regression command.""")
 

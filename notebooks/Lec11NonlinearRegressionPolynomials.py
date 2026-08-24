@@ -109,11 +109,11 @@ def _(mo):
     mo.md(r"""
     ## Contents
 
-    [1. Modeling a nonlinear relationship](#sec1)<br>
-    [2. Interpreting the quadratic model](#sec2)<br>
-    [3. The effect of experience depends on its level](#sec3)<br>
-    [4. Testing whether the relationship is nonlinear](#sec4)<br>
-    [5. Higher-order polynomials and overfitting](#sec5)
+    11.1 [Modeling a nonlinear relationship](#sec1)<br>
+    11.2 [Interpreting the quadratic model](#sec2)<br>
+    11.3 [The effect of experience depends on its level](#sec3)<br>
+    11.4 [Testing whether the relationship is nonlinear](#sec4)<br>
+    11.5 [Higher-order polynomials and overfitting](#sec5)
     """)
     return
 
@@ -123,7 +123,7 @@ def _(mo):
     mo.md(r"""
     <a id="sec1"></a>
 
-    ## 1. Modeling a nonlinear relationship
+    ## 11.1 Modeling a nonlinear relationship
 
     The regressions we have considered so far assume that the relationship between each independent variable and the dependent variable is linear. In a linear relationship, a one-unit increase in an independent variable is always associated with the same change in the dependent variable, holding the other independent variables fixed. Many economic relationships do not follow this pattern, however. A worker's wage, for example, typically rises quickly early in their career and more slowly later on. The relationship between wages and experience is therefore curved rather than linear. A linear regression cannot capture this curvature and often predicts wages that are too high at low and high levels of experience and too low at moderate levels of experience.
 
@@ -260,11 +260,11 @@ def _(alt, exper, mo, n_workers, np, pd, poly_degree, wage):
 def _(mo):
     mo.md(r"""
     <a id="sec2"></a>
-    ## 2. Interpreting the quadratic model
+    ## 11.2 Interpreting the quadratic model
 
-    The degree-two polynomial regression from Section 1 yields coefficient estimates $\hat{\beta}_0 = 7.7$, $\hat{\beta}_1 = 1.18$, and $\hat{\beta}_2 = -0.019$, with experience measured in years and wages measured in dollars per hour (set the polynomial degree slider to 2 to see the fitted curve). The negative coefficient on experience squared causes the fitted curve to flatten and eventually turn downward as experience increases. The quadratic regression has an R-squared of 0.76, compared with 0.59 for the straight-line regression, so it fits the observed data more closely.
+    The degree-two polynomial regression from Section 11.1 yields coefficient estimates $\hat{\beta}_0 = 7.7$, $\hat{\beta}_1 = 1.18$, and $\hat{\beta}_2 = -0.019$, with experience measured in years and wages measured in dollars per hour (set the polynomial degree slider to 2 to see the fitted curve). The negative coefficient on experience squared causes the fitted curve to flatten and eventually turn downward as experience increases. The quadratic regression has an R-squared of 0.76, compared with 0.59 for the straight-line regression, so it fits the observed data more closely.
 
-    The intercept retains its usual interpretation, but the two coefficients on experience cannot be interpreted separately as changes in the predicted wage. In a straight-line regression, $\hat{\beta}_1$ is the regression slope and gives the change in the predicted wage associated with one additional year of experience. In a quadratic regression, a one-year increase in experience changes both $\text{Exper}$ and $\text{Exper}^2$. The change in the predicted wage therefore depends on $\hat{\beta}_1$, $\hat{\beta}_2$, and the worker’s current level of experience. Section 3 shows how to calculate and interpret changes in predicted wages from the fitted curve.
+    The intercept retains its usual interpretation, but the two coefficients on experience cannot be interpreted separately as changes in the predicted wage. In a straight-line regression, $\hat{\beta}_1$ is the regression slope and gives the change in the predicted wage associated with one additional year of experience. In a quadratic regression, a one-year increase in experience changes both $\text{Exper}$ and $\text{Exper}^2$. The change in the predicted wage therefore depends on $\hat{\beta}_1$, $\hat{\beta}_2$, and the worker’s current level of experience. Section 11.3 shows how to calculate and interpret changes in predicted wages from the fitted curve.
 
     Allowing the fitted relationship to curve does not change the assumptions required for a causal interpretation. A quadratic regression is still estimated as a multiple regression, so the least-squares assumptions from Lectures 6 and 9 continue to apply. The first OLS assumption concerns the unobserved determinants of wages collected in the error term. For the fitted relationship to have a causal interpretation, these omitted determinants cannot vary systematically with the independent variables in ways that raise or lower wages. Formally, the error must have mean zero for every possible combination of experience and experience squared,
 
@@ -281,7 +281,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec3"></a>
-    ## 3. The effect of experience depends on its level
+    ## 11.3 The effect of experience depends on its level
 
     To determine how the predicted wage changes from a given starting point, compare the fitted wage before and after an increase in experience. Suppose experience rises from $\text{Exper}$ to $\text{Exper}+\Delta$. The predicted change in wages is
 
@@ -449,7 +449,7 @@ def _(alt, exper, mo, np, pd, secant_delta, secant_start, wage):
 def _(mo):
     mo.md(r"""
     <a id="sec4"></a>
-    ## 4. Testing whether the relationship is nonlinear
+    ## 11.4 Testing whether the relationship is nonlinear
 
     Polynomial regressions allow us to model nonlinear relationships. Even when the population relationship is linear, however, sampling variation can produce nonzero coefficient estimates on squared and higher-order independent variables. We therefore often test whether the population coefficients on all such terms are zero.<sup><a id="fnref2" href="#fn2">2</a></sup> If they are, the terms drop out and the model becomes linear.
 
@@ -473,17 +473,17 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec5"></a>
-    ## 5. Higher-order polynomials and overfitting
+    ## 11.5 Higher-order polynomials and overfitting
 
-    As demonstrated in Section 1, the quadratic model we have focussed on extends naturally to a *polynomial of degree $r$*, which includes powers of experience through the $r$-th power and takes the form
+    As demonstrated in Section 11.1, the quadratic model we have focussed on extends naturally to a *polynomial of degree $r$*, which includes powers of experience through the $r$-th power and takes the form
 
     $$
     \text{Wage} = \beta_0 + \beta_1\text{Exper} + \beta_2\text{Exper}^2 + \dots + \beta_r\text{Exper}^r + u.
     $$
 
-    Raising the degree gives the curve more flexibility by allowing it to bend in more places. That flexibility can become a problem, however. As you raise the degree above two on the slider in Section 1, the curve begins to wiggle around individual observations rather than capture the overall pattern. This is called *overfitting*, which occurs when a model captures randomness in the current sample rather than a pattern likely to reappear in new samples.
+    Raising the degree gives the curve more flexibility by allowing it to bend in more places. That flexibility can become a problem, however. As you raise the degree above two on the slider in Section 11.1, the curve begins to wiggle around individual observations rather than capture the overall pattern. This is called *overfitting*, which occurs when a model captures randomness in the current sample rather than a pattern likely to reappear in new samples.
 
-    The R-squared and adjusted R-squared illustrate this tradeoff. In the Section 1 plot, the R-squared rises from 0.762 for the quadratic regression to 0.779 for a degree-twenty polynomial regression because adding terms can never worsen the in-sample fit. The *adjusted R-squared*, which penalizes each added term, instead peaks at 0.757 for the quadratic regression model and falls to 0.724 by degree twenty. The additional eighteen terms do not appear to improve the model fit.
+    The R-squared and adjusted R-squared illustrate this tradeoff. In the Section 11.1 plot, the R-squared rises from 0.762 for the quadratic regression to 0.779 for a degree-twenty polynomial regression because adding terms can never worsen the in-sample fit. The *adjusted R-squared*, which penalizes each added term, instead peaks at 0.757 for the quadratic regression model and falls to 0.724 by degree twenty. The additional eighteen terms do not appear to improve the model fit.
 
     A few rules of thumb can help you decide how many degrees to include in your regression model. One is to increase the degree until the highest-order term is no longer statistically significant. Another is to choose the degree with the highest adjusted R-squared. Most importantly, the degree should be consistent with the economics of the problem. For our wage example, the quadratic regression model captures rapid wage growth early in a career followed by slower wage growth later on without adding unnecessary complexity.
     """)

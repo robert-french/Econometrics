@@ -108,9 +108,9 @@ def _(mo):
     mo.md(r"""
     ## Contents
 
-    [1. Regression tables](#sec1)<br>
-    [2. Why coefficients change across columns](#sec2)<br>
-    [3. Statistical significance](#sec3)
+    10.1 [Regression tables](#sec1)<br>
+    10.2 [Why coefficients change across columns](#sec2)<br>
+    10.3 [Statistical significance](#sec3)
     """)
     return
 
@@ -119,7 +119,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec1"></a>
-    ## 1. Regression tables
+    ## 10.1 Regression tables
 
     A *regression table* reports several regressions side by side, making it easy to compare their results. Each column presents one regression with the same dependent variable but a different set of independent variables. Each row corresponds to one independent variable. Reading down a column describes a single regression, while reading across a row shows how the coefficient on a variable changes as other variables are added.
 
@@ -132,7 +132,7 @@ def _(mo):
 def _(np):
     # Wage data for 1,200 workers used to build the regression table. Education
     # is correlated with parental income, which is the source of the omitted
-    # variable bias discussed in Section 2.
+    # variable bias discussed in Section 10.2.
     _rng = np.random.default_rng(42)
     _n = 1200
     _pinc = _rng.normal(0.0, 1.0, _n)
@@ -281,7 +281,7 @@ def _(fits, mo, var_order):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    Each coefficient cell contains two numbers. The top number is the estimated coefficient for that independent variable, $\hat\beta_j$. It gives the change in predicted hourly wage associated with a one-unit increase in that variable, holding the other independent variables included in the column fixed. The number in parentheses below it is the standard error. Recall that the standard error is the square root of the estimated sample variance of $\hat\beta_j$ and measures how much $\hat\beta_j$ would typically vary across random samples from the same population. The asterisks indicate *statistical significance*, which we discuss in Section 3. The final three rows report the number of observations, the R-squared, and the adjusted R-squared for each regression.
+    Each coefficient cell contains two numbers. The top number is the estimated coefficient for that independent variable, $\hat\beta_j$. It gives the change in predicted hourly wage associated with a one-unit increase in that variable, holding the other independent variables included in the column fixed. The number in parentheses below it is the standard error. Recall that the standard error is the square root of the estimated sample variance of $\hat\beta_j$ and measures how much $\hat\beta_j$ would typically vary across random samples from the same population. The asterisks indicate *statistical significance*, which we discuss in Section 10.3. The final three rows report the number of observations, the R-squared, and the adjusted R-squared for each regression.
     """)
     return
 
@@ -290,7 +290,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec2"></a>
-    ## 2. Why coefficients change across columns
+    ## 10.2 Why coefficients change across columns
 
     Let's begin by reading across the education row. In column (1), each additional year of education is associated with a roughly $2.00 increase in hourly wages.
 
@@ -307,7 +307,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec3"></a>
-    ## 3. Statistical significance
+    ## 10.3 Statistical significance
 
     The asterisks beside each coefficient indicate its *statistical significance*. Recall that we test the null hypothesis that the corresponding population coefficient equals zero using the t-statistic
 

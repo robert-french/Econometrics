@@ -108,10 +108,10 @@ def _(mo):
     mo.md(r"""
     ## Contents
 
-    [1. What is a logarithm](#sec1)<br>
-    [2. Logarithms and percent changes](#sec2)<br>
-    [3. Three regression models with logarithms](#sec3)<br>
-    [4. When to use logarithms](#sec4)
+    12.1 [What is a logarithm](#sec1)<br>
+    12.2 [Logarithms and percent changes](#sec2)<br>
+    12.3 [Three regression models with logarithms](#sec3)<br>
+    12.4 [When to use logarithms](#sec4)
     """)
     return
 
@@ -120,7 +120,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec1"></a>
-    ## 1. What is a logarithm
+    ## 12.1 What is a logarithm
 
     In Lecture 11, we modeled nonlinear relationships by adding powers of an independent variable. In this lecture, we introduce another approach. A *logarithmic regression* transforms one or more variables using the logarithm function, often allowing us to interpret coefficients in terms of percent changes. To understand logarithmic regressions, we must first understand the logarithmic function. And to understand the logarithmic function, we must first understand the exponential function!
 
@@ -132,7 +132,7 @@ def _(mo):
 
     Because $e$ raised to any power is positive, $\ln(X)$ is defined only when $X>0$.
 
-    The natural logarithm rises quickly at first and then more slowly. Its slope at $X$ is $1/X$, so the curve is steep near zero and gradually flattens as $X$ grows. This shape allows a logarithm to turn some nonlinear relationships into linear ones. It also means that the absolute slope of a fitted curve that is linear in $\ln(X)$ approaches zero as $X$ rises. These properties will become clearer in Section 3.
+    The natural logarithm rises quickly at first and then more slowly. Its slope at $X$ is $1/X$, so the curve is steep near zero and gradually flattens as $X$ grows. This shape allows a logarithm to turn some nonlinear relationships into linear ones. It also means that the absolute slope of a fitted curve that is linear in $\ln(X)$ approaches zero as $X$ rises. These properties will become clearer in Section 12.3.
 
     The plot below shows the exponential and logarithm functions together. Because the functions are inverses, their curves are mirror images across the dashed 45-degree line.
     """)
@@ -190,7 +190,7 @@ def _(mo):
     mo.md(r"""
     <a id="sec2"></a>
 
-    ## 2. Logarithms and percent changes
+    ## 12.2 Logarithms and percent changes
 
     Logarithms appear often in economics because a change in the logarithm of a variable is approximately its proportional change, or its percent change divided by 100. For a small change $\Delta X$,
 
@@ -210,7 +210,7 @@ def _(mo):
     \end{aligned}
     $$
 
-    The first rule is useful because it turns exponents into multipliers. We will use this rule in Section 4. The second and third rules explain why log changes are symmetric in a way that percent changes are not. Doubling a variable changes its logarithm by $\ln(2X)-\ln(X)=\ln(2)\approx0.693$, while reversing that change lowers its logarithm by $\ln(X)-\ln(2X)=-\ln(2)$. The two log changes therefore have equal magnitudes and opposite signs. In percent terms, however, increasing $X$ to $2X$ is a 100 percent increase, while returning from $2X$ to $X$ is a 50 percent decrease because the decrease is measured relative to $2X$. Log changes, sometimes called *log points*, therefore treat a multiplicative change and its reversal symmetrically.
+    The first rule is useful because it turns exponents into multipliers. We will use this rule in Section 12.4. The second and third rules explain why log changes are symmetric in a way that percent changes are not. Doubling a variable changes its logarithm by $\ln(2X)-\ln(X)=\ln(2)\approx0.693$, while reversing that change lowers its logarithm by $\ln(X)-\ln(2X)=-\ln(2)$. The two log changes therefore have equal magnitudes and opposite signs. In percent terms, however, increasing $X$ to $2X$ is a 100 percent increase, while returning from $2X$ to $X$ is a 50 percent decrease because the decrease is measured relative to $2X$. Log changes, sometimes called *log points*, therefore treat a multiplicative change and its reversal symmetrically.
 
     The plot below lets you see these ideas in practice. Choose a starting level of experience and a percent change. The horizontal brace marks the change in experience, while the vertical brace marks the resulting change in its logarithm. Beneath the plot, the caption compares the percent change with its log approximation and reports the difference between them. Try a small percent change to see how closely they match, then compare $+100$ with $-50$ to see that the log changes are equal in magnitude and opposite in sign.
     """)
@@ -368,7 +368,7 @@ def _(mo):
     mo.md(r"""
     <a id="sec3"></a>
 
-    ## 3. Three regression models with logarithms
+    ## 12.3 Three regression models with logarithms
 
     There are two main reasons why you might want to estimate a regression using logarithms. First, logarithms can turn some nonlinear relationships into approximately linear ones. If wages rise quickly at low levels of experience and then more slowly, for example, a regression using log experience may represent the relationship well. Second, logarithms let us express relationships in percent terms, which are often easier to compare across different scales. A $1 raise means something very different to a minimum-wage worker and a chief executive, but a 5 percent raise is more comparable across the two workers.
 
@@ -506,9 +506,9 @@ def _(mo):
     mo.md(r"""
     <a id="sec4"></a>
 
-    ## 4. When to use logarithms
+    ## 12.4 When to use logarithms
 
-    Sections 2 and 3 showed that logarithms let us describe relationships in percent terms and can turn some nonlinear relationships into approximately linear ones. These ideas suggest three common situations in which logarithms are useful.
+    Sections 12.2 and 12.3 showed that logarithms let us describe relationships in percent terms and can turn some nonlinear relationships into approximately linear ones. These ideas suggest three common situations in which logarithms are useful.
 
     **The underlying economic model is multiplicative.** Some economic models multiply variables instead of add them together. Logarithms are useful because they turn products into sums and powers into multipliers. A Cobb-Douglas production function is a common example,
 
@@ -520,11 +520,11 @@ def _(mo):
 
     The transformed equation is linear in the coefficients and so can be estimated by OLS.
 
-    **Percent changes are the natural unit.** If percent growth is more meaningful than a change in levels, logging a variable lets us interpret its coefficient in percent terms, as in the log-linear and log-log models from Section 3.
+    **Percent changes are the natural unit.** If percent growth is more meaningful than a change in levels, logging a variable lets us interpret its coefficient in percent terms, as in the log-linear and log-log models from Section 12.3.
 
     **The variable ranges over very different sizes.** Firm sales can range from those of a corner shop to those of a national chain. Taking logarithms emphasizes proportional differences and compresses unusually large values, reducing their influence on the regression.
 
-    Logarithms cannot always be used, however. Because $\ln(X)$ is defined only when $X>0$, variables that can equal zero or become negative, such as profits, cannot be logged directly. Comparing models using the R-squared also requires care. A regression of $\ln(\text{Wage})$ and a regression of $\text{Wage}$ explain variation on different scales, so their R-squared values are not comparable. Always use the economics of the problem to decide whether the relationship should be expressed in levels or in percent terms, then inspect the fitted curves in their original units, as in Section 3.
+    Logarithms cannot always be used, however. Because $\ln(X)$ is defined only when $X>0$, variables that can equal zero or become negative, such as profits, cannot be logged directly. Comparing models using the R-squared also requires care. A regression of $\ln(\text{Wage})$ and a regression of $\text{Wage}$ explain variation on different scales, so their R-squared values are not comparable. Always use the economics of the problem to decide whether the relationship should be expressed in levels or in percent terms, then inspect the fitted curves in their original units, as in Section 12.3.
     """)
     return
 

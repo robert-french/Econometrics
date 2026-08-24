@@ -106,13 +106,13 @@ def _(mo):
     mo.md(r"""
     ## Contents
 
-    1. [Probability and statistics](#sec1)
-    2. [Random variables](#sec2)
-    3. [Describing a random variable](#sec3)
-    4. [Law of large numbers](#sec4)
-    5. [The sample mean as a random variable](#sec5)
-    6. [The normal distribution](#sec6)
-    7. [Central limit theorem](#sec7)
+    2.1 [Probability and statistics](#sec1)<br>
+    2.2 [Random variables](#sec2)<br>
+    2.3 [Describing a random variable](#sec3)<br>
+    2.4 [Law of large numbers](#sec4)<br>
+    2.5 [The sample mean as a random variable](#sec5)<br>
+    2.6 [The normal distribution](#sec6)<br>
+    2.7 [Central limit theorem](#sec7)
     """)
     return
 
@@ -121,7 +121,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec1"></a>
-    ## 1. Probability and statistics
+    ## 2.1 Probability and statistics
 
     In the last lecture, we distinguished between a population and a sample. The population is what we ultimately want to learn about. It includes the units we could have observed, not just the ones in our data, and the patterns we want to understand, such as how earnings differ by education, how unemployment varies by age, or how wages change over time. The sample is the smaller set of observations we actually collect or observe, such as the roughly sixty thousand households the Bureau of Labor Statistics (BLS) uses each month to produce the official U.S. figures on employment and earnings.
 
@@ -138,7 +138,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec2"></a>
-    ## 2. Random variables
+    ## 2.2 Random variables
 
     Last lecture we defined a variable as something we measure that can take different values across observations or data points. Hourly wage is a variable because different people earn different amounts. The number of emails you receive in an hour is also a variable because some hours bring zero emails while others bring five. Economists often distinguish variables by the kinds of values they can take.
 
@@ -322,7 +322,7 @@ def _(mo, wage_chart, wage_dist):
 def _(mo):
     mo.md(r"""
     <a id="sec3"></a>
-    ## 3. Describing a random variable
+    ## 2.3 Describing a random variable
 
     Two numbers summarize most of what we care about in a random variable,
     its average and its spread. The *expected value* of $X$ is the long-run
@@ -412,7 +412,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec4"></a>
-    ## 4. Law of large numbers
+    ## 2.4 Law of large numbers
 
     The *law of large numbers* says that the sample mean $\hat{\mu}_X$ gets close to the true expected value $\mu_X$ when the sample is large. The intuition is that, in a large random sample, each type of outcome appears about as often as its probability predicts. As a result, the average computed from the sample, $\hat{\mu}_X$, gets close to the average we would get from the full population, $\mu_X$.
 
@@ -512,7 +512,7 @@ def _(alt, lln_button, lln_draws, lln_process, mo, np, pd):
 def _(mo):
     mo.md(r"""
     <a id="sec5"></a>
-    ## 5. The sample mean as a random variable
+    ## 2.5 The sample mean as a random variable
 
     The sample mean is computed from random outcomes, so the sample mean is
     itself a random variable. The $0.25$ emails per hour we computed in the
@@ -550,7 +550,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec6"></a>
-    ## 6. The normal distribution
+    ## 2.6 The normal distribution
 
     A few continuous distributions come up so often in statistics and
     econometrics that they have names. The most important by a wide margin
@@ -643,12 +643,12 @@ def _(alt, mo, np, pd, stats, std_mu, std_sigma):
 def _(mo):
     mo.md(r"""
     <a id="sec7"></a>
-    ## 7. Central limit theorem
+    ## 2.7 Central limit theorem
 
     Picture running the same study many times. Each study uses a fresh sample
     of size $n$ from the same population, and each study produces one sample
     mean $\hat{\mu}_X$. The collection of those sample means, one per study, is
-    itself a distribution. Section 5 already told us this distribution is
+    itself a distribution. Section 2.5 already told us this distribution is
     centered on $\mu_X$ with standard deviation $\sigma_X / \sqrt{n}$. The *central limit
     theorem* tells us about its shape. It says that for large enough $n$, the
     distribution of $\hat{\mu}_X$ is well approximated by a bell curve, the

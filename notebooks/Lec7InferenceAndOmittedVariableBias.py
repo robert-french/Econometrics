@@ -112,11 +112,11 @@ def _(mo):
     mo.md(r"""
     ## Contents
 
-    [1. The variance of the slope estimator](#sec1)<br>
-    [2. The sampling distribution of the slope](#sec2)<br>
-    [3. Heteroskedasticity](#sec3)<br>
-    [4. Hypothesis tests for the slope](#sec4)<br>
-    [5. Confidence intervals for the slope](#sec5)
+    7.1 [The variance of the slope estimator](#sec1)<br>
+    7.2 [The sampling distribution of the slope](#sec2)<br>
+    7.3 [Heteroskedasticity](#sec3)<br>
+    7.4 [Hypothesis tests for the slope](#sec4)<br>
+    7.5 [Confidence intervals for the slope](#sec5)
     """)
     return
 
@@ -125,7 +125,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec1"></a>
-    ## 1. The variance of the slope estimator
+    ## 7.1 The variance of the slope estimator
 
     In Lecture 6, we wrote the regression model as $Y_i = \beta_0 + \beta_1 X_i + u_i$. Let's again suppose $Y_i$ is a worker’s wage and $X_i$ is the worker’s years of education. In this example, $u_i$ includes everything other than education that affects the worker’s wage.
 
@@ -137,7 +137,7 @@ def _(mo):
     \sigma^2_{\hat{\beta}_1} = \frac{\operatorname{var}(u)}{(n-1)\cdot \widehat{\operatorname{var}}(X)}.
     $$
 
-    This formula shows that the slope estimate is more precise when the errors are less spread out, when the sample is larger, and when there is more variation in $X$. Section 3 considers the case where the dispersion of the errors differs across values of $X$. In practice, we do not observe $\operatorname{var}(u)$, so we estimate it using the residuals, $\widehat{\operatorname{var}}(\hat{u}) = \frac{1}{n-2}\sum_{i=1}^{n}\hat{u}_i^2$. This is the sum of squared residuals divided by $n-2$. We divide by $n-2$ rather than $n$ because estimating the intercept, $\hat{\beta}_0$, and the slope, $\hat{\beta}_1$, uses up two pieces of information from the sample.
+    This formula shows that the slope estimate is more precise when the errors are less spread out, when the sample is larger, and when there is more variation in $X$. Section 7.3 considers the case where the dispersion of the errors differs across values of $X$. In practice, we do not observe $\operatorname{var}(u)$, so we estimate it using the residuals, $\widehat{\operatorname{var}}(\hat{u}) = \frac{1}{n-2}\sum_{i=1}^{n}\hat{u}_i^2$. This is the sum of squared residuals divided by $n-2$. We divide by $n-2$ rather than $n$ because estimating the intercept, $\hat{\beta}_0$, and the slope, $\hat{\beta}_1$, uses up two pieces of information from the sample.
 
     Using this estimate of the error variance gives the estimated variance of the slope estimator:
 
@@ -163,7 +163,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec2"></a>
-    ## 2. The sampling distribution of the slope
+    ## 7.2 The sampling distribution of the slope
 
     Knowing the variance of $\hat{\beta}_1$ is useful because it tells us how spread out the slope estimates are across repeated samples. To use that variance for confidence intervals and hypothesis tests, we also need to know the shape of the sampling distribution.
 
@@ -173,11 +173,11 @@ def _(mo):
     \hat{\beta}_1 \sim \mathcal{N}\:\left(\beta_1,\ \sigma^2_{\hat{\beta}_1}\right).
     $$
 
-    This means that repeated estimates of $\hat{\beta}_1$ would be centered around the true slope, $\beta_1$ (the estimator is unbiased, as shown in Lecture 6), with variance given by $\sigma^2_{\hat{\beta}_1}$, defined in Section 1.
+    This means that repeated estimates of $\hat{\beta}_1$ would be centered around the true slope, $\beta_1$ (the estimator is unbiased, as shown in Lecture 6), with variance given by $\sigma^2_{\hat{\beta}_1}$, defined in Section 7.1.
 
     This normal approximation comes from the central limit theorem from Lecture 2 because the slope estimate can be written as a weighted mean of sample observations. When the observations are independent and identically distributed as the second least squares assumption states, averages like this are close to normally distributed in large samples. The third least squares assumption that large outliers are unlikely helps ensure that no single observation dominates the estimate.
 
-    The plot below helps you see these ideas in practice. Use the sliders to set the underlying population and choose how many observations are drawn in each sample, then press the ''Draw new sample''. Each draw creates one sample, fits the corresponding OLS line, and reports its standard error. The orange dashed lines plot the OLS slope estimate multiplied by both plus and minus 1.96 times its standard error. These lines represent the range of a 95% confidence interval, which we consider again in Section 5. Each draw also adds its slope estimate to the adjacent density plot, so repeated draws build the sampling distribution one estimate at a time. Press ''Reset plots'' to start over. You should reset the plots after moving a slider so that all the collected slope estimates come from the same settings.
+    The plot below helps you see these ideas in practice. Use the sliders to set the underlying population and choose how many observations are drawn in each sample, then press the ''Draw new sample''. Each draw creates one sample, fits the corresponding OLS line, and reports its standard error. The orange dashed lines plot the OLS slope estimate multiplied by both plus and minus 1.96 times its standard error. These lines represent the range of a 95% confidence interval, which we consider again in Section 7.5. Each draw also adds its slope estimate to the adjacent density plot, so repeated draws build the sampling distribution one estimate at a time. Press ''Reset plots'' to start over. You should reset the plots after moving a slider so that all the collected slope estimates come from the same settings.
     """)
     return
 
@@ -404,9 +404,9 @@ def _(alt, get_acc, mo, np, pd, sd_errsd, sd_n, sd_xspread, stats):
 def _(mo):
     mo.md(r"""
     <a id="sec3"></a>
-    ## 3. Heteroskedasticity
+    ## 7.3 Heteroskedasticity
 
-    The variance formula in Section 1 assumes that the error term has the same dispersion at every value of $X$. In that case, we say the error term is *homoskedastic*. By contrast, the error is *heteroskedastic* when its dispersion changes with $X$.
+    The variance formula in Section 7.1 assumes that the error term has the same dispersion at every value of $X$. In that case, we say the error term is *homoskedastic*. By contrast, the error is *heteroskedastic* when its dispersion changes with $X$.
 
     The error term in the wage and education example may be heteroskedastic. Among workers with little education, hourly wages may be clustered in a relatively narrow range. Among workers with a college degree, some workers may earn close to the group average, while others may earn much more or much less. As a result, wages may be more dispersed at higher levels of education.
 
@@ -421,7 +421,7 @@ def _(mo):
     <a id="sec3a"></a>
     ### <span style="color:#0b68cb">Heteroskedasticity-robust standard errors</span>
 
-    When the error is heteroskedastic, the formula in Section 1 no longer gives the right variance for $\hat{\beta}_1$. A standard error based on that formula can therefore be too small or too large.
+    When the error is heteroskedastic, the formula in Section 7.1 no longer gives the right variance for $\hat{\beta}_1$. A standard error based on that formula can therefore be too small or too large.
 
     When the error is heteroskedastic, we instead estimate the variance of $\hat{\beta}_1$ with a formula that weights each observation’s squared residual differently, rather than assuming the error has the same dispersion everywhere.
 
@@ -561,7 +561,7 @@ def _(alt, het_s1, het_s2, het_s3, het_s4, het_s5, mo, np, pd):
 def _(mo):
     mo.md(r"""
     <a id="sec4"></a>
-    ## 4. Hypothesis tests in the regression model
+    ## 7.4 Hypothesis tests in the regression model
 
     Lecture 4 introduced hypothesis tests, p-values, and t-statistics. Here we use the same ideas to test claims about the OLS estimates $\hat{\beta}_0$ and $\hat{\beta}_1$. For example, a common question in econometrics is whether education affects wages. In the population regression model, this is the claim that the slope parameter $\beta_1$ equals zero. Hypothesis tests formalize these claims.
 
@@ -598,11 +598,11 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec5"></a>
-    ## 5. Confidence intervals for the slope
+    ## 7.5 Confidence intervals for the slope
 
     A hypothesis test asks whether the data are consistent with one particular guess about $\beta_1$. Often, though, we want more than a yes-or-no answer for a single guess. We want to know which values of $\beta_1$ remain plausible after looking at the data. A *confidence interval* gives us that range.
 
-    Recall from Lecture 4 that to build a confidence interval, we start from the estimate $\hat{\beta}_1$. We then collect the null values that the test in Section 4 would not reject at a chosen *significance level* $\alpha$. The significance level is the chance of rejecting a true null that the researcher is willing to accept. A common choice is $\alpha = 0.05$.
+    Recall from Lecture 4 that to build a confidence interval, we start from the estimate $\hat{\beta}_1$. We then collect the null values that the test in Section 7.4 would not reject at a chosen *significance level* $\alpha$. The significance level is the chance of rejecting a true null that the researcher is willing to accept. A common choice is $\alpha = 0.05$.
 
     For large $n$, where the $t$-statistic is standard normal, that range is the estimate plus or minus a multiple of its standard error,
 
