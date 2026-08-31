@@ -62,14 +62,16 @@
   </article>
 {% endmacro %}
 
-<body class="bg-slate-50 text-slate-900 font-sans">
+<body class="relative bg-slate-50 text-slate-900 font-sans">
 
   <span id="top"></span>
 
-  <!-- Faint LMU shield watermark behind page content -->
+  <!-- Faint LMU shield watermark behind page content.
+       Anchored to the top of the page (not the viewport), so it scrolls
+       away with the content instead of sitting still behind moving text. -->
   <div
     aria-hidden="true"
-    class="pointer-events-none fixed inset-0 -z-10 flex items-center justify-center"
+    class="pointer-events-none absolute inset-x-0 top-0 h-screen -z-10 flex items-center justify-center"
   >
     <img
       src="LMU_SquareOrig.png"
@@ -152,16 +154,17 @@
       </p>
 
       <p>
-        If you master these tools, you will be better equipped to evaluate evidence and, in
-        particular, claims about cause and effect.
+        If you master these tools, you will be better equipped to evaluate empirical arguments 
+        and, in particular, claims about whether a policy or intervention causes a particular 
+        outcome.
       </p>
 
       <p>
         Suppose, for example, that a government official claims that more education increases
         future earnings in the United States. They point to data showing that people with more
         education tend to earn more on average. How should we evaluate the claim that education
-        <em>causes</em> higher earnings? What must we assume about the data for that conclusion
-        to be credible? And how confident should we be that the same relationship would appear
+        <em>causes</em> higher earnings? What must we assume about the data for us to believe 
+        that conclusion? And how confident should we be that the same relationship would appear
         in another data set?
       </p>
 
