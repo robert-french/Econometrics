@@ -9,7 +9,7 @@
 
 import marimo
 
-__generated_with = "0.23.6"
+__generated_with = "0.24.0"
 app = marimo.App(
     app_title="Lecture 1: Introduction to Econometrics",
     css_file="marimo-overrides.css",
@@ -44,8 +44,8 @@ def _(mo):
                 1. **[Introduction](#top)**
                     1. [What is econometrics?](#sec1)
                     1. [Descriptive and causal questions](#sec2)
-                    1. [Education and earnings](#sec3)
-                    1. [Why causal questions are hard](#sec4)
+                    1. [Education and earnings example](#sec3)
+                    1. [Why causal questions are hard to answer](#sec4)
                     1. [Populations and samples](#sec5)
                     1. [Types of data](#sec6)
                 2. <a href="https://robert-french.github.io/Econometrics/apps/Lec2RandomVariables.html" target="_self">Random Variables</a>
@@ -103,8 +103,8 @@ def _(mo):
 
     1.1 [What is econometrics?](#sec1)<br>
     1.2 [Descriptive and causal questions](#sec2)<br>
-    1.3 [Education and earnings](#sec3)<br>
-    1.4 [Why causal questions are hard](#sec4)<br>
+    1.3 [Education and earnings example](#sec3)<br>
+    1.4 [Why causal questions are hard to answer](#sec4)<br>
     1.5 [Populations and samples](#sec5)<br>
     1.6 [Types of data](#sec6)
     """)
@@ -117,12 +117,9 @@ def _(mo):
     <a id="sec1"></a>
     ## 1.1 What is econometrics?
 
-    Econometrics is the use of statistical methods to measure economic
-    relationships in data.
+    Econometrics is the use of statistical methods to measure economic relationships in data. Economic theory gives us a way to think about how different things are related. It tells us, for example, that when the price of a good rises, people usually buy less of it. Statistics gives us general tools for learning from data, including ways to summarize data, estimate relationships between things we observe, and measure how much an estimate or statistic might change if we collected new data. Econometrics applies those tools to economic questions by asking whether the relationships predicted by theory appear in real data, how large they are, and how confident we should be in the results. For example, econometrics uses data to estimate how much less people actually buy when the price of a good rises.
 
-    Economic theory gives us a way to think about how different things are related. It tells us, for example, that when the price of a good rises, people usually buy less of it. Statistics gives us general tools for learning from data, including ways to summarize data points, estimate relationships between different things we observe, and measure how much an estimate might change if we collected new data. Econometrics applies those tools to economic questions by asking whether the relationships predicted by theory appear in real data, how large they are, and how confident we should be in the results. For example, econometrics uses data to estimate how much less people actually buy when the price of a good rises.
-
-    Econometrics helps economists move from ideas to evidence. Economists use econometrics to test whether a prediction from theory appears in real data, like whether the quantity people buy really falls as price rises. They use econometrics to forecast future values, such as next quarter's GDP or next month's unemployment rate. They also use econometrics to estimate how much one thing changes another so that policies can be judged, for example how many jobs are gained or lost when the minimum wage rises by one dollar. In each case, econometrics gives economists a disciplined way to turn data into evidence about economic relationships.
+    Econometrics therefore helps economists move from ideas to evidence. Economists use it to test predictions from theory, forecast future values such as next quarter's GDP or next month's unemployment rate, and estimate how much one thing changes another. These estimates can also help evaluate policies, for example by measuring how many jobs are gained or lost when the minimum wage rises by one dollar. In each case, econometrics provides a disciplined way to turn data into evidence about economic relationships.
     """)
     return
 
@@ -139,7 +136,7 @@ def _(mo):
 
     A *causal question* asks how an outcome would change if we changed one thing while holding everything else fixed. ''If this person stayed in school one more year, how much would their earnings rise?'' is a causal question. We cannot answer it just by comparing a college graduate to a high school graduate, because they are different people who may differ in family background, ability, motivation, and many other ways. A clean answer would compare the same person with and without the additional schooling, but we never observe both outcomes for the same person.
 
-    This course is mostly about causal questions. Still, descriptive questions matter in their own right because many economic questions begin with knowing what patterns exist in the data. They also matter because causal arguments usually build from those patterns. If we measure or summarize the pattern badly, we will have a weak starting point for deciding what caused it.
+    This course is mostly about causal questions. Still, descriptive questions matter in their own right because many economic questions begin with knowing what patterns exist in the data. If we measure or summarize patterns in the data badly, we will have a weak starting point for understanding any underlying causal relationship.
     """)
     return
 
@@ -150,8 +147,7 @@ def _(mo):
     <a id="sec3"></a>
     ## 1.3 Education and earnings example
 
-    The link between education and earnings shows the gap between a descriptive
-    answer and a causal one in concrete numbers.
+    The relationship between education and earnings clearly illustrates the difference between a descriptive question and a causal one.
 
     The U.S. Bureau of Labor Statistics (BLS) reports the median weekly earnings of
     full-time workers aged 25 and over by the highest degree they have completed.
@@ -194,15 +190,7 @@ def _(mo):
     with a doctorate. The descriptive answer is that each step up in education (aside
     from doctoral degrees) is associated with higher pay.
 
-    That \$594 difference between a high school diploma and a bachelor's degree is
-    not yet the causal effect of the degree. The workers in the bachelor's bar are
-    not the high school workers with four years of school added on; they are
-    different people who, on average, also grew up in higher-income families and
-    had more opportunities, and many of them would have out-earned the high school
-    group even without the degree. Some of the \$594 reflects those prior
-    differences between the two groups, and only the remainder is caused by the
-    education itself. Section 1.4 explains why separating the two is hard, and the
-    later lectures will help us build the tools to do exactly this.
+    That \$594 difference between a high school diploma and a bachelor's degree is not the causal effect of the degree, however. The workers in the bachelor's bar are not the high school workers with four years of school added on; they are different people who, on average, also grew up in higher-income families and had more opportunities, and many of them would have out-earned the high school group even without the degree. Some of the \$594 reflects those prior differences between the two groups, and only the remainder is caused by the education itself. Section 1.4 explains why separating the effect of education from these preexisting differences is hard, and the later lectures will help us build the tools to do exactly this.
     """)
     return
 
@@ -215,7 +203,7 @@ def _(mo):
 
     Causal questions are hard to answer for two main reasons: omitted variables and reverse causality.
 
-    A *variable* is something we can measure that differs across observations, such as a person's schooling, earnings, age, or family income. An *omitted variable* is a factor that affects both the variable we are focused on and the outcome, but that we cannot measure or did not hold constant in the comparison. Family income is an omitted variable in the education-and-earnings comparison. Children from higher-income families complete more schooling on average, and they also tend to earn more as adults for reasons that do not come directly from schooling, such as family wealth and connections. Because the high school group and the bachelor's group differ in average family income, part of the $594 gap reflects the effect of family income rather than the effect of education alone.
+    A *variable* is something we can measure that differs across observations, such as a person's schooling, earnings, age, or family income. An *omitted variable* is a factor that affects both the variable we are interested in and the outcome, but that we do not measure or hold fixed in the comparison. Family income is an omitted variable in the education-and-earnings example. Children from higher-income families complete more schooling on average, and they also tend to earn more as adults for reasons unrelated to schooling itself, including the greater resources, opportunities, and connections that often come with growing up in a higher-income family. Because the high school and bachelor's groups differ in average family income, part of the $594 earnings gap reflects these differences rather than the effect of education alone.
     """)
     return
 
@@ -237,12 +225,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    *Reverse causality* is the case where the outcome also changes the variable we
-    are studying, so causality runs in both directions. Consider the relationship between police presence and crime rates. Adding police to a neighborhood may lower its crime, but city
-    governments also assign more police to the neighborhoods where crime is already
-    highest. A comparison of police numbers and crime numbers across neighborhoods
-    therefore contains both "more police lower crime" and "more crime brings more
-    police," and the raw comparison cannot separate these two effects.
+    *Reverse causality* occurs when the outcome also affects the variable we are studying, so causality runs in both directions. Consider the relationship between police presence and crime rates. Adding more police to a neighborhood may reduce crime, but city governments also tend to assign more police to neighborhoods where crime is already high. A simple comparison of police presence and crime across neighborhoods therefore reflects both effects. More police may reduce crime, and more crime may lead to more police. The raw comparison cannot separate one effect from the other.
     """)
     return
 
@@ -264,7 +247,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    Omitted variable bias and reverse causality are common because we usually observe relationships as they occur in the real world. The variables we study often differ across people, firms, or places for many reasons at once, and some of those reasons may also affect the outcome we want to explain. This makes it difficult to separate the relationship of interest from other differences in the data. The direction of causality can also be unclear, since the outcome may affect our variable of interest rather than only the other way around. Later lectures introduce methods that help hold other factors constant and better isolate causal relationships.
+    Later lectures introduce methods that help address omitted variables and reverse causality so that we can better isolate causal relationships in the data.
     """)
     return
 
@@ -279,7 +262,7 @@ def _(mo):
 
     In econometrics, the *population* is what we want to learn about. Sometimes the population is a concrete group, such as all U.S. workers. More generally, it is the broader setting that our data come from, including the relationships among the things we observe. For example, if we study earnings, education, and age using data on a group of workers, we usually want to learn how these things are related beyond the particular workers in our dataset.
 
-    A *sample* is the finite set of observations we actually have, such as the weekly earnings of the roughly sixty thousand households the Census Bureau contacts each month on behalf of the BLS. Because we usually observe only a sample, any claim about the population must be inferred from limited data. A different sample collected in the same way would usually produce somewhat different numbers. *Statistical inference* gives us methods for using one sample to draw conclusions about the population while also describing how far our estimates might be from the truth. The rest of the course introduces the econometric tools used to conduct statistical inference for economic relationships.
+    A *sample* is the finite set of observations we actually have, such as the weekly earnings of the roughly sixty thousand households the Census Bureau contacts each month on behalf of the BLS. Because we usually observe only a sample, any claim about the population must be inferred from limited data. A different sample collected in the same way would usually produce somewhat different numbers. *Statistical inference* gives us methods for using one sample to draw conclusions about the population while also describing how far our estimates might be from the truth. This course introduces the econometric tools used to conduct statistical inference for economic relationships.
     """)
     return
 
@@ -303,7 +286,7 @@ def _(mo):
     - **Panel data** measure the same many units repeatedly over time, such as the
       same 5,000 workers interviewed every year for ten years. Because each worker
       is seen more than once, traits of a worker that never change, such as where
-      they grew up, can be held constant, which removes them as omitted variables.
+      they grew up, can be held fixed, which removes them as omitted variables.
 
     We will encounter each of these data types during the course.
     """)
