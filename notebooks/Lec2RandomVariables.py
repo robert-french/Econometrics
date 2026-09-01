@@ -850,65 +850,29 @@ def _(alt, appx_df, appx_dist, mo, np, pd, stats):
     )
     _chart = (_faint + _main).properties(width=560, height=300, title=_label)
 
-    _text = mo.md(r"""
-        This is bonus material. You will not be tested on this material and you will not need calculus on any quiz,
-        problem set, or exam.
+    # One paragraph per vstack item so the accordion spacing follows the
+    # same uniform gap used in Lectures 15 and 16.
+    _bonus = mo.md(r"""This is bonus material. You will not be tested on this material and you will not need calculus on any quiz, problem set, or exam.""")
 
-        **Continuous random variables**
+    _p1 = mo.md(r"""**Continuous random variables.** When a random variable does not take a discrete set of values we call it continuous, and we cannot sum over its outcomes. The discrete formula $\mathbb{E}[X] = \sum_{i=1}^{K} x_i \cdot p_i$ no longer works, and the same is true for the variance. We use calculus instead, with the probability density function $f(x)$ in place of the probabilities.""")
+    _eq1 = mo.md(
+        r"""<span style='display:block;text-align:center;margin:0.8rem auto 0.25rem;'>$\displaystyle \mathbb{E}[X] = \int x \cdot f(x)\,dx.$</span>"""
+    )
+    _p2 = mo.md(r"""The intuition is unchanged. We still add up each possible outcome $x$ weighted by its chance of occurring, with the integral playing the role the sum played in the discrete case.""")
 
-        When a random variable does not take a discrete set of values we call
-        it continuous, and we cannot sum over its outcomes. The discrete
-        formula $\mathbb{E}[X] = \sum_{i=1}^{K} x_i \cdot p_i$ no longer
-        works, and the same is true for the variance. We use calculus
-        instead, with the probability density function $f(x)$ in place of
-        the probabilities,
+    _p3 = mo.md(r"""**Other measures of spread.** We can define the variance of a continuous random variable $X$ using the expected value of the squared deviation from the mean.""")
+    _eq2 = mo.md(
+        r"""<span style='display:block;text-align:center;margin:0.8rem auto 0.25rem;'>$\displaystyle \text{var}(X) = \mathbb{E}\big[(X - \mathbb{E}[X])^2\big].$</span>"""
+    )
+    _p4 = mo.md(r"""We can use this notation to define two less common measures of spread: the skewness and the kurtosis. The skewness measures the tilt of a distribution and is zero when the distribution is symmetric, with a positive value meaning a long right tail. The kurtosis measures how much of the variance comes from extreme values far from the mean.""")
+    _eq3 = mo.md(
+        r"""<span style='display:block;text-align:center;margin:0.8rem auto 0.25rem;'>$\displaystyle \text{skewness} = \frac{\mathbb{E}\big[(X - \mu_X)^3\big]}{\sigma_X^3}, \qquad \text{kurtosis} = \frac{\mathbb{E}\big[(X - \mu_X)^4\big]}{\sigma_X^4}.$</span>"""
+    )
+    _p5 = mo.md(r"""The expected value $\mathbb{E}[X]$ is also called the first moment of $X$, $\mathbb{E}[X^2]$ the second moment, and $\mathbb{E}[X^r]$ the $r$-th moment. The variance, skewness, and kurtosis are built from the second, third, and fourth moments respectively.""")
 
-        $$ \mathbb{E}[X] = \int x \cdot f(x)\,dx. $$
-
-        The intuition is unchanged. We still add up each possible outcome
-        $x$ weighted by its chance of occurring, with the integral playing
-        the role the sum played in the discrete case.
-
-        **Other measures of spread**
-
-        We can define the variance of a continuous random variable $X$ using
-        the expected value of the squared deviation from the mean: 
-        $$ \text{var}(X) = \mathbb{E}\big[(X - \mathbb{E}[X])^2\big].$$
-
-        We can use this notation to define two less common measures of spread: the skewness and the
-        kurtosis. The skewness measures the tilt of a distribution and is
-        zero when the distribution is symmetric, with a positive value
-        meaning a long right tail. The kurtosis measures how much of the
-        variance comes from extreme values far from the mean.
-
-        $$ \text{skewness} = \frac{\mathbb{E}\big[(X - \mu_X)^3\big]}{\sigma_X^3}, \qquad \text{kurtosis} = \frac{\mathbb{E}\big[(X - \mu_X)^4\big]}{\sigma_X^4}. $$
-
-        The expected value $\mathbb{E}[X]$ is also called the first moment
-        of $X$, $\mathbb{E}[X^2]$ the second moment, and $\mathbb{E}[X^r]$
-        the $r$-th moment. The variance, skewness, and kurtosis are built
-        from the second, third, and fourth moments respectively.
-
-        **Common probability distributions**
-
-        Three named distributions show up later when we test hypotheses. The
-        chi-squared distribution is the distribution of a sum of $m$ squared
-        independent standard normal variables, denoted $\chi^2_m$, where $m$
-        is its degrees of freedom. The other two build on the chi-squared.
-        Let $Z \sim \mathcal{N}(0, 1)$ and $W \sim \chi^2_m$ be independent,
-        which means $Z$ and $W$ do not influence each other. The statistic
-        $T = Z / \sqrt{W/m}$ has a Student t distribution with $m$ degrees
-        of freedom, denoted $t_m$. The t distribution has fatter tails than
-        the standard normal and approaches $\mathcal{N}(0, 1)$ as $m$ grows.
-        Now let $W \sim \chi^2_m$ and $V \sim \chi^2_n$ be independent. Then
-        $F = (W/m)/(V/n)$ has an F distribution with $m$ numerator and $n$
-        denominator degrees of freedom, denoted $F_{m,n}$, and it takes only
-        positive values.
-
-        The figure below shows these shapes. The t distribution approaches
-        the standard normal as its degrees of freedom grow, while the
-        chi-square and F distributions take only positive values and lean
-        to the right.
-        """)
+    _p6 = mo.md(r"""**Common probability distributions.** Three named distributions show up later when we test hypotheses. The chi-squared distribution is the distribution of a sum of $m$ squared independent standard normal variables, denoted $\chi^2_m$, where $m$ is its degrees of freedom. The other two build on the chi-squared.""")
+    _p7 = mo.md(r"""Let $Z \sim \mathcal{N}(0, 1)$ and $W \sim \chi^2_m$ be independent, which means $Z$ and $W$ do not influence each other. The statistic $T = Z / \sqrt{W/m}$ has a Student t distribution with $m$ degrees of freedom, denoted $t_m$. The t distribution has fatter tails than the standard normal and approaches $\mathcal{N}(0, 1)$ as $m$ grows.""")
+    _p8 = mo.md(r"""Now let $W \sim \chi^2_m$ and $V \sim \chi^2_n$ be independent. Then $F = (W/m)/(V/n)$ has an F distribution with $m$ numerator and $n$ denominator degrees of freedom, denoted $F_{m,n}$, and it takes only positive values. The figure below shows these shapes. The t distribution approaches the standard normal as its degrees of freedom grow, while the chi-square and F distributions take only positive values and lean to the right.""")
 
     _caption = mo.md(
         "The solid line is the chosen distribution and the faint dashed line "
@@ -917,9 +881,10 @@ def _(alt, appx_df, appx_dist, mo, np, pd, stats):
     )
 
     mo.accordion({
-        "## Appendix": mo.vstack([
-            _text, appx_dist, appx_df, _chart, _caption,
-        ]),
+        "## Appendix": mo.vstack(
+            [_bonus, _p1, _eq1, _p2, _p3, _eq2, _p4, _eq3, _p5, _p6, _p7, _p8, appx_dist, appx_df, _chart, _caption],
+            gap=1,
+        ),
     })
     return
 
