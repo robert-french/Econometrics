@@ -113,6 +113,7 @@
         </a>
 
         <nav class="flex flex-wrap gap-x-7 gap-y-2 text-lg font-semibold text-slate-900 sm:pb-2 sm:pr-4">
+          <a href="./" data-home-link data-nav-home class="hover:text-[#3b82f6]">Home</a>
           <a href="#lectures" data-tab-link="lectures" class="hover:text-[#3b82f6]">Lectures</a>
           <a href="#problem-sets" data-tab-link="problem-sets" class="hover:text-[#3b82f6]">Problem sets</a>
           <a href="#stata-tutorials" data-tab-link="stata-tutorials" class="hover:text-[#3b82f6]">Stata tutorials</a>
@@ -727,6 +728,11 @@
         document.querySelectorAll(".home-only").forEach(function (el) {
           el.classList.toggle("hidden", id !== null);
         });
+        document.querySelectorAll("[data-nav-home]").forEach(function (link) {
+          ACTIVE.forEach(function (cls) {
+            link.classList.toggle(cls, id === null);
+          });
+        });
       }
 
       function openFromHash() {
@@ -760,6 +766,7 @@
       });
 
       window.addEventListener("hashchange", openFromHash);
+      setTab(null);
       openFromHash();
     })();
 
