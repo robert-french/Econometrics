@@ -317,7 +317,7 @@
             >
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
             </svg>
-            <h3 class="text-lg font-semibold group-hover/row:text-[#3b82f6]">AI is becoming an integral part of professional work. Shouldn&rsquo;t we be learning how to use AI in this course?</h3>
+            <h3 class="text-lg font-semibold group-hover/row:text-[#3b82f6]">### AI is becoming integral to professional work. Shouldn&rsquo;t we be learning to use it in this course?</h3>
           </summary>
           <div class="pb-5 pl-6 pt-3 space-y-4 leading-7 text-slate-600">
             <p>
@@ -355,7 +355,7 @@
             >
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
             </svg>
-            <h3 class="text-lg font-semibold group-hover/row:text-[#3b82f6]">Some of my classmates are using AI. Will my course grade be hurt if I am not also using AI?</h3>
+            <h3 class="text-lg font-semibold group-hover/row:text-[#3b82f6]">Some of my classmates are using AI. Will my grade be hurt if I do not also use it?</h3>
           </summary>
           <div class="pb-5 pl-6 pt-3 space-y-4 leading-7 text-slate-600">
             <p>
@@ -365,7 +365,7 @@
             </p>
 
             <p>
-              Although AI use is prohibited, I cannot fully enforce that rule on problem sets. For
+              While AI use is prohibited, I cannot fully enforce that rule on problem sets. For
               that reason, problem sets are graded primarily for effort, and you are rewarded for
               completing them successfully only to the extent that you also perform well on the
               corresponding in-class quiz. See the syllabus for the formal grading scheme.
@@ -522,9 +522,9 @@
       </p>
 
       {% if lecture_groups %}
-      <div class="space-y-1">
+      <div id="lecture-groups" class="space-y-1">
         {% for group in lecture_groups %}
-        <details class="group">
+        <details class="group" name="lecture-groups">
           <summary class="group/row flex cursor-pointer items-center gap-2 py-2 list-none [&::-webkit-details-marker]:hidden">
             <svg
               class="h-4 w-4 shrink-0 text-slate-400 transition-transform duration-200 group-open:rotate-90 group-hover/row:text-[#3b82f6]"
@@ -737,20 +737,25 @@
       openFromHash();
     })();
 
-    // Course Expectations: only one question open at a time. Modern browsers
-    // do this natively via the shared name="course-expectations" attribute;
-    // this fallback covers older browsers that ignore it.
+    // Exclusive accordions (Course Expectations, lecture groups): opening one
+    // <details> closes the others in the same box. Modern browsers do this
+    // natively via the shared name="..." attribute; this fallback covers
+    // older browsers that ignore it.
     (function () {
-      var box = document.getElementById("course-expectations");
-      if (!box) return;
-      box.addEventListener("toggle", function (e) {
-        var opened = e.target;
-        if (!opened.open || opened.parentNode !== box) return;
-        var all = box.querySelectorAll("details");
-        for (var i = 0; i < all.length; i++) {
-          if (all[i] !== opened && all[i].open) all[i].open = false;
-        }
-      }, true);
+      var ids = ["course-expectations", "lecture-groups"];
+      for (var k = 0; k < ids.length; k++) {
+        var box = document.getElementById(ids[k]);
+        if (!box) continue;
+        box.addEventListener("toggle", function (e) {
+          var opened = e.target;
+          var wrap = e.currentTarget;
+          if (!opened.open || opened.parentNode !== wrap) return;
+          var all = wrap.querySelectorAll("details");
+          for (var i = 0; i < all.length; i++) {
+            if (all[i] !== opened && all[i].open) all[i].open = false;
+          }
+        }, true);
+      }
     })();
   </script>
 
