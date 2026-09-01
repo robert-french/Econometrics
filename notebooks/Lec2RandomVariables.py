@@ -11,7 +11,7 @@
 
 import marimo
 
-__generated_with = "0.23.6"
+__generated_with = "0.24.0"
 app = marimo.App(
     app_title="Lecture 2: Random Variables and Probability Distributions",
     css_file="marimo-overrides.css",
@@ -123,7 +123,7 @@ def _(mo):
     <a id="sec1"></a>
     ## 2.1 Probability and statistics
 
-    In the last lecture, we distinguished between a population and a sample. The population is what we ultimately want to learn about. It includes the units we could have observed, not just the ones in our data, and the patterns we want to understand, such as how earnings differ by education, how unemployment varies by age, or how wages change over time. The sample is the smaller set of observations we actually collect or observe, such as the roughly sixty thousand households the Bureau of Labor Statistics (BLS) uses each month to produce the official U.S. figures on employment and earnings.
+    In the last lecture, we distinguished between a population and a sample. The population is what we ultimately want to learn about. It includes the entities we could have observed, not just the ones in our data, and the patterns we want to understand, such as how earnings differ by education, how unemployment varies by age, or how wages change over time. The sample is the smaller set of observations we actually collect or observe, such as the roughly sixty thousand households the Bureau of Labor Statistics (BLS) uses each month to produce the official U.S. figures on employment and earnings.
 
     Once we have a sample, we compute numbers that summarize what we see in the data. In the BLS figure from the last lecture, the \$594 gap in median weekly earnings between high school graduates and workers with a bachelor's degree, is one such number. It comes from one particular sample of households. If a different sixty thousand households had been contacted, the gap would probably come out a little different. It might be \$581 in one sample and \$605 in another. A number computed from a sample can therefore vary from one possible sample to another. We call these numbers *sample statistics*.
 
@@ -155,7 +155,7 @@ def _(mo):
 
     A *random variable* is a numerical summary of an outcome or data point we cannot
     predict in advance. We write a random variable with a capital letter such
-    as $X$. The number of emails you get in the next hour is a random
+    as $X$. The number of emails you receive in the next hour is a random
     variable, because before the hour starts we cannot say which value it
     will take, only which values are possible and roughly how likely each is.
     A person's hourly wage is a random variable when we picture drawing one
@@ -328,7 +328,7 @@ def _(mo):
     its average and its spread. The *expected value* of $X$ is the long-run
     average of $X$ across many draws. We write it $\mathbb{E}[X] \equiv
     \mu_X$ and compute it as a weighted average of the possible outcomes,
-    with each outcome weighted by its probability. When $X$ is discrete and
+    with each possible outcome weighted by its probability of occurring. When $X$ is discrete and
     takes $K$ possible values $x_1, \ldots, x_K$ with probabilities
     $p_i = \Pr(X = x_i)$,
 
@@ -377,7 +377,7 @@ def _(mo):
     ### <span style="color:#0b68cb">Discrete random variable example</span>
 
     Suppose the true distribution of emails per hour is the one from Section
-    2, and that over 24 separate hours you record how many emails arrived in
+    2.2, and that over 24 separate hours you record how many emails arrived in
     each one. The first row of the table lists the possible outcomes. The
     second row gives the true probabilities of each possible outcome, which in reality we would not
     know. The third row gives the number of hours in which each outcome was
@@ -531,8 +531,8 @@ def _(mo):
     The first equation says that across many repeats of the experiment, the
     sample means average out to the true population mean. That is why
     $\hat{\mu}_X$ is a sensible guess for $\mu_X$ on any one run. The second
-    equation says the sample mean's spread shrinks as the sample size $n$
-    grows, so a larger sample produces a sample mean that lands closer to
+    equation says the sample mean's variance shrinks as the sample size $n$
+    grows, so a larger sample produces a sample mean that typically lands closer to
     $\mu_X$. Because $\sigma_X$ is itself an unobserved property of the
     population, we approximate it with the sample standard deviation
     $\hat{\sigma}_X$, giving the *standard error* of the sample mean,
@@ -568,10 +568,10 @@ def _(mo):
     everywhere is the central limit theorem, which we introduce in the next section.
 
     The *standard normal distribution* is normal distribution with $\mu = 0$
-    and $\sigma = 1$, written $\mathcal{N}(0, 1)$. It is the version
-    tabulated in textbooks and built into every statistics package. Any
+    and $\sigma = 1$, written $\mathcal{N}(0, 1)$. Any
     normal random variable can be turned into a standard normal random variable by *standardizing*
-    it. If $X \sim \mathcal{N}(\mu, \sigma^2)$, then
+    it. If $X \sim \mathcal{N}(\mu, \sigma^2)$, where $\sim$ is read as
+    ''distributed as'', then
 
     $$ Z = \frac{X - \mu}{\sigma} \sim \mathcal{N}(0, 1). $$
 
@@ -654,12 +654,11 @@ def _(mo):
     distribution of $\hat{\mu}_X$ is well approximated by a bell curve, the
     normal distribution we just described,
 
-    $$ \hat{\mu}_X \ \sim\ \mathcal{N}\!\left(\mu_X,\ \sigma_{\hat{\mu}_X}^2\right), $$
+    $$ \hat{\mu}_X \ \sim\ \mathcal{N}\!\left(\mu_X,\ \sigma_{\hat{\mu}_X}^2\right).$$
 
-    where $\mathcal{N}(\mu_X, \sigma_{\hat{\mu}_X}^2)$ is the normal
+    $\mathcal{N}(\mu_X, \sigma_{\hat{\mu}_X}^2)$ is the normal
     distribution with mean $\mu_X$ and variance
-    $\sigma_{\hat{\mu}_X}^2 = \sigma_X^2 / n$, and $\sim$ is read as
-    ''distributed as''. The remarkable part is that the approximation holds
+    $\sigma_{\hat{\mu}_X}^2 = \sigma_X^2 / n$. The remarkable part is that the approximation holds
     whether or not $X$ itself is normal. The raw data can be sharply
     skewed or piled up at a single value, but as soon as $n$ is at all
     sizeable, the sample means computed from them are distributed normally.
