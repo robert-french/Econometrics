@@ -12,7 +12,7 @@
 
 import marimo
 
-__generated_with = "0.23.6"
+__generated_with = "0.24.0"
 app = marimo.App(
     app_title="Lecture 3: Working With Multiple Random Variables",
     css_file="marimo-overrides.css",
@@ -123,7 +123,7 @@ def _(mo):
 
     In Lecture 2 we focused on one random variable at a time. We defined its distribution, its expected value, and its spread or variance. Most questions in econometrics, however, ask about two variables together. Does a person's earnings depend on their level of education? Does the unemployment rate depend on the inflation rate? To answer these questions we need to extend the tools from one random variable to two.
 
-    A *joint probability distribution* describes how likely each combination of values is for two random variables. When $X$ takes possible values $x_1, x_2, \ldots, x_k$ and $Y$ takes possible values $y_1, y_2, \ldots, y_l$, the joint probability distribution lists the probability of each combination of these possible values, denoted $\mathbb{P}(X = x_i, Y = y_j)$, for every pair $(x_i, y_j)$. The table below shows an example of a joint probability table.
+    A *joint probability distribution* describes how likely each combination of values is for two random variables. When $X$ takes possible values $x_1, x_2, \ldots, x_k$ and $Y$ takes possible values $y_1, y_2, \ldots, y_l$, the joint probability distribution lists the probability of each combination of these possible values, denoted $\mathbb{P}(X = x_i, Y = y_j)$, for every pair $(x_i, y_j)$. The table below shows an example of a joint probability distribution for two discrete random variables.
     """)
     return
 
@@ -148,7 +148,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    The six cells must sum to one because together they cover every possible outcome.
+    The six cells must sum to one because together they cover the probability of every possible outcome.
 
     A *marginal probability distribution* gives the distribution of a single variable, ignoring the other. We compute it by summing the joint probabilities over the values of the other variable. For example, the marginal probability that $X = x_1$ is
 
@@ -379,17 +379,15 @@ def _(mo):
     <a id="sec3"></a>
     ## 3.3 Independence
 
-    Two random variables are *independent* when knowing the value of one is not informative about the value of the other. In probability, that informal statement comes from three equivalent conditions. Specifically, if $X$ and $Y$ are independent, then:
+    Two random variables are *independent* when knowing the value of one is not informative about the value of the other. In probability, independence can be expressed in two equivalent ways and has an important implication. Specifically, if $X$ and $Y$ are independent, then:
 
-    1. The conditional distribution of $Y$ does not depend on $X$ (and vicer versa). That is, $\mathbb{P}(Y = y \mid X = x) = \mathbb{P}(Y = y)$ for every $x$ and $y$.
+    1. The conditional distribution of $Y$ does not depend on $X$ (and vice versa). That is, $\mathbb{P}(Y = y \mid X = x) = \mathbb{P}(Y = y)$ for every $x$ and $y$.
     2. The joint distribution factors into the product of the marginals, $\mathbb{P}(X = x, Y = y) = \mathbb{P}(X = x) \cdot \mathbb{P}(Y = y)$.
-    3. The correlation and the covariance are both zero, $\text{corr}(X, Y) = \sigma_{XY} = 0$.
+    3. The correlation and covariance are both zero, $\text{corr}(X, Y) = \sigma_{XY} = 0$.
 
-    Any one of these conditions can serve as the definition of independence as they each imply the remaining two. And the three conditions above are unchanged when $X$ and $Y$ are swapped.
+    These ideas are easiest to see with a simple example. A coin flip and an unrelated die roll are independent. Knowing that the coin landed heads tells us nothing about which face of the die is showing, so the conditional distribution of the die given the coin is the same as its unconditional distribution. Equivalently, the probability of observing any particular combination, such as heads and a $4$, is simply the probability of heads multiplied by the probability of rolling a $4$. The result of the first die in a pair of rolls, however, is not independent of the sum of the two dice. If we know the sum is $11$, then the first die is very likely a $5$ or a $6$, and definitely not a $1$. The conditional distribution of the first die therefore differs from its unconditional distribution, and the probability of a particular first-die value and sum cannot generally be obtained by multiplying their marginal probabilities.
 
-    For example, a coin flip and an unrelated die roll are independent. Knowing that the coin landed heads tells us nothing about which face of the die is showing, so the conditional distribution of the die given the coin is the same as the unconditional distribution. The result of the first die in a pair of rolls, however, is not independent of the sum of the two dice. If we know the sum is $11$, then the first die is very likely a $5$ or a $6$, and definitely not a $1$. So the conditional distribution of the first die given the sum is different from the unconditional distribution.
-
-    Note, however, that third condition only goes one way. If $X$ and $Y$ are independent, then their correlation is zero. The converse is not true though. Two random variables can have zero correlation and still be dependent on each other, because correlation only captures the linear part of a relationship. You can see this for yourself in the interactive scatter plot of Section 3.2. If you place points in a symmetric arch or trough, the sample correlation will stay near zero even though each point's height is informed by its horizontal position, so the two coordinates are clearly dependent.
+    Either of the first two conditions can serve as the definition of independence, and each implies the third condition. Note, however, that the third condition only goes one way. If $X$ and $Y$ are independent, then their correlation is zero. The converse is not true. Two random variables can have zero correlation and still be dependent because correlation captures only the linear part of their relationship. You can see this for yourself in the interactive scatter plot in Section 3.2. If you arrange the points in a symmetric arch or trough, the sample correlation will remain near zero even though a point's horizontal position is clearly informative about its height. The two coordinates are therefore dependent despite having little or no correlation.
     """)
     return
 
@@ -400,13 +398,11 @@ def _(mo):
     <a id="sec4"></a>
     ## 3.4 Independent and identically distributed
 
-    We say the random variables $X_1, X_2, \ldots, X_n$ are *independently and identically distributed* (i.i.d.) when two conditions hold. First, every $X_i$ has the same distribution. This means each random variable comes from the same underlying population, so the corresponding observations differ only because of random chance, not because they were drawn from different groups. Second, every pair of $X_i$ and $X_j$ with $i \ne j$ is independent. We write $X_i \stackrel{\text{i.i.d.}}{\sim} F$ for random variables drawn i.i.d. from a distribution $F$.
+    We say the random variables $X_1, X_2, \ldots, X_n$ are *independently and identically distributed* (i.i.d.) when two conditions hold. First, every $X_i$ has the same distribution. This means each random variable is drawn from the same underlying population, so differences across observations arise from which members of that population happen to be sampled rather than from drawing from different populations. Second, the $X_i$'s are independent, so knowing the value of one observation provides no information about the values of the others. We write $X_i \stackrel{\text{i.i.d.}}{\sim} F$ when the random variables are drawn independently from the same distribution $F$.
 
-    The sixty thousand households the Census Bureau surveys each month for the Bureau of Labor Statistics are treated as an i.i.d. sample from the population of U.S. households. Each household is drawn at random, so any one household's wage tells us nothing about the wages of the others (independence), and each draw comes from the same underlying population distribution of wages (identically distributed). This i.i.d. assumption is what lets us use the law of large numbers and the central limit theorem from the previous lecture on real survey data.
+    Suppose we randomly sample households from the population of U.S. households and record their incomes. We can treat these incomes as i.i.d. if each household is sampled independently of the others and every household is drawn from the same population. One household's income then tells us nothing about the incomes of the households that will be sampled next (independence), and every draw comes from the same underlying distribution of household income (identically distributed). This i.i.d. assumption is what allows us to apply the law of large numbers and the central limit theorem from the previous lecture to sample data.
 
-    Both parts of i.i.d. can fail in practice. Heights measured within the same family are not independent because tall parents tend to have tall children, so a parent's height is informative about a child's height. Heights are also not identically distributed across people of different ages, because children's heights are systematically smaller than adults'. Sampling a hundred members of one family would violate both conditions.
-
-    The i.i.d. assumption is the starting point for the estimator properties we study in the next lecture. When it is in doubt, the methods of this course must be adjusted, and parts of the course later on (e.g., panel data) deal with exactly those settings.
+    Both parts of i.i.d. can fail in practice. Heights measured among members of the same family may not be independent because relatives share genes and environment, so knowing one family member's height can be informative about another's. Observations may also fail to be identically distributed. For example, if our sample includes both children and adults, their heights come from systematically different distributions because height varies with age.
     """)
     return
 
@@ -431,7 +427,7 @@ def _(mo):
     4. Covariance is symmetric and linear in each argument. Symmetry means that the order of the two variables does not matter. Linearity means that the covariance between one variable and a sum can be split into separate covariances,
     $$ \text{cov}(X, Y) = \text{cov}(Y, X), \qquad \text{cov}(X, Y + Z) = \text{cov}(X, Y) + \text{cov}(X, Z). $$
 
-    5. The variance of a sum depends on whether the random variables move together. If $X_1, X_2, \ldots, X_n$ are i.i.d. with variance $\sigma_X^2$, then the variance of the sum is simply $n$ times the variance of one draw,
+    5. The variance of a sum depends on whether the random variables are independent or not. If $X_1, X_2, \ldots, X_n$ are i.i.d. with variance $\sigma_X^2$, then the variance of the sum is simply $n$ times the variance of one draw,
     $$ \text{var}(X_1 + X_2 + \cdots + X_n) = n \sigma_X^2. $$
 
     Notice that the variance of the sample mean from Lecture 2 follows directly from Rule 5. If
@@ -491,11 +487,11 @@ def _(mo):
 
         $$ \text{cov}(X, Y) \equiv \sigma_{XY} = \mathbb{E}\big[(X - \mu_X)(Y - \mu_Y)\big]. $$
 
-        This is the same quantity. The expectation $\mathbb{E}[\cdot]$ is itself a probability-weighted sum, so expanding it reproduces the double sum from Section 3.2. More advanced treatments use this compact form throughout.
+        This is the same quantity. The expectation $\mathbb{E}[\cdot]$ is itself a probability-weighted sum, defined in Section 2.3, so expanding it reproduces the double sum from Section 3.2. This formulation is more common in advanced work.
 
         **Proof of the linearity of the expected value.**
 
-        We show that $\mathbb{E}[a + b X] = a + b \mathbb{E}[X]$ when $X$ is a discrete random variable taking values $x_1, x_2, \ldots, x_K$ with probabilities $p_1, p_2, \ldots, p_K$.
+        Here, we show mathematically that $\mathbb{E}[a + b X] = a + b \mathbb{E}[X]$ when $X$ is a discrete random variable taking values $x_1, x_2, \ldots, x_K$ with probabilities $p_1, p_2, \ldots, p_K$.
 
         Define $Y = a + b X$. The random variable $Y$ takes the value $a + b x_i$ with probability $p_i$. Its expected value is
 
@@ -505,7 +501,7 @@ def _(mo):
 
         $$ \mathbb{E}[Y] = \sum_{i=1}^{K} a \, p_i + \sum_{i=1}^{K} b \, x_i \, p_i = a \sum_{i=1}^{K} p_i + b \sum_{i=1}^{K} x_i \, p_i. $$
 
-        The first sum is $a$ times the total probability, which equals $1$ because the $p_i$ cover all outcomes. The second sum is $b$ times the expected value of $X$. So
+        The first sum is $a$ times the total probability, which equals $1$ because the $p_i$ cover all possible outcomes. The second sum is $b$ times the expected value of $X$. So
 
         $$ \mathbb{E}[a + b X] = a \cdot 1 + b \cdot \mathbb{E}[X] = a + b \mathbb{E}[X]. $$
 
