@@ -478,46 +478,42 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(mo):
-    _text = mo.md(r"""
-        This is bonus material. You will not be tested on the content of the appendix.
+    # One paragraph per vstack item so the accordion spacing follows the
+    # same uniform gap used in Lecture 2.
+    _bonus = mo.md(r"""This is bonus material. You will not be tested on the content of the appendix.""")
 
-        **The covariance written with the expectation operator.**
+    _p1 = mo.md(r"""**The covariance written with the expectation operator.** Section 3.2 defined the covariance as a double sum over the joint distribution. It can be written more compactly with the expectation operator.""")
+    _eq1 = mo.md(
+        r"""<span style='display:block;text-align:center;margin:0.8rem auto 0.25rem;'>$\displaystyle \text{cov}(X, Y) \equiv \sigma_{XY} = \mathbb{E}\big[(X - \mu_X)(Y - \mu_Y)\big].$</span>"""
+    )
+    _p2 = mo.md(r"""This is the same quantity. The expectation $\mathbb{E}[\cdot]$ is itself a probability-weighted sum, defined in Section 2.3, so expanding it reproduces the double sum from Section 3.2. This formulation is more common in advanced work.""")
 
-        Section 3.2 defined the covariance as a double sum over the joint distribution. It can be written more compactly with the expectation operator,
+    _p3 = mo.md(r"""**Proof of the linearity of the expected value.** Here, we show mathematically that $\mathbb{E}[a + b X] = a + b \mathbb{E}[X]$ when $X$ is a discrete random variable taking values $x_1, x_2, \ldots, x_K$ with probabilities $p_1, p_2, \ldots, p_K$.""")
+    _p4 = mo.md(r"""Define $Y = a + b X$. The random variable $Y$ takes the value $a + b x_i$ with probability $p_i$. Its expected value is""")
+    _eq2 = mo.md(
+        r"""<span style='display:block;text-align:center;margin:0.8rem auto 0.25rem;'>$\displaystyle \mathbb{E}[Y] = \sum_{i=1}^{K} (a + b x_i) \, p_i.$</span>"""
+    )
+    _p5 = mo.md(r"""Distribute the multiplication and split the sum into two parts,""")
+    _eq3 = mo.md(
+        r"""<span style='display:block;text-align:center;margin:0.8rem auto 0.25rem;'>$\displaystyle \mathbb{E}[Y] = \sum_{i=1}^{K} a \, p_i + \sum_{i=1}^{K} b \, x_i \, p_i = a \sum_{i=1}^{K} p_i + b \sum_{i=1}^{K} x_i \, p_i.$</span>"""
+    )
+    _p6 = mo.md(r"""The first sum is $a$ times the total probability, which equals $1$ because the $p_i$ cover all possible outcomes. The second sum is $b$ times the expected value of $X$. So""")
+    _eq4 = mo.md(
+        r"""<span style='display:block;text-align:center;margin:0.8rem auto 0.25rem;'>$\displaystyle \mathbb{E}[a + b X] = a \cdot 1 + b \cdot \mathbb{E}[X] = a + b \mathbb{E}[X].$</span>"""
+    )
+    _p7 = mo.md(r"""The same argument extends to a sum of several random variables, giving linearity of the expected value in full generality.""")
 
-        $$ \text{cov}(X, Y) \equiv \sigma_{XY} = \mathbb{E}\big[(X - \mu_X)(Y - \mu_Y)\big]. $$
-
-        This is the same quantity. The expectation $\mathbb{E}[\cdot]$ is itself a probability-weighted sum, defined in Section 2.3, so expanding it reproduces the double sum from Section 3.2. This formulation is more common in advanced work.
-
-        **Proof of the linearity of the expected value.**
-
-        Here, we show mathematically that $\mathbb{E}[a + b X] = a + b \mathbb{E}[X]$ when $X$ is a discrete random variable taking values $x_1, x_2, \ldots, x_K$ with probabilities $p_1, p_2, \ldots, p_K$.
-
-        Define $Y = a + b X$. The random variable $Y$ takes the value $a + b x_i$ with probability $p_i$. Its expected value is
-
-        $$ \mathbb{E}[Y] = \sum_{i=1}^{K} (a + b x_i) \, p_i. $$
-
-        Distribute the multiplication and split the sum into two parts,
-
-        $$ \mathbb{E}[Y] = \sum_{i=1}^{K} a \, p_i + \sum_{i=1}^{K} b \, x_i \, p_i = a \sum_{i=1}^{K} p_i + b \sum_{i=1}^{K} x_i \, p_i. $$
-
-        The first sum is $a$ times the total probability, which equals $1$ because the $p_i$ cover all possible outcomes. The second sum is $b$ times the expected value of $X$. So
-
-        $$ \mathbb{E}[a + b X] = a \cdot 1 + b \cdot \mathbb{E}[X] = a + b \mathbb{E}[X]. $$
-
-        The same argument extends to a sum of several random variables, giving linearity of the expected value in full generality.
-
-        **The variance of a sum when the variables are not i.i.d.**
-
-        Rule 5 in Section 3.5 covers the i.i.d. case, where the variance of a sum is $n$ times the variance of one variable. In general, the variance of a sum also depends on the covariances between every pair of variables,
-
-        $$ \text{var}\left(\sum_{i=1}^{n} X_i\right) = \sum_{i=1}^{n} \text{var}(X_i) + 2 \sum_{i < j} \text{cov}(X_i, X_j). $$
-
-        When the variables are i.i.d., every covariance is zero and the double sum drops out, leaving $\text{var}\left(\sum_{i=1}^{n} X_i\right) = n \sigma_X^2$. When the variables are not independent, the covariances do not vanish. Positive covariances make the sum more variable, and negative covariances make it less variable, so the variance of a sum is larger or smaller depending on whether the variables tend to move together or in opposite directions.
-        """)
+    _p8 = mo.md(r"""**The variance of a sum when the variables are not i.i.d.** Rule 5 in Section 3.5 covers the i.i.d. case, where the variance of a sum is $n$ times the variance of one variable. In general, the variance of a sum also depends on the covariances between every pair of variables,""")
+    _eq5 = mo.md(
+        r"""<span style='display:block;text-align:center;margin:0.8rem auto 0.25rem;'>$\displaystyle \text{var}\left(\sum_{i=1}^{n} X_i\right) = \sum_{i=1}^{n} \text{var}(X_i) + 2 \sum_{i < j} \text{cov}(X_i, X_j).$</span>"""
+    )
+    _p9 = mo.md(r"""When the variables are i.i.d., every covariance is zero and the double sum drops out, leaving $\text{var}\left(\sum_{i=1}^{n} X_i\right) = n \sigma_X^2$. When the variables are not independent, the covariances do not vanish. Positive covariances make the sum more variable, and negative covariances make it less variable, so the variance of a sum is larger or smaller depending on whether the variables tend to move together or in opposite directions.""")
 
     mo.accordion({
-        "## Appendix": mo.vstack([_text]),
+        "## Appendix": mo.vstack(
+            [_bonus, _p1, _eq1, _p2, _p3, _p4, _eq2, _p5, _eq3, _p6, _eq4, _p7, _p8, _eq5, _p9],
+            gap=1,
+        ),
     })
     return
 
