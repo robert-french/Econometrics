@@ -195,7 +195,7 @@ def _(mo):
 
     $$ \mathbb{P}(Y = y_1 \mid X = x_1) = \frac{0.10}{0.30} = \frac{1}{3}. $$
 
-    We could similarly compute $\mathbb{P}(X = x_2 \mid Y = 2_2)$, or any other such combination. Bayes' rule turns up in many places in statistics. For this course, it is the bridge between the joint distribution and the conditional distribution.
+    We could similarly compute $\mathbb{P}(X = x_2 \mid Y = y_2)$, or any other such combination. Bayes' rule turns up in many places in statistics. For this course, it is the bridge between the joint distribution and the conditional distribution.
     """)
     return
 
