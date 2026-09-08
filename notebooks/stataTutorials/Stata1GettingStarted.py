@@ -12,7 +12,7 @@ __preliminary__ = True
 __description__ = "Open Stata, load a dataset, and run your first commands."
 app = marimo.App(
     app_title="Stata Tutorial 1: Getting Started with Stata",
-    css_file="marimo-overrides.css",
+    css_file="../marimo-overrides.css",
 )
 
 

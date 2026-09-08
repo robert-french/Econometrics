@@ -12,7 +12,7 @@ __preliminary__ = True
 __description__ = "Worked solutions for Problem Set 1."
 app = marimo.App(
     app_title="Problem Set 1: Probability and Random Variables",
-    css_file="marimo-overrides.css",
+    css_file="../marimo-overrides.css",
 )
 
 
