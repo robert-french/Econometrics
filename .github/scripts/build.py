@@ -201,6 +201,7 @@ def _extract_preliminary(notebook_path: Path) -> bool:
 _KEY_TERM_LABELS = (
     "**Terms:**",
     "**Concepts:**",
+    "**Habits:**",
     "Key terms covered:",
     "Key concepts covered:",
 )
@@ -231,6 +232,9 @@ def _extract_key_terms(notebook_path: Path) -> Optional[str]:
         for label in _KEY_TERM_LABELS:
             cleaned = cleaned.replace(label, "")
         cleaned = cleaned.replace("**", "")
+        # Backticks mark inline code in the rendered callout but would show up
+        # as literal characters on the index cards, so drop them here.
+        cleaned = cleaned.replace("`", "")
         parts = [
             seg.strip().strip(".").strip()
             for seg in cleaned.split("\n")
