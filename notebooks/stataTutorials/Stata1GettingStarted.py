@@ -279,11 +279,9 @@ def _(mo):
 
     The first line stores the path to your data folder in a local named `dataFolder`.
 
-    The second line loads the dataset. Stata replaces `` `dataFolder' `` with the stored path, so the `use` command sees the full path to the file.
+    The second line loads the dataset. Stata replaces `` `dataFolder' `` with the stored path, so the `use` command sees the full path to the file. The `clear` option tells Stata to remove any data currently in memory before loading the new dataset. Without it, Stata will refuse to open the dataset if there is unsaved data already loaded.
 
-    The `clear` option tells Stata to remove any data currently in memory before loading the new dataset. Without it, Stata will refuse to open the dataset if there is unsaved data already loaded.
-
-    Why should you use a local? Using a local means your data path appears only once, at the top of the do-file. If you later load the data again, save results, or move the project to another computer, you only need to update that one line. It also makes your do-file more portable; a classmate or I can run it after changing only the path at the top. Note, however, that a local exists only while the do-file is running. If you run the `use` line by itself, `` `dataFolder' `` will be empty, and Stata will report `file /econ3300_educ_income_2024.dta not found`.  When in doubt, run the do-file from the top using the Execute (do) button.
+    Why should you use a local? Using a local means your data path appears only once, at the top of the do-file. If you later load the data again, save results, or move the project to another computer, you only need to update that one line. It also makes your do-file more portable; a classmate or I can run it after changing only the path at the top of your do-file. Note, however, that a local exists only while the do-file is running. If you run the `use` line by itself, `` `dataFolder' `` will be empty, and Stata will report `file /econ3300_educ_income_2024.dta not found`.  When in doubt, run the do-file from the top using the Execute (do) button.
 
     After the do-file runs successfully, check the Variables pane on the right. You should see the variables from the dataset listed there, confirming that the data loaded correctly.
     """)
@@ -312,9 +310,7 @@ def _(mo):
     describe
     ```
 
-    The output from `describe` tells you how many observations are in the dataset and how many variables it contains. In this dataset, each observation represents a person, so the number of observations tells you how many people are in the sample. The table below the header lists each variable and provides information about how Stata stores and labels it.
-
-    Get in the habit of running `describe` immediately after loading a dataset. It helps you understand what you are working with and can quickly reveal mistakes, such as loading the wrong file.
+    The output from `describe` tells you how many observations are in the dataset and how many variables it contains. In this dataset, each observation represents a person, so the number of observations tells you how many people are in the sample. The table below the header lists each variable and provides information about how Stata stores and labels it. Get in the habit of running `describe` immediately after loading a dataset. It helps you understand what you are working with and can quickly reveal mistakes, such as loading the wrong file.
     """)
     return
 
@@ -336,11 +332,9 @@ def _(mo):
     summarize earnings education
     ```
 
-    Each row of the output corresponds to one variable. The `Obs` column reports the number of observations with a value for that variable. The `Mean` column reports the sample mean, `Std. dev.` reports the sample standard deviation, and `Min` and `Max` report the smallest and largest values.
+    Each row of the output corresponds to one variable. The `Obs` column reports the number of observations with a value for that variable. The `Mean` column reports the sample mean, `Std. dev.` reports the sample standard deviation, and `Min` and `Max` report the smallest and largest values. These are the estimators from Lecture 2. The `Mean` column reports the sample mean $\hat{\mu}_X$, while the `Std. dev.` column reports the sample standard deviation $\hat{\sigma}_X$. Both are calculated using the observations in this sample.
 
-    These are the estimators from Lecture 2. The `Mean` column reports the sample mean $\hat{\mu}_X$, while the `Std. dev.` column reports the sample standard deviation $\hat{\sigma}_X$. Both are calculated using the observations in this sample.
-
-    Now look at the `Max` value for `earnings`. Survey datasets sometimes use special numeric codes for missing or top-coded values, so unusually large or otherwise suspicious values can signal that the data need to be cleaned before analysis. Spotting values like these is one reason we run `summarize` before beginning our analysis. We will deal with cleaning steps in the next tutorial.
+    Now look at the `Max` value for `earnings`. Survey datasets sometimes use special numeric codes for missing or top-coded values, so unusually large or otherwise suspicious values can signal that the data need to be cleaned before analysis. Spotting values like these is one reason we run `summarize` before beginning our analysis. We will define and talk more about data cleaning in the next tutorial.
 
     Your complete do-file should now look something like this.
 
