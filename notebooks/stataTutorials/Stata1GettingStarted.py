@@ -43,7 +43,7 @@ def _(mo):
                 1. [Do-files](#sec3)
                 1. [Folders and file paths](#sec4)
                 1. [Downloading the course dataset](#sec5)
-                1. [Loading the dataset with a local](#sec6)
+                1. [Loading the dataset in a do-file with a local](#sec6)
                 1. [describe and summarize](#sec7)
                 """
             ),
@@ -66,12 +66,6 @@ def _(mo):
     mo.md(r"""
     <a id="top"></a>
     # Stata Tutorial 1: Getting Started with Stata
-
-    This tutorial walks you through your first Stata session, from installing the
-    program to running your first commands on real data. The gray code blocks show
-    Stata commands. They do not run in the browser, so open Stata and type along
-    as you read. By the end you will have a working do-file that loads a dataset
-    from your computer and reports descriptive statistics for it.
     """)
     return
 
@@ -86,7 +80,7 @@ def _(mo):
     3 [Do-files](#sec3)<br>
     4 [Folders and file paths](#sec4)<br>
     5 [Downloading the course dataset](#sec5)<br>
-    6 [Loading the dataset with a local](#sec6)<br>
+    6 [Loading the dataset in a do-file with a local](#sec6)<br>
     7 [describe and summarize](#sec7)
     """)
     return
@@ -105,8 +99,8 @@ def _(mo):
        <a href="https://its.lmu.edu/whatwedo/computingsoftware/at-homesoftware/at-homesoftwareforstudents/" target="_blank">At-Home Software for Students</a>
        page.
     2. Click on the Stata link in the software list and follow the instructions to ''click here'' to install Stata.
-    3. Log in to your LMU account and download the installer for Mac or Windows depending on your operating system
-    4. Record the license information shown on the page (Serial number, Code, Authorization).
+    3. Log in to your LMU account and download the relevant installer, either for Mac or Windows.
+    4. Record the license information shown on the download page (Serial number, Code, Authorization).
     5. Run the installer, accepting the default options, and enter the license
        information when prompted.
 
@@ -129,7 +123,7 @@ def _(mo):
     <a id="sec2"></a>
     ## 2 A first look at Stata
 
-    Open Stata. The window is split into several panes. The three you will use
+    Open Stata from your computer. You'll see that the window is split into several panes. The three you will use
     constantly are:
 
     - The **Command** window at the bottom, where you type commands.
@@ -138,7 +132,7 @@ def _(mo):
     - The **Variables** pane on the right, which lists the variables in the
       dataset that is currently loaded (its default is empty).
 
-    Try your first command. Click in the Command window, type the line below, and
+    Enter your first command: Click in the Command window, type the line below, and
     press Enter.
 
     ```stata
@@ -166,17 +160,16 @@ def _(mo):
     <a id="sec3"></a>
     ## 3 Do-files
 
-    Typing commands one at a time is fine for quick experiments, but real work
-    happens in a *do-file*. A do-file is a plain text file of Stata commands that
+    Typing commands one at a time in the Command window is fine for quick experiments, but you should do real work
+    in a *do-file*. A do-file is a plain text file of Stata commands that
     Stata runs from top to bottom. Do-files matter because your analysis should be
-    *reproducible*. Six weeks from now you should be able to rerun your work with
+    *reproducible*. Six weeks from now you should be able to rerun your analysis with
     one click and get exactly the same results, and I should be able to run your
-    do-file and see everything you did in your problem set solutio or research project.
-    In this course, all of your Stata work belongs in a do-file.
+    do-file and see everything you did in your problem set solution or research project.
 
-    To create one, click the **New Do-file Editor** button on the toolbar (or press
+    To create a do-file, click the **New Do-file Editor** button on the toolbar (or press
     Ctrl+9 on Windows, Cmd+9 on Mac). A blank text editor will open that you can type on.
-    Type the lines below to get started:
+    Type the lines below to start your first do-file:
 
     ```stata
     * Stata Tutorial 1
@@ -192,10 +185,10 @@ def _(mo):
 
     Save the file as `tutorial1.do`, then run it with the **Execute (do)** button
     at the top right of the editor (Ctrl+D on Windows, Shift+Cmd+D on Mac). Stata
-    runs every line in order and prints the results. If you highlight only some lines
-    first, the same button runs just the highlighted lines, which is handy for
-    testing one piece of a longer file. Keep this do-file open. You will add to it
-    for the rest of the tutorial.
+    runs every line in order and prints the results in the Command window. If you
+    highlight only some lines first, the same button runs just the highlighted lines,
+    which is handy for testing one piece of a longer file. Keep this do-file open.
+    You will add to it for the rest of the tutorial.
     """)
     return
 
@@ -224,6 +217,8 @@ def _(mo):
     A *file path* like these is simply the address of a folder or file. You will
     need to paste your data folder's path into your do-file in the next section,
     and the easiest way to get it exactly right is to copy it rather than type it.
+    How you obtain your data folder's path depends on whether you are using Windows
+    or are a Mac.
 
     **On Windows.** Open File Explorer and navigate into your `data` folder. Click
     the address bar at the top of the window, and the path appears as text,
@@ -250,7 +245,7 @@ def _(mo):
     ## 5 Downloading a Stata dataset
 
     Let's start working with some data. Click the link below to download a sample dataset
-    recording information on education, earnings, and a few other individual characteristics.
+    recording information on education, earnings, and a few other characteristics for a sample of individuals.
 
     <a href="https://robert-french.github.io/Econometrics/stata1tutorial/econ3300_educ_income_2024.dta" download>
     <strong>Download the dataset: econ3300_educ_income_2024.dta</strong></a>
@@ -269,7 +264,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec6"></a>
-    ## 6 Loading the dataset with a local
+    ## 6 Loading the dataset in a do-file with a local
 
     You could load the dataset by writing its full path directly into the `use`
     command. Instead, we will store the path once in a *local* and refer to the
@@ -279,7 +274,7 @@ def _(mo):
     the right. The backtick is on the same key as the tilde `~`, in the top left
     corner of most keyboards.
 
-    Add the following lines to your do-file, replacing the path (i.e., the file location inside the quotations) with the one you
+    Add the following lines to your do-file, replacing the path (i.e., the file location inside the quotation marks) with the one you
     copied from your own computer in Section 4.
 
     ```stata
@@ -292,9 +287,9 @@ def _(mo):
 
     The second line loads the dataset. Stata replaces `` `dataFolder' `` with the stored path, so the `use` command sees the full path to the file.
 
-    The `clear` option tells Stata to remove any data currently in memory before loading the new dataset. Without it, Stata will refuse to replace unsaved data.
+    The `clear` option tells Stata to remove any data currently in memory before loading the new dataset. Without it, Stata will refuse to open the dataset if there is unsaved data already loaded.
 
-    Why use a local? Using a local means your data path appears only once, at the top of the do-file. If you later load the data again, save results, or move the project to another computer, you only need to update that one line. It also makes your do-file more portable; a classmate or I can run it after changing only the path at the top.
+    Why should you use a local? Using a local means your data path appears only once, at the top of the do-file. If you later load the data again, save results, or move the project to another computer, you only need to update that one line. It also makes your do-file more portable; a classmate or I can run it after changing only the path at the top.
 
     **Run the whole do-file, not individual lines.** A local exists only while the do-file is running. If you run the `use` line by itself, `` `dataFolder' `` will be empty, and Stata will report `file /econ3300_educ_income_2024.dta not found`.  When in doubt, run the do-file from the top using the Execute (do) button.
 
@@ -317,7 +312,7 @@ def _(mo):
     <a id="sec7"></a>
     ## 7 describe and summarize
 
-    With the data loaded, two commands give you a first look at any dataset.
+    With the data loaded, you can examine the dataset using two commands.
 
     **`describe`** reports the dataset's structure. It tells you how many observations (rows) and variables (columns) it contains, along with each variable's name, storage type, and label. Add it to your do-file after the `use` line and rerun the file.
 
@@ -353,7 +348,7 @@ def _(mo):
 
     These are the estimators from Lecture 2. The `Mean` column reports the sample mean $\hat{\mu}_X$, while the `Std. dev.` column reports the sample standard deviation $\hat{\sigma}_X$. Both are calculated using the observations in this sample.
 
-    Now look at the `Max` value for `earnings`. Survey datasets sometimes use special numeric codes for missing or top-coded values, so unusually large or otherwise suspicious values can signal that the data need to be cleaned before analysis. Spotting values like these is one reason we run `summarize` before beginning our analysis. We will deal with cleaning steps, including dropping these codes, in the next tutorial.
+    Now look at the `Max` value for `earnings`. Survey datasets sometimes use special numeric codes for missing or top-coded values, so unusually large or otherwise suspicious values can signal that the data need to be cleaned before analysis. Spotting values like these is one reason we run `summarize` before beginning our analysis. We will deal with cleaning steps in the next tutorial.
 
     Your complete do-file should now look something like this.
 
