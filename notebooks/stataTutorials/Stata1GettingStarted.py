@@ -132,16 +132,14 @@ def _(mo):
     - The **Variables** pane on the right, which lists the variables in the
       dataset that is currently loaded (its default is empty).
 
-    Enter your first command: Click in the Command window, type the line below, and
-    press Enter.
+    Enter your first command by clicking in the Command window, typing the line below, and
+    pressing Enter.
 
     ```stata
     display 2 + 2
     ```
 
-    Stata echoes the command in the Results window and prints the answer, `4`.
-    Every Stata command follows this pattern. You issue a command, and Stata prints
-    the result.
+    Stata reproduces the command in the Results window and prints the answer, `4`.
     """)
     return
 
@@ -218,7 +216,7 @@ def _(mo):
     need to paste your data folder's path into your do-file in the next section,
     and the easiest way to get it exactly right is to copy it rather than type it.
     How you obtain your data folder's path depends on whether you are using Windows
-    or are a Mac.
+    or a Mac.
 
     **On Windows.** Open File Explorer and navigate into your `data` folder. Click
     the address bar at the top of the window, and the path appears as text,
@@ -266,13 +264,9 @@ def _(mo):
     <a id="sec6"></a>
     ## 6 Loading the dataset in a do-file with a local
 
-    You could load the dataset by writing its full path directly into the `use`
-    command. Instead, we will store the path once in a *local* and refer to the
-    local everywhere else. A local is a named piece of text. You define it with
-    the `local` command, and you plug its contents into another command by
-    wrapping the name in a backtick `` ` `` on the left and an apostrophe `'` on
-    the right. The backtick is on the same key as the tilde `~`, in the top left
-    corner of most keyboards.
+    Stata loads datasets with the `use` command. You could write the dataset's full path directly into that command, but instead we will store the path once in a *local* and refer to it whenever we need it.
+
+    A local is a named piece of text. You create one with the `local` command. To insert its contents into another command, wrap the local's name in a backtick `` ` `` on the left and an apostrophe `'` on the right. The backtick is on the same key as the tilde `~`, near the top left of most keyboards.
 
     Add the following lines to your do-file, replacing the path (i.e., the file location inside the quotation marks) with the one you
     copied from your own computer in Section 4.
@@ -289,9 +283,7 @@ def _(mo):
 
     The `clear` option tells Stata to remove any data currently in memory before loading the new dataset. Without it, Stata will refuse to open the dataset if there is unsaved data already loaded.
 
-    Why should you use a local? Using a local means your data path appears only once, at the top of the do-file. If you later load the data again, save results, or move the project to another computer, you only need to update that one line. It also makes your do-file more portable; a classmate or I can run it after changing only the path at the top.
-
-    **Run the whole do-file, not individual lines.** A local exists only while the do-file is running. If you run the `use` line by itself, `` `dataFolder' `` will be empty, and Stata will report `file /econ3300_educ_income_2024.dta not found`.  When in doubt, run the do-file from the top using the Execute (do) button.
+    Why should you use a local? Using a local means your data path appears only once, at the top of the do-file. If you later load the data again, save results, or move the project to another computer, you only need to update that one line. It also makes your do-file more portable; a classmate or I can run it after changing only the path at the top. Note, however, that a local exists only while the do-file is running. If you run the `use` line by itself, `` `dataFolder' `` will be empty, and Stata will report `file /econ3300_educ_income_2024.dta not found`.  When in doubt, run the do-file from the top using the Execute (do) button.
 
     After the do-file runs successfully, check the Variables pane on the right. You should see the variables from the dataset listed there, confirming that the data loaded correctly.
     """)
