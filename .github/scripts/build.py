@@ -508,6 +508,9 @@ def main(
             if asset.is_file():
                 shutil.copy2(asset, output_dir / asset.name)
                 logger.info(f"Copied static asset {asset.name} to {output_dir}")
+            elif asset.is_dir():
+                shutil.copytree(asset, output_dir / asset.name, dirs_exist_ok=True)
+                logger.info(f"Copied static asset folder {asset.name} to {output_dir}")
 
     logger.info(f"Build completed successfully. Output directory: {output_dir}")
 
