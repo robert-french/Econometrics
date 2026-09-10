@@ -341,8 +341,10 @@ def _(mo):
     ```stata
     * Stata Tutorial 1
     * Your name, and today's date
+
     local dataFolder "C:/Users/yourname/Documents/ECON3300/data"
     use "`dataFolder'/econ3300_educ_income_2024.dta", clear
+    
     describe
     summarize earnings education
     ```
