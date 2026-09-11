@@ -22,7 +22,7 @@ outline as a placeholder. When the notebook is written, fill in its stem and
 rerun update_sidebars.py.
 """
 
-POSTED_THROUGH = 3
+POSTED_THROUGH = 4
 
 BASE_URL = "https://robert-french.github.io/Econometrics"
 
