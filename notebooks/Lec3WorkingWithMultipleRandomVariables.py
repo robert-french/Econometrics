@@ -424,8 +424,9 @@ def _(mo):
     3. The variance of a shifted and scaled random variable follows a different rule. Adding a constant does not change the variance, but multiplying by a constant multiplies the variance by the square of that constant. For any constants $a$ and $b$,
     $$ \text{var}(a + b X) = b^2 \sigma_X^2. $$
 
-    4. Covariance is symmetric and linear in each argument. Symmetry means that the order of the two variables does not matter. Linearity means that the covariance between one variable and a sum can be split into separate covariances,
-    $$ \text{cov}(X, Y) = \text{cov}(Y, X), \qquad \text{cov}(X, Y + Z) = \text{cov}(X, Y) + \text{cov}(X, Z). $$
+    4. Covariance is symmetric and linear in each argument. Symmetry means that the order of the two variables does not matter. The covariance of a variable with itself is simply its variance. Linearity means that the covariance between one variable and a sum can be split into separate covariances,
+    $$ \text{cov}(X, Y) = \text{cov}(Y, X), \qquad \text{cov}(X, X) = \text{var}(X), $$
+    $$ \text{cov}(X, Y + Z) = \text{cov}(X, Y) + \text{cov}(X, Z). $$
 
     5. The variance of a sum depends on whether the random variables are independent or not. If $X_1, X_2, \ldots, X_n$ are i.i.d. with variance $\sigma_X^2$, then the variance of the sum is simply $n$ times the variance of one draw,
     $$ \text{var}(X_1 + X_2 + \cdots + X_n) = n \sigma_X^2. $$
