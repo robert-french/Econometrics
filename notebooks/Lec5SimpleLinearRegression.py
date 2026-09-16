@@ -127,13 +127,11 @@ def _(mo):
     Y_i = \beta_0 + \beta_1 X_i + u_i, \qquad i = 1, \ldots, n.
     $$
 
-    Here $Y_i$ is the *dependent variable*, or the outcome we want to explain. In this example, $Y_i$ is worker $i$'s hourly wage. The variable $X_i$ is the *independent variable*, or the variable we use to explain the outcome. Here, $X_i$ is worker $i$'s years of education. $i$ is simply an index that refers to a single worker among $1, \ldots, n$ possible workers.
+    Here $Y_i$ is the *dependent variable*, or the outcome we want to explain. In this example, $Y_i$ is worker $i$'s hourly wage. The variable $X_i$ is the *independent variable*, or the variable we use to explain the outcome. Here, $X_i$ is worker $i$'s years of education. $i$ is simply an index that refers to a single worker among $1, \ldots, n$ possible workers.     The term $u_i$ is the *error term*. It represents the part of worker $i$'s wage that is not explained by education in the population regression model. In other words, it includes all the other factors, besides education, that affect wages.
 
     The expression $\beta_0 + \beta_1 X$ is the *population regression line*. The *intercept* $\beta_0$ is the value of the population regression line when $X = 0$. The *slope* $\beta_1$ describes how $Y$ changes when $X$ increases by one unit, holding the error term fixed. In the wage and education example, $\beta_1$ is the change in hourly wages from one more year of education, holding fixed the other determinants of wages in $u_i$.
 
-    The term $u_i$ is the *error term*. It represents the part of worker $i$'s wage that is not explained by education in the population regression model. In other words, it includes all the other factors, besides education, that affect wages.
-
-    The intercept $\beta_0$ and slope $\beta_1$ are population parameters. We cannot observe them directly, just as we could not directly observe the population mean $\mu_X$ in Lecture 2. Moreover, because $\beta_0$ and $\beta_1$ are population parameters, we cannot use them to compute the true error term $u_i$. The next section shows how to estimate the population parameters $\beta_0$ and $\beta_1$ using a sample.
+    The intercept $\beta_0$ and slope $\beta_1$ are population parameters. We cannot observe them directly, just as we could not directly observe the population mean $\mu_X$ in Lecture 2. The next section shows how to estimate the population parameters $\beta_0$ and $\beta_1$ using a sample.
     """)
     return
 
@@ -146,11 +144,9 @@ def _(mo):
 
     The population regression model contains two unknown parameters, the intercept $\beta_0$ and the slope $\beta_1$. If we knew these values, we would know the population regression line. But in practice, we only have a sample of observations on wages and education. We therefore use the sample to estimate the population line.
 
-    The basic idea is simple. We draw a line through the sample data and use that line as our estimate of the population regression line. The intercept and slope of the sample line are our estimates of $\beta_0$ and $\beta_1$. To draw this line, we need a rule for choosing among all possible lines. A natural rule is to choose the line that comes closest to the data points. For a candidate line with intercept $b_0$ and slope $b_1$, the predicted value of $Y$ for observation $i$ is $b_0 + b_1 X_i$. The *residual* is the gap between the actual value of $Y_i$ and the value predicted by this candidate line for observation $i$, $Y_i - (b_0 + b_1 X_i)$.<sup><a id="fnref1" href="#fn1">1</a></sup>
+    The basic idea of ordinary least squares is quite simple. We draw a line through the sample data and use that line as our estimate of the population regression line. The intercept and slope of the sample line are our estimates of $\beta_0$ and $\beta_1$. To draw this line, we need a rule (i.e., an estimator) for choosing among all possible lines. A natural rule is to choose the line that comes closest to the data points. For a candidate line with intercept $b_0$ and slope $b_1$, the predicted value of $Y$ for observation $i$ is $b_0 + b_1 X_i$. The *residual* is the gap between the actual value of $Y_i$ and the value predicted by this candidate line for observation $i$, $Y_i - (b_0 + b_1 X_i)$.<sup><a id="fnref1" href="#fn1">1</a></sup>
 
-    A line fits the sample well when its residuals are small. Some residuals are positive and some are negative, so adding them directly would allow them to cancel out. Instead, we square each residual and then add the squared residuals across all observations. Squaring makes every residual count as positive and gives extra weight to large residuals.
-
-    *Ordinary least squares*, or OLS, chooses the intercept and slope that make the *sum of squared residuals* as small as possible,
+    A line fits the sample well when its residuals are small. Some residuals are positive and some are negative, so adding them directly would allow them to cancel out. Instead, we square each residual and then add the squared residuals across all observations. Squaring makes every residual count as positive and gives extra weight to large residuals. *Ordinary least squares*, or OLS, chooses the intercept and slope that make the *sum of squared residuals* as small as possible,
 
     $$
     \min_{b_0,, b_1} \sum_{i=1}^{n} \left(Y_i - b_0 - b_1 X_i\right)^2.
@@ -629,8 +625,6 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ---
-
     <span id="fn1" style="display:block;font-size:0.9rem;">**1.** These residuals differ from the error terms in the population model. The error term $u_i$ is defined using the true population regression line, while a residual is defined using a line drawn through the sample data. <a href="#fnref1" title="Back to text">&#8617;</a></span>
     """)
     return
