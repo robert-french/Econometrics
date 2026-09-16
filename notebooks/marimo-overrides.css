@@ -167,3 +167,59 @@ marimo-accordion .katex-display {
     margin-bottom: 0.4em;
 }
 
+
+/* Problem-set solution panels (notebooks/problemSets/*.py, qa() helper).
+   A native <details name="ps-solution"> replaces mo.accordion so that the
+   browser's exclusive-open behaviour for same-named details closes the
+   previously opened solution. Styled to resemble the marimo accordion:
+   bold "Solution" header with a chevron, bottom rule, blue body text to
+   match the printed solutions build. */
+details.ps-solution {
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 0.25rem;
+}
+details.ps-solution > summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.55rem 0;
+    font-weight: 700;
+}
+details.ps-solution > summary::-webkit-details-marker {
+    display: none;
+}
+details.ps-solution > summary:hover {
+    text-decoration: underline;
+}
+details.ps-solution > summary::after {
+    content: "";
+    width: 0.45em;
+    height: 0.45em;
+    margin-right: 0.35em;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(45deg);
+    transition: transform 0.2s ease;
+}
+details.ps-solution[open] > summary::after {
+    transform: rotate(-135deg);
+}
+details.ps-solution > .ps-solution-body {
+    color: #0000ff;
+    padding-bottom: 0.75rem;
+}
+details.ps-solution > .ps-solution-body p,
+details.ps-solution > .ps-solution-body .katex-display {
+    margin-top: 0.4em;
+    margin-bottom: 0.4em;
+}
+@media (prefers-color-scheme: dark) {
+    details.ps-solution {
+        border-bottom-color: #374151;
+    }
+    details.ps-solution > .ps-solution-body {
+        color: #6b8cff;
+    }
+}

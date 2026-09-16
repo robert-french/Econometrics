@@ -26,10 +26,17 @@ def _():
 @app.cell(hide_code=True)
 def _(mo):
     def qa(question, solution, indent=False):
-        block = mo.vstack(
-            [mo.md(question), mo.accordion({"Solution": mo.md(solution)})],
-            gap=0.5,
+        # Native <details> instead of mo.accordion: the shared name attribute
+        # makes the browser close every other solution when one is opened.
+        # Styling (bold header, chevron, blue body) lives in marimo-overrides.css
+        # under details.ps-solution.
+        panel = mo.Html(
+            '<details class="ps-solution" name="ps-solution">'
+            "<summary>Solution</summary>"
+            f'<div class="ps-solution-body">{mo.md(solution).text}</div>'
+            "</details>"
         )
+        block = mo.vstack([mo.md(question), panel], gap=0.5)
         if indent:
             return block.style({"margin-left": "1.75em"})
         return block
