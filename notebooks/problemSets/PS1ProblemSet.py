@@ -8,7 +8,7 @@
 import marimo
 
 __generated_with = "0.23.16"
-__preliminary__ = True
+__preliminary__ = False
 __description__ = "Problem Set 1 with worked solutions beneath each question."
 app = marimo.App(
     app_title="Problem Set 1: Probability and Random Variables",
@@ -79,10 +79,6 @@ def _(mo):
     # Problem Set 1: Probability and Random Variables
 
     Due at the beginning of class on Tuesday, September 15.
-
-    **Instructions.** Write your answers by hand in the spaces provided and hand this packet in at the beginning of class, just before the quiz. If you run out of room, attach extra pages. I encourage you to discuss the problems with classmates, peer mentors, and me, but you must write up your solutions independently and list your collaborators above. Problem sets are graded on effort, as described in the syllabus. The quiz will closely follow the format of two or three of these questions, so if you understand the problem set well you should score highly on the quiz.
-
-    Several questions refer to the lecture notebooks, which you can open on the course website. Complete solutions will be posted there after the problem set is handed in.
     """)
     return
 
