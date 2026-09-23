@@ -31,33 +31,42 @@ def _(mo):
                 '<img src="https://robert-french.github.io/Econometrics/LMU_SquareOrig.png" alt="" style="height: 1.6em; width: auto; display: block;">'
                 '<span>ECON 3300 Course home</span>'
                 '</a>'
-                '<h1 style="margin: 0.25em 0 0;"><a href="#top">Stata Tutorial 1</a></h1>'
                 '</div>'
             ),
             mo.md(
                 r"""
-                **Getting Started with Stata**
+                <div style="font-weight: 700; font-size: 1.05em;">Stata Tutorials</div>
 
-                1. [Installing Stata](#sec1)
-                1. [A first look at Stata](#sec2)
-                1. [Do-files](#sec3)
-                1. [Folders and file paths](#sec4)
-                1. [Downloading the course dataset](#sec5)
-                1. [Loading the dataset in a do-file with a local](#sec6)
-                1. [describe and summarize](#sec7)
+                1. **[Getting Started with Stata](#top)**
+                    1. [Installing Stata](#sec1)
+                    1. [A first look at Stata](#sec2)
+                    1. [Do-files](#sec3)
+                    1. [Folders and file paths](#sec4)
+                    1. [Downloading the course dataset](#sec5)
+                    1. [Loading the dataset in a do-file with a local](#sec6)
+                    1. [describe and summarize](#sec7)
+                2. <a href="https://robert-french.github.io/Econometrics/apps/stataTutorials/Stata2DescribingRelationships.html" target="_self">Describing Data and Relationships</a>
+                3. <span class="soon">Simple Regression</span>
+                4. <span class="soon">Multiple Regression and Regression Tables</span>
+                5. <span class="soon">Nonlinear Specifications</span>
+                6. <span class="soon">Panel Data</span>
                 """
             ),
         ],
-        width="300px",
+        width="350px",
     )
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md("""
-    <a href="https://robert-french.github.io/Econometrics/" target="_self">← Course home</a>
-    """)
+    mo.hstack(
+        [
+            mo.md('<a href="https://robert-french.github.io/Econometrics/" target="_self">← Course home</a>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/stataTutorials/Stata2DescribingRelationships.html" target="_self">Stata Tutorial 2 →</a>'),
+        ],
+        justify="space-between", align="center",
+    )
     return
 
 
@@ -75,13 +84,13 @@ def _(mo):
     mo.md(r"""
     ## Contents
 
-    1 [Installing Stata](#sec1)<br>
-    2 [A first look at Stata](#sec2)<br>
-    3 [Do-files](#sec3)<br>
-    4 [Folders and file paths](#sec4)<br>
-    5 [Downloading the course dataset](#sec5)<br>
-    6 [Loading the dataset in a do-file with a local](#sec6)<br>
-    7 [describe and summarize](#sec7)
+    1.1 [Installing Stata](#sec1)<br>
+    1.2 [A first look at Stata](#sec2)<br>
+    1.3 [Do-files](#sec3)<br>
+    1.4 [Folders and file paths](#sec4)<br>
+    1.5 [Downloading the course dataset](#sec5)<br>
+    1.6 [Loading the dataset in a do-file with a local](#sec6)<br>
+    1.7 [describe and summarize](#sec7)
     """)
     return
 
@@ -90,7 +99,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec1"></a>
-    ## 1 Installing Stata
+    ## 1.1 Installing Stata
 
     LMU provides Stata 19 SE to students for free. To install it on your own
     computer:
@@ -121,7 +130,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec2"></a>
-    ## 2 A first look at Stata
+    ## 1.2 A first look at Stata
 
     Open Stata from your computer. You'll see that the window is split into several panes. The three you will use
     constantly are:
@@ -156,7 +165,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec3"></a>
-    ## 3 Do-files
+    ## 1.3 Do-files
 
     Typing commands one at a time in the Command window is fine for quick experiments, but you should do real work
     in a *do-file*. A do-file is a plain text file of Stata commands that
@@ -203,7 +212,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec4"></a>
-    ## 4 Folders and file paths
+    ## 1.4 Folders and file paths
 
     Stata reads data from files on your computer, so you need a tidy place to keep
     them. Create a folder for this course somewhere you can find it again, with a
@@ -240,7 +249,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec5"></a>
-    ## 5 Downloading a Stata dataset
+    ## 1.5 Downloading a Stata dataset
 
     Let's start working with some data. Click the link below to download a sample dataset
     recording information on education, earnings, and a few other characteristics for a sample of individuals.
@@ -262,7 +271,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec6"></a>
-    ## 6 Loading the dataset in a do-file with a local
+    ## 1.6 Loading the dataset in a do-file with a local
 
     Stata loads datasets with the `use` command. You could write the dataset's full path directly into that command, but instead we will store the path once in a *local* and refer to it whenever we need it.
 
@@ -300,7 +309,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec7"></a>
-    ## 7 describe and summarize
+    ## 1.7 describe and summarize
 
     With the data loaded, you can examine the dataset using two commands.
 
@@ -375,6 +384,18 @@ def _(mo):
         ),
         title="Key terms and habits",
         kind="info",
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.hstack(
+        [
+            mo.md('<a href="https://robert-french.github.io/Econometrics/" target="_self">← Course home</a>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/stataTutorials/Stata2DescribingRelationships.html" target="_self">Stata Tutorial 2 →</a>'),
+        ],
+        justify="space-between", align="center",
     )
     return
 

@@ -31,31 +31,40 @@ def _(mo):
                 '<img src="https://robert-french.github.io/Econometrics/LMU_SquareOrig.png" alt="" style="height: 1.6em; width: auto; display: block;">'
                 '<span>ECON 3300 Course home</span>'
                 '</a>'
-                '<h1 style="margin: 0.25em 0 0;"><a href="#top">Stata Tutorial 2</a></h1>'
                 '</div>'
             ),
             mo.md(
                 r"""
-                **Describing Data and Relationships**
+                <div style="font-weight: 700; font-size: 1.05em;">Stata Tutorials</div>
 
-                1. [Picking up where we left off](#sec1)
-                1. [One variable at a time](#sec2)
-                1. [Comparing groups](#sec3)
-                1. [Scatter plots](#sec4)
-                1. [Covariance and correlation](#sec5)
+                1. <a href="https://robert-french.github.io/Econometrics/apps/stataTutorials/Stata1GettingStarted.html" target="_self">Getting Started with Stata</a>
+                2. **[Describing Data and Relationships](#top)**
+                    1. [Picking up where we left off](#sec1)
+                    1. [One variable at a time](#sec2)
+                    1. [Comparing groups](#sec3)
+                    1. [Scatter plots](#sec4)
+                    1. [Covariance and correlation](#sec5)
+                3. <span class="soon">Simple Regression</span>
+                4. <span class="soon">Multiple Regression and Regression Tables</span>
+                5. <span class="soon">Nonlinear Specifications</span>
+                6. <span class="soon">Panel Data</span>
                 """
             ),
         ],
-        width="300px",
+        width="350px",
     )
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md("""
-    <a href="https://robert-french.github.io/Econometrics/" target="_self">← Course home</a>
-    """)
+    mo.hstack(
+        [
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/stataTutorials/Stata1GettingStarted.html" target="_self">← Stata Tutorial 1</a>'),
+            mo.md('<span class="nav-soon">Stata Tutorial 3 (coming soon)</span>'),
+        ],
+        justify="space-between", align="center",
+    )
     return
 
 
@@ -73,11 +82,11 @@ def _(mo):
     mo.md(r"""
     ## Contents
 
-    1 [Picking up where we left off](#sec1)<br>
-    2 [One variable at a time](#sec2)<br>
-    3 [Comparing groups](#sec3)<br>
-    4 [Scatter plots](#sec4)<br>
-    5 [Covariance and correlation](#sec5)
+    2.1 [Picking up where we left off](#sec1)<br>
+    2.2 [One variable at a time](#sec2)<br>
+    2.3 [Comparing groups](#sec3)<br>
+    2.4 [Scatter plots](#sec4)<br>
+    2.5 [Covariance and correlation](#sec5)
     """)
     return
 
@@ -86,7 +95,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec1"></a>
-    ## 1 Picking up where we left off
+    ## 2.1 Picking up where we left off
 
     This tutorial continues in the do-file you built in the first tutorial. Open Stata, open `tutorial1.do` in the Do-file Editor, and run it from the top with the Execute (do) button to make sure the dataset loads. Then add a comment line at the bottom so you can find today's work later.
 
@@ -103,7 +112,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec2"></a>
-    ## 2 One variable at a time
+    ## 2.2 One variable at a time
 
     Before studying how two variables move together, let's look at each one on its own. Add these four lines to your do-file and rerun it.
 
@@ -163,7 +172,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec3"></a>
-    ## 3 Comparing groups
+    ## 2.3 Comparing groups
 
     The simplest way to see whether two variables are related is to split the sample into groups defined by one variable and compare the average of the other variable across the groups. Lecture 6 calls the population version of this a conditional expectation, $\mathbb{E}[Y \mid X = x]$, the average of $Y$ among observations with a given value of $X$. The `tabstat` command computes the sample version. Add these lines and rerun the do-file.
 
@@ -189,7 +198,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec4"></a>
-    ## 4 Scatter plots
+    ## 2.4 Scatter plots
 
     Group averages work well when the grouping variable takes only a few values. When both variables take many values, as is common with continuous variables, a scatter plot might be more appropriate because it shows the full relationship at once, with one point for each observation. Add these lines to your do-file and rerun it.
 
@@ -225,7 +234,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec5"></a>
-    ## 5 Covariance and correlation
+    ## 2.5 Covariance and correlation
 
     Lecture 3 introduced two numbers that summarize a scatter plot. The covariance measures whether two variables move together, and the correlation rescales it to lie between $-1$ and $1$. The `correlate` command computes both the covariance and correlation for every pair of variables you list. Add these lines and rerun the do-file.
 
@@ -351,6 +360,18 @@ def _(mo):
     mo.md(r"""
     <span id="fn1" style="display:block;font-size:0.9rem;">**1.** A *string variable* stores text rather than numbers. In this dataset `sex` holds the words `Male` and `Female`, and the Variables pane lists its storage type as `str6`. Stata can count and group the values of a string variable, but it cannot do arithmetic with them, so commands such as `summarize` and `correlate` require numeric variables like `education`, `age`, and `earnings`. <a href="#fnref1" title="Back to text">&#8617;</a></span>
     """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.hstack(
+        [
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/stataTutorials/Stata1GettingStarted.html" target="_self">← Stata Tutorial 1</a>'),
+            mo.md('<span class="nav-soon">Stata Tutorial 3 (coming soon)</span>'),
+        ],
+        justify="space-between", align="center",
+    )
     return
 
 
