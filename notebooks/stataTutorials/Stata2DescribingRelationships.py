@@ -115,9 +115,37 @@ def _(mo):
     ```
 
     **`summarize`** with the **`detail`** option reports the percentiles of `earnings` alongside its mean and standard deviation. The 50th percentile is the median, the earnings level that half of the sample falls below, and the 25th and 75th percentiles bracket the middle half of the sample. Compare the median with the mean. When the mean sits well above the median, a small number of high earners are pulling the mean upward, which is common in earnings data.
+    """)
+    return
 
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    <img src="https://robert-french.github.io/Econometrics/stata2tutorial/stata2_shot1_summarize_detail.png" alt="summarize earnings, detail output" style="display:block;margin:0.5rem auto 1rem;max-width:100%;">
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     **`histogram`** plots the sample distribution in a separate Graph window. Each bar's height shows how much of the sample falls in that range of earnings, so the histogram is the sample counterpart of the probability density function from Lecture 2. The `normal` option overlays a normal curve with the same mean and standard deviation as the data, which makes it easy to see how far the sample distribution is from a bell shape.
+    """)
+    return
 
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    <img src="https://robert-french.github.io/Econometrics/stata2tutorial/stata2_shot2_histogram.png" alt="Histogram of earnings with a normal curve overlaid" style="display:block;margin:0.5rem auto 1rem;max-width:100%;">
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     **`tabulate`** lists each category of a variable, the number of observations in that category (`Freq.`), its share of the sample (`Percent`), and the running total of those shares (`Cum.`). The `Percent` column is the sample analogue of the probability distribution table from Lecture 2, while the `Cum.` column is the sample analogue of its cumulative distribution. `tabulate` is especially useful for discrete variables with only a few possible values. It also works with the string variable `sex` because counting categories does not require arithmetic.<sup><a id="fnref1" href="#fn1">1</a></sup>
     """)
     return
@@ -126,23 +154,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    <img src="https://robert-french.github.io/Econometrics/stata2tutorial/stata2_shot1_summarize_detail.png" alt="summarize earnings, detail output" style="max-width:100%;border:1px solid #cbd2d9;border-radius:6px;">
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    <img src="https://robert-french.github.io/Econometrics/stata2tutorial/stata2_shot2_histogram.png" alt="Histogram of earnings with a normal curve overlaid" style="max-width:100%;border:1px solid #cbd2d9;border-radius:6px;">
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    <img src="https://robert-french.github.io/Econometrics/stata2tutorial/stata2_shot3_tabulate.png" alt="tabulate output for education and sex" style="max-width:100%;border:1px solid #cbd2d9;border-radius:6px;">
+    <img src="https://robert-french.github.io/Econometrics/stata2tutorial/stata2_shot3_tabulate.png" alt="tabulate output for education and sex" style="display:block;margin:0.5rem auto 1rem;max-width:100%;">
     """)
     return
 
@@ -168,7 +180,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    <img src="https://robert-french.github.io/Econometrics/stata2tutorial/stata2_shot4_tabstat.png" alt="tabstat output for earnings by education and by sex" style="max-width:100%;border:1px solid #cbd2d9;border-radius:6px;">
+    <img src="https://robert-french.github.io/Econometrics/stata2tutorial/stata2_shot4_tabstat.png" alt="tabstat output for earnings by education and by sex" style="display:block;margin:0.5rem auto 1rem;max-width:100%;">
     """)
     return
 
@@ -196,7 +208,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    <img src="https://robert-french.github.io/Econometrics/stata2tutorial/stata2_shot5_scatter_age.png" alt="Scatter plot of earnings against age with a fitted line" style="max-width:100%;border:1px solid #cbd2d9;border-radius:6px;">
+    <img src="https://robert-french.github.io/Econometrics/stata2tutorial/stata2_shot5_scatter_age.png" alt="Scatter plot of earnings against age with a fitted line" style="display:block;margin:0.5rem auto 1rem;max-width:100%;">
     """)
     return
 
@@ -204,7 +216,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    <img src="https://robert-french.github.io/Econometrics/stata2tutorial/stata2_shot6_scatter_education.png" alt="Jittered scatter plot of earnings against education with a fitted line" style="max-width:100%;border:1px solid #cbd2d9;border-radius:6px;">
+    <img src="https://robert-french.github.io/Econometrics/stata2tutorial/stata2_shot6_scatter_education.png" alt="Jittered scatter plot of earnings against education with a fitted line" style="display:block;margin:0.5rem auto 1rem;max-width:100%;">
     """)
     return
 
@@ -232,7 +244,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    <img src="https://robert-french.github.io/Econometrics/stata2tutorial/stata2_shot7_correlate.png" alt="correlate output with and without the covariance option" style="max-width:100%;border:1px solid #cbd2d9;border-radius:6px;">
+    <img src="https://robert-french.github.io/Econometrics/stata2tutorial/stata2_shot7_correlate.png" alt="correlate output with and without the covariance option" style="display:block;margin:0.5rem auto 1rem;max-width:100%;">
     """)
     return
 
@@ -259,6 +271,21 @@ def _(mo):
 
     The two `egen` lines create variables holding the sample mean of `earnings` and of `education` in every row, and `generate` creates a new variable containing the product of the two deviations for each person. After `summarize` runs, Stata keeps its results in memory for the next command, with the sum of the variable stored as `r(sum)` and the number of observations as `r(N)`, so the `display` line prints the sample covariance. Compare it with the `earnings` and `education` entry in the `correlate, covariance` table and see whether they match. The final `drop` line removes the three helper variables so the dataset stays tidy.
 
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    <img src="https://robert-french.github.io/Econometrics/stata2tutorial/stata2_shot8_hand_check.png" alt="summarize product and display output reproducing the sample covariance" style="display:block;margin:0.5rem auto 1rem;max-width:100%;">
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     Your do-file should now look something like this, with the Tutorial 1 lines at the top and today's lines below them.
 
     ```stata
@@ -296,14 +323,6 @@ def _(mo):
     ```
 
     Save your do-file. The next tutorial picks up here and turns the fitted lines you drew today into regression output.
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    <img src="https://robert-french.github.io/Econometrics/stata2tutorial/stata2_shot8_hand_check.png" alt="summarize product and display output reproducing the sample covariance" style="max-width:100%;border:1px solid #cbd2d9;border-radius:6px;">
     """)
     return
 
