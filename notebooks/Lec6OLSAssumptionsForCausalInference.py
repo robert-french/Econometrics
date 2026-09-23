@@ -10,7 +10,7 @@
 
 import marimo
 
-__generated_with = "0.23.9"
+__generated_with = "0.24.0"
 app = marimo.App(
     app_title="Lecture 6: OLS Assumptions for Causal Inference",
     css_file="marimo-overrides.css",
@@ -130,7 +130,7 @@ def _(mo):
     <a id="sec1"></a>
     ## 6.1 Conditional expectation
 
-    Lecture 5 fit a line through sample data on wages and years of education, and interpreted the slope as describing an association. But what is the line trying to summarize? At each level of education, it estimates the average wage among people with that level of education. Before asking when the slope of that line has a causal interpretation, we therefore need to define the population average that regression is trying to approximate.
+    In Lecture 5, we fit a line through sample data on wages and years of education and interpreted its slope as describing an association between the two variables. But what population relationship is this line trying to capture? It provides a linear approximation to how average wages vary with education. In this section, we define this population relationship more carefully and with mathematical notation.
 
     The *conditional expectation* of $Y$ given $X$ is the average value of $Y$ among observations with a given value of $X$ which we denote with a lower-case $x$. We write it as
 
@@ -171,13 +171,13 @@ def _(mo):
     \mathbb{P}(X = \text{Freshman}) = 0.15 + 0.25 + 0.10 = 0.50, \qquad \mathbb{P}(X = \text{Senior}) = 0.50.
     $$
 
-    Bayes' rule from Lecture 3 turns the joint probabilities into conditional ones. Among freshmen, the probability of each GPA is
+    Recall from Lecture 3 that we can use Bayes' rule to turn joint and marginal probabilities into conditional probabilities. Among freshmen, the probability of each GPA is
 
     $$
     \mathbb{P}(Y = 2.0 \mid \text{Freshman}) = \frac{0.15}{0.50} = 0.30, \quad \mathbb{P}(Y = 3.0 \mid \text{Freshman}) = 0.50, \quad \mathbb{P}(Y = 4.0 \mid \text{Freshman}) = 0.20.
     $$
 
-    The conditional expectation of GPA given class standing is the expected value computed with these conditional probabilities. Each value of $X$ produces one number,
+    The conditional expectation of GPA given class standing is the expected value computed with these conditional probabilities:
 
     $$
     \mathbb{E}[Y \mid X = \text{Freshman}] = 2.0(0.30) + 3.0(0.50) + 4.0(0.20) = 2.9,
@@ -219,25 +219,27 @@ def _(mo):
     <a id="sec3"></a>
     ## 6.3 From prediction to causation
 
-    Lecture 5 was about prediction. The fitted slope of $\hat{\beta}_1 =$ $1.25 says that a worker with one more year of education is predicted to earn about $1.25 more per hour. It does not say that sending the same worker back to school for one more year would raise that worker's wage by $1.25. The *causal interpretation* of the slope is this stronger claim. It says that increasing $X$ by one unit causes $Y$ to change by $\beta_1$ units. A student deciding whether to stay in school for another year, or a government deciding how much to spend on tuition subsidies, needs to know the causal effect of education on earnings, not just the fact that more educated workers tend to earn more.
+    In Lecture 5, we interpreted OLS regressions as describing associations between two variables. We also used them to make predictions. For example, a fitted slope of $\hat{\beta}_1 = 1.25$ says that a worker with one more year of education is predicted to earn about $1.25 more per hour. It does not say that sending the same worker back to school for one more year would raise that worker's wage by $1.25. By constrast, a *causal interpretation* of the slope makes this stronger claim. It says that increasing $X$ by one unit causes $Y$ to change by $\beta_1$ units, holding other determinants of $Y$ fixed. This is often the quantity we actually care about. A student deciding whether to stay in school for another year, or a government deciding how much to spend on tuition subsidies, wants to know the causal effect of education on earnings, not simply whether more educated workers tend to earn more.
 
-    In the population model
+    Consider the population model
 
+    $$\
+    Y = \beta_0 + \beta_1 X + u.\
     $$
-    Y = \beta_0 + \beta_1 X + u,
-    $$
 
-    the slope $\beta_1$ describes how $Y$ changes when $X$ changes and $u$ is held fixed. In the wage example, $u$ contains every other determinant of wages in the model, such as ability, family background, health, and luck. If education increases by one year while those other determinants stay fixed, then wages change by exactly $\beta_1$.
+    Here, $u$ collects all determinants of $Y$ other than $X$ that are not explicitly included in the model. In the wage example, these might include ability, family background, health, and luck. The causal interpretation of $\beta_1$ is that if education increases by one year while these other determinants remain fixed, wages change by $\beta_1$.
 
-    The main difficulty in interpreting an estimate of $\beta_1$ causally is that we never observe $u$. OLS fits the line that best predicts $Y$ from $X$ alone. The slope of that line equals the causal $\beta_1$ only when the part of wages hidden in $u$ is not systematically related to education. If workers with more education also tend to have higher ability, stronger family support, or other wage advantages, then the fitted slope blends the effect of education with the effects of those omitted factors.
+    The difficulty is that we do not observe $u$. OLS fits the line that best predicts $Y$ using $X$, so its slope equals the causal effect $\beta_1$ only if the factors hidden in $u$ are not systematically related to $X$. If workers with more education also tend to have greater ability, stronger family support, or other wage advantages, then the fitted slope will reflect both the effect of education and the effects of these omitted factors.
 
-    The condition that rules out this problem, together with two additional conditions that make estimation and inference reliable, gives us the three *least squares assumptions*.
+    The condition that rules out this problem, together with two additional conditions that allow us to estimate the population relationship reliably, gives us the three *least squares assumptions*.
 
-    1. The conditional distribution of $u$ given $X$ has mean zero, $\mathbb{E}[u \mid X] = 0$.
-    2. The data $(X_i, Y_i)$ for $i = 1, \ldots, n$ are independently and identically distributed.
+    1. The conditional mean of $u$ given $X$ is zero, $\mathbb{E}[u \mid X] = 0$.
+
+    2. The observations $(X_i, Y_i)$ for $i = 1, \ldots, n$ are independently and identically distributed.
+
     3. Large outliers are unlikely.
 
-    Only the first assumption carries causal content, and it is the one that fails most often in practice. The second and third assumptions do not make the slope causal. They explain when sample data can recover the population slope and when we can attach a useful margin of error to the estimate. We now go over each assumption one at a time.
+    Only the first assumption gives the regression slope a causal interpretation. The second and third assumptions do not make the relationship causal. Instead, they help ensure that the sample regression reliably estimates the population relationship and that we can quantify the uncertainty in our estimate. We now consider each assumption in turn.
     """)
     return
 
@@ -259,21 +261,21 @@ def _(mo):
 
     The first least squares assumption says that the conditional mean of the error term is zero at every value of $X$,
 
-    $$
-    \mathbb{E}[u \mid X] = 0.
+    $$\
+    \mathbb{E}[u \mid X] = 0.\
     $$
 
     In the wage example, this means that workers with different levels of education do not systematically differ in the other determinants of wages contained in $u$. Workers with 16 years of education may differ from workers with 12 years of education in their schooling, but on average they must not differ in ability, family background, health, luck, or anything else in the error term that affects wages.
 
-    This is a strong requirement, and it is easy to see how it can fail. Suppose students with higher ability find school easier and therefore stay in school longer. Then workers with 16 years of education will have higher average ability than workers with 12 years of education. In that case, $\mathbb{E}[u \mid X = 16] > \mathbb{E}[u \mid X = 12],$ and the assumption fails. OLS then attributes to education some of the wage gains that ability would have produced anyway, so $\hat{\beta}_1$ overstates the causal effect of schooling. When the assumption does hold, by contrast, this first assumption is exactly what makes the OLS slope estimator unbiased, so that across repeated samples its average equals the true causal effect $\beta_1$. Section 6.5 develops this property and its companion, consistency.
+    This is a strong requirement, and it is easy to see how it can fail. Suppose students with higher ability find school easier and therefore stay in school longer. Then workers with 16 years of education will have higher average ability than workers with 12 years of education. In that case, $\mathbb{E}[u \mid X = 16] > \mathbb{E}[u \mid X = 12]$, and the assumption fails. OLS then attributes to education some of the wage gains that ability would have produced anyway, so $\hat{\beta}_1$ overstates the causal effect of schooling. When the assumption does hold, by contrast, the OLS slope estimator becomes unbiased, so that across repeated samples its average equals the true causal effect $\beta_1$. Section 6.5 develops this property and its companion, consistency.
 
-    This assumption cannot be tested with the data alone. The error term is unobserved, so we cannot compute $\mathbb{E}[u \mid X = x]$ from a sample of $X$ and $Y$. Whether the assumption holds must be argued from what we know about how the data were generated, not read from a calculation.
+    This assumption cannot be tested with the data alone. The error term is unobserved, so we cannot compute $\mathbb{E}[u \mid X = x]$ from a sample of $X$ and $Y$. Whether the assumption holds must instead be argued from what we know about how the data were generated!
 
-    An equivalent way of stating the assumption is that the average value of the error term does not vary with $X$. For the slope to have a causal interpretation, the key requirement is that $\mathbb{E}[u \mid X = x]$ be the same at every value of $x$. If that common value were some constant other than zero, it would be absorbed into the intercept and the slope would be unchanged. With an intercept in the model, we can therefore write the condition as $\mathbb{E}[u \mid X] = 0$. The appendix shows why this is true mathematically.
+    Another way to state the key requirement for the slope is that the average value of the error term does not vary with $X$. For the slope to have a causal interpretation, $\mathbb{E}[u \mid X = x]$ must be the same at every value of $x$. If that common value were some constant other than zero, it would be absorbed into the intercept and the slope would be unchanged. With an intercept in the model, we can therefore write the condition as $\mathbb{E}[u \mid X] = 0$. The appendix shows why this is true mathematically.
 
-    The plot below shows the same idea visually. It splits 40 workers into two groups, lower ability in light gray and higher ability in navy. In this example, ability is the only factor in the error term. Within each ability group, the true causal effect of one more year of education is the same $1.20 per hour, shown by the two parallel dashed orange lines. The higher-ability group earns more at every education level, so its line sits above the lower-ability line.
+    The plot below shows this idea visually. It splits 40 workers into two groups, with lower ability workers in light gray and higher ability workers in navy. In this example, ability is the only factor in the error term. Within each ability group, the true causal effect of one more year of education is the same, $1.20 per hour, shown by the two parallel dashed orange lines. The higher-ability group earns more at every education level, so its line sits above the lower-ability line.
 
-    The slider controls how strongly ability and education are related. When the slider equals zero, both ability groups have the same distribution of education. The condition $\mathbb{E}[u \mid X] = 0$ holds, and the pooled OLS line through all 40 workers has the same slope as the two within-group lines. As the slider rises, higher-ability workers shift toward more education and lower-ability workers shift toward less education. The two groups pull apart, and the pooled OLS line becomes steeper than $1.20 as it blends the effect of education with the effect of ability, even though the true causal effect of education within each ability group has not changed.
+    The slider controls how strongly ability and education are related. When the slider equals zero, both ability groups have the same distribution of education. The condition $\mathbb{E}[u \mid X] = 0$ therefore holds, and the pooled OLS line through all 40 workers has the same slope as the two group-specific OLS lines. As the slider rises, higher-ability workers shift toward more education and lower-ability workers shift toward less education. The two groups pull apart, and the pooled OLS line becomes steeper than $1.20 as it blends the effect of education with the effect of ability, even though the true causal effect of education within each ability group has not changed.
     """)
     return
 
@@ -428,7 +430,7 @@ def _(mo):
 
     Outliers matter to OLS because of the squaring in the least squares criterion from Lecture 5. A point far from the line contributes the square of a large residual to the sum being minimized, so the fitted line swings toward it. One badly recorded observation, an hourly wage typed as \$150 instead of \$15, can move the slope on its own. In practice this assumption is a reminder to plot the data and check extreme values before trusting a regression estimate, because many outliers in economic data are entry errors rather than real values.
 
-    Like the i.i.d. assumption, this one supports the standard error of the slope rather than the causal interpretation of $\hat{\beta}_1$.
+    Like the i.i.d. assumption, this assumption supports the standard error of the slope estimator rather than the causal interpretation of $\hat{\beta}_1$.
 
     Consider the example below. The two faint orange points are wages recorded with a misplaced decimal, sitting far above the rest of the workers. The check box decides whether they are included in the OLS regression. Leave it unticked and the navy line is fit to the 40 properly recorded workers, resting on top of the dashed gray line. Tick it and the two outliers are included in the OLS regression line.
     """)
@@ -584,43 +586,103 @@ def _(mo):
 
         **The population regression line is a conditional expectation.**
 
-        Section 6.1 claimed that a regression approximates the conditional expectation of $Y$ given $X$. Assumption 1 makes that exact. Take the population model and condition on $X = x$,
+        Section 6.1 said that a regression approximates the conditional expectation of $Y$ given $X$. Assumption 1 makes this relationship exact. Start with the population model and condition on $X = x$,
 
-        $$ \mathbb{E}[Y \mid X = x] = \mathbb{E}[\beta_0 + \beta_1 X + u \mid X = x] = \beta_0 + \beta_1 x + \mathbb{E}[u \mid X = x]. $$
+        $$
+        \mathbb{E}[Y \mid X = x] = \mathbb{E}[\beta_0 + \beta_1 X + u \mid X = x] = \beta_0 + \beta_1 x + \mathbb{E}[u \mid X = x].
+        $$
 
-        The first two terms pass through the conditional expectation unchanged because once we condition on $X = x$, the quantity $\beta_0 + \beta_1 x$ is a fixed number, and the expected value of a fixed number is the number itself. Under Assumption 1 the last term is zero, so
+        The first two terms pass through the conditional expectation because, once we condition on $X = x$, $\beta_0 + \beta_1 x$ is a fixed number. Under Assumption 1, the last term is zero, so
 
-        $$ \mathbb{E}[Y \mid X = x] = \beta_0 + \beta_1 x. $$
+        $$
+        \mathbb{E}[Y \mid X = x] = \beta_0 + \beta_1 x.
+        $$
 
-        The population regression line passes through the average value of $Y$ at every value of $X$. The OLS line from Lecture 5 is the sample estimate of exactly this function.
+        The population regression line therefore passes through the average value of $Y$ at every value of $X$. The OLS line from Lecture 5 is the sample estimate of this population relationship.
 
         **A constant conditional mean folds into the intercept.**
 
-        Section 6.4 stated that only variation of $\mathbb{E}[u \mid X = x]$ with $x$ threatens the slope. To see why, suppose the conditional mean is some constant $c$ other than zero, $\mathbb{E}[u \mid X = x] = c$ for every $x$. Define a new error $\tilde{u} = u - c$ and a new intercept $\tilde{\beta}_0 = \beta_0 + c$. Then
+        Section 6.4 said that only variation in $\mathbb{E}[u \mid X = x]$ across values of $x$ threatens the slope. To see why, suppose instead that the conditional mean is some constant $c$ other than zero,
 
-        $$ Y = \beta_0 + \beta_1 X + u = (\beta_0 + c) + \beta_1 X + (u - c) = \tilde{\beta}_0 + \beta_1 X + \tilde{u}, $$
+        $$
+        \mathbb{E}[u \mid X = x] = c
+        $$
 
-        and the new error satisfies $\mathbb{E}[\tilde{u} \mid X = x] = c - c = 0$. The rewritten model satisfies Assumption 1, and the slope $\beta_1$ is the same in both versions. A constant level of ability across all education groups changes where the line sits, not how steep it is.
+        for every $x$. Define a new error $\tilde{u} = u - c$ and a new intercept $\tilde{\beta}_0 = \beta_0 + c$. Then
+
+        $$
+        Y = \beta_0 + \beta_1 X + u = (\beta_0 + c) + \beta_1 X + (u - c) = \tilde{\beta}_0 + \beta_1 X + \tilde{u},
+        $$
+
+        and the new error satisfies
+
+        $$
+        \mathbb{E}[\tilde{u} \mid X = x] = c - c = 0.
+        $$
+
+        The rewritten model satisfies Assumption 1, while the slope $\beta_1$ is unchanged. A constant level of ability across all education groups changes where the line sits, not how steep it is.
 
         **The no-large-outliers condition in symbols.**
 
-        Least Squares Assumption 3 says large outliers are unlikely. The formal version is a condition on the fourth moments of $X$ and $Y$,
+        Least Squares Assumption 3 says that large outliers are unlikely. Formally, we assume that $X$ and $Y$ have finite fourth moments,
 
-        $$ 0 < \mathbb{E}\left[X_i^4\right] < \infty \quad \text{and} \quad 0 < \mathbb{E}\left[Y_i^4\right] < \infty. $$
+        $$
+        0 < \mathbb{E}[X_i^4] < \infty \qquad \text{and} \qquad 0 < \mathbb{E}[Y_i^4] < \infty.
+        $$
 
-        A finite fourth moment rules out distributions whose tails are heavy enough that a single draw can be enormous, the kind that would dominate the sum of squares OLS minimizes. With finite fourth moments the sampling distribution of $\hat{\beta}_1$ settles to the normal shape the standard error in Lecture 7 relies on.
+        Finite fourth moments rule out distributions with tails so heavy that extreme observations can dominate the sums used by OLS. Together with the other least squares assumptions, this condition allows the sampling distribution of $\hat{\beta}_1$ to approach a normal distribution as the sample grows, which is what the standard errors and confidence intervals introduced in Lecture 7 rely on.
 
         **Unbiasedness of $\hat{\beta}_1$.**
 
-        Write $S_{XX} = \sum_{i=1}^{n}(X_i - \hat{\mu}_X)^2$. The OLS slope from Lecture 5 can be written
+        Write
 
-        $$ \hat{\beta}_1 = \frac{\sum_{i=1}^{n}(X_i - \hat{\mu}_X)(Y_i - \hat{\mu}_Y)}{S_{XX}}. $$
+        $$
+        S_{XX} = \sum_{i=1}^{n}(X_i - \hat{\mu}_X)^2.
+        $$
 
-        Substituting the model $Y_i = \beta_0 + \beta_1 X_i + u_i$ and subtracting sample means gives $Y_i - \hat{\mu}_Y = \beta_1 (X_i - \hat{\mu}_X) + (u_i - \bar{u})$, so
+        The OLS slope from Lecture 5 can be written as
 
-        $$ \hat{\beta}_1 - \beta_1 = \frac{1}{S_{XX}}\sum_{i=1}^{n}(X_i - \hat{\mu}_X)\,u_i. $$
+        $$
+        \hat{\beta}_1 = \frac{\sum_{i=1}^{n}(X_i - \hat{\mu}_X)(Y_i - \hat{\mu}_Y)} {S_{XX}}.
+        $$
 
-        Take the expectation conditional on the values of $X$. Assumption 1, $\mathbb{E}[u_i \mid X] = 0$, makes every term on the right have conditional mean zero, so $\mathbb{E}[\hat{\beta}_1 \mid X] = \beta_1$. Averaging over $X$ by the law of iterated expectations gives $\mathbb{E}[\hat{\beta}_1] = \beta_1$, which is what unbiasedness means.
+        Substituting the population model $Y_i = \beta_0 + \beta_1 X_i + u_i$ and subtracting sample means gives
+
+        $$
+        Y_i - \hat{\mu}_Y = \beta_1(X_i - \hat{\mu}_X) + (u_i - \bar{u}).
+        $$
+
+        Using the fact that
+
+        $$
+        \sum_{i=1}^{n}(X_i - \hat{\mu}_X) = 0,
+        $$
+
+        we can then write
+
+        $$
+        \hat{\beta}_1 - \beta_1 = \frac{1}{S_{XX}} \sum_{i=1}^{n}(X_i - \hat{\mu}_X)u_i.
+        $$
+
+        Now take the expectation conditional on the observed values $X_1, \ldots, X_n$. Under Assumptions 1 and 2, each $u_i$ has conditional mean zero, so
+
+        $$
+        \mathbb{E} \left[\hat{\beta}_1 - \beta_1\mid X_1, \ldots, X_n \right] = 0.
+        $$
+
+        Therefore,
+
+        $$
+        \mathbb{E} \left[\hat{\beta}_1 \mid X_1, \ldots, X_n \right] = \beta_1.
+        $$
+
+        Finally, averaging over the possible values of $X_1, \ldots, X_n$ using the law of iterated expectations gives
+
+        $$
+        \mathbb{E}[\hat{\beta}_1] = \beta_1,
+        $$
+
+        which is exactly what it means for $\hat{\beta}_1$ to be unbiased.
         """)
     })
     return
