@@ -245,7 +245,7 @@ def _(mo):
     Let's start working with some data. Click the link below to download a sample dataset
     recording information on education, earnings, and a few other characteristics for a sample of individuals.
 
-    <a href="https://robert-french.github.io/Econometrics/stata1tutorial/econ3300_educ_income_2024.dta" download>
+        <a href="https://robert-french.github.io/Econometrics/econ3300_educ_income_2024.dta" download>
     <strong>Download the dataset: econ3300_educ_income_2024.dta</strong></a>
 
     Your browser will automatically save it to your Downloads folder. Move the file from Downloads
