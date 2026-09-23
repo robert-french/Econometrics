@@ -10,7 +10,7 @@
 
 import marimo
 
-__generated_with = "0.24.0"
+__generated_with = "0.24.2"
 app = marimo.App(
     app_title="Lecture 6: OLS Assumptions for Causal Inference",
     css_file="marimo-overrides.css",
@@ -223,8 +223,8 @@ def _(mo):
 
     Consider the population model
 
-    $$\
-    Y = \beta_0 + \beta_1 X + u.\
+    $$
+    Y = \beta_0 + \beta_1 X + u.
     $$
 
     Here, $u$ collects all determinants of $Y$ other than $X$ that are not explicitly included in the model. In the wage example, these might include ability, family background, health, and luck. The causal interpretation of $\beta_1$ is that if education increases by one year while these other determinants remain fixed, wages change by $\beta_1$.
@@ -261,8 +261,8 @@ def _(mo):
 
     The first least squares assumption says that the conditional mean of the error term is zero at every value of $X$,
 
-    $$\
-    \mathbb{E}[u \mid X] = 0.\
+    $$
+    \mathbb{E}[u \mid X] = 0.
     $$
 
     In the wage example, this means that workers with different levels of education do not systematically differ in the other determinants of wages contained in $u$. Workers with 16 years of education may differ from workers with 12 years of education in their schooling, but on average they must not differ in ability, family background, health, luck, or anything else in the error term that affects wages.<sup><a id="fnref1" href="#fn1">1</a></sup>
