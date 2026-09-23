@@ -118,7 +118,7 @@ def _(mo):
 
     **`histogram`** plots the sample distribution in a separate Graph window. Each bar's height shows how much of the sample falls in that range of earnings, so the histogram is the sample counterpart of the probability density function from Lecture 2. The `normal` option overlays a normal curve with the same mean and standard deviation as the data, which makes it easy to see how far the sample distribution is from a bell shape.
 
-    **`tabulate`** lists each category of a variable, the number of observations in that category (`Freq.`), its share of the sample (`Percent`), and the running total of those shares (`Cum.`). The `Percent` column is the sample analogue of the probability distribution table from Lecture 2, while the `Cum.` column is the sample analogue of its cumulative distribution. `tabulate` is especially useful for discrete variables with only a few possible values. It also works with the string variable `sex` because counting categories does not require arithmetic.
+    **`tabulate`** lists each category of a variable, the number of observations in that category (`Freq.`), its share of the sample (`Percent`), and the running total of those shares (`Cum.`). The `Percent` column is the sample analogue of the probability distribution table from Lecture 2, while the `Cum.` column is the sample analogue of its cumulative distribution. `tabulate` is especially useful for discrete variables with only a few possible values. It also works with the string variable `sex` because counting categories does not require arithmetic.<sup><a id="fnref1" href="#fn1">1</a></sup>
     """)
     return
 
@@ -324,6 +324,14 @@ def _(mo):
         title="Key terms and habits",
         kind="info",
     )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    <span id="fn1" style="display:block;font-size:0.9rem;">**1.** A *string variable* stores text rather than numbers. In this dataset `sex` holds the words `Male` and `Female`, and the Variables pane lists its storage type as `str6`. Stata can count and group the values of a string variable, but it cannot do arithmetic with them, so commands such as `summarize` and `correlate` require numeric variables like `education`, `age`, and `earnings`. <a href="#fnref1" title="Back to text">&#8617;</a></span>
+    """)
     return
 
 
