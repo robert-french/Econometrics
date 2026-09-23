@@ -265,13 +265,11 @@ def _(mo):
     \mathbb{E}[u \mid X] = 0.\
     $$
 
-    In the wage example, this means that workers with different levels of education do not systematically differ in the other determinants of wages contained in $u$. Workers with 16 years of education may differ from workers with 12 years of education in their schooling, but on average they must not differ in ability, family background, health, luck, or anything else in the error term that affects wages.
+    In the wage example, this means that workers with different levels of education do not systematically differ in the other determinants of wages contained in $u$. Workers with 16 years of education may differ from workers with 12 years of education in their schooling, but on average they must not differ in ability, family background, health, luck, or anything else in the error term that affects wages.<sup><a id="fnref1" href="#fn1">1</a></sup>
 
     This is a strong requirement, and it is easy to see how it can fail. Suppose students with higher ability find school easier and therefore stay in school longer. Then workers with 16 years of education will have higher average ability than workers with 12 years of education. In that case, $\mathbb{E}[u \mid X = 16] > \mathbb{E}[u \mid X = 12]$, and the assumption fails. OLS then attributes to education some of the wage gains that ability would have produced anyway, so $\hat{\beta}_1$ overstates the causal effect of schooling. When the assumption does hold, by contrast, the OLS slope estimator becomes unbiased, so that across repeated samples its average equals the true causal effect $\beta_1$. Section 6.5 develops this property and its companion, consistency.
 
     This assumption cannot be tested with the data alone. The error term is unobserved, so we cannot compute $\mathbb{E}[u \mid X = x]$ from a sample of $X$ and $Y$. Whether the assumption holds must instead be argued from what we know about how the data were generated!
-
-    Another way to state the key requirement for the slope is that the average value of the error term does not vary with $X$. For the slope to have a causal interpretation, $\mathbb{E}[u \mid X = x]$ must be the same at every value of $x$. If that common value were some constant other than zero, it would be absorbed into the intercept and the slope would be unchanged. With an intercept in the model, we can therefore write the condition as $\mathbb{E}[u \mid X] = 0$. The appendix shows why this is true mathematically.
 
     The plot below shows this idea visually. It splits 40 workers into two groups, with lower ability workers in light gray and higher ability workers in navy. In this example, ability is the only factor in the error term. Within each ability group, the true causal effect of one more year of education is the same, $1.20 per hour, shown by the two parallel dashed orange lines. The higher-ability group earns more at every education level, so its line sits above the lower-ability line.
 
@@ -685,6 +683,14 @@ def _(mo):
         which is exactly what it means for $\hat{\beta}_1$ to be unbiased.
         """)
     })
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    <span id="fn1" style="display:block;font-size:0.9rem;">**1.** Another way to state the key requirement for the slope is that the average value of the error term does not vary with $X$. For the slope to have a causal interpretation, $\mathbb{E}[u \mid X = x]$ must be the same at every value of $x$. If that common value were some constant other than zero, it would be absorbed into the intercept and the slope would be unchanged. With an intercept in the model, we can therefore write the condition as $\mathbb{E}[u \mid X] = 0$. The appendix shows why this is true mathematically. <a href="#fnref1" title="Back to text">&#8617;</a></span>
+    """)
     return
 
 
