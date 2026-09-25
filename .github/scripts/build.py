@@ -260,8 +260,13 @@ def _export_html_wasm(
     # Pinned: marimo 0.25.0 (2026-09-23) ships a KaTeX whose CSS class names
     # (katex-sizing, katex-base, ...) no longer match the stylesheet injected
     # into the export, so subscripts render full-size and \neq shows as "/=".
-    # The sandbox inherits this pin. Raise it once a release renders math
-    # correctly (check an inline \hat{\mu}_X and a \neq on the deployed site).
+    # This pin alone is NOT enough: because every notebook declares inline
+    # script metadata, marimo re-runs the export inside a uv sandbox built
+    # from the notebook's own "marimo>=..." requirement, and that is the
+    # version whose frontend assets end up on the site. The notebook headers
+    # therefore carry a matching cap ("marimo>=0.23.3,<0.25"). Raise both
+    # together once a release renders math correctly (check an inline
+    # \hat{\mu}_X and a \neq on the deployed site).
     cmd: List[str] = [
         "uvx", "--from", "marimo==0.24.2", "marimo",
         "export", "html-wasm", "--sandbox", "--execute",
