@@ -257,7 +257,15 @@ def _export_html_wasm(
     # numbers) while Pyodide boots in the background. Combined with marimo's
     # session-snapshot rendering, this kills the "blank page until Pyodide
     # finishes" wait. See https://marimo.io/blog/newsletter-25 (PR #9437).
-    cmd: List[str] = ["uvx", "marimo", "export", "html-wasm", "--sandbox", "--execute"]
+    # Pinned: marimo 0.25.0 (2026-09-23) ships a KaTeX whose CSS class names
+    # (katex-sizing, katex-base, ...) no longer match the stylesheet injected
+    # into the export, so subscripts render full-size and \neq shows as "/=".
+    # The sandbox inherits this pin. Raise it once a release renders math
+    # correctly (check an inline \hat{\mu}_X and a \neq on the deployed site).
+    cmd: List[str] = [
+        "uvx", "--from", "marimo==0.24.2", "marimo",
+        "export", "html-wasm", "--sandbox", "--execute",
+    ]
 
     if as_app:
         logger.info(f"Exporting {notebook_path} to {output_file} as app")
