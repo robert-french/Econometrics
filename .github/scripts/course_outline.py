@@ -33,7 +33,7 @@ LECTURES = [
     (4, "Estimation and Hypothesis Testing", "Lec4EstimationHypothesisTestingAndConfidenceIntervals"),
     (5, "Simple Linear Regression", "Lec5SimpleLinearRegression"),
     (6, "OLS Assumptions for Causal Inference", "Lec6OLSAssumptionsForCausalInference"),
-    (7, "Inference and Omitted Variable Bias", "Lec7InferenceAndOmittedVariableBias"),
+    (7, "Inference in Simple Regression", "Lec7InferenceInSimpleRegression"),
     (8, "Multiple Regression", "Lec8MultipleRegression"),
     (9, "Control Variables and Inference", "Lec9ControlVariablesAndInference"),
     (10, "Reading Regression Tables", "Lec10ReadingRegressionTables"),
