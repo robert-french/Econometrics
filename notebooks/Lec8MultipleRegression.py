@@ -124,7 +124,7 @@ def _(mo):
 
     ## 8.1 Omitted variable bias
 
-    Recall the first least squares assumption from Lecture 6. It says that the conditional mean of the error term is zero at every value of $X$,
+    Recall the first least squares assumption from Lecture 6. It says that the conditional expectation of the error term is zero at every value of $X$,
 
     $$
     \mathbb{E}[u \mid X] = 0.

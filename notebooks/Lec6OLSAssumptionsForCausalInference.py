@@ -116,7 +116,7 @@ def _(mo):
     6.2 [The error term revisited](#sec2)<br>
     6.3 [From prediction to causation](#sec3)<br>
     6.4 [The least squares assumptions](#sec4)<br>
-    &emsp;&emsp;[Least Squares Assumption 1: the conditional mean of u given X is zero](#sec4a)<br>
+    &emsp;&emsp;[Least Squares Assumption 1: the conditional expectation of u given X is zero](#sec4a)<br>
     &emsp;&emsp;[Least Squares Assumption 2: the data are i.i.d.](#sec4b)<br>
     &emsp;&emsp;[Least Squares Assumption 3: large outliers are unlikely](#sec4c)<br>
     6.5 [Unbiasedness and consistency](#sec5)
@@ -136,6 +136,12 @@ def _(mo):
 
     $$
     \mathbb{E}[Y \mid X = x].
+    $$
+
+    For a discrete random variable $Y$ with possible values $y_1, \ldots, y_K$, the conditional expectation is computed just like the expected value in Lecture 2, except that each value is weighted by its conditional probability given $X = x$,
+
+    $$
+    \mathbb{E}[Y \mid X = x] = \sum_{i=1}^{K} y_i \cdot \mathbb{P}(Y = y_i \mid X = x).
     $$
 
     Like the expected value $\mathbb{E}[Y]$ from Lecture 2, the conditional expectation is a population object, not a sample statistic. The difference is that $\mathbb{E}[Y]$ averages over the whole population, while $\mathbb{E}[Y \mid X = x]$ averages only over the subpopulation with $X = x$.
@@ -233,7 +239,7 @@ def _(mo):
 
     The condition that rules out this problem, together with two additional conditions that allow us to estimate the population relationship reliably, gives us the three *least squares assumptions*.
 
-    1. The conditional mean of $u$ given $X$ is zero, $\mathbb{E}[u \mid X] = 0$.
+    1. The conditional expectation of $u$ given $X$ is zero, $\mathbb{E}[u \mid X] = 0$.
 
     2. The observations $(X_i, Y_i)$ for $i = 1, \ldots, n$ are independently and identically distributed.
 
@@ -257,9 +263,9 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec4a"></a>
-    ### <span style="color:#0b68cb">Least Squares Assumption 1: the conditional mean of $u$ given $X$ is zero</span>
+    ### <span style="color:#0b68cb">Least Squares Assumption 1: the conditional expectation of $u$ given $X$ is zero</span>
 
-    The first least squares assumption says that the conditional mean of the error term is zero at every value of $X$,
+    The first least squares assumption says that the conditional expectation of the error term is zero at every value of $X$,
 
     $$
     \mathbb{E}[u \mid X] = 0.
@@ -539,7 +545,7 @@ def _(mo):
     \mathbb{E}[\hat{\beta}_1] = \beta_1.
     $$
 
-    Unbiasedness follows from the first least squares assumption, which says that the conditional mean of the error given $X$ is zero. The appendix proves why this is true with algebra. The point is not that any one estimate must equal $\beta_1$. It is that the estimator is right on average, rather than systematically too high or too low.
+    Unbiasedness follows from the first least squares assumption, which says that the conditional expectation of the error given $X$ is zero. The appendix proves why this is true with algebra. The point is not that any one estimate must equal $\beta_1$. It is that the estimator is right on average, rather than systematically too high or too low.
 
     Second, $\hat{\beta}_1$ is *consistent* if it converges to the true slope as the sample grows,
 
@@ -598,9 +604,9 @@ def _(mo):
 
         The population regression line therefore passes through the average value of $Y$ at every value of $X$. The OLS line from Lecture 5 is the sample estimate of this population relationship.
 
-        **A constant conditional mean folds into the intercept.**
+        **A constant conditional expectation folds into the intercept.**
 
-        Section 6.4 said that only variation in $\mathbb{E}[u \mid X = x]$ across values of $x$ threatens the slope. To see why, suppose instead that the conditional mean is some constant $c$ other than zero,
+        Section 6.4 said that only variation in $\mathbb{E}[u \mid X = x]$ across values of $x$ threatens the slope. To see why, suppose instead that the conditional expectation is some constant $c$ other than zero,
 
         $$
         \mathbb{E}[u \mid X = x] = c
@@ -662,7 +668,7 @@ def _(mo):
         \hat{\beta}_1 - \beta_1 = \frac{1}{S_{XX}} \sum_{i=1}^{n}(X_i - \hat{\mu}_X)u_i.
         $$
 
-        Now take the expectation conditional on the observed values $X_1, \ldots, X_n$. Under Assumptions 1 and 2, each $u_i$ has conditional mean zero, so
+        Now take the expectation conditional on the observed values $X_1, \ldots, X_n$. Under Assumptions 1 and 2, each $u_i$ has conditional expectation zero, so
 
         $$
         \mathbb{E} \left[\hat{\beta}_1 - \beta_1\mid X_1, \ldots, X_n \right] = 0.

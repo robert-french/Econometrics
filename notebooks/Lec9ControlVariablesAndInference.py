@@ -130,7 +130,7 @@ def _(mo):
 
     <a id="sec1a"></a>
 
-    ### <span style="color:#0b68cb">Least Squares Assumption 1: the conditional mean of $u$ given the independent variables is zero</span>
+    ### <span style="color:#0b68cb">Least Squares Assumption 1: the conditional expectation of $u$ given the independent variables is zero</span>
 
     The first least squares assumption is
 
