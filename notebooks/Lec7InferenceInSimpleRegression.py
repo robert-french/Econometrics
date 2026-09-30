@@ -12,7 +12,7 @@
 
 import marimo
 
-__generated_with = "0.23.9"
+__generated_with = "0.24.2"
 app = marimo.App(
     app_title="Lecture 7: Inference in Simple Regression",
     css_file="marimo-overrides.css",
@@ -129,7 +129,7 @@ def _(mo):
 
     In Lecture 6, we wrote the regression model as $Y_i = \beta_0 + \beta_1 X_i + u_i$. Let's again suppose $Y_i$ is a worker’s wage and $X_i$ is the worker’s years of education. In this example, $u_i$ includes everything other than education that affects the worker’s wage.
 
-    When we estimate the model using one sample, we get one estimate of the slope, $\hat{\beta}_1$. In our wage and education example, we might estimate with a single sample that each additional year of education is associated with a $1.20 increase in hourly wages. But another sample would usually give us a different slope estimate, because the estimate depends on the particular observations included in the sample.
+    When we estimate the model using one sample, we get one estimate of the slope, $\hat{\beta}_1$. In our wage and education example, we might estimate with a single sample that each additional year of education is associated with a $1.20 increase in hourly wages on average. But another sample would usually give us a different slope estimate, because the estimate depends on the particular observations included in the sample.
 
     To understand how reliable $\hat{\beta}_1$ is, we need to know how much it would vary across repeated samples. This is the variance of the slope estimator. When the errors have the same dispersion at every value of $X$, the variance of $\hat{\beta}_1$ is
 
@@ -142,7 +142,7 @@ def _(mo):
     Using this estimate of the error variance gives the estimated variance of the slope estimator:
 
     $$
-    \hat{\sigma}^2_{\hat{\beta}*1} = \frac{\widehat{\operatorname{var}}(\hat{u})}{\sum_{i=1}^{n}(X_i - \hat{\mu}_X)^2}.
+    \hat{\sigma}^2_{\hat{\beta}_1} = \frac{\widehat{\operatorname{var}}(\hat{u})}{\sum_{i=1}^{n}(X_i - \hat{\mu}_X)^2}.
     $$
 
     The square root of this quantity is the standard error of $\hat{\beta}_1$, written $\operatorname{se}(\hat{\beta}_1)$. The standard error tells us the typical size of the sampling error in the slope estimate. It is measured in the same units as the slope.
@@ -154,7 +154,7 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     <a id="sec1a"></a>
-    The formula shows why some slope estimates are more precise than others. Three things matter. First, the denominator contains the variation in $X$. In the wage and education example, a sample with workers who have very different levels of education gives us clearer comparisons between high-education and low-education workers. Those comparisons make it easier to see how wages change when education changes. Second, the numerator contains $\operatorname{var}(u)$. When wages are less spread out around the regression line for reasons not captured by education, there is less noise hiding the relationship between wages and education. That makes the slope easier to estimate precisely. Third, the sample size $n$ matters. Each additional observation adds information about the relationship between $Y$ and $X$, so the estimate depends less on any one unusual worker. As the sample gets larger, the slope estimate varies less from one sample to the next.
+    The formula also helps explain why some slope estimates vary more from sample to sample than others. One thing that matters is how much variation there is in $X$. In the wage and education example, it is easier to estimate the relationship between wages and education when the sample includes workers with a wide range of education levels. Another thing that matters is $\operatorname{var}(u)$. If wages tend to lie close to the regression line, there is less noise, so the estimated slope varies less across samples. Finally, sample size matters. With more observations, the estimate is less affected by any one unusual worker, so the estimated slope also varies less from one sample to the next.
     """)
     return
 
@@ -173,9 +173,9 @@ def _(mo):
     \hat{\beta}_1 \sim \mathcal{N}\:\left(\beta_1,\ \sigma^2_{\hat{\beta}_1}\right).
     $$
 
-    This means that repeated estimates of $\hat{\beta}_1$ would be centered around the true slope, $\beta_1$ (the estimator is unbiased, as shown in Lecture 6), with variance given by $\sigma^2_{\hat{\beta}_1}$, defined in Section 7.1.
+    This means that repeated estimates of $\hat{\beta}_1$ would be centered around the true slope, $\beta_1$, with variance given by $\sigma^2_{\hat{\beta}_1}$, defined in Section 7.1.
 
-    This normal approximation comes from the central limit theorem from Lecture 2 because the slope estimate can be written as a weighted mean of sample observations. When the observations are independent and identically distributed as the second least squares assumption states, averages like this are close to normally distributed in large samples. The third least squares assumption that large outliers are unlikely helps ensure that no single observation dominates the estimate.
+    This normal approximation comes from the central limit theorem from Lecture 2 because the slope estimate can be written as a weighted mean of sample observations. When the observations are independent and identically distributed as in the second least squares assumption, averages like this are close to normally distributed in large samples. The third least squares assumption that large outliers are unlikely helps ensure that no single observation dominates the estimate.
 
     The plot below helps you see these ideas in practice. Use the sliders to set the underlying population and choose how many observations are drawn in each sample, then press the ''Draw new sample''. Each draw creates one sample, fits the corresponding OLS line, and reports its standard error. The orange dashed lines plot the OLS slope estimate multiplied by both plus and minus 1.96 times its standard error. These lines represent the range of a 95% confidence interval, which we consider again in Section 7.5. Each draw also adds its slope estimate to the adjacent density plot, so repeated draws build the sampling distribution one estimate at a time. Press ''Reset plots'' to start over. You should reset the plots after moving a slider so that all the collected slope estimates come from the same settings.
     """)
@@ -563,9 +563,9 @@ def _(mo):
     <a id="sec4"></a>
     ## 7.4 Hypothesis tests in the regression model
 
-    Lecture 4 introduced hypothesis tests, p-values, and t-statistics. Here we use the same ideas to test claims about the OLS estimates $\hat{\beta}_0$ and $\hat{\beta}_1$. For example, a common question in econometrics is whether education affects wages. In the population regression model, this is the claim that the slope parameter $\beta_1$ equals zero. Hypothesis tests formalize these claims.
+    Lecture 4 introduced hypothesis tests, p-values, and t-statistics. We now apply the same ideas to the OLS estimates $\hat{\beta}_0$ and $\hat{\beta}_1$. Continuing with our education and earnings example, suppose we want to test whether education affects earnings. In the population regression model, this amounts to asking whether the slope parameter $\beta_1$ is equal to zero.
 
-    A *hypothesis test* for the regression slope uses the sample estimate $\hat{\beta}_1$ to assess a null hypothesis about the parameter $\beta_1$. We denote the null value as $\beta_{1,H_0}$. The null hypothesis is the claim that $\beta_1 = \beta_{1,H_0}$. In our example, setting $\beta_{1,H_0} = 0$ represents the null hypothesis that education, $X$, has no effect on wages, $Y$.
+    A *hypothesis test* for the regression slope uses the sample estimate $\hat{\beta}_1$ to assess a claim about the population parameter $\beta_1$. We denote the value specified by the null hypothesis as $\beta_{1,H_0}$, so the null hypothesis is $H_0:\beta_1=\beta_{1,H_0}.$ In our education and earnings example, $\beta_{1,H_0}=0$ corresponds to the null hypothesis that education has no effect on earnings.
 
     Hypothesis tests for a single coefficient like the OLS slope estimator are based on the *t-statistic*,
 
@@ -573,7 +573,7 @@ def _(mo):
     t = \frac{\hat{\beta}_1 - \beta_{1,H_0}}{\operatorname{se}(\hat{\beta}_1)}.
     $$
 
-    The numerator is the gap between the estimated slope and the null value. The denominator is the standard error of the slope estimator. The t-statistic therefore measures the gap in standard-error units. For a two-sided test, the *p-value* is the probability of seeing a t-statistic at least this far from zero when the null is true,
+    The numerator is the gap between the estimated slope and the null value. The denominator is the standard error of the slope estimator. The t-statistic therefore measures the gap in standard-error units. Just like before, for a two-sided test, the *p-value* is the probability of seeing a t-statistic at least this far from zero when the null is true,
 
     $$
     p = 2\cdot\Phi(-|t|),
@@ -602,7 +602,7 @@ def _(mo):
 
     A hypothesis test asks whether the data are consistent with one particular guess about $\beta_1$. Often, though, we want more than a yes-or-no answer for a single guess. We want to know which values of $\beta_1$ remain plausible after looking at the data. A *confidence interval* gives us that range.
 
-    Recall from Lecture 4 that to build a confidence interval, we start from the estimate $\hat{\beta}_1$. We then collect the null values that the test in Section 7.4 would not reject at a chosen *significance level* $\alpha$. The significance level is the chance of rejecting a true null that the researcher is willing to accept. A common choice is $\alpha = 0.05$.
+    Recall from Lecture 4 that to build a confidence interval, we start from the estimate $\hat{\beta}_1$. We then collect the null values that the test in Section 7.4 would not reject at a chosen *significance level* $\alpha$. Recall that the significance level is the chance of rejecting a true null that the researcher is willing to accept. A common choice is $\alpha = 0.05$.
 
     For large $n$, where the $t$-statistic is standard normal, that range is the estimate plus or minus a multiple of its standard error,
 
