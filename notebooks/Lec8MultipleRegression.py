@@ -12,7 +12,7 @@
 
 import marimo
 
-__generated_with = "0.23.9"
+__generated_with = "0.24.2"
 app = marimo.App(
     app_title="Lecture 8: Multiple Regression",
     css_file="marimo-overrides.css",
@@ -130,7 +130,7 @@ def _(mo):
     \mathbb{E}[u \mid X] = 0.
     $$
 
-    This means that the omitted determinants of $Y$ do not vary systematically with $X$. If the assumption holds, then we can interpret the single-variable regression slope, $\hat{\beta}_1$, causally. If omitted determinants of $Y$ are systematically related to $X$, then the error term is correlated with $X$, the assumption fails, and the OLS slope estimator does not isolate the causal effect of $X$ on $Y$.
+    This means that the omitted determinants of $Y$ do not vary systematically with $X$. If the assumption holds, then we can interpret the single-variable regression slope, $\hat{\beta}_1$, causally. A particularly important way the assumption can fail is when omitted determinants of $Y$ are correlated with $X$. In that case, the OLS slope estimator does not isolate the causal effect of $X$ on $Y$.
 
     Consider the regression of hourly wages on years of education. If education is the only independent variable, then the error contains all other determinants of wages, such as ability, ambition, family resources, health, school quality, and luck. For the first least squares assumption to hold, these omitted determinants must not vary systematically with education. That is hard to believe, however. More able students may find school easier and stay in school longer. Children from richer families may get more schooling and may also inherit networks that help them in the labor market. If these factors are omitted, the error term is likely to be correlated with education.
 
@@ -250,7 +250,7 @@ def _(mo):
     \widehat{\text{wage}} = 4.6 + 1.22 \cdot \text{education} + 0.10 \cdot \text{parental income}.
     $$
 
-    The education coefficient falls from $1.63$ to $1.22$, reducing the estimated return by about one quarter. This is what we would expect if parental income was one source of omitted variable bias in the single-variable regression. Parental income raises wages and is higher, on average, for workers with more schooling. When parental income was omitted, the single-variable slope attributed to education part of the wage difference that was really associated with family resources.
+    The education coefficient falls from $1.63$ to $1.22$, reducing the estimated return to a year's education by about one quarter. This is what we would expect if parental income was one source of omitted variable bias in the single-variable regression. Parental income raises wages and is higher, on average, for workers with more schooling. When parental income was omitted, the single-variable slope attributed to education part of the wage difference that was really associated with family resources.
 
     The parental income coefficient says that, among workers with the same education, each additional thousand dollars of parental income is associated with 10 cents more in hourly wages on average. Equivalently, an additional ten thousand dollars of parental income is associated with one dollar more per hour on average.
 
