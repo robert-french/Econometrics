@@ -12,7 +12,7 @@
 
 import marimo
 
-__generated_with = "0.23.9"
+__generated_with = "0.25.1"
 app = marimo.App(
     app_title="Lecture 9: Control Variables and Inference",
     css_file="marimo-overrides.css",
@@ -280,7 +280,7 @@ def _(mo):
 
     The t-tests and confidence intervals from Lecture 7 therefore carry over to each coefficient. A smaller variance produces a smaller standard error and a more precise estimate.
 
-    The general formula for the variance of a coefficient in a multiple-variable regression $\sigma^2_{\hat{\beta}_j}$ is complicated. An illuminating special case is a regression with two independent variables, $X_1$ and $X_2$, and homoskedastic errors. In this case,
+    The general formula for the variance of a coefficient in a multiple-variable regression $\sigma^2_{\hat{\beta}_j}$ is complicated, and we will not cover it in this course. However, an illuminating special case is a regression with two independent variables, $X_1$ and $X_2$, and homoskedastic errors. In this case,
 
     $$
     \sigma^2_{\hat{\beta}_1} = \frac{1}{n}\cdot\frac{1}{1 - \rho^2_{X_1 X_2}}\cdot\frac{\sigma_u^2}{\sigma_{X_1}^2},
@@ -290,7 +290,7 @@ def _(mo):
 
     When $X_1$ and $X_2$ are uncorrelated, $\rho_{X_1X_2}=0$ and the variance-inflation factor equals one. As their correlation approaches either one or negative one, $\rho^2_{X_1X_2}$ approaches one and the variance increases. To understand why, remember that OLS estimates the effect of $X_1$ while holding $X_2$ fixed. When the two variables move closely together, the sample will therefore contain little variation in $X_1$ among observations with similar values of $X_2$, making it difficult to distinguish their separate effects. This situation is called *imperfect multicollinearity*. It increases the variance of the coefficient estimates but does not prevent OLS from estimating them.<sup><a id="fnref1" href="#fn1">1</a></sup>
 
-    The plot below shows the correlation between two independent variables alongside the sampling distribution of $\hat{\beta}_1$. As the correlation increases in magnitude, the sampling distribution becomes more dispersed.
+    The plot below shows the correlation between two independent variables alongside the corresponding sampling distribution of $\hat{\beta}_1$. As the correlation increases in magnitude, the sampling distribution becomes more dispersed.
     """)
     return
 
@@ -405,9 +405,9 @@ def _(mo):
     t = \frac{\hat{\beta}_j - \beta_{j, H_0}}{\hat{\sigma}_{\hat{\beta}_j}},
     $$
 
-    which is distributed as a standard normal when the null hypothesis is true in large samples. The two-sided p-value is $2\Phi(-|t|)$, and we reject when it falls below our chosen significance level, often 0.05. The most common null hypothesis is that the coefficient is zero, meaning the independent variable being tested has no effect once the others are held fixed.
+    which is distributed as a standard normal when the null hypothesis is true in large samples. The two-sided p-value is $2\cdot\Phi(-|t|)$, and we reject when it falls below our chosen significance level, often 0.05. The most common null hypothesis is that the coefficient is zero, meaning the independent variable being tested has no effect once the others are held fixed.
 
-    Take the education coefficient from Lecture 8, which was $1.22$ when we controlled for parental income. Suppose its standard error is $0.48$. The t-statistic for the null hypothesis of no effect is $t = 1.22 / 0.48 = 2.54$, and the p-value is $2\Phi(-2.54) \approx 0.01$, so we reject the null hypothesis at the 5% level and conclude that education matters for wages once parental income is held fixed.
+    Take the education coefficient from Lecture 8, which was $1.22$ when we controlled for parental income. Suppose its standard error is $0.48$. The t-statistic for the null hypothesis of no effect is $t = 1.22 / 0.48 = 2.54$, and the p-value is $2\cdot\Phi(-2.54) \approx 0.01$, so we reject the null hypothesis at the 5% level and conclude that education matters for wages once parental income is held fixed.
     """)
     return
 

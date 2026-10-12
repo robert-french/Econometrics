@@ -532,9 +532,9 @@ def _(mo):
     R^2 = 1 - \frac{\mathrm{SSR}}{\mathrm{TSS}}, \qquad \mathrm{TSS} = \sum_{i=1}^{n}(Y_i - \bar{Y})^2.
     $$
 
-    In the worker data, education alone gives an $R^2$ of 0.398 and an SER of \$6.61 per hour. Adding parental income raises the $R^2$ to 0.427 and lowers the SER to \$6.47. The improvement in fit is modest, even though the education slope falls by about a quarter when parental income enters the regression. This illustrates an important distinction. A regressor can matter a lot for the causal interpretation of a coefficient while adding little to the model’s overall fit, because bias and fit are different problems.
+    In the worker data, education alone gives an $R^2$ of 0.398 and an SER of \$6.61 per hour. Adding parental income raises the $R^2$ to 0.427 and lowers the SER to \$6.47. The improvement in fit is modest, even though the education slope falls by about a quarter when parental income enters the regression. This illustrates an important distinction. A regressor can matter a lot for the causal interpretation of a coefficient while adding little to the model’s overall fit, because bias and fit are different problems!
 
-    In multiple regression, however, the $R^2$ has an important flaw. Adding a regressor can never increase the sum of squared residuals, because OLS can always set the new coefficient to zero and do no worse. As a result, the $R^2$ never falls when a regressor is added, even if that regressor explains nothing. Judging a model by its $R^2$ alone therefore rewards adding useless variables.
+    In multiple regression, however, the $R^2$ has an important flaw. Adding a regressor can never increase the sum of squared residuals, because OLS can always set the new coefficient to zero and do no worse fitting the data. As a result, the $R^2$ never falls when a regressor is added, even if that regressor explains nothing. Judging a model by its $R^2$ alone therefore rewards adding useless variables.
 
     The *adjusted $R^2$* addresses this problem by penalizing the model for each regressor,
 
