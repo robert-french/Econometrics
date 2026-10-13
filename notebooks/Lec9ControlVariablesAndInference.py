@@ -548,7 +548,7 @@ def _(alt, ell_rho, mo, np, pd, stats):
     )
 
     mo.accordion(
-        {"## Appendix": mo.vstack([_ftest_md, ell_rho, _chart, _caption])}
+        {"## Appendix": mo.vstack([_ftest_md, ell_rho, _chart, _caption], gap=1)}
     )
     return
 
@@ -556,8 +556,6 @@ def _(alt, ell_rho, mo, np, pd, stats):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ---
-
     <span id="fn1" style="display:block;font-size:0.9rem;">**1.** Perfect multicollinearity occurs when $\rho^2_{X_1 X_2}=1$. The denominator then equals zero, and OLS cannot estimate separate coefficients on the two independent variables. This is why the fourth least squares assumption rules it out. <a href="#fnref1" title="Back to text">&#8617;</a></span>
     """)
     return
