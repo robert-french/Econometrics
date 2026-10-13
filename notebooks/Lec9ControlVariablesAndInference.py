@@ -547,8 +547,14 @@ def _(alt, ell_rho, mo, np, pd, stats):
         + _body + "</span>"
     )
 
+    # The markdown is wrapped in a block <div> before going into the vstack.
+    # marimo renders mo.md as a display:contents span, so inside the stack's
+    # flex column every paragraph would become its own flex item, with the
+    # column gap added between paragraphs and no margin collapsing, which
+    # spaced the appendix text about three times wider than Lecture 8's.
+    _ftest_block = mo.Html(f"<div>{_ftest_md.text}</div>")
     mo.accordion(
-        {"## Appendix": mo.vstack([_ftest_md, ell_rho, _chart, _caption], gap=1)}
+        {"## Appendix": mo.vstack([_ftest_block, ell_rho, _chart, _caption], gap=1)}
     )
     return
 
