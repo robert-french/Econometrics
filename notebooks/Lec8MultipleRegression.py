@@ -12,7 +12,7 @@
 
 import marimo
 
-__generated_with = "0.24.2"
+__generated_with = "0.25.1"
 app = marimo.App(
     app_title="Lecture 8: Multiple Regression",
     css_file="marimo-overrides.css",
@@ -140,11 +140,24 @@ def _(mo):
     \hat{\beta}_1 \overset{p}{\to} \beta_1 + \underbrace{\rho_{Xu}\cdot\frac{\sigma_u}{\sigma_X}}_{\text{bias}}.
     $$
 
-    The second term is the *omitted variable bias*.<sup><a id="fnref1" href="#fn1">1</a></sup> Its sign is determined by the sign of the correlation between $X$ and the error term, $u$. Its size grows as that correlation becomes stronger, the variance of $u$ becomes larger, or the variance of $X$ becomes smaller.
+    The second term is the *omitted variable bias*.\<sup>\<a id="fnref1" href="#fn1">1\</a>\</sup> Its sign depends on whether $X$ and the error term, $u$, are positively or negatively correlated. The bias becomes larger as this correlation becomes stronger, as the spread of $u$ increases, or as the spread of $X$ decreases.
 
-    Not every omitted variable creates omitted variable bias. An omitted variable matters only if it affects $Y$ and varies systematically with $X$. In the wage example, ability and family resources likely satisfy both conditions. They affect wages, so they belong in the error term if omitted. They are also likely to be positively related to education. As a result, education is positively correlated with the error term, so $\rho_{Xu} > 0$. The estimated return to schooling is therefore *biased upward* because education receives credit for part of the wage difference that is really due to ability and family background. If the error were negatively correlated with education instead, so that $\rho_{Xu} < 0$, the estimated return to schooling would be *biased downward*.
+    Not every omitted variable creates omitted variable bias. For an omitted variable to create bias, it must affect $Y$ and also vary systematically with $X$. In the wage example, ability and family resources likely satisfy both conditions: they affect wages and are also likely to be related to education. More able students may get more education and also earn higher wages, while students from richer families may get more education and have access to resources or networks that raise their wages. Omitting these factors therefore tends to push the estimated return to education upward. More generally, if $X$ is positively correlated with the error term, so that $\rho_{Xu}>0$, the slope is *biased upward*; if they are negatively correlated, so that $\rho_{Xu}<0$, the slope is *biased downward*.
 
-    When omitted determinants of $Y$ vary systematically with $X$, we do not need to abandon regression analysis. Instead, we can make the first least squares assumption more plausible by including those determinants in the regression whenever possible. By adding ability, family resources, or other relevant factors as additional independent variables, we remove them from the error term. This is why we often consider multiple-variable regression instead of single-variable regression.
+    ### <span style="color:#0b68cb">The sign of the bias from one omitted factor</span>
+
+    For a particular omitted factor, we can work out the direction of the bias by asking two questions: is the factor higher or lower when $X$ is higher, and does the factor raise or lower $Y$? The table below combines these two relationships.
+
+    |                                     | Factor raises $Y$ | Factor lowers $Y$ |
+    | :---------------------------------- | :---------------: | :---------------: |
+    | Factor is higher when $X$ is higher |   Positive bias   |   Negative bias   |
+    | Factor is lower when $X$ is higher  |   Negative bias   |   Positive bias   |
+
+    Ability in the wage example belongs in the top-left cell. More able workers tend to get more education and also earn more, so omitting ability pushes the estimated return to education upward. A factor that lowers wages but tends to be lower among more educated workers would also push the estimate upward. The bias from an omitted factor is therefore positive when the two relationships have the same sign and negative when they have opposite signs.
+
+    This table, however, considers one omitted factor at a time, while the error term contains all omitted determinants of $Y$. Some omitted factors may push the estimate upward and others downward, so the overall bias depends on their combined relationship with $X$. Thus, when we say that omitting ability creates upward bias, we mean that ability pushes the estimate upward; other omitted factors may push in the opposite direction.
+
+    When important determinants of $Y$ vary systematically with $X$, we can often make the first least squares assumption more plausible by including those determinants as additional independent variables when we can measure them. For example, adding family resources to the wage regression means that they are no longer left in the error term. This is one reason we often use multiple-variable regression rather than single-variable regression.
     """)
     return
 
