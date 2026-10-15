@@ -275,7 +275,7 @@ def _(mo):
     Across repeated random samples, each OLS coefficient has its own sampling distribution. Under the assumptions from Section 9.1, every $\hat{\beta}_j$ is approximately normally distributed in large samples and centered on the population coefficient $\beta_j$,
 
     $$
-    \hat{\beta}j \sim \mathcal{N}\left(\beta_j,\ \sigma^2_{\hat{\beta}_j}\right).
+    \hat{\beta}_j \sim \mathcal{N}\left(\beta_j,\ \sigma^2_{\hat{\beta}_j}\right).
     $$
 
     The t-tests and confidence intervals from Lecture 7 therefore carry over to each coefficient. A smaller variance produces a smaller standard error and a more precise estimate.
