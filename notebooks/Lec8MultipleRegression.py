@@ -140,7 +140,7 @@ def _(mo):
     \hat{\beta}_1 \overset{p}{\to} \beta_1 + \underbrace{\rho_{Xu}\cdot\frac{\sigma_u}{\sigma_X}}_{\text{bias}}.
     $$
 
-    The second term is the *omitted variable bias*.\<sup>\<a id="fnref1" href="#fn1">1\</a>\</sup> Its sign depends on whether $X$ and the error term, $u$, are positively or negatively correlated. The bias becomes larger as this correlation becomes stronger, as the spread of $u$ increases, or as the spread of $X$ decreases.
+    The second term is the *omitted variable bias*.<sup><a id="fnref1" href="#fn1">1</a></sup> Its sign depends on whether $X$ and the error term, $u$, are positively or negatively correlated. The bias becomes larger as this correlation becomes stronger, as the spread of $u$ increases, or as the spread of $X$ decreases.
 
     Not every omitted variable creates omitted variable bias. For an omitted variable to create bias, it must affect $Y$ and also vary systematically with $X$. In the wage example, ability and family resources likely satisfy both conditions: they affect wages and are also likely to be related to education. More able students may get more education and also earn higher wages, while students from richer families may get more education and have access to resources or networks that raise their wages. Omitting these factors therefore tends to push the estimated return to education upward. More generally, if $X$ is positively correlated with the error term, so that $\rho_{Xu}>0$, the slope is *biased upward*; if they are negatively correlated, so that $\rho_{Xu}<0$, the slope is *biased downward*.
 
