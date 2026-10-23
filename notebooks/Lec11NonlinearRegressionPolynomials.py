@@ -289,9 +289,9 @@ def _(mo):
     \Delta\widehat{\text{Wage}} = \left[ \hat{\beta}_1(\text{Exper}+\Delta) + \hat{\beta}_2(\text{Exper}+\Delta)^2 \right] - \left[ \hat{\beta}_1\text{Exper} + \hat{\beta}_2\text{Exper}^2 \right].
     $$
 
-    The intercept, $\hat{\beta}_0$, does not appear because it is the same in both predictions and therefore cancels. Dividing the predicted change by $\Delta$ gives the average slope of the fitted curve over this interval, $\frac{\Delta\widehat{\text{Wage}}}{\Delta}$.
-
-    This slope gives the average change in the predicted hourly wage associated with each additional year of experience over the interval. Unlike the constant slope of a straight-line regression, it depends on both the starting level of experience and the size of $\Delta$. The interactive plot below lets you choose both of these values. Early in a career, a small increase in experience raises the predicted wage substantially. Near the peak of the curve, the same increase in experience changes the predicted wage very little. Beyond the peak, it lowers the predicted wage. Increasing $\Delta$ averages the slope over a longer interval.
+    The intercept, $\hat{\beta}_0$, does not appear because it is the same in both predictions and therefore cancels. 
+    
+    Dividing the predicted change by $\Delta$ gives the average slope of the fitted curve over this interval, $\frac{\Delta\widehat{\text{Wage}}}{\Delta}$. This slope gives the average change in the predicted hourly wage associated with each additional year of experience over the interval. Unlike the constant slope of a straight-line regression, it depends on both the starting level of experience and the size of $\Delta$. The interactive plot below lets you choose both of these values. Early in a career, a small increase in experience raises the predicted wage substantially. Near the peak of the curve, the same increase in experience changes the predicted wage very little. Beyond the peak, it lowers the predicted wage. Increasing $\Delta$ averages the slope over a longer interval.
     """)
     return
 
@@ -310,7 +310,7 @@ def _(mo):
     )
     mo.vstack(
         [
-            mo.md("Set where the increase in experience starts and how large it is, then observe the slope of the curve over that interval."),
+            mo.md("Set where the increase in experience starts from and how large it is, and then observe the slope of the curve over that interval."),
             secant_start,
             secant_delta,
         ]
