@@ -12,7 +12,7 @@
 
 import marimo
 
-__generated_with = "0.23.16"
+__generated_with = "0.25.2"
 app = marimo.App(
     app_title="Lecture 13: Nonlinear Regression, Interaction Terms",
     css_file="marimo-overrides.css",
@@ -142,7 +142,7 @@ def _(mo):
 
     A *binary variable*, also called an *indicator variable*, takes only the values 0 and 1. Lecture 5 showed how to interpret a regression of $Y$ on a single binary variable. Recall that the intercept $\hat{\beta}_0$ is the estimated mean of $Y$ for the observations with $X=0$, while $\hat{\beta}_0+\hat{\beta}_1$ is the estimated mean for the observations with $X=1$. The slope $\hat{\beta}_1$ is therefore the difference between the two estimated means.
 
-    This lecture considers regressions with two binary variables. Our survey of 300 workers from Lectures 11 and 12 recorded two indicator variables that we have not yet used. The first indicates whether a worker holds a job in science, technology, engineering, or mathematics (STEM). The second indicates whether the worker has completed a college degree. We can use these variables to ask whether the payoff to a college degree is larger in STEM jobs than in non-STEM jobs.
+    The first part of this lecture considers regressions with two binary variables. Our survey of 300 workers from Lectures 11 and 12 recorded two indicator variables that we have not yet used. The first indicates whether a worker holds a job in science, technology, engineering, or mathematics (STEM). The second indicates whether the worker has completed a college degree. We can use these variables to ask whether the payoff to a college degree is larger in STEM jobs than in non-STEM jobs.
 
     To answer this question, the regression must allow the payoff to a college degree to differ by job type. We do this by multiplying the two indicators and including their product as an additional regressor. This product is called an *interaction term*. The regression becomes
 
@@ -181,7 +181,7 @@ def _(college, mo, np, stem, wage):
     _c01 = _b0 + _b2
     _c11 = _b0 + _b1 + _b2 + _b3
     _p1 = (
-        rf"Fitting the regression to the survey data gives"
+        rf"Estimating this regression yields the following predicted wage equation:"
         "\n\n"
         rf"$$\widehat{{\text{{Wage}}}} = {_b0:.2f} + {_b1:.2f}\,\text{{College}} + {_b2:.2f}\,\text{{STEM}} + {_b3:.2f}\,(\text{{College}} \times \text{{STEM}}),$$"
         "\n\n"
@@ -223,7 +223,7 @@ def _(mo):
 
     ## 13.2 Interacting a binary and a continuous variable
 
-    A binary variable can also interact with a continuous variable. Work experience is continuous, and the wage difference associated with an additional year of experience may be larger in STEM jobs than in non-STEM jobs. Let $D = 1$ indicate a STEM job and $D = 0$ indicate a non-STEM job, and let $X$ denote years of experience. There are three main ways we can incorporate the STEM indicator into the regression of wages on work experience.
+    We can also interact a binary variable with a continuous variable. Suppose the association between wages and work experience (a continuous variable) is stronger for workers in STEM jobs than in non-STEM jobs (a binary variable). Let $D = 1$ indicate a STEM job and $D = 0$ indicate a non-STEM job, and let $X$ denote years of experience. There are then three main ways we can incorporate the STEM indicator into the regression of wages on work experience.
 
     ### <span style="color:#0b68cb">(a) Different intercepts, same slope:</span>
 
@@ -243,7 +243,7 @@ def _(mo):
     Y = (\beta_0+\beta_1) + \beta_2 X.
     $$
 
-    The STEM indicator $D$ shifts the entire STEM line up or down by $\beta_1$. The two groups have different regression intercepts but the same slope, so their fitted regression lines are parallel. At every level of experience, the predicted wage difference between STEM and non-STEM workers is $\beta_1$.
+    The STEM indicator $D$ shifts the entire regression line up or down by $\beta_1$. The two regression lines have different intercepts but the same slope, so their fitted lines are parallel; at every level of experience, the predicted wage difference between STEM and non-STEM workers is $\beta_1$.
 
     ### <span style="color:#0b68cb">(b) Same intercept, different slopes:</span>
 
@@ -263,9 +263,9 @@ def _(mo):
     Y = \beta_0+(\beta_1+\beta_2)X.
     $$
 
-    Both groups have the same intercept $\beta_0$, but their slopes differ by $\beta_2$. The predicted wage difference is zero when $X=0$ and equals $\beta_2X$ at any other level of experience. It therefore changes by $\beta_2$ with each additional year of experience.
+    Both regression lines have the same intercept $\beta_0$, but their slopes differ by $\beta_2$. The predicted wage difference is zero when $X=0$ and equals $\beta_2X$ at any other level of experience. It therefore changes by $\beta_2$ with each additional year of experience.
 
-    This specification imposes the restriction that STEM and non-STEM workers have the same predicted wage when experience equals zero. In most applications, researchers include both the indicator and the interaction, as in specification (c) below, unless there is a substantive reason to impose this restriction. More generally, an interaction term is usually included together with the variables from which it is constructed.
+    This case imposes the restriction that STEM and non-STEM workers have the same predicted wage when experience equals zero. In most applications, researchers include both the indicator and the interaction, as in case (c) below, unless there is a substantive reason to impose this restriction. More generally, an interaction term is usually included together with the variables from which it is constructed.
 
     ### <span style="color:#0b68cb">(c) Different intercepts and different slopes:</span>
 
@@ -538,7 +538,7 @@ def _(mo):
 
     The wage difference associated with an additional year of experience is no longer a single number. It depends on the worker’s years of schooling. The coefficient $\beta_3$ tells us how much the relationship between wages and experience changes with each additional year of schooling. When $\beta_3>0$, the wage difference associated with an additional year of experience is larger for workers with more schooling. When $\beta_3<0$, it is smaller.
 
-    Suppose a study of hourly wages estimates
+    Suppose a study of hourly wages yields the following predicted regression line:
 
     $$
     \widehat{\text{Wage}} = 5.00+0.20X_1+0.90X_2+0.02(X_1 \times X_2).
@@ -583,7 +583,7 @@ def _(mo):
     mo.md(r"""
     ---
 
-    <span id="fn1" style="display:block;font-size:0.9rem;">**1.** With four coefficients for four groups, this is a *saturated regression*. It is flexible enough to reproduce every group average exactly. <a href="#fnref1" title="Back to text">&#8617;</a></span>
+    <span id="fn1" style="display:block;font-size:0.9rem;">**1.** With four coefficients for four groups, the regression becomes what is called a *saturated regression*. Saturated regressions are flexible enough to reproduce every group average exactly. <a href="#fnref1" title="Back to text">&#8617;</a></span>
     """)
     return
 
