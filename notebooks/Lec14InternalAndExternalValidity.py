@@ -12,7 +12,7 @@
 
 import marimo
 
-__generated_with = "0.23.16"
+__generated_with = "0.25.2"
 app = marimo.App(
     app_title="Lecture 14: Internal and External Validity",
     css_file="marimo-overrides.css",
@@ -147,7 +147,7 @@ def _(mo):
 
     ### <span style="color:#0b68cb">Threat 1: Omitted variable bias</span>
 
-    We first saw *omitted variable bias* in Lecture 8. It occurs when we leave out a variable that affects $Y$ and is correlated with $X$. The omitted variable becomes part of the error term, making $X$ and $u$ correlated. Suppose we regress wages on experience but leave out schooling. Schooling affects wages, so it becomes part of $u$. If experience and schooling are correlated, then $\text{cov}(X,u) \neq 0$, which means $\mathbb{E}[u \mid X] \neq 0$. The first OLS assumption therefore fails, and
+    We first saw *omitted variable bias* in Lecture 8. It occurs when there is an omitted factor in the error term that affects $Y$ and is correlated with $X$. Suppose we regress wages on experience but leave out schooling. Schooling affects wages, so it becomes part of $u$. If experience and schooling are correlated, then $\text{cov}(X,u) \neq 0$, which means $\mathbb{E}[u \mid X] \neq 0$. The first OLS assumption therefore fails, and
 
     $$
     \hat{\beta}_1 \overset{p}{\to} \underbrace{\beta_1}_{\text{True causal effect}}
@@ -161,7 +161,7 @@ def _(mo):
 
     ### <span style="color:#0b68cb">Threat 2: Misspecification of the functional form</span>
 
-    *Functional form* describes the shape we assume for the relationship between variables. Functional-form *misspecification* occurs when we assume the wrong shape. A common example is assuming a linear relationship when the true relationship curves.
+    *Functional form* describes the shape we assume for the relationship between variables in our regression. Functional-form *misspecification* occurs when we assume the wrong shape. A common example is assuming a linear relationship when the true relationship curves.
 
     Suppose the true relationship between $X$ and $Y$ is quadratic,
 
@@ -177,7 +177,7 @@ def _(mo):
     Y = \beta_0 + \beta_1 X + u.
     $$
 
-    A straight line cannot capture the quadratic relationship at every value of $X$. The part of the relationship that the linear model misses ends up in the error term, so the error varies systematically with $X$. As a result, $\mathbb{E}[u \mid X] \neq 0$. The first OLS assumption therefore fails. In this sense, functional-form misspecification is similar to omitted variable bias. We saw this threat in Lecture 11. When the relationship between wages and experience was curved, a straight line predicted wages that were too high at low and high levels of experience and too low in the middle.
+    A straight line cannot capture the quadratic relationship at every value of $X$. The part of the relationship that the linear model misses ends up in the error term, so the error varies systematically with $X$. As a result, $\mathbb{E}[u \mid X] \neq 0$. The first OLS assumption therefore fails. In this sense, functional-form misspecification is similar to omitted variable bias. When the relationship between wages and experience is curved like in Lecture 11, a straight line predicts wages that are too high at low and high levels of experience and too low in the middle.
 
     **Solutions.** Choose a functional form flexible enough to capture the relationship. Polynomials, logarithms, and interaction terms are common ways to do so.
 
@@ -328,7 +328,7 @@ def _(alt, me_exper, me_noise, me_wage, mo, np, pd):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    **Solutions.** Obtain more accurate data when possible. If that is not possible, acknowledge the likely bias and explain what it means for the study. Measurement error in $Y$ rather than $X$ is much less of an issue for internal validity, as we explain in the appendix.
+    **Solutions.** Obtain more accurate data when possible. If that is not possible, acknowledge the likely bias and explain what it means for the study. Measurement error in $Y$ rather than $X$ is much less of an issue for internal validity, as I explain in the appendix.
 
     ### <span style="color:#0b68cb">Threat 4: Bias due to sample selection</span>
 
@@ -340,7 +340,7 @@ def _(mo):
 
     * **Selection based on $Y$.** Now suppose high-wage workers are more likely to answer the survey. At a given level of experience, the workers who respond are no longer representative of all workers. For example, low-experience workers who make it into the sample will tend to have unusually high wages, and therefore high values of $u$, while high-experience workers need not have high values of $u$. This makes $X$ and $u$ negatively related in the sample, violating $\mathbb{E}[u \mid X] = 0$ and biasing $\hat{\beta}_1$ downward. This is called *sample selection bias*.
 
-    The chart below illustrates these cases using a simulated survey of 400 workers whose wages follow $\text{Wage} = 12 + 0.30\cdot\text{Exper} + u$. Choose a rule for which workers are missing from the sample. The excluded workers fade to gray, while the full-sample line remains for comparison and a new line and confidence band are fit to the workers who remain in the sample.
+    The chart below illustrates these cases using a simulated survey of 400 workers whose wages are modeled as $\text{Wage} = 12 + 0.30\cdot\text{Exper} + u$. Choose a rule for which workers are missing from the sample. The excluded workers fade to gray, while the full-sample line remains for comparison and a new line and confidence band are fit to the workers who remain in the sample.
     """)
     return
 
