@@ -33,7 +33,7 @@ affects the homepage.
 """
 
 POSTED_THROUGH = 14
-PSETS_POSTED_THROUGH = 6
+PSETS_POSTED_THROUGH = 8
 STATA_POSTED_THROUGH = 2
 
 BASE_URL = "https://robert-french.github.io/Econometrics"
