@@ -54,14 +54,14 @@ def _(mo):
                     1. [From prediction to causation](#sec3)
                     1. [The least squares assumptions](#sec4)
                     1. [Unbiasedness and consistency](#sec5)
-                7. <span class="soon">Inference in Simple Regression</span>
-                8. <span class="soon">Multiple Regression</span>
-                9. <span class="soon">Control Variables and Inference</span>
-                10. <span class="soon">Reading Regression Tables</span>
-                11. <span class="soon">Nonlinear Regression: Polynomials</span>
-                12. <span class="soon">Nonlinear Regression: Logarithms</span>
-                13. <span class="soon">Nonlinear Regression: Interaction Terms</span>
-                14. <span class="soon">Internal and External Validity</span>
+                7. <a href="https://robert-french.github.io/Econometrics/apps/Lec7InferenceInSimpleRegression.html" target="_self">Inference in Simple Regression</a>
+                8. <a href="https://robert-french.github.io/Econometrics/apps/Lec8MultipleRegression.html" target="_self">Multiple Regression</a>
+                9. <a href="https://robert-french.github.io/Econometrics/apps/Lec9ControlVariablesAndInference.html" target="_self">Control Variables and Inference</a>
+                10. <a href="https://robert-french.github.io/Econometrics/apps/Lec10ReadingRegressionTables.html" target="_self">Reading Regression Tables</a>
+                11. <a href="https://robert-french.github.io/Econometrics/apps/Lec11NonlinearRegressionPolynomials.html" target="_self">Nonlinear Regression: Polynomials</a>
+                12. <a href="https://robert-french.github.io/Econometrics/apps/Lec12NonlinearRegressionLogarithms.html" target="_self">Nonlinear Regression: Logarithms</a>
+                13. <a href="https://robert-french.github.io/Econometrics/apps/Lec13NonlinearRegressionInteractionTerms.html" target="_self">Nonlinear Regression: Interaction Terms</a>
+                14. <a href="https://robert-french.github.io/Econometrics/apps/Lec14InternalAndExternalValidity.html" target="_self">Internal and External Validity</a>
                 15. <span class="soon">Panel Data I</span>
                 16. <span class="soon">Panel Data II</span>
                 17. <span class="soon">Binary Dependent Variable Regressions</span>
@@ -81,7 +81,7 @@ def _(mo):
         [
             mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec5SimpleLinearRegression.html" target="_self">← Lecture 5</a>'),
             mo.md('<a href="https://robert-french.github.io/Econometrics/pdf/Lec6OLSAssumptionsForCausalInference.pdf" target="_blank">Download PDF</a>'),
-            mo.md('<span class="nav-soon">Lecture 7 (coming soon)</span>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec7InferenceInSimpleRegression.html" target="_self">Lecture 7 →</a>'),
         ],
         justify="space-between", align="center",
     )
@@ -705,7 +705,7 @@ def _(mo):
     mo.hstack(
         [
             mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec5SimpleLinearRegression.html" target="_self">← Lecture 5</a>'),
-            mo.md('<span class="nav-soon">Lecture 7 (coming soon)</span>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec7InferenceInSimpleRegression.html" target="_self">Lecture 7 →</a>'),
         ],
         justify="space-between", align="center",
     )

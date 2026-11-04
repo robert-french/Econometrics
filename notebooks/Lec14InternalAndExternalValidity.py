@@ -51,13 +51,13 @@ def _(mo):
                 4. <a href="https://robert-french.github.io/Econometrics/apps/Lec4EstimationHypothesisTestingAndConfidenceIntervals.html" target="_self">Estimation and Hypothesis Testing</a>
                 5. <a href="https://robert-french.github.io/Econometrics/apps/Lec5SimpleLinearRegression.html" target="_self">Simple Linear Regression</a>
                 6. <a href="https://robert-french.github.io/Econometrics/apps/Lec6OLSAssumptionsForCausalInference.html" target="_self">OLS Assumptions for Causal Inference</a>
-                7. <span class="soon">Inference in Simple Regression</span>
-                8. <span class="soon">Multiple Regression</span>
-                9. <span class="soon">Control Variables and Inference</span>
-                10. <span class="soon">Reading Regression Tables</span>
-                11. <span class="soon">Nonlinear Regression: Polynomials</span>
-                12. <span class="soon">Nonlinear Regression: Logarithms</span>
-                13. <span class="soon">Nonlinear Regression: Interaction Terms</span>
+                7. <a href="https://robert-french.github.io/Econometrics/apps/Lec7InferenceInSimpleRegression.html" target="_self">Inference in Simple Regression</a>
+                8. <a href="https://robert-french.github.io/Econometrics/apps/Lec8MultipleRegression.html" target="_self">Multiple Regression</a>
+                9. <a href="https://robert-french.github.io/Econometrics/apps/Lec9ControlVariablesAndInference.html" target="_self">Control Variables and Inference</a>
+                10. <a href="https://robert-french.github.io/Econometrics/apps/Lec10ReadingRegressionTables.html" target="_self">Reading Regression Tables</a>
+                11. <a href="https://robert-french.github.io/Econometrics/apps/Lec11NonlinearRegressionPolynomials.html" target="_self">Nonlinear Regression: Polynomials</a>
+                12. <a href="https://robert-french.github.io/Econometrics/apps/Lec12NonlinearRegressionLogarithms.html" target="_self">Nonlinear Regression: Logarithms</a>
+                13. <a href="https://robert-french.github.io/Econometrics/apps/Lec13NonlinearRegressionInteractionTerms.html" target="_self">Nonlinear Regression: Interaction Terms</a>
                 14. **[Internal and External Validity](#top)**
                     1. [What makes a study valid](#sec1)
                     1. [Threats to internal validity](#sec2)
@@ -79,7 +79,7 @@ def _(mo):
 def _(mo):
     mo.hstack(
         [
-            mo.md('<span class="nav-soon">← Lecture 13 (coming soon)</span>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec13NonlinearRegressionInteractionTerms.html" target="_self">← Lecture 13</a>'),
             mo.md('<a href="https://robert-french.github.io/Econometrics/pdf/Lec14InternalAndExternalValidity.pdf" target="_blank">Download PDF</a>'),
             mo.md('<span class="nav-soon">Lecture 15 (coming soon)</span>'),
         ],
@@ -902,7 +902,7 @@ def _(mo):
 def _(mo):
     mo.hstack(
         [
-            mo.md('<span class="nav-soon">← Lecture 13 (coming soon)</span>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec13NonlinearRegressionInteractionTerms.html" target="_self">← Lecture 13</a>'),
             mo.md('<span class="nav-soon">Lecture 15 (coming soon)</span>'),
         ],
         justify="space-between", align="center",
