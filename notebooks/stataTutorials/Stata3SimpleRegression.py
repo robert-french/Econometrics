@@ -160,7 +160,21 @@ def _(mo):
     ```
 
     The first `predict` line creates a new variable, `earningsHat`, holding each person's fitted value $\hat{Y}_i = \hat{\beta}_0 + \hat{\beta}_1 X_i$. Stata notes that it assumed the `xb` option, which is its name for the fitted value. The second line, with the `residuals` option, creates a variable holding each person's OLS residual $\hat{u}_i = Y_i - \hat{Y}_i$. In the `summarize` output, the mean of `earningsHat` equals the mean of `earnings`, because the fitted line passes through the point of sample means, and the mean of `residual` is zero up to rounding, because OLS residuals always average to zero.<sup><a id="fnref1" href="#fn1">1</a></sup>
+    """)
+    return
 
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    <img src="https://robert-french.github.io/Econometrics/stata3tutorial/stata3_shot3_predict.png" alt="predict and summarize output for the fitted values and residuals" style="display:block;margin:0.5rem auto 1rem;max-width:100%;">
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     Now plot both. The first graph redraws the scatter plot from Tutorial 2 with the fitted values drawn as a line, which reproduces what `lfit` did automatically. The second plots the residuals against `education`, with a horizontal line at zero. Add these lines, rerun the do-file, and then remove the two new variables so the dataset stays tidy.
 
     ```stata
@@ -170,14 +184,6 @@ def _(mo):
     ```
 
     The `sort` option on the `line` plot tells Stata to connect the fitted values in order of `education`, so that the line runs from left to right instead of zigzagging through the points in the order they appear in the dataset. In the residual plot, the points scatter above and below zero in every education category. Look at whether the vertical spread of the residuals is similar across categories or changes with education. Section 7.3 of the Lecture 7 notebook explains that a spread that changes with $X$ is heteroskedasticity, and Section 3.6 shows what to do about it.
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    <img src="https://robert-french.github.io/Econometrics/stata3tutorial/stata3_shot3_predict.png" alt="predict and summarize output for the fitted values and residuals" style="display:block;margin:0.5rem auto 1rem;max-width:100%;">
     """)
     return
 
