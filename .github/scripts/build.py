@@ -32,7 +32,12 @@ import fire
 
 from loguru import logger
 
-from course_outline import LECTURES, POSTED_THROUGH
+from course_outline import (
+    LECTURES,
+    POSTED_THROUGH,
+    PSETS_POSTED_THROUGH,
+    STATA_POSTED_THROUGH,
+)
 from export_pdf import export_notebook_pdf
 from update_sidebars import update_all as update_sidebars
 
@@ -477,12 +482,19 @@ def main(
         logger.warning("No notebooks found!")
         return
 
-    # Lectures past the release dial keep their card inside the group
-    # dropdown but get the "Coming soon" badge and a disabled button, like
-    # unposted problem sets (both are driven by the preliminary flag).
+    # Notebooks past their track's release dial keep their homepage card but
+    # get the "Coming soon" badge and a disabled button (the card template
+    # keys on the preliminary flag). Each track has its own dial in
+    # course_outline.py; a notebook's own __preliminary__ = True still
+    # applies on top.
+    _dials = {
+        "lecture": POSTED_THROUGH,
+        "problem_set": PSETS_POSTED_THROUGH,
+        "stata": STATA_POSTED_THROUGH,
+    }
     for item in apps_data:
         category, number = _categorize(item["stem"])
-        if category == "lecture" and number is not None and number > POSTED_THROUGH:
+        if number is not None and number > _dials[category]:
             item["preliminary"] = True
 
     # Placeholder cards for lectures whose notebooks are not written yet

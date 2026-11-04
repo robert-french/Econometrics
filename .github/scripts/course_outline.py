@@ -20,11 +20,32 @@ LECTURES lists (number, short sidebar title, notebook stem). A stem of None
 marks a notebook that has not been written yet; it appears in every sidebar
 outline as a placeholder. When the notebook is written, fill in its stem and
 rerun update_sidebars.py.
+
+Problem sets and Stata tutorials have their own dials, PSETS_POSTED_THROUGH
+and STATA_POSTED_THROUGH, which work the same way: a problem set or tutorial
+numbered above its dial is still built, so you can preview it at its URL,
+but its homepage card gets the "Coming soon" badge and a disabled button.
+A Stata tutorial above its dial also turns grey in the other tutorials'
+sidebar outlines and prev/next nav rows, which update_sidebars.py
+regenerates from STATA_TUTORIALS just as it does the lectures from
+LECTURES. Problem set notebooks have no cross-links, so their dial only
+affects the homepage.
 """
 
 POSTED_THROUGH = 14
+PSETS_POSTED_THROUGH = 6
+STATA_POSTED_THROUGH = 2
 
 BASE_URL = "https://robert-french.github.io/Econometrics"
+
+STATA_TUTORIALS = [
+    (1, "Getting Started with Stata", "Stata1GettingStarted"),
+    (2, "Describing Data and Relationships", "Stata2DescribingRelationships"),
+    (3, "Simple Regression", "Stata3SimpleRegression"),
+    (4, "Multiple Regression and Regression Tables", None),
+    (5, "Nonlinear Specifications", None),
+    (6, "Panel Data", None),
+]
 
 LECTURES = [
     (1, "Introduction", "Lec1Introduction"),

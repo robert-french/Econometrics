@@ -1,23 +1,26 @@
 """
-Regenerate every lecture notebook's sidebar and prev/next nav rows from the
-course outline in course_outline.py.
+Regenerate every lecture and Stata tutorial notebook's sidebar and prev/next
+nav rows from the course outline in course_outline.py.
 
-Run after changing POSTED_THROUGH (the weekly release), adding a lecture to
-LECTURES, or renaming sections in a notebook:
+Run after changing POSTED_THROUGH or STATA_POSTED_THROUGH (the weekly
+release), adding an entry to LECTURES or STATA_TUTORIALS, or renaming
+sections in a notebook:
 
-    uv run .github/scripts/update_sidebars.py            # all lectures
+    uv run .github/scripts/update_sidebars.py            # every notebook
     uv run .github/scripts/update_sidebars.py Lec1Introduction   # one stem
 
-For each notebook the script rewrites three cells in place, so it is safe to
-rerun any number of times:
+Lectures and Stata tutorials are two separate tracks. Each track has its own
+outline list and release dial, and a notebook's sidebar lists only the
+notebooks in its own track. For each notebook the script rewrites three
+cells in place, so it is safe to rerun any number of times:
 
   * the mo.sidebar cell: course-home link, then a single tight outline of
-    all lectures. Posted lectures link to their app pages; the current
-    lecture is bold, links to #top, and nests its own section links
+    the track. Posted notebooks link to their app pages; the current
+    notebook is bold, links to #top, and nests its own section links
     (scraped from the notebook's Contents cell, so they never drift);
-    unposted lectures render as grey <span class="soon"> placeholders.
-  * the two prev/next nav rows (top row also carries the Download PDF
-    link). Links pointing past POSTED_THROUGH become grey
+    unposted notebooks render as grey <span class="soon"> placeholders.
+  * the two prev/next nav rows (for lectures the top row also carries the
+    Download PDF link). Links pointing past the track's dial become grey
     <span class="nav-soon"> text.
 
 Styling constraint (React error #62): same-page #fragment links must stay
@@ -34,11 +37,44 @@ marimo-sidebar / the soon classes.
 import re
 import sys
 from pathlib import Path
+from typing import NamedTuple
 
 sys.path.insert(0, str(Path(__file__).parent))
-from course_outline import BASE_URL, LECTURES, POSTED_THROUGH
+from course_outline import (
+    BASE_URL,
+    LECTURES,
+    POSTED_THROUGH,
+    STATA_POSTED_THROUGH,
+    STATA_TUTORIALS,
+)
 
 NOTEBOOKS_DIR = Path(__file__).resolve().parents[2] / "notebooks"
+
+
+class Track(NamedTuple):
+    """One numbered sequence of notebooks with its own release dial."""
+
+    entries: list  # (number, title, stem) triples from course_outline
+    posted_through: int  # highest number students can open
+    heading: str  # sidebar heading above the outline
+    label: str  # "Lecture" or "Stata Tutorial", used in the nav rows
+    app_dir: str  # path under BASE_URL where the apps are served
+    subdir: str  # folder under notebooks/ holding the sources
+    with_pdf: bool  # whether the top nav row carries a Download PDF link
+
+
+TRACKS = (
+    Track(LECTURES, POSTED_THROUGH, "Course Outline", "Lecture", "apps", "", True),
+    Track(
+        STATA_TUTORIALS,
+        STATA_POSTED_THROUGH,
+        "Stata Tutorials",
+        "Stata Tutorial",
+        "apps/stataTutorials",
+        "stataTutorials",
+        False,
+    ),
+)
 
 # Section links appear in two Contents-cell styles across the notebooks:
 # "1. [Title](#sec1)" (Lec1-5) and "[1. Title](#sec1)<br>" (Lec6-16); the
@@ -106,6 +142,7 @@ def _renumber_headings(text: str, lecture_n: int) -> tuple[str, int]:
         lambda m: f"{m.group(1)}## {lecture_n}.{m.group(2)} ", text
     )
 
+
 _SIDEBAR_CELL = re.compile(
     r"@app\.cell\(hide_code=True\)\ndef _\(mo\):\n    mo\.sidebar\(.*?\n    return\n",
     re.S,
@@ -121,28 +158,35 @@ _NAV_CELL = re.compile(
 )
 
 
-def _entry(number):
-    for n, title, stem in LECTURES:
+def _entry(track: Track, number: int):
+    for n, title, stem in track.entries:
         if n == number:
             return title, stem
     return None, None
 
 
-def _sidebar_cell(current_n: int, sections: list[tuple[str, str]]) -> str:
+def _app_url(track: Track, stem: str) -> str:
+    return f"{BASE_URL}/{track.app_dir}/{stem}.html"
+
+
+def _sidebar_cell(
+    track: Track, current_n: int, sections: list[tuple[str, str]]
+) -> str:
     lines = []
-    for n, title, stem in LECTURES:
+    for n, title, stem in track.entries:
         if n == current_n:
             lines.append(f"                {n}. **[{title}](#top)**")
             for sec_title, anchor in sections:
                 lines.append(f"                    1. [{sec_title}](#{anchor})")
-        elif stem is not None and n <= POSTED_THROUGH:
+        elif stem is not None and n <= track.posted_through:
             lines.append(
-                f'                {n}. <a href="{BASE_URL}/apps/{stem}.html" '
+                f'                {n}. <a href="{_app_url(track, stem)}" '
                 f'target="_self">{title}</a>'
             )
         else:
             lines.append(f'                {n}. <span class="soon">{title}</span>')
     outline = "\n".join(lines)
+    heading = track.heading
     return f'''@app.cell(hide_code=True)
 def _(mo):
     mo.sidebar(
@@ -157,7 +201,7 @@ def _(mo):
             ),
             mo.md(
                 r"""
-                <div style="font-weight: 700; font-size: 1.05em;">Course Outline</div>
+                <div style="font-weight: 700; font-size: 1.05em;">{heading}</div>
 
 {outline}
                 """
@@ -166,41 +210,45 @@ def _(mo):
         width="350px",
     )
     return
-'''.replace("{BASE_URL}", BASE_URL).replace("{outline}", outline)
+'''.replace("{BASE_URL}", BASE_URL).replace("{heading}", track.heading).replace(
+        "{outline}", outline
+    )
 
 
-def _left_item(current_n: int) -> str:
-    if current_n == 1:
+def _left_item(track: Track, current_n: int) -> str:
+    if current_n == track.entries[0][0]:
         return f'<a href="{BASE_URL}/" target="_self">← Course home</a>'
-    title, stem = _entry(current_n - 1)
-    if stem is not None and current_n - 1 <= POSTED_THROUGH:
+    title, stem = _entry(track, current_n - 1)
+    if stem is not None and current_n - 1 <= track.posted_through:
         return (
-            f'<a href="{BASE_URL}/apps/{stem}.html" target="_self">'
-            f"← Lecture {current_n - 1}</a>"
+            f'<a href="{_app_url(track, stem)}" target="_self">'
+            f"← {track.label} {current_n - 1}</a>"
         )
-    return f'<span class="nav-soon">← Lecture {current_n - 1} (coming soon)</span>'
+    return (
+        f'<span class="nav-soon">← {track.label} {current_n - 1} (coming soon)</span>'
+    )
 
 
-def _right_item(current_n: int) -> str:
-    title, stem = _entry(current_n + 1)
+def _right_item(track: Track, current_n: int) -> str:
+    title, stem = _entry(track, current_n + 1)
     if title is None:
         return f'<a href="{BASE_URL}/" target="_self">Course home →</a>'
-    if stem is not None and current_n + 1 <= POSTED_THROUGH:
+    if stem is not None and current_n + 1 <= track.posted_through:
         return (
-            f'<a href="{BASE_URL}/apps/{stem}.html" target="_self">'
-            f"Lecture {current_n + 1} →</a>"
+            f'<a href="{_app_url(track, stem)}" target="_self">'
+            f"{track.label} {current_n + 1} →</a>"
         )
-    return f'<span class="nav-soon">Lecture {current_n + 1} (coming soon)</span>'
+    return f'<span class="nav-soon">{track.label} {current_n + 1} (coming soon)</span>'
 
 
-def _nav_cell(current_n: int, stem: str, with_pdf: bool) -> str:
-    items = [f"            mo.md('{_left_item(current_n)}'),"]
+def _nav_cell(track: Track, current_n: int, stem: str, with_pdf: bool) -> str:
+    items = [f"            mo.md('{_left_item(track, current_n)}'),"]
     if with_pdf:
         items.append(
             f"            mo.md('<a href=\"{BASE_URL}/pdf/{stem}.pdf\" "
             f"target=\"_blank\">Download PDF</a>'),"
         )
-    items.append(f"            mo.md('{_right_item(current_n)}'),")
+    items.append(f"            mo.md('{_right_item(track, current_n)}'),")
     body = "\n".join(items)
     return f'''@app.cell(hide_code=True)
 def _(mo):
@@ -214,8 +262,8 @@ def _(mo):
 '''
 
 
-def update_notebook(number: int, stem: str) -> bool:
-    path = NOTEBOOKS_DIR / f"{stem}.py"
+def update_notebook(track: Track, number: int, stem: str) -> bool:
+    path = NOTEBOOKS_DIR / track.subdir / f"{stem}.py"
     if not path.is_file():
         print(f"SKIP {stem}: file not found")
         return False
@@ -227,7 +275,7 @@ def update_notebook(number: int, stem: str) -> bool:
         return False
 
     new_text, n_side = _SIDEBAR_CELL.subn(
-        lambda m: _sidebar_cell(number, sections), text, count=1
+        lambda m: _sidebar_cell(track, number, sections), text, count=1
     )
     if n_side != 1:
         print(f"SKIP {stem}: sidebar cell not found")
@@ -246,7 +294,9 @@ def update_notebook(number: int, stem: str) -> bool:
         print(f"SKIP {stem}: expected 2 nav cells, found {len(nav_cells)}")
         return False
     new_text = _NAV_CELL.sub(
-        lambda m, it=iter([True, False]): _nav_cell(number, stem, next(it)),
+        lambda m, it=iter([track.with_pdf, False]): _nav_cell(
+            track, number, stem, next(it)
+        ),
         new_text,
         count=2,
     )
@@ -257,16 +307,17 @@ def update_notebook(number: int, stem: str) -> bool:
 
 
 def update_all(only=None) -> int:
-    """Regenerate the given stems (or all lectures); returns failure count."""
+    """Regenerate the given stems (or every notebook); returns failure count."""
     only = set(only or [])
     failures = 0
-    for number, title, stem in LECTURES:
-        if stem is None:
-            continue
-        if only and stem not in only:
-            continue
-        if not update_notebook(number, stem):
-            failures += 1
+    for track in TRACKS:
+        for number, title, stem in track.entries:
+            if stem is None:
+                continue
+            if only and stem not in only:
+                continue
+            if not update_notebook(track, number, stem):
+                failures += 1
     return failures
 
 
