@@ -7,7 +7,7 @@
 
 import marimo
 
-__generated_with = "0.24.0"
+__generated_with = "0.25.2"
 app = marimo.App(
     app_title="Stata Tutorial 3: Simple Regression",
     css_file="../marimo-overrides.css",
@@ -99,15 +99,13 @@ def _(mo):
     <a id="sec1"></a>
     ## 3.1 Picking up where we left off
 
-    In the second tutorial you drew least-squares lines through scatter plots with `lfit`. This tutorial estimates those lines with the `regress` command, which prints the intercept and slope from Lecture 5 together with the standard errors, t-statistics, p-values, and confidence intervals from Lecture 7.
+    In the second tutorial you drew least-squares lines through scatter plots with `lfit`. This tutorial estimates those lines with the `regress` command, which records the intercept and slope from Lecture 5 together with the standard errors, t-statistics, p-values, and confidence intervals from Lecture 7.
 
-    Open Stata, open `tutorial1.do` in the Do-file Editor, and run it from the top with the Execute (do) button so that the dataset loads. Then add a comment line at the bottom to mark today's work.
+    Open Stata, open `tutorial1.do` in the Do-file Editor, and run it from the top with the Execute (do) button so that the dataset loads. Then add a comment line at the bottom to mark the start of this tutorial's code.
 
     ```stata
     * Stata Tutorial 3
     ```
-
-    Everything you add today goes below this line. As before, rerun the whole do-file each time you add commands, so that the `use` command at the top reloads a clean copy of the data.
     """)
     return
 
@@ -118,21 +116,21 @@ def _(mo):
     <a id="sec2"></a>
     ## 3.2 Your first regression
 
-    The `regress` command estimates a regression by ordinary least squares. You list the dependent variable first and the independent variable second, in the same order as `scatter`. Add this line to your do-file and rerun it.
+    The `regress` command estimates a regression by ordinary least squares. You list the dependent variable first and the independent variable second, in the same order as with the `scatter` command. Add this line to your do-file and rerun it.
 
     ```stata
     regress earnings education
     ```
 
-    The most important part of the output is the **coefficient table** at the bottom. Each row is one coefficient. The `education` row reports the slope $\hat{\beta}_1$, and the `_cons` row reports the intercept $\hat{\beta}_0$, which Stata calls the constant. The `Coefficient` column holds the OLS estimates from Lecture 5, so the fitted line is
+    The most important part of the output is the *coefficient table* at the bottom. Each row in the table reports one coefficient estimate and its corresponding measures of uncertainty. The `education` row reports the slope estimate $\hat{\beta}_1$, and the `_cons` row reports the intercept estimate $\hat{\beta}_0$, which Stata calls the constant. You can read from the coefficient table the following fitted line
 
     $$
     \widehat{\text{earnings}} = 37{,}903 + 11{,}281 \times \text{education}.
     $$
 
-    Recall from Tutorial 2 that `education` takes the values 1 through 4 for the four education categories. The slope therefore says that moving up one education category is associated with annual earnings that are about \$11,281 higher on average. The intercept is the predicted earnings for a person with `education` equal to 0. No such category exists, so the intercept only positions the line and should not be interpreted on its own. The remaining columns of the coefficient table report the standard error of each estimate and the inference built on it. Section 3.5 returns to them.
+    Recall from the second Stata tutorial that `education` takes the values 1 through 4 for the four education categories. The slope estimate therefore says that moving up one education category is associated with annual earnings that are about \$11,281 higher on average. The intercept is the predicted earnings for a person with `education` equal to 0. Though no such category exists, so the intercept only positions the line and should not be interpreted as economically informative on its own. The same rows also report each coefficient's standard error, t-statistic, p-value, and 95\% confidence interval.
 
-    Two numbers in the block at the **top right** are also worth reading. `R-squared` is the $R^2$ from Section 5.5 of the Lecture 5 notebook, and here it says that education accounts for about 68 percent of the variation in earnings in this sample. `Root MSE` is Stata's name for the standard error of the regression, the typical size of a residual, which is about \$8,932 here. The block at the top left reports the sums of squares behind the $R^2$, and you will rarely need it.
+    The `R-squared` in the top-right block is the $R^2$ from Section 5.5 of the Lecture 5 notebook. Here it says that education accounts for about 68 percent of the variation in earnings in this sample. `Root MSE` is Stata's name for the standard error of the regression, the typical size of a residual, which is about \$8,932 in this sample. The block at the top left reports the sums of squares behind the $R^2$ (the TSS and SSR).
     """)
     return
 
