@@ -122,7 +122,7 @@ def _(mo):
     regress earnings education
     ```
 
-    Running this line of code will produce a *coefficient table*. Each row in the table reports one coefficient estimate and its corresponding measures of uncertainty. The `education` row reports the slope estimate $\hat{\beta}_1$, and the `_cons` row reports the intercept estimate $\hat{\beta}_0$, which Stata calls the constant. The coefficient table represents the following fitted line
+    Running this line of code will produce a *coefficient table*. Each row in the table reports on one coefficient estimate. The `education` row reports the slope estimate $\hat{\beta}_1$, and the `_cons` row reports the intercept estimate $\hat{\beta}_0$, which Stata calls the constant. The coefficient table represents the following fitted line
 
     $$
     \widehat{\text{earnings}} = 37{,}903 + 11{,}281 \times \text{education}.
@@ -130,7 +130,7 @@ def _(mo):
 
     Recall from the second Stata tutorial that `education` takes the values 1 through 4 for the four education categories. The slope estimate therefore says that moving up one education category is associated with annual earnings that are about \$11,281 higher on average. The intercept is the predicted earnings for a person with `education` equal to 0. Note that no such category exists, so the intercept only positions the line and is therefore not economically informative on its own. The same rows also report each coefficient's standard error, t-statistic, p-value, and 95% confidence interval.
 
-    The `R-squared` in the top-right block is the $R^2$ from the regression. It says that education accounts for about 68 percent of the variation in earnings in this sample. `Root MSE` is Stata's name for the standard error of the regression, the typical size of a residual, which is about \$8,932 in this sample. The block at the top left reports the sums of squares behind the $R^2$; `Model` records the ESS, `Residual` records the SSR, and `Total` records the TSS.
+    The `R-squared` in the top-right block is the $R^2$ from the regression. It says that education accounts for about 68 percent of the variation in earnings in this sample. `Root MSE` is Stata's name for the standard error of the regression, the typical size of a residual, which is about \$8,932 in this sample. The block at the top left reports the sums of squares underlying the $R^2$ measure; `Model` records the ESS, `Residual` records the SSR, and `Total` records the TSS.
     """)
     return
 
@@ -157,7 +157,7 @@ def _(mo):
     summarize earningsHat residual
     ```
 
-    The first `predict` line creates a new variable called `earningsHat`, which holds each person's fitted value $\hat{Y}_i = \hat{\beta}_0 + \hat{\beta}_1 X_i$. Stata notes that it assumed the `xb` option, which is the option for recording the fitted value. The second line, with the `residuals` option, creates a variable holding each person's OLS residual $\hat{u}_i = Y_i - \hat{Y}_i$. In the `summarize` output, the mean of `earningsHat` equals the mean of `earnings`. The mean of `residual` is zero up to rounding, because OLS residuals always average to zero.<sup><a id="fnref1" href="#fn1">1</a></sup>
+    The first `predict` line creates a new variable called `earningsHat`, which holds each person's fitted value $\hat{Y}_i = \hat{\beta}_0 + \hat{\beta}_1 X_i$. Stata notes that it assumed the `xb` option, which is the default option and records the fitted value. The second line, with the `residuals` option, creates a variable holding each person's OLS residual $\hat{u}_i = Y_i - \hat{Y}_i$. In the `summarize` output, the mean of `earningsHat` equals the mean of `earnings`. The mean of `residual` is zero up to a rounding error, because OLS residuals always average to zero.<sup><a id="fnref1" href="#fn1">1</a></sup>
     """)
     return
 
@@ -221,7 +221,13 @@ def _(mo):
 
     The first line creates the variable `female`, which equals 1 for women and 0 for men. In Stata, `==` tests whether variables are equal to a value, while `=` assigns a value to that variable. The tabulate command lets us check that the indicator was constructed correctly.
 
-    Now compare the regression results with the tabstat table. Recall that our regression is $\widehat{earnings}=\hat{\beta}_0+\hat{\beta}_1 female$. For men, `female` equals 0, so predicted earnings are simply $\hat{\beta}_0$, the intercept (`_cons`). For women, `female` equals 1, so predicted earnings are $\hat{\beta}_0+\hat{\beta}_1$. The coefficient on `female` therefore measures the difference in predicted earnings between women and men. In a regression with a single binary explanatory variable, these predictions equal the respective group means. You can confirm this in the `tabstat` table: the intercept equals mean earnings for men, and the coefficient on female equals mean earnings for women minus mean earnings for men. In this sample, women earn about \$4,143 less per year on average.
+    Now compare the regression results with the tabstat table. Our regression is
+
+    $$
+    \widehat{\text{earnings}} = \hat{\beta}_0 + \hat{\beta}_1 \times \text{female}.
+    $$
+
+    For men, `female` equals 0, so predicted earnings are simply $\hat{\beta}_0$, the intercept (`_cons`). For women, `female` equals 1, so predicted earnings are $\hat{\beta}_0+\hat{\beta}_1$. The coefficient on `female` therefore measures the difference in predicted earnings between women and men. You can confirm this in the `tabstat` table: the intercept equals mean earnings for men, and the coefficient on female equals mean earnings for women minus mean earnings for men. In this sample, women earn about \$4,143 less per year on average.
     """)
     return
 
