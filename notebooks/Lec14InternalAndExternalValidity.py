@@ -492,7 +492,8 @@ def _(alt, mo, np, pd, sel_exper, sel_mar, sel_n, sel_rule, sel_wage):
         _msg = (
             rf"The highest-earning half of workers decline to report their wages, "
             rf"leaving {_k[7]} of 400. The slope falls from \${_f[1]:.2f} to "
-            rf"\${_k[1]:.2f}. High-experience workers now make it into the sample only "
+            rf"\${_k[1]:.2f}, and its standard error rises from {_f[2]:.3f} to "
+            rf"{_k[2]:.3f}. High-experience workers now make it into the sample only "
             rf"when their wages are unusually low for their experience, creating a "
             rf"negative relationship between experience and the error term. The fitted "
             rf"line therefore becomes flatter. This is sample selection bias."
