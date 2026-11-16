@@ -129,7 +129,7 @@ def _(mo):
     \text{Yield}_i = \beta_0 + \beta_1 \, \text{Fertilizer}_i + u_i
     $$
 
-    we obtain $\hat{\beta}_1 = -0.19$. According to the regression, each additional pound of nitrogen is associated with about one-fifth of a bushel less corn per acre. The chart below plots the data separately for each of the six seasons, and the same negative relationship appears every year.
+    we obtain $\hat{\beta}_1 = -0.19$. According to the regression, each additional pound of nitrogen is associated with about one-fifth of a bushel less corn per acre. The chart below plots the data separately for each of the six seasons, which shows the same negative relationship appears every year.
     """)
     return
 
