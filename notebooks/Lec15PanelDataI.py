@@ -234,7 +234,7 @@ def _(mo):
     mo.md(r"""
     The likely explanation for these negative coefficient estimates is an omitted variable. Farms with better soil tend to produce higher yields with less fertilizer, while farms with poorer soil tend to apply more nitrogen to compensate for their poor soil. Soil quality therefore sits in the error term and is negatively correlated with fertilizer use, biasing $\hat{\beta}_1$ downward enough to reverse its sign. Controlling directly for soil quality would be difficult because the survey does not measure it, and no single variable fully captures differences in drainage, nutrients, slope, and land-use history.
 
-    The important feature of these data is that the survey follows the same 150 farms every season from 2014 to 2019. This allows us to compare each farm with itself over time rather than relying only on comparisons across farms. In this lecture, we will see how repeated observations of the same entity can be used to account for persistent unobserved differences across entities---like farms' soil quality---and thereby address an important source of omitted variable bias.
+    The important feature of these data is that the survey follows the same 150 farms every season from 2014 to 2019. This allows us to compare each farm with itself over time rather than relying only on comparisons across farms. In this lecture, we will see how repeated observations of the same entity can be used to account for persistent unobserved differences across entities—like farms' soil quality—and thereby address an important source of omitted variable bias.
     """)
     return
 
@@ -319,12 +319,12 @@ def _(mo):
     \text{Fertilizer}_{i2019} - \text{Fertilizer}_{i2014}
     \right)
     +
-    \left(\varepsilon_{i2019} - \varepsilon_{i2014}\right) .
+    \varepsilon_i .
     \end{align*}
 
     Any farm characteristic that remained unchanged between 2014 and 2019 and hence in $Z_i$ cancels out, whether or not we can observe it. The intercept $\beta_0 \equiv \beta_0^{2019} - \beta_0^{2014}$ captures changes in yields over this period that are common across farms, such as improvements in agricultural technology. Instead of comparing farms with different types of soil, we are now asking whether farms whose fertilizer use increased more between 2014 and 2019 also experienced larger increases in crop yield.
 
-    Soil type may affect the *level* of a farm's yield, but if soil type does not change over time, it cannot explain changes in yield between 2014 and 2019. Differencing across two time periods therefore removes soil type, along with every other time-invariant farm characteristic, from the regression. By contrast, unobserved factors that do change over time are not removed. If changes in weather, pests, irrigation, or other conditions are related to changes in fertilizer use, they remain in $\varepsilon_{i2019} - \varepsilon_{i2014}$ and can still bias $\hat{\beta}_1$. We return to this issue in Section 15.5.
+    Soil type may affect the *level* of a farm's yield, but if soil type does not change over time, it cannot explain changes in yield between 2014 and 2019. Differencing across two time periods therefore removes soil type, along with every other time-invariant farm characteristic, from the regression. By contrast, unobserved factors that do change over time are not removed. If changes in weather, pests, irrigation, or other conditions are related to changes in fertilizer use, they remain in $\varepsilon \equiv \varepsilon_{i2019} - \varepsilon_{i2014}$ and can still bias $\hat{\beta}_1$. We return to this issue in Section 15.5.
 
     The chart below estimates this difference regression across our 150 farms.
     """)
@@ -393,7 +393,7 @@ def _(mo):
 
     ## 15.4 Fixed effect regression
 
-    The before-and-after comparison in Section 15.3 used only two years of our panel. *Fixed effects regressions* extend the same idea to all years in a dataset by allowing each entity, each farm in our case, to have its own intercept in the regression. In practice, we can do this by including a separate binary indicator for each farm. This allows us to estimate the relationship between nitrogen use and crop yield from changes in these variables within the same farm over time rather than from differences across farms.
+    The before-and-after comparison in Section 15.3 used only two years of our panel. *Fixed effects regressions* extend the same idea to all years in a dataset by allowing each entity—each farm in our case—to have its own intercept in the regression. In practice, we can do this by including a separate binary indicator for each farm. This allows us to estimate the relationship between nitrogen use and crop yield from changes in these variables within the same farm over time rather than from differences across farms.
 
     Consider again the model from Section 15.3,
 
