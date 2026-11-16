@@ -12,7 +12,7 @@
 
 import marimo
 
-__generated_with = "0.23.16"
+__generated_with = "0.25.2"
 app = marimo.App(
     app_title="Lecture 15: Panel Data I",
     css_file="marimo-overrides.css",
@@ -123,13 +123,13 @@ def _(mo):
 
     As we have frequently discussed in this course, many causal questions are difficult to answer because the entities we compare differ in ways that are hard to observe. Workers differ in ability, firms differ in management, and neighborhoods differ in amenities. When these unobserved differences are related to both our outcome and independent variables of interest, they create omitted variable bias.
 
-    In this lecture, we study another economic relationship involving the effect of nitrogen fertilizer on corn yields. Nitrogen is widely understood to increase corn yields, yet a simple regression of corn yields on nitrogen use can suggest exactly the opposite. We will use data on 150 corn farms over six years that record each farm's yield, measured in bushels per acre,<sup><a id="fnref1" href="#fn1">1</a></sup> and nitrogen fertilizer use, measured in pounds per acre. Using data from only the 2014 growing season, when we estimate
+    In this lecture, we study an economic relationship involving the effect of nitrogen fertilizer on corn yields. Nitrogen is widely understood to increase corn yields, yet a simple regression of corn yields on nitrogen use can suggest exactly the opposite. We will use data on 150 corn farms over six years that record each farm's yield, measured in bushels per acre,<sup><a id="fnref1" href="#fn1">1</a></sup> and nitrogen fertilizer use, measured in pounds per acre. Using data from only the 2014 growing season, when we estimate
 
     $$
     \text{Yield}_i = \beta_0 + \beta_1 \, \text{Fertilizer}_i + u_i
     $$
 
-    we obtain $\hat{\beta}_1 = -0.19$. According to the regression, each additional pound of nitrogen is associated with about one-fifth of a bushel less corn per acre. Use the dropdown to change seasons, and the same negative relationship appears every year.
+    we obtain $\hat{\beta}_1 = -0.19$. According to the regression, each additional pound of nitrogen is associated with about one-fifth of a bushel less corn per acre. The chart below plots the data separately for each of the six seasons, and the same negative relationship appears every year.
     """)
     return
 
@@ -164,48 +164,64 @@ def _(np):
 
 
 @app.cell(hide_code=True)
-def _(fm_years, mo):
-    cs_year = mo.ui.dropdown(
-        options=[str(_y) for _y in fm_years],
-        value="2014",
-        label="Growing season",
-    )
-    cs_year
-    return (cs_year,)
-
-
-@app.cell(hide_code=True)
-def _(alt, cs_year, fm_fert, fm_years, fm_yield, mo, np, pd):
-    _t = int(cs_year.value) - int(fm_years[0])
-    _x, _y = fm_fert[:, _t], fm_yield[:, _t]
-    _b1, _b0 = np.polyfit(_x, _y, 1)
+def _(alt, fm_fert, fm_years, fm_yield, mo, np, pd):
+    # One cross-sectional regression per season, shown as a 2 x 3 grid of
+    # small multiples with shared axes.
+    _rows, _slopes = [], []
+    for _t, _yr in enumerate(fm_years):
+        _x, _y = fm_fert[:, _t], fm_yield[:, _t]
+        _b1, _b0 = np.polyfit(_x, _y, 1)
+        _slopes.append(_b1)
+        _rows.append(pd.DataFrame(
+            {"season": str(_yr), "kind": "point", "fert": _x, "yield": _y}))
+        _gx = np.array([float(_x.min()), float(_x.max())])
+        _rows.append(pd.DataFrame(
+            {"season": str(_yr), "kind": "line", "fert": _gx, "yield": _b0 + _b1 * _gx}))
+    _df = pd.concat(_rows, ignore_index=True)
 
     _xsc = alt.Scale(domain=[60.0, 250.0], nice=False)
     _ysc = alt.Scale(domain=[95.0, 245.0], nice=False)
     _pts = (
-        alt.Chart(pd.DataFrame({"fert": _x, "yield": _y}))
-        .mark_circle(size=34, opacity=0.5, color="#1f4e79", clip=True)
+        alt.Chart()
+        .transform_filter(alt.datum.kind == "point")
+        .mark_circle(size=18, opacity=0.5, color="#1f4e79", clip=True)
         .encode(
-            x=alt.X("fert:Q", scale=_xsc,
-                    title=f"Nitrogen applied in {cs_year.value} (pounds per acre)"),
-            y=alt.Y("yield:Q", scale=_ysc,
-                    title=f"Corn yield in {cs_year.value} (bushels per acre)"),
+            x=alt.X("fert:Q", scale=_xsc, title=None),
+            y=alt.Y("yield:Q", scale=_ysc, title=None),
         )
     )
-    _gx = np.array([float(_x.min()), float(_x.max())])
     _line = (
-        alt.Chart(pd.DataFrame({"fert": _gx, "yield": _b0 + _b1 * _gx}))
-        .mark_line(color="orange", size=3, clip=True)
+        alt.Chart()
+        .transform_filter(alt.datum.kind == "line")
+        .mark_line(color="orange", size=2.5, clip=True)
         .encode(x=alt.X("fert:Q", scale=_xsc), y=alt.Y("yield:Q", scale=_ysc))
     )
-    _chart = (_pts + _line).properties(width=560, height=340)
+    # Axis titles are drawn once for the whole grid: the x title as a bottom
+    # title on the facet, the y title as a left title on a wrapping concat.
+    _grid = (
+        alt.layer(_pts, _line, data=_df)
+        .properties(width=175, height=150)
+        .facet(
+            facet=alt.Facet("season:N", header=alt.Header(
+                title=None, labelFontSize=13, labelFontWeight="bold")),
+            columns=3,
+            spacing=8,
+        )
+        .properties(title=alt.TitleParams(
+            "Nitrogen applied (pounds per acre)", orient="bottom",
+            anchor="middle", fontWeight="normal", fontSize=12, offset=6))
+    )
+    _chart = alt.vconcat(_grid).properties(title=alt.TitleParams(
+        "Corn yield (bushels per acre)", orient="left",
+        anchor="middle", fontWeight="normal", fontSize=12, offset=6))
 
     _msg = (
-        f"Each point is one of the 150 farms in the {cs_year.value} season. "
-        f"The fitted slope is {_b1:+.2f} bushels per pound of nitrogen. "
+        "Each panel plots the 150 farms in one growing season with the fitted "
+        "regression line. The fitted slopes range from "
+        f"{min(_slopes):+.2f} to {max(_slopes):+.2f} bushels per pound of nitrogen."
     )
     _caption = mo.md(
-        "<span style='display:block;margin:0.2rem auto 1rem;max-width:560px;"
+        "<span style='display:block;margin:0.2rem auto 1rem;max-width:600px;"
         "font-size:0.85rem;line-height:1.45;color:#6b7280;text-align:center;'>"
         + _msg + "</span>"
     )
@@ -218,7 +234,7 @@ def _(mo):
     mo.md(r"""
     The likely explanation for these negative coefficient estimates is an omitted variable. Farms with better soil tend to produce higher yields with less fertilizer, while farms with poorer soil tend to apply more nitrogen to compensate for their poor soil. Soil quality therefore sits in the error term and is negatively correlated with fertilizer use, biasing $\hat{\beta}_1$ downward enough to reverse its sign. Controlling directly for soil quality would be difficult because the survey does not measure it, and no single variable fully captures differences in drainage, nutrients, slope, and land-use history.
 
-    The important feature of these data is that the survey follows the same 150 farms every season from 2014 to 2019. This allows us to compare each farm with itself over time rather than relying only on comparisons across farms. In this lecture, we will see how repeated observations of the same entity can be used to account for persistent unobserved differences across entities and thereby address an important source of omitted variable bias.
+    The important feature of these data is that the survey follows the same 150 farms every season from 2014 to 2019. This allows us to compare each farm with itself over time rather than relying only on comparisons across farms. In this lecture, we will see how repeated observations of the same entity can be used to account for persistent unobserved differences across entities---like farms' soil quality---and thereby address an important source of omitted variable bias.
     """)
     return
 
@@ -284,25 +300,31 @@ def _(mo):
     u_{it} = Z_i + \varepsilon_{it},
     $$
 
-    where $Z_i$ represents the unobserved factors that differ across farms but do not change over time, such as soil type, slope, or drainage. $\varepsilon_{it}$ collects the unobserved factors that vary over time within a farm, such as rainfall, temperature, or pest pressure in a particular season. The absence of a $t$ subscript on $Z_i$ is important; soil type, slope, or drainage changes very little over six seasons, so we can treat it as part of $Z_i$.
+    where $Z_i$ represents the unobserved factors that differ across farms but do not change over time, such as soil type, slope, or drainage. $\varepsilon_{it}$ collects the unobserved factors that vary over time within a farm, such as rainfall, temperature, or pest activity in a particular season. The absence of a $t$ subscript on $Z_i$ is important; soil type, slope, or drainage changes very little over six seasons, so we can treat it as part of $Z_i$.
 
     We can now compare each farm in the first and last seasons of the survey by subtracting its 2014 observation from its 2019 observation. This gives the *difference regression*,
 
-    $$
-    \text{Yield}_{i2019} - \text{Yield}_{i2014} =
+    \begin{align*}
+    \text{Yield}_{i2019} - \text{Yield}_{i2014} = & \:(\beta_0^{2019} - \beta_0^{2014}) +
     \beta_1
     \left(
     \text{Fertilizer}_{i2019} - \text{Fertilizer}_{i2014}
     \right)
     +
-    \underbrace{(Z_i - Z_i)}_{= 0}
+    (Z_i - Z_i)
     +
-    \left(\varepsilon_{i2019} - \varepsilon_{i2014}\right).
-    $$
+    \left(\varepsilon_{i2019} - \varepsilon_{i2014}\right) \\
+    = & \: \beta_0 + \beta_1
+    \left(
+    \text{Fertilizer}_{i2019} - \text{Fertilizer}_{i2014}
+    \right)
+    +
+    \left(\varepsilon_{i2019} - \varepsilon_{i2014}\right) .
+    \end{align*}
 
-    Any farm characteristic that remained unchanged between 2014 and 2019 and hence in $Z_i$ cancels out, whether or not we can observe it. The intercept $\beta_0$ cancels for the same reason. Instead of comparing farms with different types of soil, we are now asking whether farms whose fertilizer use increased more between 2014 and 2019 also experienced larger increases in crop yield.
+    Any farm characteristic that remained unchanged between 2014 and 2019 and hence in $Z_i$ cancels out, whether or not we can observe it. The intercept $\beta_0 \equiv \beta_0^{2019} - \beta_0^{2014}$ captures changes in yields over this period that are common across farms, such as improvements in agricultural technology. Instead of comparing farms with different types of soil, we are now asking whether farms whose fertilizer use increased more between 2014 and 2019 also experienced larger increases in crop yield.
 
-    The key is that soil type may affect the *level* of a farm's yield, but if soil type does not change over time, it cannot explain changes in yield between 2014 and 2019. Differencing therefore removes soil type, along with every other time-invariant farm characteristic, from the regression. Unobserved factors that do change over time are not removed. If changes in weather, pests, irrigation, or other conditions are related to changes in fertilizer use, they remain in $\varepsilon_{i2019} - \varepsilon_{i2014}$ and can still bias $\hat{\beta}_1$. We return to this issue in Section 15.5.
+    Soil type may affect the *level* of a farm's yield, but if soil type does not change over time, it cannot explain changes in yield between 2014 and 2019. Differencing across two time periods therefore removes soil type, along with every other time-invariant farm characteristic, from the regression. By contrast, unobserved factors that do change over time are not removed. If changes in weather, pests, irrigation, or other conditions are related to changes in fertilizer use, they remain in $\varepsilon_{i2019} - \varepsilon_{i2014}$ and can still bias $\hat{\beta}_1$. We return to this issue in Section 15.5.
 
     The chart below estimates this difference regression across our 150 farms.
     """)
@@ -359,7 +381,7 @@ def _(alt, fm_fert, fm_yield, mo, np, pd):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    The same farms that told us fertilizer is associated with lower corn yields in regressions using cross-sectional data now tell us a pound of nitrogen yields about a third of an additional bushel. Nothing about the data changed. We simply compared each farm *with itself*, so the differences in soil that drove the cross-sectional slope never entered the comparison.
+    The same farms that told us fertilizer is associated with lower corn yields in regressions using cross-sectional data now tell us a pound of nitrogen yields about a third of an additional bushel! Nothing about the data changed. We simply compared each farm *with itself*, so the differences in soil that drove the cross-sectional slopes never entered the comparison.
     """)
     return
 
@@ -371,7 +393,7 @@ def _(mo):
 
     ## 15.4 Fixed effect regression
 
-    The before-and-after comparison in Section 15.3 used only two years of our panel. *Fixed effects regressions* extend the same idea to all years in a dataset by allowing each entity, each farm in our case, to have its own intercept in the regression. In practice, we can do this by including a separate binary indicator for each farm. This allows us to estimate the relationship between nitrogen use and crop yield from changes within the same farm over time rather than from differences across farms.
+    The before-and-after comparison in Section 15.3 used only two years of our panel. *Fixed effects regressions* extend the same idea to all years in a dataset by allowing each entity, each farm in our case, to have its own intercept in the regression. In practice, we can do this by including a separate binary indicator for each farm. This allows us to estimate the relationship between nitrogen use and crop yield from changes in these variables within the same farm over time rather than from differences across farms.
 
     Consider again the model from Section 15.3,
 
