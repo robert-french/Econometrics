@@ -317,9 +317,11 @@ def _(mo):
 def _(mo):
     mo.callout(
         mo.md(
-            "**Terms:** multiple regression, holding fixed, omitted variable "
-            "bias, biased downward, regression table, `correlate`, `i.` prefix, "
-            "indicator variable, base category.\n\n"
+            "**Terms:** regression with several independent variables, "
+            "holding the other independent variables fixed, omitted variable "
+            "bias, downward bias, regression table, correlation between "
+            "independent variables with `correlate`, categorical variable, "
+            "the `i.` prefix for indicator variables, base category.\n\n"
             "**Habits:** compare each coefficient with its value before a "
             "variable was added; use the direction of the change to predict "
             "how the independent variables are related; confirm the "

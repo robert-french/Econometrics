@@ -374,8 +374,10 @@ def _(mo):
 def _(mo):
     mo.callout(
         mo.md(
-            "**Terms:** do-file, comment, file path, working folder, local, "
-            "`use`, `clear`, `describe`, `summarize`.\n\n"
+            "**Terms:** do-file, comment line, file path, working folder, "
+            "storing a folder path in a local, loading a dataset with `use` "
+            "and the `clear` option, the `describe` and `summarize` "
+            "commands.\n\n"
             "**Habits:** keep all Stata work in a do-file; store your data "
             "folder's path in a local at the top; run the whole do-file rather "
             "than single lines; run `describe` and `summarize` immediately "

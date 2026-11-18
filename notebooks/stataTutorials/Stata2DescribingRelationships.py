@@ -332,9 +332,12 @@ def _(mo):
     mo.callout(
         mo.md(
             "**Terms:** string variable, value label, percentile, median, "
-            "`summarize, detail`, `histogram`, `tabulate`, `tabstat`, "
-            "`twoway scatter`, `lfit`, `jitter()`, `correlate`, `egen`, "
-            "`generate`, `drop`, stored results `r()`.\n\n"
+            "detailed summary statistics with `summarize, detail`, histograms "
+            "with `histogram`, frequency tables with `tabulate`, group means "
+            "with `tabstat`, scatter plots with `twoway scatter`, fitted lines "
+            "with `lfit`, the `jitter()` option, covariance and correlation "
+            "with `correlate`, creating variables with `generate` and `egen`, "
+            "removing variables with `drop`, stored results `r()`.\n\n"
             "**Habits:** look at each variable on its own before relating two "
             "of them; use group means for variables with a few categories and "
             "scatter plots for variables with many values; report correlations "

@@ -322,9 +322,13 @@ def _(mo):
 def _(mo):
     mo.callout(
         mo.md(
-            "**Terms:** `regress`, `_cons`, `Root MSE`, `predict`, fitted value, "
-            "residual, indicator variable, `==`, `Std. err.`, `t`, `P>|t|`, "
-            "confidence interval, `vce(robust)`.\n\n"
+            "**Terms:** estimating a regression with `regress`, the intercept "
+            "`_cons`, the standard error of the regression `Root MSE`, fitted "
+            "values and residuals with `predict`, indicator variable, testing "
+            "equality with `==`, the `Std. err.`, `t`, and `P>|t|` columns of "
+            "the coefficient table, 95% confidence interval, "
+            "heteroskedasticity-robust standard errors with "
+            "`vce(robust)`.\n\n"
             "**Habits:** list the dependent variable first; read the coefficient "
             "table before the blocks above it; cross-tabulate a new indicator "
             "against the variable it came from; plot the residuals; report "
