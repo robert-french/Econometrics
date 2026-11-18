@@ -294,37 +294,44 @@ def _(mo):
 
     ## 15.3 Difference regression
 
-    To see how we can use panel data to help deal with omitted variable bias, let's split the error term into two parts,
+    Panel data can help address omitted variable bias by allowing us to control for unobserved characteristics that do not change over time. To see how, suppose we split the error term into two parts:
 
     $$
     u_{it} = Z_i + \varepsilon_{it},
     $$
 
-    where $Z_i$ represents the unobserved factors that differ across farms but do not change over time, such as soil type, slope, or drainage. $\varepsilon_{it}$ collects the unobserved factors that vary over time within a farm, such as rainfall, temperature, or pest activity in a particular season. The absence of a $t$ subscript on $Z_i$ is important; soil type, slope, or drainage changes very little over six seasons, so we can treat it as part of $Z_i$.
+    where $Z_i$ captures unobserved farm characteristics that remain constant over time, such as soil type, slope, and drainage. By contrast, $\varepsilon_{it}$ captures factors that change from season to season, such as rainfall, temperature, and pests.
 
-    We can now compare each farm in the first and last seasons of the survey by subtracting its 2014 observation from its 2019 observation. This gives the *difference regression*,
+    We can then write our regression as,
+
+    $$
+    \text{Yield}_{it} = \beta_0 + \beta_1 \, \text{Fertilizer}_{it} + Z_i + \varepsilon_{it}.
+    $$
+
+    Now consider the first and last seasons of the survey:
 
     \begin{align*}
-    \text{Yield}_{i2019} - \text{Yield}_{i2014} = & \:(\beta_0^{2019} - \beta_0^{2014}) +
-    \beta_1
-    \left(
-    \text{Fertilizer}_{i2019} - \text{Fertilizer}_{i2014}
-    \right)
-    +
-    (Z_i - Z_i)
-    +
-    \left(\varepsilon_{i2019} - \varepsilon_{i2014}\right) \\
-    = & \: \beta_0 + \beta_1
-    \left(
-    \text{Fertilizer}_{i2019} - \text{Fertilizer}_{i2014}
-    \right)
-    +
-    \varepsilon_i .
+    \text{Yield}_{i,2019} &= \beta_0 + \beta_1 \, \text{Fertilizer}_{i,2019} + Z_i + \varepsilon_{i,2019}, \\
+    \text{Yield}_{i,2014} &= \beta_0 + \beta_1 \, \text{Fertilizer}_{i,2014} + Z_i + \varepsilon_{i,2014}.
     \end{align*}
 
-    Any farm characteristic that remained unchanged between 2014 and 2019 and hence in $Z_i$ cancels out, whether or not we can observe it. The intercept $\beta_0 \equiv \beta_0^{2019} - \beta_0^{2014}$ captures changes in yields over this period that are common across farms, such as improvements in agricultural technology. Instead of comparing farms with different types of soil, we are now asking whether farms whose fertilizer use increased more between 2014 and 2019 also experienced larger increases in crop yield.
+    Subtracting the 2014 equation from the 2019 equation gives
 
-    Soil type may affect the *level* of a farm's yield, but if soil type does not change over time, it cannot explain changes in yield between 2014 and 2019. Differencing across two time periods therefore removes soil type, along with every other time-invariant farm characteristic, from the regression. By contrast, unobserved factors that do change over time are not removed. If changes in weather, pests, irrigation, or other conditions are related to changes in fertilizer use, they remain in $\varepsilon_i \equiv \varepsilon_{i2019} - \varepsilon_{i2014}$ and can still bias $\hat{\beta}_1$. We return to this issue in Section 15.5.
+    $$
+    \Delta \text{Yield}_i = \beta_1 \, \Delta \text{Fertilizer}_i + \Delta \varepsilon_i,
+    $$
+
+    where $\Delta$ denotes the change between 2014 and 2019. Notice that both $\beta_0$ and $Z_i$ cancel out. By taking differences across two years, we eliminate all farm characteristics that remain constant over time, even those we cannot observe.
+
+    When estimating this regression in practice, we also include an intercept term. This gives the *difference regression*:
+
+    $$
+    \Delta \text{Yield}_i = \delta_0 + \beta_1 \, \Delta \text{Fertilizer}_i + \Delta \varepsilon_i.
+    $$
+
+    The intercept $\delta_0$ represents the average change in yield for farms whose fertilizer use did not change between 2014 and 2019. Rather than comparing yields across farms with different soil types, the difference regression estimates whether farms that increased their fertilizer use more also experienced larger increases in yield. If soil type does not change between 2014 and 2019—and is therefore contained in $Z_i$—it can no longer bias our estimate $\hat{\beta}_1$.
+
+    However, the difference regression does not eliminate omitted variable bias from factors that change over time. If changes in weather, pests, or irrigation are correlated with changes in fertilizer use, they remain in $\Delta \varepsilon_i$ and may still bias $\hat{\beta}_1$. We return to this issue in Section 15.5.
 
     The chart below estimates this difference regression across our 150 farms.
     """)
@@ -344,9 +351,9 @@ def _(alt, fm_fert, fm_yield, mo, np, pd):
         .mark_circle(size=34, opacity=0.5, color="#1f4e79", clip=True)
         .encode(
             x=alt.X("dfert:Q", scale=_xsc,
-                    title="Change in nitrogen, 2019 minus 2014 (pounds per acre)"),
+                    title="ΔFertilizer: change in nitrogen between 2019 and 2014 (pounds per acre)"),
             y=alt.Y("dyield:Q", scale=_ysc,
-                    title="Change in yield (bushels per acre)"),
+                    title="ΔYield: change in yield between 2019 and 2014 (bushels per acre)"),
         )
     )
     _zero = (
