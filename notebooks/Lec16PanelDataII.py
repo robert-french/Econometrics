@@ -121,7 +121,7 @@ def _(mo):
 
     In Lecture 15, we used a panel of 150 corn farms observed over the 2014 to 2019 growing seasons to estimate the effect of nitrogen fertilizer on corn yields. The fixed effects regression gave each farm its own intercept, holding fixed unobserved differences in soil quality that had reversed the sign of the cross-sectional relationship. The regression estimated that an extra pound of nitrogen raises yields by $\hat{\beta}_1 = 0.30$ bushels per acre.
 
-    Suppose the survey later resumed and followed the same 150 farms for six more seasons, from 2020 through 2025. During these years, however, two things changed. Nitrogen became cheaper, so farms across the country applied more of it each season. At the same time, newly developed seed varieties spread quickly and raised yields on the farms that adopted them.
+    Suppose the survey later resumed and followed the same 150 farms for six more seasons, from 2020 through 2025. During these years, however, two things changed. Fertilizer became cheaper, so farms across the country applied more of it each season. At the same time, newly developed seed varieties spread quickly and raised yields on the farms that adopted them.
 
     Estimating the same fixed effects regression from Lecture 15 on these new seasons,
 
@@ -129,7 +129,7 @@ def _(mo):
     Y_{it} = \beta_0 + \beta_1 X_{it} + \alpha_i + \varepsilon_{it},
     $$
 
-    now gives $\hat{\beta}_1 = 0.63$, more than twice the estimate we trusted in Lecture 15. Nitrogen did not suddenly become twice as effective, though. Something must therefore be wrong with the regression. The chart below suggests to us the issue, following the same six farms as Lecture 15 across the six new seasons:
+    now gives $\hat{\beta}_1 = 0.63$, more than twice the estimate we trusted in Lecture 15. Fertilizer did not suddenly become twice as effective, though. Something must therefore be wrong with the regression. The chart below suggests to us the issue, following the same six farms as Lecture 15 across the six new seasons:
     """)
     return
 
@@ -233,9 +233,9 @@ def _(alt, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    The problem with running our fixed effects regression from Lecture 15 on these latter seasons is a new omitted variable. Improved seed varieties raised corn yields during the same seasons in which all farms were also applying more nitrogen. Seed quality therefore enters the error term and is positively correlated with nitrogen use. Unlike soil quality, however, seed quality changes from season to season and affects all farms at the same time.
+    The problem with running our fixed effects regression from Lecture 15 on these latter seasons is a new omitted variable. Improved seed varieties raised corn yields during the same seasons in which all farms were also applying more fertilizer. Seed quality therefore enters the error term and is positively correlated with fertilizer use. Unlike soil quality, however, seed quality changes from season to season and affects all farms at the same time.
 
-    A farm fixed effect cannot absorb this kind of time-varying omitted variable. The farm fixed effect $\alpha_i$ captures factors that differ across farms but remain fixed over time, not factors that change across seasons. As nitrogen use and seed quality rose together, the regression incorrectly attributed some of the gains in corn yield from improved seeds to nitrogen. This lecture shows how to handle omitted variables that change from season to season but affect all farms in a similar way.
+    A farm fixed effect cannot absorb this kind of time-varying omitted variable. The farm fixed effect $\alpha_i$ captures factors that differ across farms but remain fixed over time, not factors that change across seasons. As fertilizer use and seed quality rose together, the regression incorrectly attributed some of the gains in corn yield from improved seeds to fertilizer. This lecture shows how to handle omitted variables that change from season to season but affect all farms in a similar way.
     """)
     return
 
@@ -247,12 +247,12 @@ def _(mo):
 
     ## 16.2 Time fixed effects
 
-    Farm fixed effects, $\alpha_i$, capture only omitted factors that remain constant within a farm over time. They therefore cannot account for the improved seed varieties in our example, which change from season to season in a way that's correlated with nitrogen use. However, because improved seed varieties affect all farms in a similar way, we can account for this unobserved factor using a second type of fixed effect.
+    Farm fixed effects, $\alpha_i$, capture only omitted factors that remain constant within a farm over time. They therefore cannot account for the improved seed varieties in our example, which change from season to season in a way that's correlated with fertilizer use. However, because improved seed varieties affect all farms in a similar way, we can account for this unobserved factor using a second type of fixed effect.
 
     In Lecture 15, we separated out from the error term a farm-specific component $Z_i$ that differed across farms but remained fixed over time. Now suppose the error also contains a component $S_t$ that changes across seasons but is common to all farms,
 
     $$
-    Y_{it} = \beta_0 + \beta_1 X_{it} + S_t + Z_i + \nu_{it},
+    Y_{it} = \beta_0 + \beta_1 X_{it} + \underbrace{S_t + Z_i + \nu_{it}}_{u_{it}},
     $$
 
     where $S_t$ captures the common component of unobserved factors that affect farms in season $t$, such as the quality of available seed varieties or a widespread weather shock. The absence of an $i$ subscript on $S_t$ is important. Within a given season, the same $S_t$ applies to every farm. The remaining error $\nu_{it}$ represents unobserved factors that vary across farms *and* over seasons, such as a pest outbreak on one farm in one particular season.
@@ -269,7 +269,7 @@ def _(mo):
     Y_{it} = \beta_0 + \beta_1 X_{it} + \lambda_t + \underbrace{v_{it}}_{Z_i + \nu_{it}}.
     $$
 
-    The season indicators are called *time fixed effects*, and $\lambda_t$ is a compact way to represent them. The corresponding regression is a *time fixed effects regression*. The error term $v_{it}$ contains everything not captured by the time fixed effects, including the time-invariant farm component $Z_i$ and remaining unobserved factors $\nu_{it}$ that vary across farms and seasons. Time fixed effects allow the average level of corn yields to differ from season to season because of factors that affect all farms in a similar way, whether or not we observe those factors. In our example, they account for the season-by-season corn yield gains associated with improved seed varieties, so those gains can no longer be misattributed to nitrogen.
+    The season indicators are called *time fixed effects*, and $\lambda_t$ is a compact way to represent them. The corresponding regression is a *time fixed effects regression*. The error term $v_{it}$ contains everything not captured by the time fixed effects, including the time-invariant farm component $Z_i$ and remaining unobserved factors $\nu_{it}$ that vary across farms and seasons. Time fixed effects allow the average level of corn yields to differ from season to season because of factors that affect all farms in a similar way, whether or not we observe those factors. In our example, they account for the season-by-season corn yield gains associated with improved seed varieties, so those gains can no longer be misattributed to fertilizer.
     """)
     return
 
@@ -280,7 +280,7 @@ def _(mo):
     <a id="sec3"></a>
     ## 16.3 Two-way fixed effects
 
-    The 2020 to 2025 panel contains two distinct sources of omitted-variable bias. Soil quality differs across farms but remains fixed over time, and it is correlated with nitrogen use. Improved seed varieties, meanwhile, change from season to season and raise corn yields across farms at the same time that nitrogen use is increasing. Farm fixed effects account for the first source of bias, while time fixed effects account for the second. Including both fixed effects gives the *two-way fixed effects regression*,
+    The 2020 to 2025 panel contains two distinct sources of omitted-variable bias. Soil quality differs across farms but remains fixed over time, and it is correlated with fertilizer use. Improved seed varieties, meanwhile, change from season to season and raise corn yields across farms at the same time that fertilizer use is increasing. Farm fixed effects account for the first source of bias, while time fixed effects account for the second. Including both fixed effects gives the *two-way fixed effects regression*,
 
     $$
     Y_{it} = \beta_0 + \beta_1 X_{it} + \alpha_i + \lambda_t + \nu_{it}.
@@ -288,9 +288,9 @@ def _(mo):
 
     Here $\alpha_i$ captures factors about farm $i$ that remain constant over seasons, while $\lambda_t$ captures factors that change across seasons but affect all farms in a similar way. What remains in the error term, $\nu_{it}$, are unobserved factors that vary across farms and over seasons, such as a pest outbreak, drainage failure, or irrigation upgrade on one farm in a particular year.
 
-    For $\hat{\beta}_1$ to estimate the causal effect of nitrogen, its use must be unrelated to these remaining unobserved factors after accounting for the farm and time fixed effects. Formally, the first least squares assumption becomes $\mathbb{E}[\nu_{it} \mid X_{it}, \alpha_i, \lambda_t] = \mathbb{E}[\nu_{it} \mid \alpha_i, \lambda_t]$.
+    For $\hat{\beta}_1$ to estimate the causal effect of fertilizer, fertilizer application must be unrelated to these remaining unobserved factors after accounting for the farm and time fixed effects. Formally, the first least squares assumption becomes $\mathbb{E}[\nu_{it} \mid X_{it}, \alpha_i, \lambda_t] = \mathbb{E}[\nu_{it} \mid \alpha_i, \lambda_t]$.
 
-    The chart below compares the four regressions we have now considered using the 2020 to 2025 panel: pooled OLS, farm fixed effects, time fixed effects, and two-way fixed effects. The true effect of nitrogen used on corn yield is given by $\beta_1 = 0.30$. The left panel shows the same six farms as Lecture 15 for readability, while the regression estimates and bars use all $150 \times 6 = 900$ observations.
+    The chart below compares the four regressions we have now considered using the 2020 to 2025 panel: pooled OLS, farm fixed effects, time fixed effects, and two-way fixed effects. The true effect of fertilizer use on corn yield is given by $\beta_1 = 0.30$. The left panel shows the same six farms as Lecture 15 for readability, while the regression estimates and bars on the right use all $150 \times 6 = 900$ observations.
     """)
     return
 
@@ -497,7 +497,7 @@ def _(alt, est_b1, est_pick, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
     _bx = alt.X("est:N", title=None,
                 sort=[_short[_k] for _k in _order],
                 axis=alt.Axis(labelAngle=-30))
-    _by = alt.Y("b1:Q", scale=_bsc, title="Estimated effect of nitrogen")
+    _by = alt.Y("b1:Q", scale=_bsc, title="Estimated effect of fertilizer")
     _bars = (
         alt.Chart(_bars_df)
         .mark_bar(clip=True)
@@ -546,9 +546,9 @@ def _(alt, est_b1, est_pick, fm_fert, fm_six, fm_years, fm_yield, mo, np, pd):
         _msg = (
             f"Farm fixed effects account for soil quality and other factors that remain "
             f"constant within a farm over time. Improved seed varieties still remain "
-            f"in the error term, however. Because corn yields and nitrogen use both rise "
+            f"in the error term, however. Because corn yields and fertilizer use both rise "
             f"over time, the regression misattributes some of the yield gains from "
-            f"improved seeds to nitrogen, raising the estimate to {_b1:.2f}."
+            f"improved seeds to fertilizer, raising the estimate to {_b1:.2f}."
         )
 
     elif _pick == "Season (time) fixed effects":
@@ -877,18 +877,20 @@ def _(mo, tbl_fits, tbl_flags):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    Read the table column by column and ask what changes as we account for each source of omitted-variable bias.
+    Read the table column by column and ask yourself what changes as we account for each source of omitted-variable bias.
 
     * **Column (1)** estimates a pooled OLS regression. The coefficient estimate of $-0.04$ is statistically indistinguishable from zero. Soil quality biases the estimate downward, while improved seed varieties bias it upward. The two effects roughly offset, making fertilizer appear to have little effect on yields.
-    * **Column (2)** adds farm fixed effects. The estimate rises to $0.63$ because the regression now accounts for soil quality and other factors that remain constant within farms over time. Improved seed varieties still remain in the error term, however. Because corn yields and nitrogen use both rose over time, the regression misattributes some of the yield gains from improved seeds to fertilizer.
+    * **Column (2)** adds farm fixed effects. The estimate rises to $0.63$ because the regression now accounts for soil quality and other factors that remain constant within farms over time. Improved seed varieties still remain in the error term, however. Because corn yields and fertilizer use both rose over time, the regression misattributes some of the yield gains from improved seeds to fertilizer.
     * **Column (3)** instead adds time fixed effects, but no farm fixed effects. The estimate falls to $-0.20$. The time fixed effects account for improved seed varieties and other factors that change across seasons but affect all farms in a similar way. Soil quality remains in the error term, however, so differences across farms continue to bias the estimate downward.
     * **Column (4)** includes both farm and time fixed effects. The estimate is $0.30$, the true causal effect underlying the data. Farm fixed effects account for soil quality and other factors that remain constant within farms over time, while time fixed effects account for improved seed varieties and other factors that change across seasons but affect all farms in a similar way.
 
     Notice that the constant estimate $\hat{\beta}_0$ also changes substantially across columns. This is because its interpretation changes as fixed effects are added. Once farm or time fixed effects are included, the constant refers to the baseline corn yield for the omitted farm, omitted season, or both. Unlike the coefficient on nitrogen, the constant is therefore not directly comparable across these specifications.
 
-    The $R^2$ row should be interpreted with the same caution we discussed in Lecture 10. Adding fixed effects raises the $R^2$ from approximately 0.00 to above 0.95, but much of this additional fit comes from allowing average corn yields to differ across farms and seasons, not from nitrogen use itself. A high $R^2$ therefore tells us little about whether the estimated effect of nitrogen is causal.
+    The $R^2$ row should be interpreted with the same caution we discussed in Lecture 10. Adding fixed effects raises the $R^2$ from approximately 0.00 to above 0.95, but much of this additional fit comes from allowing average corn yields to differ across farms and seasons, not from fertilizer use itself. A high $R^2$ in a fixed effects regression therefore does not mean that fertilizer use explains most of the variation in corn yields.
 
     This progression from pooled OLS, to farm fixed effects, to time fixed effects, and finally to two-way fixed effects is common in applied panel-data work. Reading across the columns shows how the coefficient changes as different sources of omitted-variable bias are addressed.
+
+    Keep in mind that even a two-way fixed effects regression does not rule out omitted-variable bias. Farm fixed effects account for factors that remain constant within a farm over time, and time fixed effects account for factors that change across seasons in a similar way for all farms. Neither accounts for unobserved factors that change over time differently across farms. If such a factor, like an irrigation upgrade on some farms but not others, affects corn yields and is correlated with fertilizer use, it remains in $\nu_{it}$ and can still bias $\hat{\beta}_1$.
     """)
     return
 
@@ -937,7 +939,7 @@ def _(ac_demo, ac_rho, mo):
     _p1 = mo.md(r"""**Standard errors in panel data.** Estimating $\beta_1$ is only half the job. We also need a standard error that correctly measures the uncertainty in $\hat{\beta}_1$. Recall from Lecture 6 that the usual standard error formulas treat observations as independent. That assumption is often unreasonable in panel data because the same entity appears repeatedly. In this lecture's panel, for example, each farm appears in six different seasons.""")
 
     _p2 = mo.md(
-        r"""Observations on the same farm are likely to be related over time. A farm that applies a lot of nitrogen in 2020 is likely to apply a lot in 2021 because nitrogen practices persist. More importantly for standard errors, unobserved factors affecting a farm's yield can also persist. A drainage problem, pest infestation, or irrigation upgrade that affects yield in one season may continue to matter in the next. A variable with this kind of relationship over time is *autocorrelated*, also called *serially correlated*. Formally, $M_{it}$ is autocorrelated if"""
+        r"""Observations on the same farm are likely to be related over time. A farm that applies a lot of fertilizer in 2020 is likely to apply a lot in 2021 because fertilizer practices persist. More importantly for standard errors, unobserved factors affecting a farm's yield can also persist. A drainage problem, pest infestation, or irrigation upgrade that affects yield in one season may continue to matter in the next. A variable with this kind of relationship over time is *autocorrelated*, also called *serially correlated*. Formally, $M_{it}$ is autocorrelated if"""
         # Rendered as \displaystyle inline math in a styled block instead of
         # $$ display math, whose default margins leave too much vertical
         # space around the equation inside the accordion.
