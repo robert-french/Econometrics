@@ -295,18 +295,9 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    Your do-file should now look something like this, with the Tutorial 1 lines at the top and today's lines below them.
+    The lines you added in this tutorial should look something like this, below the Tutorial 1 lines already in your do-file.
 
     ```stata
-    * Stata Tutorial 1
-    * Your name, and today's date
-
-    local dataFolder "C:/Users/yourname/Documents/ECON3300/data"
-    use "`dataFolder'/econ3300_educ_income_2024.dta", clear
-
-    describe
-    summarize earnings education
-
     * Stata Tutorial 2
 
     summarize earnings, detail
@@ -331,7 +322,7 @@ def _(mo):
     drop meanEarnings meanEducation product
     ```
 
-    Save your do-file. The next tutorial picks up here and turns the fitted lines you drew today into regression output.
+    Save your do-file under a new name, `tutorial2.do`, using **File > Save As** in the Do-file Editor. Saving a new copy at the end of each tutorial keeps a record of your do-file as it stood after each one. The next tutorial picks up here and turns the fitted lines you drew today into regression output.
     """)
     return
 

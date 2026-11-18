@@ -101,7 +101,7 @@ def _(mo):
 
     In the second tutorial you drew least-squares lines through scatter plots with `lfit`. This tutorial estimates those lines with the `regress` command, which records the intercept and slope from Lecture 5 together with the standard errors, t-statistics, p-values, and confidence intervals from Lecture 7.
 
-    Open Stata, open `tutorial1.do` in the Do-file Editor, and run it from the top with the Execute (do) button so that the dataset loads. Then add a comment line at the bottom to mark the start of this tutorial's code.
+    Open Stata, open `tutorial2.do`, the do-file you saved at the end of Tutorial 2, in the Do-file Editor, and run it from the top with the Execute (do) button so that the dataset loads. Then add a comment line at the bottom to mark the start of this tutorial's code.
 
     ```stata
     * Stata Tutorial 3
@@ -289,41 +289,9 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    Your do-file should now look something like this, with the Tutorial 1 and 2 lines at the top and today's lines below them.
+    The lines you added in this tutorial should look something like this, below the Tutorial 1 and 2 lines already in your do-file.
 
     ```stata
-    * Stata Tutorial 1
-    * Your name, and today's date
-
-    local dataFolder "C:/Users/yourname/Documents/ECON3300/data"
-    use "`dataFolder'/econ3300_educ_income_2024.dta", clear
-
-    describe
-    summarize earnings education
-
-    * Stata Tutorial 2
-
-    summarize earnings, detail
-    histogram earnings, normal
-    tabulate education
-    tabulate sex
-
-    tabstat earnings, by(education) statistics(mean sd n)
-    tabstat earnings, by(sex) statistics(mean sd n)
-
-    twoway (scatter earnings age) (lfit earnings age)
-    twoway (scatter earnings education, jitter(5)) (lfit earnings education)
-
-    correlate earnings education age
-    correlate earnings education age, covariance
-
-    egen meanEarnings = mean(earnings)
-    egen meanEducation = mean(education)
-    generate product = (earnings - meanEarnings) * (education - meanEducation)
-    summarize product
-    display r(sum) / (r(N) - 1)
-    drop meanEarnings meanEducation product
-
     * Stata Tutorial 3
 
     regress earnings education
@@ -345,7 +313,7 @@ def _(mo):
     regress earnings age, vce(robust)
     ```
 
-    Save your do-file. The next tutorial adds more independent variables to these regressions and shows how to collect several regressions into a single table.
+    Save your do-file under a new name, `tutorial3.do`, using **File > Save As** in the Do-file Editor. The next tutorial adds more independent variables to these regressions.
     """)
     return
 
