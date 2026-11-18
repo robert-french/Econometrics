@@ -34,7 +34,7 @@ affects the homepage.
 
 POSTED_THROUGH = 16
 PSETS_POSTED_THROUGH = 9
-STATA_POSTED_THROUGH = 3
+STATA_POSTED_THROUGH = 4
 
 BASE_URL = "https://robert-french.github.io/Econometrics"
 
