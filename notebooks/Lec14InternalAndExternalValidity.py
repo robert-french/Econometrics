@@ -62,8 +62,8 @@ def _(mo):
                     1. [What makes a study valid](#sec1)
                     1. [Threats to internal validity](#sec2)
                     1. [External validity](#sec3)
-                15. <span class="soon">Panel Data I</span>
-                16. <span class="soon">Panel Data II</span>
+                15. <a href="https://robert-french.github.io/Econometrics/apps/Lec15PanelDataI.html" target="_self">Panel Data I</a>
+                16. <a href="https://robert-french.github.io/Econometrics/apps/Lec16PanelDataII.html" target="_self">Panel Data II</a>
                 17. <span class="soon">Binary Dependent Variable Regressions</span>
                 18. <span class="soon">Experiments</span>
                 19. <span class="soon">Quasi-Experiments</span>
@@ -81,7 +81,7 @@ def _(mo):
         [
             mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec13NonlinearRegressionInteractionTerms.html" target="_self">← Lecture 13</a>'),
             mo.md('<a href="https://robert-french.github.io/Econometrics/pdf/Lec14InternalAndExternalValidity.pdf" target="_blank">Download PDF</a>'),
-            mo.md('<span class="nav-soon">Lecture 15 (coming soon)</span>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec15PanelDataI.html" target="_self">Lecture 15 →</a>'),
         ],
         justify="space-between", align="center",
     )
@@ -904,7 +904,7 @@ def _(mo):
     mo.hstack(
         [
             mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec13NonlinearRegressionInteractionTerms.html" target="_self">← Lecture 13</a>'),
-            mo.md('<span class="nav-soon">Lecture 15 (coming soon)</span>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec15PanelDataI.html" target="_self">Lecture 15 →</a>'),
         ],
         justify="space-between", align="center",
     )

@@ -46,9 +46,9 @@ def _(mo):
                     1. [Loading the dataset in a do-file with a local](#sec6)
                     1. [describe and summarize](#sec7)
                 2. <a href="https://robert-french.github.io/Econometrics/apps/stataTutorials/Stata2DescribingRelationships.html" target="_self">Describing Data and Relationships</a>
-                3. <span class="soon">Simple Regression</span>
-                4. <span class="soon">Multiple Regression and Regression Tables</span>
-                5. <span class="soon">Nonlinear Specifications</span>
+                3. <a href="https://robert-french.github.io/Econometrics/apps/stataTutorials/Stata3SimpleRegression.html" target="_self">Simple Regression</a>
+                4. <a href="https://robert-french.github.io/Econometrics/apps/stataTutorials/Stata4MultipleRegression.html" target="_self">Multiple Regression</a>
+                5. <a href="https://robert-french.github.io/Econometrics/apps/stataTutorials/Stata5NonlinearRegression.html" target="_self">Nonlinear Regression</a>
                 6. <span class="soon">Panel Data</span>
                 """
             ),

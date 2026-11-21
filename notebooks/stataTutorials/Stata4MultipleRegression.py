@@ -45,7 +45,7 @@ def _(mo):
                     1. [Adding a second independent variable](#sec2)
                     1. [Why did the coefficients change?](#sec3)
                     1. [Education as a categorical variable](#sec4)
-                5. <span class="soon">Nonlinear Specifications</span>
+                5. <a href="https://robert-french.github.io/Econometrics/apps/stataTutorials/Stata5NonlinearRegression.html" target="_self">Nonlinear Regression</a>
                 6. <span class="soon">Panel Data</span>
                 """
             ),
@@ -60,7 +60,7 @@ def _(mo):
     mo.hstack(
         [
             mo.md('<a href="https://robert-french.github.io/Econometrics/apps/stataTutorials/Stata3SimpleRegression.html" target="_self">← Stata Tutorial 3</a>'),
-            mo.md('<span class="nav-soon">Stata Tutorial 5 (coming soon)</span>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/stataTutorials/Stata5NonlinearRegression.html" target="_self">Stata Tutorial 5 →</a>'),
         ],
         justify="space-between", align="center",
     )
@@ -339,7 +339,7 @@ def _(mo):
     mo.hstack(
         [
             mo.md('<a href="https://robert-french.github.io/Econometrics/apps/stataTutorials/Stata3SimpleRegression.html" target="_self">← Stata Tutorial 3</a>'),
-            mo.md('<span class="nav-soon">Stata Tutorial 5 (coming soon)</span>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/stataTutorials/Stata5NonlinearRegression.html" target="_self">Stata Tutorial 5 →</a>'),
         ],
         justify="space-between", align="center",
     )

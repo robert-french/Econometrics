@@ -59,7 +59,7 @@ def _(mo):
                 12. <a href="https://robert-french.github.io/Econometrics/apps/Lec12NonlinearRegressionLogarithms.html" target="_self">Nonlinear Regression: Logarithms</a>
                 13. <a href="https://robert-french.github.io/Econometrics/apps/Lec13NonlinearRegressionInteractionTerms.html" target="_self">Nonlinear Regression: Interaction Terms</a>
                 14. <a href="https://robert-french.github.io/Econometrics/apps/Lec14InternalAndExternalValidity.html" target="_self">Internal and External Validity</a>
-                15. <span class="soon">Panel Data I</span>
+                15. <a href="https://robert-french.github.io/Econometrics/apps/Lec15PanelDataI.html" target="_self">Panel Data I</a>
                 16. **[Panel Data II](#top)**
                     1. [Another puzzling regression](#sec1)
                     1. [Time fixed effects](#sec2)
@@ -80,7 +80,7 @@ def _(mo):
 def _(mo):
     mo.hstack(
         [
-            mo.md('<span class="nav-soon">← Lecture 15 (coming soon)</span>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec15PanelDataI.html" target="_self">← Lecture 15</a>'),
             mo.md('<a href="https://robert-french.github.io/Econometrics/pdf/Lec16PanelDataII.pdf" target="_blank">Download PDF</a>'),
             mo.md('<span class="nav-soon">Lecture 17 (coming soon)</span>'),
         ],
@@ -965,7 +965,7 @@ def _(ac_demo, ac_rho, mo):
 def _(mo):
     mo.hstack(
         [
-            mo.md('<span class="nav-soon">← Lecture 15 (coming soon)</span>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec15PanelDataI.html" target="_self">← Lecture 15</a>'),
             mo.md('<span class="nav-soon">Lecture 17 (coming soon)</span>'),
         ],
         justify="space-between", align="center",

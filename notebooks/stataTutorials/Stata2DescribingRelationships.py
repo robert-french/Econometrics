@@ -44,9 +44,9 @@ def _(mo):
                     1. [Comparing groups](#sec3)
                     1. [Scatter plots](#sec4)
                     1. [Covariance and correlation](#sec5)
-                3. <span class="soon">Simple Regression</span>
-                4. <span class="soon">Multiple Regression and Regression Tables</span>
-                5. <span class="soon">Nonlinear Specifications</span>
+                3. <a href="https://robert-french.github.io/Econometrics/apps/stataTutorials/Stata3SimpleRegression.html" target="_self">Simple Regression</a>
+                4. <a href="https://robert-french.github.io/Econometrics/apps/stataTutorials/Stata4MultipleRegression.html" target="_self">Multiple Regression</a>
+                5. <a href="https://robert-french.github.io/Econometrics/apps/stataTutorials/Stata5NonlinearRegression.html" target="_self">Nonlinear Regression</a>
                 6. <span class="soon">Panel Data</span>
                 """
             ),
@@ -61,7 +61,7 @@ def _(mo):
     mo.hstack(
         [
             mo.md('<a href="https://robert-french.github.io/Econometrics/apps/stataTutorials/Stata1GettingStarted.html" target="_self">← Stata Tutorial 1</a>'),
-            mo.md('<span class="nav-soon">Stata Tutorial 3 (coming soon)</span>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/stataTutorials/Stata3SimpleRegression.html" target="_self">Stata Tutorial 3 →</a>'),
         ],
         justify="space-between", align="center",
     )
@@ -362,7 +362,7 @@ def _(mo):
     mo.hstack(
         [
             mo.md('<a href="https://robert-french.github.io/Econometrics/apps/stataTutorials/Stata1GettingStarted.html" target="_self">← Stata Tutorial 1</a>'),
-            mo.md('<span class="nav-soon">Stata Tutorial 3 (coming soon)</span>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/stataTutorials/Stata3SimpleRegression.html" target="_self">Stata Tutorial 3 →</a>'),
         ],
         justify="space-between", align="center",
     )

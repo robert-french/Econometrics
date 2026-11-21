@@ -61,8 +61,8 @@ def _(mo):
                 12. <a href="https://robert-french.github.io/Econometrics/apps/Lec12NonlinearRegressionLogarithms.html" target="_self">Nonlinear Regression: Logarithms</a>
                 13. <a href="https://robert-french.github.io/Econometrics/apps/Lec13NonlinearRegressionInteractionTerms.html" target="_self">Nonlinear Regression: Interaction Terms</a>
                 14. <a href="https://robert-french.github.io/Econometrics/apps/Lec14InternalAndExternalValidity.html" target="_self">Internal and External Validity</a>
-                15. <span class="soon">Panel Data I</span>
-                16. <span class="soon">Panel Data II</span>
+                15. <a href="https://robert-french.github.io/Econometrics/apps/Lec15PanelDataI.html" target="_self">Panel Data I</a>
+                16. <a href="https://robert-french.github.io/Econometrics/apps/Lec16PanelDataII.html" target="_self">Panel Data II</a>
                 17. <span class="soon">Binary Dependent Variable Regressions</span>
                 18. <span class="soon">Experiments</span>
                 19. <span class="soon">Quasi-Experiments</span>

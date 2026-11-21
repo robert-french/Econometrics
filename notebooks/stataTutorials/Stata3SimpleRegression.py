@@ -46,8 +46,8 @@ def _(mo):
                     1. [A binary independent variable](#sec4)
                     1. [Standard errors, t-statistics, and confidence intervals](#sec5)
                     1. [Robust standard errors](#sec6)
-                4. <span class="soon">Multiple Regression and Regression Tables</span>
-                5. <span class="soon">Nonlinear Specifications</span>
+                4. <a href="https://robert-french.github.io/Econometrics/apps/stataTutorials/Stata4MultipleRegression.html" target="_self">Multiple Regression</a>
+                5. <a href="https://robert-french.github.io/Econometrics/apps/stataTutorials/Stata5NonlinearRegression.html" target="_self">Nonlinear Regression</a>
                 6. <span class="soon">Panel Data</span>
                 """
             ),
@@ -62,7 +62,7 @@ def _(mo):
     mo.hstack(
         [
             mo.md('<a href="https://robert-french.github.io/Econometrics/apps/stataTutorials/Stata2DescribingRelationships.html" target="_self">← Stata Tutorial 2</a>'),
-            mo.md('<span class="nav-soon">Stata Tutorial 4 (coming soon)</span>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/stataTutorials/Stata4MultipleRegression.html" target="_self">Stata Tutorial 4 →</a>'),
         ],
         justify="space-between", align="center",
     )
@@ -400,7 +400,7 @@ def _(mo):
     mo.hstack(
         [
             mo.md('<a href="https://robert-french.github.io/Econometrics/apps/stataTutorials/Stata2DescribingRelationships.html" target="_self">← Stata Tutorial 2</a>'),
-            mo.md('<span class="nav-soon">Stata Tutorial 4 (coming soon)</span>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/stataTutorials/Stata4MultipleRegression.html" target="_self">Stata Tutorial 4 →</a>'),
         ],
         justify="space-between", align="center",
     )

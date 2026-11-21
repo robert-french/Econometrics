@@ -34,7 +34,7 @@ affects the homepage.
 
 POSTED_THROUGH = 16
 PSETS_POSTED_THROUGH = 10
-STATA_POSTED_THROUGH = 4
+STATA_POSTED_THROUGH = 5
 
 BASE_URL = "https://robert-french.github.io/Econometrics"
 
@@ -42,8 +42,8 @@ STATA_TUTORIALS = [
     (1, "Getting Started with Stata", "Stata1GettingStarted"),
     (2, "Describing Data and Relationships", "Stata2DescribingRelationships"),
     (3, "Simple Regression", "Stata3SimpleRegression"),
-    (4, "Multiple Regression and Regression Tables", None),
-    (5, "Nonlinear Specifications", None),
+    (4, "Multiple Regression", "Stata4MultipleRegression"),
+    (5, "Nonlinear Regression", "Stata5NonlinearRegression"),
     (6, "Panel Data", None),
 ]
 

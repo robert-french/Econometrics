@@ -65,7 +65,7 @@ def _(mo):
                     1. [Difference regression](#sec3)
                     1. [Fixed effect regression](#sec4)
                     1. [What fixed effects cannot fix](#sec5)
-                16. <span class="soon">Panel Data II</span>
+                16. <a href="https://robert-french.github.io/Econometrics/apps/Lec16PanelDataII.html" target="_self">Panel Data II</a>
                 17. <span class="soon">Binary Dependent Variable Regressions</span>
                 18. <span class="soon">Experiments</span>
                 19. <span class="soon">Quasi-Experiments</span>
@@ -83,7 +83,7 @@ def _(mo):
         [
             mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec14InternalAndExternalValidity.html" target="_self">← Lecture 14</a>'),
             mo.md('<a href="https://robert-french.github.io/Econometrics/pdf/Lec15PanelDataI.pdf" target="_blank">Download PDF</a>'),
-            mo.md('<span class="nav-soon">Lecture 16 (coming soon)</span>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec16PanelDataII.html" target="_self">Lecture 16 →</a>'),
         ],
         justify="space-between", align="center",
     )
@@ -774,7 +774,7 @@ def _(mo):
     mo.hstack(
         [
             mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec14InternalAndExternalValidity.html" target="_self">← Lecture 14</a>'),
-            mo.md('<span class="nav-soon">Lecture 16 (coming soon)</span>'),
+            mo.md('<a href="https://robert-french.github.io/Econometrics/apps/Lec16PanelDataII.html" target="_self">Lecture 16 →</a>'),
         ],
         justify="space-between", align="center",
     )
