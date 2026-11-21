@@ -76,5 +76,3 @@ correlate female education
 
 regress earnings i.education age, vce(robust)
 
-
-
